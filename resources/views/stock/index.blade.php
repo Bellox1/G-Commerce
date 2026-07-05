@@ -1,0 +1,118 @@
+@extends('layouts.app')
+@section('title', 'Gestion des stocks')
+@section('page-title', 'État des Stocks')
+
+@section('content')
+<div class="page-grid page-grid-3">
+    
+    {{-- Tableau des stocks --}}
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="bi bi-boxes"></i> Quantités disponibles</h3>
+            <form method="GET" action="{{ route('stock.index') }}" id="filterForm">
+                <select name="magasin_id" class="form-control" style="width: auto; display: inline-block;" onchange="document.getElementById('filterForm').submit()">
+                    @foreach($magasins as $m)
+                        <option value="{{ $m->id }}" {{ $selectedMagasinId == $m->id ? 'selected' : '' }}>
+                            {{ $m->nom }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Référence</th>
+                        <th>Désignation</th>
+                        <th>Prix Conseillé</th>
+                        <th>Prix Marché</th>
+                        <th style="text-align: right;">En Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php $hasMagasin = $magasins->first(); @endphp
+                    @forelse($produits as $p)
+                    @php 
+                        $stockVal = $stockParProduit[$p->id] ?? 0;
+                    @endphp
+                    <tr>
+                        <td>PRD-{{ $p->id }}</td>
+                        <td style="font-weight: 600;">{{ $p->nom }}</td>
+                        <td>{{ number_format($p->prix_vente_conseille, 0, ',', ' ') }} FCFA</td>
+                        <td>{{ number_format($p->prix_marche, 0, ',', ' ') }} FCFA</td>
+                        <td style="text-align: right; font-weight: 700;">
+                            <span class="badge {{ $stockVal <= $p->seuil_alerte ? 'badge-danger' : 'badge-success' }}">
+                                {{ $stockVal }} Carton
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">Aucun produit dans le catalogue</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- Ajustement de stock si admin/super_admin/magasinier --}}
+    @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'magasinier']))
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-sliders"></i> Ajustement / Inventaire</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ route('stock.ajuster') }}">
+                    @csrf
+                    <div class="form-group">
+                        <label class="form-label">Magasin</label>
+                        <select name="magasin_id" class="form-control" required>
+                            @foreach($magasins as $m)
+                                <option value="{{ $m->id }}" {{ $selectedMagasinId == $m->id ? 'selected' : '' }}>
+                                    {{ $m->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Produit</label>
+                        <select name="produit_id" class="form-control" required>
+                            @foreach($produits as $p)
+                                <option value="{{ $p->id }}">{{ $p->nom }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Nouvelle quantité réelle</label>
+                        <input type="number" name="quantite" class="form-control" min="0" placeholder="Entrez la quantité constatée" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Motif de l'ajustement</label>
+                        <input type="text" name="note" class="form-control" placeholder="Ex: Perte, écart inventaire, abîmé...">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="bi bi-check-circle"></i> Enregistrer l'ajustement
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 8px; justify-content: center; align-items: center; text-align: center;">
+            <i class="bi bi-journal-text" style="font-size: 2rem; color: var(--primary);"></i>
+            <h4 style="font-size: .85rem; font-weight: 600;">Historique des Mouvements</h4>
+            <p style="font-size: .75rem; color: var(--text-muted);">Consultez la traçabilité complète de vos stocks</p>
+            <a href="{{ route('stock.mouvements') }}" class="btn btn-secondary btn-sm" style="margin-top: 8px;">
+                <i class="bi bi-clock-history"></i> Voir les mouvements
+            </a>
+        </div>
+    </div>
+    @endif
+</div>
+@endsection

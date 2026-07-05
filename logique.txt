@@ -1,0 +1,578 @@
+# PROMPT COMPLET — SYSTÈME DE GESTION COMMERCIALE (IMPORTATION + VENTE)
+
+---
+
+# 1. OBJECTIF GLOBAL
+
+Créer une application web de gestion commerciale destinée aux commerçants de marché en Afrique de l’Ouest.
+
+Le système doit gérer :
+
+* importation de produits (Nigeria → Bénin)
+* gestion de stock
+* ventes quotidiennes
+* dettes clients
+* multi-magasins
+* multi-utilisateurs
+* multi-sociétés (multi-tenant)
+
+Le système doit être SIMPLE pour l’utilisateur final mais STRUCTURÉ en interne.
+
+---
+
+# 2. CONTEXTE MÉTIER RÉEL
+
+Les commerçants :
+
+* achètent en Naira (NGN)
+* vendent en FCFA
+* utilisent un taux de change manuel
+* ajoutent frais (transport, douane, etc.)
+* arrondissent les prix (25 / 50 / 100 / 500 / 1000)
+* ne travaillent pas avec des marges fixes
+* adaptent les prix selon le client
+
+Le prix peut changer selon :
+
+* client
+* concurrence
+* urgence de vente
+* stock disponible
+
+---
+
+# 3. STRUCTURE MULTI-TENANT
+
+Chaque société est isolée totalement.
+
+Chaque société contient :
+
+* magasins
+* produits
+* utilisateurs
+* ventes
+* clients
+* dettes
+* arrivages
+
+Toutes les tables doivent inclure :
+
+tenant_id
+
+Objectif : permettre SaaS multi-entreprises sans refonte.
+
+---
+
+# 4. SOCIÉTÉ PILOTE
+
+Nom : SAÏMOUS
+Marque : RICCI
+
+Activité :
+
+* importation Nigeria / Chine
+* vente de produits alimentaires et ménagers
+
+Produits :
+
+* OMO
+* savon
+* lait
+* bonbons
+* chewing-gum
+* tomates importées RICCI
+
+Localisation :
+
+Cotonou – Saint Michel
+
+---
+
+# 5. RÔLES UTILISATEURS
+
+## 5.1 Super Administrateur (propriétaire société)
+
+Peut :
+
+* créer société
+* gérer magasins
+* créer utilisateurs
+* gérer produits
+* gérer arrivages
+* voir statistiques globales
+* voir dettes globales
+* attribuer rôles
+
+---
+
+## 5.2 Administrateur
+
+Peut :
+
+* gérer produits
+* gérer arrivages
+* consulter ventes
+* gérer stock
+* gérer dettes
+
+---
+
+## 5.3 Vendeur
+
+Peut :
+
+* créer ventes
+* voir stock
+* appliquer prix
+* enregistrer paiements
+* créer dette client
+
+---
+
+## 5.4 Livreur / Contrôleur
+
+Peut :
+
+* voir commandes
+* livrer produits
+* valider livraison
+* confirmer quantités
+* signaler problème
+
+---
+## 5.5 Magasinier
+
+Peut:
+
+* voir stock magasin
+* gérer stock magasin
+* gérer transferts entre magasin et boutique
+* gérer arrivages
+* gérer produits
+
+
+Je rapplle que l'Administrateur peut tout faire sauf ceer les utilisateurs 
+En plus de ça un magasiner peut etre livreur de sorte que les utilsateurs dans le cas ou 
+ils sont mener à excer des travux qui ne sont pa sls leurqu'il puisse les acomplir sans pb grace 
+àl'ajour sup de role par le super ou admin ,ca serai des rolessecondare pour eux et ils peut 
+les desactiver u les activer aussi 
+# 6. GESTION DES MAGASINS
+
+Une société peut avoir plusieurs magasins.
+
+Chaque magasin contient :
+
+* stock global
+* ventes
+* utilisateurs
+
+Le stock est géré par magasin, pas par arrivage pour l’utilisateur final.
+
+---
+
+# 7. GESTION DES ARRIVAGES (IMPORTATION)
+
+Chaque importation est un arrivage indépendant.
+
+## Données arrivage :
+
+* date
+* fournisseur
+* taux NGN → FCFA
+* transport
+* douane
+* frais divers
+* commentaire
+
+---
+
+## Produits dans un arrivage :
+
+* produit
+* quantité
+* prix unitaire en Naira
+* total NGN
+
+---
+
+## Exemple concret Nigeria
+
+Arrivage #001 :
+
+* taux : 1 NGN = 4 FCFA
+* transport : 50 000 FCFA
+* douane : 30 000 FCFA
+
+Produits :
+
+* Kampé : 50 000 NGN
+* OMO : 30 000 NGN
+* Bonbon : 20 000 NGN
+
+---
+
+## Conversion
+
+Formule :
+
+TOTAL NGN × taux = valeur FCFA
+
+Exemple :
+
+100 000 NGN × 4 = 400 000 FCFA
+
+---
+
+## Répartition des frais
+
+Tous les frais sont répartis automatiquement selon la valeur de chaque produit dans l’arrivage.
+
+Frais inclus :
+
+* transport
+* douane
+* manutention
+* commissions
+* divers
+
+Résultat :
+
+* coût achat
+* part frais produit
+* coût réel final
+
+---
+
+# 8. GESTION DU STOCK
+
+Le stock affiché est GLOBAL par magasin.
+
+Exemple :
+
+Kampé :
+
+* Arrivage 1 : 50 unités
+* Arrivage 2 : 200 unités
+
+Stock total = 250 unités
+
+IMPORTANT :
+
+* le vendeur NE choisit PAS l’arrivage
+* stock = somme des entrées - sorties
+
+---
+
+# 9. GESTION DES PRIX
+
+Aucune marge fixe imposée.
+
+Le système fait :
+
+1. calcul coût réel
+2. propose prix suggéré
+3. arrondi automatique
+
+---
+
+## Règles d’arrondi
+
+* 25 FCFA
+* 50 FCFA
+* 100 FCFA
+* 500 FCFA
+* 1000 FCFA
+
+Exemples :
+
+* 3287 → 3300
+* 5550 → 5600
+* 8970 → 9000
+* 12430 → 12500
+
+Le prix reste modifiable manuellement.
+
+---
+
+# 10. GESTION DES VENTES
+
+Lors d’une vente :
+
+* produit sélectionné
+* quantité ajoutée
+* prix modifiable
+
+Le système enregistre :
+
+* prix conseillé
+* prix vendu réel
+* vendeur
+* magasin
+* client (optionnel)
+
+---
+
+# 11. GESTION DES DETTES
+
+Si paiement partiel :
+
+Exemple :
+
+Total : 50 000
+Payé : 20 000
+Reste : 30 000
+
+Création automatique de dette :
+
+* client
+* montant restant
+* date
+* échéance
+* statut
+
+Statuts :
+
+* en cours
+* partiel
+* soldé
+* en retard
+
+---
+
+# 12. TABLEAU DE BORD
+
+Afficher :
+
+* ventes du jour
+* ventes du mois
+* produits les plus vendus
+* stock faible
+* dettes clients
+* derniers arrivages
+* chiffre encaissé
+
+---
+
+# 13. HISTORIQUE IMPORTANT
+
+Le système doit permettre :
+
+* voir dernier arrivage
+* voir contenu arrivage
+* voir ventes par période
+* voir ventes par produit
+* voir dettes client
+* traçabilité complète
+
+---
+
+# 14. LOGIQUE PRINCIPALE
+
+Le système doit être :
+
+SIMPLE pour l’utilisateur
+STRUCTURÉ pour le backend
+
+Côté utilisateur :
+
+* pas de FIFO visible
+* pas de calcul complexe
+* pas de comptabilité technique
+
+Côté système :
+
+* calculs précis
+* traçabilité complète
+* données normalisées
+
+---
+
+# 15. ARCHITECTURE TECHNIQUE
+
+* architecture MVC
+* base relationnelle
+* API-ready
+* multi-tenant natif
+* séparation stricte des données
+
+---
+
+# OBJECTIF FINAL
+
+Créer un système professionnel mais simple pour :
+
+* importation Nigeria → Bénin
+* gestion de stock global
+* ventes flexibles
+* dettes clients
+* multi-magasins
+* multi-sociétés
+
+tout en restant évolutif vers un SaaS complet.
+
+6.1 GESTION DES TRANSFERTS ENTRE MAGASINS (IMPORTANT)
+
+Les produits peuvent être déplacés d’un magasin à un autre.
+
+Exemple :
+
+Magasin A envoie 30 Kampé vers Magasin B
+Règle métier
+
+Le système ne doit jamais simplement modifier le stock.
+
+Chaque transfert doit être enregistré comme un mouvement.
+
+Type de transfert
+
+Un transfert est composé de :
+
+sortie du magasin source
+entrée dans le magasin destination
+Exemple
+
+Transfert #001 :
+
+produit : Kampé
+quantité : 30
+de : Magasin A
+vers : Magasin B
+date : 02/07/2026
+Résultat automatique
+
+Magasin A :
+
+-30 Kampé
+
+Magasin B :
+
++30 Kampé
+Règle importante
+
+Le vendeur ne doit PAS voir la complexité du transfert.
+
+Il voit uniquement :
+
+stock mis à jour
+historique simple si nécessaire
+8.1 LOGIQUE AVANCÉE DE STOCK (TRÈS IMPORTANT)
+
+Le stock ne doit pas être une simple valeur.
+
+Il doit être calculé à partir des mouvements.
+
+Types de mouvements de stock :
+entrée (arrivage)
+sortie (vente)
+transfert sortie
+transfert entrée
+ajustement manuel
+Règle fondamentale
+
+Stock = somme des entrées - somme des sorties
+
+Exemple réel
+
+Kampé :
+
+arrivage : +300
+ventes : -50
+transfert vers autre magasin : -30
+
+Stock final = 220
+
+Important
+
+Le système doit conserver un historique complet des mouvements.
+
+9.1 LOGIQUE RÉELLE DES PRIX (MARCHÉ BÉNINOIS)
+
+Les commerçants ne suivent pas un prix fixe basé sur le coût.
+
+Ils utilisent :
+
+prix du marché
+concurrence
+rapidité d’écoulement
+intuition commerciale
+Cas réel
+
+Un produit peut coûter :
+
+4 900 FCFA aujourd’hui
+5 000 FCFA demain
+4 800 FCFA en période de promotion
+Règle métier
+
+Le système propose un prix mais le commerçant peut toujours le modifier.
+
+Prix de référence
+
+Chaque produit doit avoir :
+
+prix conseillé système
+prix marché manuel (modifiable)
+10.1 VENTE FLEXIBLE (TRÈS IMPORTANT)
+
+Lors d’une vente :
+
+le prix n’est jamais bloqué
+le vendeur peut ajuster le prix selon le client
+Exemple réel
+
+Produit Kampé :
+
+prix conseillé : 5 000 FCFA
+
+Vente réelle :
+
+client A : 5 000 FCFA
+client B : 4 800 FCFA
+client C : 5 200 FCFA
+Règle système
+
+Le système doit enregistrer :
+
+prix conseillé
+prix réellement vendu
+11.1 DETTES CLIENTS AVANCÉES
+
+Une dette peut évoluer dans le temps.
+
+Cas réel
+
+Client paie en plusieurs fois :
+
+50 000 total
+20 000 payé
+reste 30 000
+Fonctionnalités obligatoires
+ajout de paiements partiels
+mise à jour automatique du reste
+échéance configurable
+alertes retard
+16. IMPORTANT : COHÉRENCE TERRAIN (TRÈS CRITIQUE)
+
+Le système doit respecter une règle fondamentale :
+
+Le commerçant pense en simplicité, pas en comptabilité.
+
+Donc ne pas afficher :
+FIFO
+coût moyen pondéré
+calculs complexes
+structures techniques
+Mais en backend :
+tout doit être traçable
+tout doit être calculé correctement
+tout doit être auditables
+17. EXTENSION FUTURE (SAAS)
+
+Le système doit pouvoir évoluer vers :
+
+plusieurs sociétés indépendantes
+plusieurs pays
+plusieurs devises
+plusieurs chaînes de magasins
+
+sans modification majeure du code.
