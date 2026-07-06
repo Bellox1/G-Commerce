@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Gestion des Arrivages (🇳🇬 Nigeria -> 🇧🇯 Bénin)')
+@section('title', 'Gestion des Arrivages (🇧🇯->🇳🇬, 🇨🇳->🇧🇯)')
 @section('page-title', 'Liste des Arrivages')
 
 @section('content')
@@ -25,6 +25,7 @@
                     <th style="text-align: right;">Valeur Origine</th>
                     <th style="text-align: right;">Total Frais (FCFA)</th>
                     <th style="text-align: right;">Coût Total Réel (FCFA)</th>
+                    <th style="text-align: right;">Bénéfice (FCFA)</th>
                     <th style="text-align: center;">Statut</th>
                     <th style="text-align: center;">Actions</th>
                 </tr>
@@ -47,6 +48,9 @@
                     </td>
                     <td style="text-align: right; font-weight: 700; color: var(--success);">
                         {{ number_format($arr->total_cout_reel, 0, ',', ' ') }}
+                    </td>
+                    <td style="text-align: right; font-weight: 700; color: {{ $arr->beneficePrevisionnel() >= 0 ? 'var(--success)' : 'var(--danger)' }};">
+                        {{ number_format($arr->beneficePrevisionnel(), 0, ',', ' ') }}
                     </td>
                     <td style="text-align: center;">
                         @if($arr->statut === 'receptionne')
@@ -74,7 +78,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 32px;">Aucun arrivage enregistré.</td>
+                    <td colspan="11" style="text-align: center; color: var(--text-muted); padding: 32px;">Aucun arrivage enregistré.</td>
                 </tr>
                 @endforelse
             </tbody>

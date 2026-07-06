@@ -51,7 +51,7 @@
                 </div>
                 <div class="card-body" style="padding: 0;">
                     @if($transfert->produits && $transfert->produits->count())
-                    <div style="padding: 8px 16px;">
+                    <div class="table-wrap" style="padding: 8px 16px; border: none; margin-bottom: 0;">
                         <table style="width:100%; border-collapse:collapse; font-size:.85rem;">
                             <thead>
                                 <tr>

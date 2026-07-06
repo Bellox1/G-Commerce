@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OdjaMi — Mot de passe oublié</title>
+    <title>G-STOCK — Mot de passe oublié</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -27,6 +27,25 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .login-card { animation: fadeSlideUp 0.7s ease-out 0.15s both; }
+        .back-link  { animation: fadeIn 0.6s ease-out 0.5s both; }
+        @media (max-width: 480px) {
+            body { padding: 12px; align-items: flex-start; padding-top: 80px; }
+            .login-card { padding: 24px 20px; }
+            .login-title { font-size: 1.2rem; }
+            .btn-submit { font-size: 0.9rem; padding: 12px; }
+            .back-link a { font-size: 0.82rem; }
         }
         .login-container {
             width: 100%;
@@ -140,10 +159,9 @@
 </head>
 <body>
 
-    <!-- Logo Top Left -->
-    <a href="{{ url('/') }}" style="position: absolute; top: 30px; left: 40px; text-decoration: none; display: flex; align-items: center; gap: 14px; z-index: 10;">
-        <img src="{{ asset('logo.svg') }}" alt="OdjaMi Logo" style="height: 50px; width: auto; object-fit: contain;">
-        <span class="brand-name" style="font-size: 1.8rem; color: var(--primary);">OdjaMi</span>
+    <a href="{{ url('/') }}" style="position: absolute; top: 30px; left: 40px; text-decoration: none; display: flex; align-items: flex-start; gap: 0; z-index: 10;">
+        <img src="{{ asset('logo.svg') }}" alt="G-STOCK Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+        <span class="brand-name" style="font-size: 1.8rem; color: var(--primary); margin-left: -2px;">G-STOCK</span>
     </a>
 
     <div class="login-container">
@@ -163,7 +181,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">Adresse e-mail</label>
-                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="votre@odjami.com" required autofocus>
+                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="votre@G-STOCK.com" required autofocus>
                 </div>
 
                 <button type="submit" class="btn-submit">

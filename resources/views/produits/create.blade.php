@@ -12,7 +12,7 @@
     </div>
     
     <div class="card-body">
-        <form method="POST" action="{{ route('produits.store') }}" id="produitForm">
+        <form method="POST" action="{{ route('produits.store') }}" id="produitForm" enctype="multipart/form-data">
             @csrf
             
             <div class="form-row form-row-2">
@@ -23,7 +23,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Prix de Vente (FCFA)</label>
-                    <input type="number" name="prix_vente_conseille" class="form-control" placeholder="0" min="0">
+                    <input type="number" name="prix_vente_conseille" class="form-control" placeholder="0" min="0" step="1" oninput="this.value = parseInt(this.value) || ''">
                 </div>
             </div>
 
@@ -76,9 +76,16 @@
                 </div>
             </div>
 
-            <div class="form-group" style="margin-top: 16px;">
-                <label class="form-label">Description / Remarques</label>
-                <textarea name="description" class="form-control" rows="2" placeholder="Notes (optionnel)..."></textarea>
+            <div class="form-row form-row-2" style="margin-top: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Image du produit <small style="color:var(--text-muted);">— optionnel</small></label>
+                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                    <small style="color:var(--text-muted); font-size:.75rem;">Formats : JPEG, PNG, GIF, WebP — max 2 Mo</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description / Remarques</label>
+                    <textarea name="description" class="form-control" rows="2" placeholder="Notes (optionnel)..."></textarea>
+                </div>
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">

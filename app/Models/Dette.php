@@ -45,6 +45,16 @@ class Dette extends Model
 
         $this->save();
 
+        // Sync the related sale's payment info
+        if ($this->vente) {
+            $this->vente->montant_paye += $montant;
+            $this->vente->montant_reste = $this->vente->montant_total - $this->vente->montant_paye;
+            $this->vente->statut_paiement = $this->vente->montant_reste <= 0
+                ? 'paye'
+                : ($this->vente->montant_paye > 0 ? 'partiel' : 'impaye');
+            $this->vente->save();
+        }
+
         return $paiement;
     }
 

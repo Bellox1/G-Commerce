@@ -16,7 +16,8 @@
     .invoice-card { background: white; padding: 40px; box-shadow: var(--shadow-md); }
     @media (max-width: 768px) {
         .invoice-card { padding: 16px; }
-        .invoice-header { flex-direction: column; text-align: center; }
+        .invoice-header { flex-direction: column; text-align: center; gap: 12px; }
+        .invoice-header > div { text-align: center !important; }
     }
 </style>
 @endpush
@@ -27,7 +28,7 @@
     {{-- Boutons d'actions --}}
     <div class="no-print" style="display: flex; justify-content: space-between; align-items: center;">
         <a href="{{ route('ventes.index') }}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Retour aux ventes
+            <i class="bi bi-arrow-left"></i> Retour
         </a>
         <div style="display: flex; gap: 8px;">
             <a href="{{ route('ventes.edit', $vente) }}" class="btn btn-secondary">
@@ -66,11 +67,11 @@
         </div>
 
         {{-- Tableau des Lignes --}}
-        <div style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 24px;">
-            <table style="width: 100%; font-size: .85rem;">
+        <div class="table-wrap" style="border: 1px solid var(--border); border-radius: 6px; margin-bottom: 24px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: .85rem;">
                 <thead>
                     <tr style="background: #f8fafc;">
-                        <th style="padding: 10px 14px; text-align: left;">Article</th>
+                        <th class="wrap-text" style="padding: 10px 14px; text-align: left;">Article</th>
                         <th style="padding: 10px 14px; text-align: right;">Prix</th>
                         <th style="padding: 10px 14px; text-align: right;">Qté</th>
                         <th style="padding: 10px 14px; text-align: right;">Total</th>
@@ -79,7 +80,7 @@
                 <tbody>
                     @foreach($vente->lignes as $ligne)
                     <tr>
-                        <td style="padding: 10px 14px; font-weight: 600;">{{ $ligne->produit?->nom }}</td>
+                        <td class="wrap-text" style="padding: 10px 14px; font-weight: 600;">{{ $ligne->produit?->nom }}</td>
                         <td style="padding: 10px 14px; text-align: right;">{{ number_format($ligne->prix_vente, 0, ',', ' ') }}</td>
                         <td style="padding: 10px 14px; text-align: right;">{{ $ligne->quantite }}</td>
                         <td style="padding: 10px 14px; text-align: right; font-weight: 600;">{{ number_format($ligne->total_ligne, 0, ',', ' ') }}</td>
@@ -104,6 +105,12 @@
                 <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); color: var(--danger); font-weight: 600;">
                     <span>Reste</span>
                     <span>{{ number_format($vente->montant_reste, 0, ',', ' ') }}</span>
+                </div>
+                @endif
+                @if($vente->du && $vente->du > 0)
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); color: #92400e; font-weight: 600; background: #fef3c7; border-radius: 4px; padding: 8px 12px;">
+                    <span>Du client</span>
+                    <span>{{ number_format($vente->du, 0, ',', ' ') }}</span>
                 </div>
                 @endif
                 <div style="display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; background: var(--sidebar-bg); color: white; padding: 8px 12px; border-radius: 4px; margin-top: 4px;">

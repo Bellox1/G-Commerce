@@ -40,6 +40,9 @@
         .vente-card-header { padding: 10px 12px; }
         .vente-card-header h5 { font-size: .85rem; }
         .client-paiement-grid { grid-template-columns: 1fr !important; }
+        .remis-row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; margin-bottom: 8px; }
+        .du-display { padding: 8px 12px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; font-size: .9rem; font-weight: 700; color: #92400e; min-height: 38px; display: flex; align-items: center; }
+        .du-display.zero { background: transparent; border-color: transparent; color: var(--text-muted); font-weight: 400; }
         .ligne-row { flex-wrap: wrap; gap: 6px !important; }
         .ligne-row > div { flex: 1 1 calc(50% - 6px) !important; min-width: 0 !important; }
         .ligne-row > div:first-child { flex: 1 1 100% !important; }
@@ -73,7 +76,7 @@
             </div>
             <div class="vente-card-body">
                 {{-- Client & Paiement --}}
-                <div class="client-paiement-grid" style="display: grid; gap: 12px; grid-template-columns: 1fr 1fr auto; align-items: end; margin-bottom: 16px;">
+                <div class="client-paiement-grid" style="display: grid; gap: 12px; grid-template-columns: 1fr 1fr; align-items: end; margin-bottom: 8px;">
                     <div>
                         <label class="form-label-sm">Client</label>
                         <div class="autocomplete-wrap">
@@ -83,21 +86,51 @@
                         </div>
                         
                     </div>
-                    <div>
+                    <div class="paye-col" id="payeCol-0" style="display:none;">
                         <label class="form-label-sm">Montant payé (FCFA)</label>
                         <input type="number" name="ventes[0][montant_paye]" class="form-control paye-input" value="0" min="0" readonly required>
                         <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
                     </div>
+                </div>
+                <div class="remis-row" id="remisRow-0">
                     <div>
-                        <div class="checkbox-credit">
-                            <input type="checkbox" name="ventes[0][a_credit]" value="1" class="credit-checkbox" id="credit-0">
-                            <label for="credit-0">À crédit</label>
-                        </div>
+                        <label class="form-label-sm">Montant remis (FCFA)</label>
+                        <input type="number" name="ventes[0][montant_remis]" class="form-control remis-input" value="0" min="0">
+                    </div>
+                    <div>
+                        <label class="form-label-sm">Du client (FCFA)</label>
+                        <div class="du-display zero" id="du-0">0 FCFA</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <div class="checkbox-credit" style="margin-top: 6px;">
+                        <input type="checkbox" name="ventes[0][a_credit]" value="1" class="credit-checkbox" id="credit-0">
+                        <label for="credit-0">À crédit</label>
                     </div>
                 </div>
                 <div class="alert-credit" id="creditAlert-0">
                     <i class="bi bi-info-circle"></i>
                     <span>Cette vente sera enregistrée comme une dette.</span>
+                </div>
+
+                <div class="echeance-row" id="echeanceRow-0" style="display:none; margin-bottom:12px;">
+                    <div class="form-group">
+                        <label class="form-label-sm">Date de règlement souhaitée</label>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <select name="ventes[0][echeance_option]" class="form-control echeance-select" style="flex:1; min-width:140px;" data-vente="0">
+                                <option value="">-- Optionnelle --</option>
+                                <option value="today">Aujourd'hui</option>
+                                <option value="tomorrow">Demain</option>
+                                <option value="after_tomorrow">Après-demain</option>
+                                <option value="6_days">Dans 6 jours (1 semaine)</option>
+                                <option value="2_weeks">Dans 2 semaines</option>
+                                <option value="1_month">Dans 1 mois</option>
+                                <option value="custom">Personnalisé...</option>
+                            </select>
+                            <input type="date" name="ventes[0][date_echeance_custom]" class="form-control echeance-custom" style="display:none; min-width:140px;">
+                            <input type="hidden" name="ventes[0][date_echeance]" class="echeance-value">
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Articles --}}
@@ -297,6 +330,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (cartoucheCol) cartoucheCol.style.display = 'none';
                         if (qteCartoucheInput) qteCartoucheInput.value = 0;
                         if (prixCartoucheInput) prixCartoucheInput.value = 0;
+                        const qteInput = row.querySelector('.qte-input');
+                        if (qteInput && (parseInt(qteInput.value) || 0) === 0) qteInput.value = 1;
                     }
 
                     dropdown.classList.remove('show');
@@ -437,6 +472,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // ── Échéance ──
+    function initEcheance(card) {
+        const idx = card.dataset.index;
+        const select = card.querySelector('.echeance-select');
+        const customInput = card.querySelector('.echeance-custom');
+        const hidden = card.querySelector('.echeance-value');
+        if (!select) return;
+
+        function computeDate(option, customVal) {
+            const map = {
+                'today': 0, 'tomorrow': 1, 'after_tomorrow': 2,
+                '6_days': 6, '2_weeks': 14, '1_month': 30
+            };
+            if (option === 'custom') return customVal || '';
+            if (map[option] !== undefined) {
+                const d = new Date();
+                d.setDate(d.getDate() + map[option]);
+                return d.toISOString().split('T')[0];
+            }
+            return '';
+        }
+
+        select.addEventListener('change', function() {
+            const isCustom = this.value === 'custom';
+            customInput.style.display = isCustom ? 'block' : 'none';
+            if (!isCustom) {
+                hidden.value = computeDate(this.value, '');
+            } else {
+                hidden.value = customInput.value || '';
+            }
+        });
+
+        customInput.addEventListener('change', function() {
+            hidden.value = this.value;
+        });
+    }
+
     function recalcRow(row) {
         const qte = parseFloat(row.querySelector('.qte-input').value) || 0;
         const prix = parseFloat(row.querySelector('.prix-input').value) || 0;
@@ -458,6 +530,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const idx = card.dataset.index;
         const badge = document.getElementById('totaux-' + idx);
         if (badge) badge.textContent = total.toLocaleString('fr-FR') + ' FCFA';
+        calcDu(card, total);
+    }
+
+    function calcDu(card, total) {
+        const remisInput = card.querySelector('.remis-input');
+        if (!remisInput) return;
+        const idx = card.dataset.index;
+        const duDisplay = document.getElementById('du-' + idx);
+        if (!duDisplay) return;
+        const remis = parseFloat(remisInput.value) || 0;
+        if (remis > total) {
+            const du = remis - total;
+            duDisplay.textContent = du.toLocaleString('fr-FR') + ' FCFA';
+            duDisplay.classList.remove('zero');
+        } else {
+            duDisplay.textContent = '0 FCFA';
+            duDisplay.classList.add('zero');
+        }
+    }
+
+    function toggleRemisVisibility(card) {
+        const idx = card.dataset.index;
+        const remisRow = document.getElementById('remisRow-' + idx);
+        const payeCol = document.getElementById('payeCol-' + idx);
+        if (!remisRow || !payeCol) return;
+        const creditChecked = card.querySelector('.credit-checkbox').checked;
+        remisRow.style.display = creditChecked ? 'none' : 'grid';
+        payeCol.style.display = creditChecked ? 'block' : 'none';
     }
 
     function addLigne(venteCard) {
@@ -534,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
             <div class="vente-card-body">
-                <div class="client-paiement-grid" style="display:grid;gap:12px;grid-template-columns:1fr 1fr auto;align-items:end;margin-bottom:16px;">
+                <div class="client-paiement-grid" style="display:grid;gap:12px;grid-template-columns:1fr 1fr;align-items:end;margin-bottom:8px;">
                     <div>
                         <label class="form-label-sm">Client</label>
                         <div class="autocomplete-wrap">
@@ -543,21 +643,50 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="autocomplete-dropdown"></div>
                         </div>
                     </div>
-                    <div>
+                    <div class="paye-col" id="payeCol-${idx}" style="display:none;">
                         <label class="form-label-sm">Montant payé (FCFA)</label>
                         <input type="number" name="ventes[${idx}][montant_paye]" class="form-control paye-input" value="0" min="0" readonly required>
                         <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
                     </div>
+                </div>
+                <div class="remis-row" id="remisRow-${idx}">
                     <div>
-                        <div class="checkbox-credit">
-                            <input type="checkbox" name="ventes[${idx}][a_credit]" value="1" class="credit-checkbox" id="credit-${idx}">
-                            <label for="credit-${idx}">À crédit</label>
-                        </div>
+                        <label class="form-label-sm">Montant remis (FCFA)</label>
+                        <input type="number" name="ventes[${idx}][montant_remis]" class="form-control remis-input" value="0" min="0">
+                    </div>
+                    <div>
+                        <label class="form-label-sm">Du client (FCFA)</label>
+                        <div class="du-display zero" id="du-${idx}">0 FCFA</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <div class="checkbox-credit" style="margin-top:6px;">
+                        <input type="checkbox" name="ventes[${idx}][a_credit]" value="1" class="credit-checkbox" id="credit-${idx}">
+                        <label for="credit-${idx}">À crédit</label>
                     </div>
                 </div>
                 <div class="alert-credit" id="creditAlert-${idx}">
                     <i class="bi bi-info-circle"></i>
                     <span>Cette vente sera enregistrée comme une dette.</span>
+                </div>
+                <div class="echeance-row" id="echeanceRow-${idx}" style="display:none; margin-bottom:12px;">
+                    <div class="form-group">
+                        <label class="form-label-sm">Date de règlement souhaitée</label>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <select name="ventes[${idx}][echeance_option]" class="form-control echeance-select" style="flex:1; min-width:140px;" data-vente="${idx}">
+                                <option value="">-- Optionnelle --</option>
+                                <option value="today">Aujourd'hui</option>
+                                <option value="tomorrow">Demain</option>
+                                <option value="after_tomorrow">Après-demain</option>
+                                <option value="6_days">Dans 6 jours (1 semaine)</option>
+                                <option value="2_weeks">Dans 2 semaines</option>
+                                <option value="1_month">Dans 1 mois</option>
+                                <option value="custom">Personnalisé...</option>
+                            </select>
+                            <input type="date" name="ventes[${idx}][date_echeance_custom]" class="form-control echeance-custom" style="display:none; min-width:140px;">
+                            <input type="hidden" name="ventes[${idx}][date_echeance]" class="echeance-value">
+                        </div>
+                    </div>
                 </div>
                 <label class="form-label-sm" style="margin-bottom:8px;">Articles <span style="color:#dc2626;">*</span></label>
                 <div class="lignes-container" data-vente="${idx}">
@@ -620,12 +749,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         card.querySelector('.paye-input').addEventListener('input', function() { validatePaye(card); });
         card.querySelector('.credit-checkbox').addEventListener('change', function() {
-            const alert = document.getElementById('creditAlert-' + card.dataset.index);
+            const idx = card.dataset.index;
+            const alert = document.getElementById('creditAlert-' + idx);
             alert.classList.toggle('show', this.checked);
+            const echeanceRow = document.getElementById('echeanceRow-' + idx);
+            echeanceRow.style.display = this.checked ? 'block' : 'none';
             const paye = card.querySelector('.paye-input');
             paye.readOnly = !this.checked;
             if (!this.checked) paye.value = 0;
+            toggleRemisVisibility(card);
         });
+
+        // Échéance
+        initEcheance(card);
         card.querySelector('.btn-remove-vente').addEventListener('click', function() {
             if (container.querySelectorAll('.vente-card').length > 1) card.remove();
             else alert('Au moins un client.');
@@ -635,6 +771,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('save_one').value = card.dataset.index;
             document.getElementById('venteForm').submit();
         });
+        // Init remis visibility (credit default = unchecked, so remis visible by default)
         venteCount++;
     });
 
@@ -683,6 +820,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('paye-input')) {
             validatePaye(e.target.closest('.vente-card'));
         }
+        if (e.target.classList.contains('remis-input')) {
+            const card = e.target.closest('.vente-card');
+            let total = 0;
+            card.querySelectorAll('.ligne-row').forEach(row => {
+                const qte = parseFloat(row.querySelector('.qte-input').value) || 0;
+                const prix = parseFloat(row.querySelector('.prix-input').value) || 0;
+                const qteCartouche = parseFloat(row.querySelector('.qte-cartouche-input')?.value) || 0;
+                const prixCartouche = parseFloat(row.querySelector('.prix-cartouche-input')?.value) || 0;
+                total += (qte * prix) + (qteCartouche * prixCartouche);
+            });
+            calcDu(card, total);
+        }
     });
 
     // ── Init first card ──
@@ -701,15 +850,22 @@ document.addEventListener('DOMContentLoaded', function() {
     firstCard.querySelector('.credit-checkbox').addEventListener('change', function() {
         const alert = document.getElementById('creditAlert-0');
         alert.classList.toggle('show', this.checked);
+        const echeanceRow = document.getElementById('echeanceRow-0');
+        echeanceRow.style.display = this.checked ? 'block' : 'none';
         const paye = firstCard.querySelector('.paye-input');
         paye.readOnly = !this.checked;
         if (!this.checked) paye.value = 0;
+        toggleRemisVisibility(firstCard);
     });
+    initEcheance(firstCard);
     firstCard.querySelector('.save-card-btn').addEventListener('click', function() {
         if (hasOverstock()) { alert('Certains articles dépassent le stock disponible.'); return; }
         document.getElementById('save_one').value = firstCard.dataset.index;
         document.getElementById('venteForm').submit();
     });
+
+    // Init remis visibility for first card
+    toggleRemisVisibility(firstCard);
 
     // ── Submit validation ──
     document.getElementById('venteForm').addEventListener('submit', function(e) {
@@ -740,7 +896,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const prixCartouche = parseFloat(r.querySelector('.prix-cartouche-input')?.value) || 0;
                 total += (qte * prix) + (qteCartouche * prixCartouche);
             });
+            const clientId = card.querySelector('.client-id').value;
             const paye = parseFloat(card.querySelector('.paye-input').value) || 0;
+            if (!clientId && paye > 0) {
+                valid = false;
+                card.querySelector('.paye-input').classList.add('paye-over');
+            }
             if (paye > total) {
                 valid = false;
                 card.querySelector('.paye-input').classList.add('qte-overstock');
@@ -748,7 +909,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         if (!valid) {
             e.preventDefault();
-            alert('Le montant payé ne peut pas dépasser le total de la commande.');
+            alert('Le montant payé ne peut pas dépasser le total ou un client doit être sélectionné si un paiement est saisi.');
             return;
         }
     });
@@ -787,7 +948,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <!-- Carton -->
                     <div style="flex: 0.8; min-width: 100px; display: flex; gap: 4px;">
                         <div style="flex: 1;">
-                            <input type="number" name="ventes[${cardIndex}][lignes][${li}][quantite]" class="form-control qte-input" value="${l.quantite || 0}" placeholder="Cartons" min="0">
+                            <input type="number" name="ventes[${cardIndex}][lignes][${li}][quantite]" class="form-control qte-input" value="${l.quantite || (hasCartouche ? 0 : 1)}" placeholder="Cartons" min="0">
                         </div>
                         <div style="flex: 1.5;">
                             <input type="number" name="ventes[${cardIndex}][lignes][${li}][prix_vente]" class="form-control prix-input" value="${l.prix_vente || (prod ? prod.prix : 0)}" placeholder="Prix" min="0">
@@ -827,7 +988,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="vente-card-body">
-                    <div class="client-paiement-grid" style="display:grid;gap:12px;grid-template-columns:1fr 1fr auto;align-items:end;margin-bottom:16px;">
+                    <div class="client-paiement-grid" style="display:grid;gap:12px;grid-template-columns:1fr 1fr;align-items:end;margin-bottom:8px;">
                         <div>
                             <label class="form-label-sm">Client</label>
                             <div class="autocomplete-wrap">
@@ -836,16 +997,26 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="autocomplete-dropdown"></div>
                             </div>
                         </div>
-                        <div>
+                        <div class="paye-col" id="payeCol-${cardIndex}" style="display:${vData.a_credit ? 'block' : 'none'};">
                             <label class="form-label-sm">Montant payé (FCFA)</label>
                             <input type="number" name="ventes[${cardIndex}][montant_paye]" class="form-control paye-input" value="${vData.montant_paye || 0}" min="0" ${vData.a_credit ? '' : 'readonly'} required>
                             <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
                         </div>
+                    </div>
+                    <div class="remis-row ${vData.a_credit ? '' : ''}" id="remisRow-${cardIndex}">
                         <div>
-                            <div class="checkbox-credit">
-                                <input type="checkbox" name="ventes[${cardIndex}][a_credit]" value="1" class="credit-checkbox" id="credit-${cardIndex}" ${vData.a_credit ? 'checked' : ''}>
-                                <label for="credit-${cardIndex}">À crédit</label>
-                            </div>
+                            <label class="form-label-sm">Montant remis (FCFA)</label>
+                            <input type="number" name="ventes[${cardIndex}][montant_remis]" class="form-control remis-input" value="${vData.montant_remis || 0}" min="0">
+                        </div>
+                        <div>
+                            <label class="form-label-sm">Du client (FCFA)</label>
+                            <div class="du-display ${(vData.du && vData.du > 0) ? '' : 'zero'}" id="du-${cardIndex}">${vData.du ? Number(vData.du).toLocaleString() : 0} FCFA</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <div class="checkbox-credit" style="margin-top:6px;">
+                            <input type="checkbox" name="ventes[${cardIndex}][a_credit]" value="1" class="credit-checkbox" id="credit-${cardIndex}" ${vData.a_credit ? 'checked' : ''}>
+                            <label for="credit-${cardIndex}">À crédit</label>
                         </div>
                     </div>
                     <div class="alert-credit" id="creditAlert-${cardIndex}">
@@ -891,6 +1062,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const paye = card.querySelector('.paye-input');
                 paye.readOnly = !this.checked;
                 if (!this.checked) paye.value = 0;
+                toggleRemisVisibility(card);
             });
             card.querySelector('.btn-remove-vente').addEventListener('click', function() {
                 if (container.querySelectorAll('.vente-card').length > 1) card.remove();

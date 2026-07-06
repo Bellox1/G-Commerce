@@ -1,37 +1,120 @@
 <svg width="431" height="775" viewBox="0 0 431 775" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M183.035 43.4937C184.296 39.1306 186.563 35.8398 189.572 33.7744L220.554 15.8866C217.546 17.952 215.279 21.2428 214.018 25.6059L183.035 43.4937Z" stroke="#9E4EC4"/>
-<path d="M187.827 17.905L156.845 35.7928C152.677 38.5084 150.124 43.9315 150.124 51.5184C150.124 67.3243 161.206 86.5357 174.877 94.4284C184.806 100.161 225.279 123.528 233.81 128.454C240.919 132.558 247.328 132.793 251.842 129.851L282.825 111.963" stroke="#9E4EC4"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M156.845 35.7928C161.359 32.8509 167.768 33.0865 174.877 37.1907C177.736 38.8412 180.48 40.9881 183.035 43.4937L214.018 25.6059C211.463 23.1003 208.718 20.9534 205.86 19.3029C198.751 15.1987 192.342 14.9631 187.827 17.905L156.845 35.7928Z" stroke="#9E4EC4"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M189.572 33.7744C194.92 30.1027 202.612 30.3041 211.161 35.2396C224.216 42.7773 235.272 59.0492 239.036 74.874C250.197 84.0916 258.563 100.393 258.563 114.126C258.563 121.712 256.01 127.135 251.842 129.851L282.825 111.963C286.992 109.248 289.546 103.825 289.546 96.2379C289.546 82.5051 281.18 66.2038 270.019 56.9862C266.255 41.1614 255.199 24.8895 242.143 17.3518C233.595 12.4163 225.903 12.2149 220.554 15.8866L189.572 33.7744Z" fill="#020609" stroke="#9E4EC4"/>
-<path d="M174.877 37.1907C177.736 38.8412 180.481 40.9881 183.035 43.4937C186.538 31.374 197.804 27.5278 211.161 35.2396C224.216 42.7771 235.273 59.0492 239.036 74.8741C250.197 84.0915 258.563 100.393 258.563 114.126C258.563 129.931 247.481 136.346 233.81 128.454C225.279 123.528 184.807 100.161 174.877 94.4284C161.207 86.5357 150.124 67.3243 150.124 51.5183C150.124 35.7124 161.207 29.298 174.877 37.1907Z" fill="#020609" stroke="#9E4EC4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M33.9108 622.494C35.1719 618.131 37.439 614.84 40.4475 612.774L71.4301 594.887C68.4215 596.952 66.1544 600.243 64.8934 604.606L33.9108 622.494Z" stroke="#11AAAA"/>
-<path d="M38.7031 596.905L7.72052 614.793C3.55317 617.508 0.999817 622.931 0.999817 630.518C0.999817 646.324 12.0821 665.536 25.7527 673.428C35.6822 679.161 76.1549 702.528 84.6862 707.454C91.7947 711.558 98.2035 711.793 102.718 708.851L133.701 690.963" stroke="#11AAAA"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M7.72052 614.793C12.2351 611.851 18.644 612.086 25.7527 616.191C28.6115 617.841 31.3562 619.988 33.9109 622.494L64.8935 604.606C62.3388 602.1 59.5941 599.953 56.7352 598.303C49.6265 594.199 43.2177 593.963 38.7031 596.905L7.72052 614.793Z" stroke="#11AAAA"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M40.4475 612.774C45.796 609.103 53.4879 609.304 62.0365 614.239C75.0921 621.777 86.1479 638.049 89.9117 653.874C101.073 663.092 109.439 679.393 109.439 693.126C109.439 700.712 106.885 706.135 102.718 708.851L133.701 690.963C137.868 688.248 140.421 682.824 140.421 675.238C140.421 661.505 132.055 645.204 120.894 635.986C117.13 620.161 106.075 603.889 93.019 596.352C84.4705 591.416 76.7786 591.215 71.4301 594.887L40.4475 612.774Z" fill="#020609" stroke="#11AAAA"/>
-<path d="M25.7529 616.191C28.6117 617.841 31.3564 619.988 33.9111 622.494C37.414 610.374 48.6795 606.528 62.0367 614.239C75.0921 621.777 86.1483 638.049 89.9122 653.874C101.073 663.091 109.439 679.393 109.439 693.125C109.439 708.931 98.3567 715.346 84.6862 707.453C76.1548 702.528 35.6824 679.161 25.7529 673.428C12.0823 665.536 1 646.324 1 630.518C1 614.712 12.0823 608.298 25.7529 616.191Z" fill="#020609" stroke="#11AAAA" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<rect width="375.668" height="375.668" transform="matrix(0.866025 0.5 -0.866025 0.5 375.34 22.9108)" fill="url(#paint0_linear_921_6071)" stroke="#3D4143"/>
-<rect width="375.668" height="375.668" transform="matrix(0.866025 0.5 0 1 50 210.745)" fill="url(#paint1_linear_921_6071)" stroke="#3D4143"/>
-<rect width="375.668" height="375.668" transform="matrix(0.866025 -0.5 0 1 375.34 398.579)" stroke="#3D4143"/>
-<rect width="300.357" height="300.357" transform="matrix(0.866025 0.5 -0.866025 0.5 375.34 98.2216)" stroke="#6C7679"/>
-<rect width="300.357" height="300.357" transform="matrix(0.866025 0.5 0 1 115.221 248.4)" stroke="#6C7679"/>
-<rect width="300.357" height="300.357" transform="matrix(0.866025 -0.5 0 1 375.34 398.579)" stroke="#6C7679"/>
-<rect width="227.214" height="227.214" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 171.365)" stroke="#9FAAAD"/>
-<rect width="227.214" height="227.214" transform="matrix(0.866025 0.5 0 1 178.566 284.972)" stroke="#9FAAAD"/>
-<rect width="227.214" height="227.214" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" stroke="#9FAAAD"/>
-<rect width="159.01" height="159.01" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 239.569)" stroke="#C8CED0"/>
-<rect width="159.01" height="159.01" transform="matrix(0.866025 0.5 0 1 237.632 319.074)" stroke="#C8CED0"/>
-<rect width="159.01" height="159.01" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" stroke="#C8CED0"/>
-<rect width="94.294" height="94.294" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 304.285)" fill="#167e65" stroke="#E3E8EA"/>
-<rect width="94.294" height="94.294" transform="matrix(0.866025 0.5 0 1 293.678 351.432)" fill="#0a3d2d" stroke="#E3E8EA"/>
-<rect width="94.294" height="94.294" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" fill="#105e49" stroke="#E3E8EA"/>
-<defs>
-<linearGradient id="paint0_linear_921_6071" x1="-0.215805" y1="0.0726477" x2="375.488" y2="375.777" gradientUnits="userSpaceOnUse">
-<stop stop-color="#020406"/>
-<stop offset="0.99696" stop-color="#040A0F"/>
-</linearGradient>
-<linearGradient id="paint1_linear_921_6071" x1="187.834" y1="0" x2="187.834" y2="375.668" gradientUnits="userSpaceOnUse">
-<stop stop-color="#04090E"/>
-<stop offset="1" stop-color="#040A0F"/>
-</linearGradient>
-</defs>
+  <!-- Large Concentric Isometric Cubes (in background) -->
+  <rect width="375.668" height="375.668" transform="matrix(0.866025 0.5 -0.866025 0.5 375.34 22.9108)" fill="url(#paint0_linear_921_6071)" stroke="#105e49" stroke-width="2"/>
+  <rect width="375.668" height="375.668" transform="matrix(0.866025 0.5 0 1 50 210.745)" fill="url(#paint1_linear_921_6071)" stroke="#105e49" stroke-width="2"/>
+  <rect width="375.668" height="375.668" transform="matrix(0.866025 -0.5 0 1 375.34 398.579)" stroke="#105e49" stroke-width="2"/>
+  
+  <rect width="300.357" height="300.357" transform="matrix(0.866025 0.5 -0.866025 0.5 375.34 98.2216)" stroke="#167e65" stroke-width="1.5"/>
+  <rect width="300.357" height="300.357" transform="matrix(0.866025 0.5 0 1 115.221 248.4)" stroke="#167e65" stroke-width="1.5"/>
+  <rect width="300.357" height="300.357" transform="matrix(0.866025 -0.5 0 1 375.34 398.579)" stroke="#167e65" stroke-width="1.5"/>
+  
+  <rect width="227.214" height="227.214" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 171.365)" stroke="#1a9e7a" stroke-width="1.5"/>
+  <rect width="227.214" height="227.214" transform="matrix(0.866025 0.5 0 1 178.566 284.972)" stroke="#1a9e7a" stroke-width="1.5"/>
+  <rect width="227.214" height="227.214" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" stroke="#1a9e7a" stroke-width="1.5"/>
+  
+  <rect width="159.01" height="159.01" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 239.569)" stroke="#2ec4a0"/>
+  <rect width="159.01" height="159.01" transform="matrix(0.866025 0.5 0 1 237.632 319.074)" stroke="#2ec4a0"/>
+  <rect width="159.01" height="159.01" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" stroke="#2ec4a0"/>
+  
+  <!-- Central solid cube -->
+  <rect width="94.294" height="94.294" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 304.285)" fill="#167e65" stroke="#ea8d22" stroke-width="1.5"/>
+  <rect width="94.294" height="94.294" transform="matrix(0.866025 0.5 0 1 293.678 351.432)" fill="#0a3d2d" stroke="#ea8d22" stroke-width="1.5"/>
+  <rect width="94.294" height="94.294" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" fill="#105e49" stroke="#ea8d22" stroke-width="1.5"/>
+
+  <!-- MAGASIN (Shop storefront) at the top -->
+  <g transform="translate(111, 10) scale(1.6)">
+    <!-- Roof / Awning (Orange/Gold stripes) -->
+    <path d="M 20 20 L 120 20 L 135 40 L 5 40 Z" fill="#ea8d22" />
+    <path d="M 23 20 L 39 20 L 32 40 L 16 40 Z" fill="#ffffff" opacity="0.35"/>
+    <path d="M 60 20 L 76 20 L 71 40 L 55 40 Z" fill="#ffffff" opacity="0.35"/>
+    <path d="M 97 20 L 113 20 L 110 40 L 94 40 Z" fill="#ffffff" opacity="0.35"/>
+    <path d="M 20 20 L 120 20 L 135 40 L 5 40 Z" fill="none" stroke="#d97706" stroke-width="2"/>
+    
+    <!-- Store Building interior -->
+    <rect x="15" y="40" width="110" height="60" rx="3" fill="#031611" stroke="#167e65" stroke-width="2.5"/>
+    
+    <!-- Store window showing items/stock -->
+    <rect x="25" y="50" width="40" height="35" rx="2" fill="none" stroke="#1a9e7a" stroke-width="1.5"/>
+    <line x1="27" y1="67" x2="63" y2="67" stroke="#1a9e7a" stroke-width="1"/>
+    <rect x="30" y="54" width="8" height="11" rx="1" fill="#ea8d22" opacity="0.95"/>
+    <rect x="45" y="56" width="12" height="9" rx="1" fill="#f59e0b" opacity="0.95"/>
+    
+    <!-- Door -->
+    <rect x="75" y="50" width="35" height="48" rx="2" fill="none" stroke="#1a9e7a" stroke-width="1.5"/>
+    <rect x="80" y="58" width="10" height="40" rx="1" fill="#167e65"/>
+    <circle cx="83" cy="78" r="1.5" fill="#ea8d22"/>
+  </g>
+
+  <!-- STOCK (Isometric packages stack) at the bottom-left -->
+  <g transform="translate(10, 560) scale(1.6)">
+    <!-- Top Box (Box C) -->
+    <!-- Top Face -->
+    <path d="M 55 20 L 75 30 L 55 40 L 35 30 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1.5"/>
+    <!-- Tape Seam -->
+    <line x1="35" y1="30" x2="75" y2="30" stroke="#d97706" stroke-width="2" opacity="0.8"/>
+    <!-- Left Face -->
+    <path d="M 35 30 L 55 40 L 55 60 L 35 50 Z" fill="#105e49" stroke="#0a3d2d" stroke-width="1.5"/>
+    <!-- Right Face -->
+    <path d="M 55 40 L 75 30 L 75 50 L 55 60 Z" fill="#167e65" stroke="#105e49" stroke-width="1.5"/>
+
+    <!-- Bottom-Left Box (Box A) -->
+    <!-- Top Face -->
+    <path d="M 35 48 L 55 58 L 35 68 L 15 58 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1.5"/>
+    <!-- Tape Seam -->
+    <line x1="15" y1="58" x2="55" y2="58" stroke="#d97706" stroke-width="2" opacity="0.8"/>
+    <!-- Left Face -->
+    <path d="M 15 58 L 35 68 L 35 88 L 15 78 Z" fill="#105e49" stroke="#0a3d2d" stroke-width="1.5"/>
+    <!-- Right Face -->
+    <path d="M 35 68 L 55 58 L 55 78 L 35 88 Z" fill="#167e65" stroke="#105e49" stroke-width="1.5"/>
+
+    <!-- Bottom-Right Box (Box B) -->
+    <!-- Top Face -->
+    <path d="M 55 58 L 75 48 L 95 58 L 75 68 Z" fill="#fcd34d" stroke="#f59e0b" stroke-width="1.5"/>
+    <!-- Tape Seam -->
+    <line x1="55" y1="58" x2="95" y2="58" stroke="#d97706" stroke-width="2" opacity="0.8"/>
+    <!-- Right Face -->
+    <path d="M 75 68 L 95 58 L 95 78 L 75 88 Z" fill="#167e65" stroke="#105e49" stroke-width="1.5"/>
+  </g>
+
+  <!-- CHIFFRE D'AFFAIRES (Isometric growth chart / turnover) at the bottom-right -->
+  <g transform="translate(250, 565) scale(1.6)">
+    <!-- Bar 1 (Short) -->
+    <!-- Top Face -->
+    <path d="M 28 55 L 38 60 L 28 65 L 18 60 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1"/>
+    <!-- Left Face -->
+    <path d="M 18 60 L 28 65 L 28 80 L 18 75 Z" fill="#ea8d22" stroke="#d97706" stroke-width="1"/>
+    <!-- Right Face -->
+    <path d="M 28 65 L 38 60 L 38 75 L 28 80 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+
+    <!-- Bar 2 (Medium) -->
+    <!-- Top Face -->
+    <path d="M 48 40 L 58 45 L 48 50 L 38 45 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1"/>
+    <!-- Left Face -->
+    <path d="M 38 45 L 48 50 L 48 80 L 38 75 Z" fill="#ea8d22" stroke="#d97706" stroke-width="1"/>
+    <!-- Right Face -->
+    <path d="M 48 50 L 58 45 L 58 75 L 48 80 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+
+    <!-- Bar 3 (Tall) -->
+    <!-- Top Face -->
+    <path d="M 68 25 L 78 30 L 68 35 L 58 30 Z" fill="#fcd34d" stroke="#f59e0b" stroke-width="1"/>
+    <!-- Left Face -->
+    <path d="M 58 30 L 68 35 L 68 80 L 58 75 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1"/>
+    <!-- Right Face -->
+    <path d="M 68 35 L 78 30 L 78 75 L 68 80 Z" fill="#ea8d22" stroke="#d97706" stroke-width="1"/>
+
+    <!-- Growth Arrow -->
+    <path d="M 15 65 Q 40 45 74 19" fill="none" stroke="#167e65" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <polygon points="69,18 76,17 74,24" fill="#167e65"/>
+  </g>
+
+  <defs>
+    <linearGradient id="paint0_linear_921_6071" x1="-0.215805" y1="0.0726477" x2="375.488" y2="375.777" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#020d0a"/>
+      <stop offset="0.99696" stop-color="#052c22"/>
+    </linearGradient>
+    <linearGradient id="paint1_linear_921_6071" x1="187.834" y1="0" x2="187.834" y2="375.668" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#052c22"/>
+      <stop offset="1" stop-color="#105e49"/>
+    </linearGradient>
+  </defs>
 </svg>

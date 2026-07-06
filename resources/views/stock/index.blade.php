@@ -6,11 +6,11 @@
 <div class="page-grid page-grid-3">
     
     {{-- Tableau des stocks --}}
-    <div class="card">
-        <div class="card-header">
+    <div class="card stock-table">
+        <div class="card-header stock-header">
             <h3><i class="bi bi-boxes"></i> Quantités disponibles</h3>
             <form method="GET" action="{{ route('stock.index') }}" id="filterForm">
-                <select name="magasin_id" class="form-control" style="width: auto; display: inline-block;" onchange="document.getElementById('filterForm').submit()">
+                <select name="magasin_id" class="form-control" onchange="document.getElementById('filterForm').submit()">
                     @foreach($magasins as $m)
                         <option value="{{ $m->id }}" {{ $selectedMagasinId == $m->id ? 'selected' : '' }}>
                             {{ $m->nom }}
@@ -25,22 +25,21 @@
                     <tr>
                         <th>Référence</th>
                         <th>Désignation</th>
-                        <th>Prix Conseillé</th>
-                        <th>Prix Marché</th>
+                        <th class="th-prix">Prix Conseillé</th>
+                        <th class="th-prix">Prix Marché</th>
                         <th style="text-align: right;">En Stock</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php $hasMagasin = $magasins->first(); @endphp
                     @forelse($produits as $p)
                     @php 
                         $stockVal = $stockParProduit[$p->id] ?? 0;
                     @endphp
                     <tr>
-                        <td>PRD-{{ $p->id }}</td>
+                        <td class="td-ref">PRD-{{ $p->id }}</td>
                         <td style="font-weight: 600;">{{ $p->nom }}</td>
-                        <td>{{ number_format($p->prix_vente_conseille, 0, ',', ' ') }} FCFA</td>
-                        <td>{{ number_format($p->prix_marche, 0, ',', ' ') }} FCFA</td>
+                        <td class="prix-cell">{{ number_format($p->prix_vente_conseille, 0, ',', ' ') }} FCFA</td>
+                        <td class="prix-cell">{{ number_format($p->prix_marche, 0, ',', ' ') }} FCFA</td>
                         <td style="text-align: right; font-weight: 700;">
                             <span class="badge {{ $stockVal <= $p->seuil_alerte ? 'badge-danger' : 'badge-success' }}">
                                 {{ $stockVal }} Carton
@@ -59,7 +58,7 @@
 
     {{-- Ajustement de stock si admin/super_admin/magasinier --}}
     @if(in_array(auth()->user()->role, ['super_admin', 'admin', 'magasinier']))
-    <div style="display: flex; flex-direction: column; gap: 20px;">
+    <div class="stock-sidebar">
         <div class="card">
             <div class="card-header">
                 <h3><i class="bi bi-sliders"></i> Ajustement / Inventaire</h3>
@@ -97,17 +96,17 @@
                         <input type="text" name="note" class="form-control" placeholder="Ex: Perte, écart inventaire, abîmé...">
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <button type="submit" class="btn btn-primary btn-full">
                         <i class="bi bi-check-circle"></i> Enregistrer l'ajustement
                     </button>
                 </form>
             </div>
         </div>
 
-        <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 8px; justify-content: center; align-items: center; text-align: center;">
+        <div class="card stock-mouvements-card">
             <i class="bi bi-journal-text" style="font-size: 2rem; color: var(--primary);"></i>
-            <h4 style="font-size: .85rem; font-weight: 600;">Historique des Mouvements</h4>
-            <p style="font-size: .75rem; color: var(--text-muted);">Consultez la traçabilité complète de vos stocks</p>
+            <h4>Historique des Mouvements</h4>
+            <p>Consultez la traçabilité complète de vos stocks</p>
             <a href="{{ route('stock.mouvements') }}" class="btn btn-secondary btn-sm" style="margin-top: 8px;">
                 <i class="bi bi-clock-history"></i> Voir les mouvements
             </a>

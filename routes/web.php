@@ -14,6 +14,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\MagasinController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\AnalytiqueController;
 use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProfileController;
@@ -45,6 +46,7 @@ Route::post('/contact', [WelcomeController::class, 'submitContact'])->name('cont
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/depense', [DashboardController::class, 'storeDepense'])->name('dashboard.depense.store');
 
     // Sociétés / Tenants (Super Admin uniquement via middleware)
     Route::middleware('super_admin')->group(function () {
@@ -95,6 +97,10 @@ Route::middleware('auth')->group(function () {
         // Dettes
         Route::resource('dettes', DetteController::class);
         Route::post('dettes/{dette}/payer', [DetteController::class, 'enregistrerPaiement'])->name('dettes.payer');
+        Route::put('dettes/{dette}/echeance', [DetteController::class, 'updateEcheance'])->name('dettes.echeance');
+
+        // Analytique / Analyse avancée
+        Route::get('analytique', [AnalytiqueController::class, 'index'])->name('analytique');
 
         // Employés
         Route::resource('employes', EmployeController::class)->except(['show']);

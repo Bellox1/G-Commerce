@@ -20,6 +20,8 @@
     .input-error-msg { display: none; font-size: .7rem; color: #dc2626; margin-top: 2px; }
     .input-error-msg.show { display: flex; align-items: center; gap: 4px; }
     .paye-over { border-color: #dc2626 !important; background: #fef2f2; }
+    .du-display { padding: 8px 12px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; font-size: .9rem; font-weight: 700; color: #92400e; min-height: 38px; display: flex; align-items: center; }
+    .du-display.zero { background: transparent; border-color: transparent; color: var(--text-muted); font-weight: 400; }
 
     @media (max-width: 640px) {
         .edit-grid { grid-template-columns: 1fr !important; }
@@ -67,6 +69,19 @@
                     <label class="form-label">Montant payé (FCFA) *</label>
                     <input type="number" name="montant_paye" id="montant_paye" class="form-control" value="{{ (int) $vente->montant_paye }}" min="0" required>
                     <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
+                </div>
+            </div>
+
+            <div class="edit-grid" style="display: grid; gap: 16px; grid-template-columns: 1fr 1fr; margin-top: 12px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Montant remis (FCFA)</label>
+                    <input type="number" name="montant_remis" class="form-control" value="{{ (int) ($vente->montant_remis ?? 0) }}" min="0">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Du client (FCFA)</label>
+                    <div class="du-display {{ $vente->du && $vente->du > 0 ? '' : 'zero' }}" id="duAffichage">
+                        {{ (int) ($vente->du ?? 0) }} FCFA
+                    </div>
                 </div>
             </div>
 
@@ -159,6 +174,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const paye = parseFloat(document.getElementById('montant_paye').value) || 0;
         const reste = Math.max(0, total - paye);
         document.getElementById('resteAffichage').textContent = reste.toLocaleString('fr-FR') + ' FCFA';
+        // Du client
+        const duDisplay = document.getElementById('duAffichage');
+        if (duDisplay) {
+            const remisInput = document.querySelector('[name="montant_remis"]');
+            const remis = parseFloat(remisInput?.value) || 0;
+            if (remis > total) {
+                const du = remis - total;
+                duDisplay.textContent = du.toLocaleString('fr-FR') + ' FCFA';
+                duDisplay.classList.remove('zero');
+            } else {
+                duDisplay.textContent = '0 FCFA';
+                duDisplay.classList.add('zero');
+            }
+        }
         return { total, paye, reste };
     }
 
@@ -325,7 +354,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    document.querySelector('[name="montant_remis"]')?.addEventListener('input', recalcReste);
+
     recalcReste();
+
+    // ── Submit validation ──
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        const clientId = document.querySelector('select[name="client_id"]').value;
+        const paye = parseFloat(document.getElementById('montant_paye').value) || 0;
+        if (!clientId && paye > 0) {
+            e.preventDefault();
+            alert('Un client doit être sélectionné si un montant payé est saisi, ou laissez le client anonyme pour un paiement intégral automatique.');
+            return;
+        }
+    });
 });
 </script>
 @endpush

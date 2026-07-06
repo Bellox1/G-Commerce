@@ -24,7 +24,24 @@ class LivraisonController extends Controller
 
         $ventes = $query->latest('date_vente')->paginate(15);
 
-        return view('livraisons.index', compact('ventes'));
+        // Stats pour le chiffre d'affaire
+        $baseQuery = Vente::where('tenant_id', $tenant->id);
+        if ($request->filled('statut')) {
+            $baseQuery->where('statut_livraison', $request->statut);
+        }
+
+        $totalMontant = (clone $baseQuery)->sum('montant_total');
+        $totalPaye    = (clone $baseQuery)->sum('montant_paye');
+        $nbLivraisons = (clone $baseQuery)->count();
+
+        $totalParStatut = (clone $baseQuery)
+            ->selectRaw("statut_livraison, SUM(montant_total) as total, COUNT(*) as nb")
+            ->groupBy('statut_livraison')
+            ->pluck('total', 'statut_livraison');
+
+        return view('livraisons.index', compact(
+            'ventes', 'totalMontant', 'totalPaye', 'nbLivraisons', 'totalParStatut'
+        ));
     }
 
     public function show(Vente $vente)

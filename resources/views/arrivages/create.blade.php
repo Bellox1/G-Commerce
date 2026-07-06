@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Nouvel Arrivage (🇳🇬 Nigeria -> 🇧🇯 Bénin)')
+@section('title', 'Nouvel Arrivage (🇧🇯->🇳🇬, 🇨🇳->🇧🇯)')
 @section('page-title', 'Enregistrer un Arrivage')
 
 @push('styles')

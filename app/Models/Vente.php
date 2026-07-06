@@ -12,6 +12,7 @@ class Vente extends Model
     protected $fillable = [
         'tenant_id','magasin_id','user_id','client_id','reference',
         'date_vente','montant_total','montant_paye','montant_reste',
+        'montant_remis','du',
         'statut_paiement','statut_livraison','livreur_id','date_livraison','note_livraison','mode_paiement','notes',
     ];
 

@@ -92,6 +92,7 @@ class VenteController extends Controller
             'ventes'                      => 'required|array|min:1',
             'ventes.*.client_id'          => 'nullable|exists:clients,id',
             'ventes.*.montant_paye'       => 'required|numeric|min:0',
+            'ventes.*.montant_remis'      => 'nullable|numeric|min:0',
             'ventes.*.lignes'             => 'required|array|min:1',
             'ventes.*.lignes.*.produit_id'=> 'required|exists:produits,id',
             'ventes.*.lignes.*.quantite'  => 'nullable|integer|min:0',
@@ -166,19 +167,52 @@ class VenteController extends Controller
                 }
             }
 
-            if ($montantPaye > $totalLignes) {
+            // Not "À crédit" = automatically fully paid
+            if (!($vData['a_credit'] ?? false)) {
+                $montantPaye = $totalLignes;
+                $montantRemis = $vData['montant_remis'] ?? null;
+                $montantRemis = $montantRemis !== null && $montantRemis !== '' ? (float) $montantRemis : null;
+                $du = $montantRemis && $montantRemis > $totalLignes ? $montantRemis - $totalLignes : null;
+                if (!$du) $montantRemis = null;
+            } elseif ($montantPaye > $totalLignes) {
                 return redirect()->back()
                     ->withInput()
                     ->with('error', 'Le montant payé ne peut pas dépasser le total de la commande.');
             }
 
+            // Vérifier la limite de crédit du client
+            if (($vData['a_credit'] ?? false) && !empty($vData['client_id'])) {
+                $client = Client::find($vData['client_id']);
+                if ($client && $client->limite_credit > 0) {
+                    $dettesEnCours = $client->totalDettesEnCours();
+                    $montantRestant = $totalLignes - $montantPaye;
+                    if ($dettesEnCours + $montantRestant > $client->limite_credit) {
+                        $disponible = max(0, $client->limite_credit - $dettesEnCours);
+                        return redirect()->back()
+                            ->withInput()
+                            ->with('error', "Ce client a atteint sa limite de crédit. Dettes actuelles : "
+                                . number_format($dettesEnCours, 0, ',', ' ')
+                                . " FCFA sur "
+                                . number_format($client->limite_credit, 0, ',', ' ')
+                                . " FCFA. Crédit disponible : "
+                                . number_format($disponible, 0, ',', ' ') . " FCFA.");
+                    }
+                }
+            }
+
+            $dateEcheance = $vData['date_echeance'] ?? null;
+            if (empty($dateEcheance)) $dateEcheance = null;
+
             $data = [
-                'tenant_id'    => $user->tenant_id,
-                'magasin_id'   => $magasinId,
-                'user_id'      => $user->id,
-                'client_id'    => $vData['client_id'] ?? null,
-                'montant_paye' => $montantPaye,
-                'date_vente'   => now(),
+                'tenant_id'      => $user->tenant_id,
+                'magasin_id'     => $magasinId,
+                'user_id'        => $user->id,
+                'client_id'      => $vData['client_id'] ?? null,
+                'montant_paye'   => $montantPaye,
+                'montant_remis'  => $montantRemis ?? null,
+                'du'             => $du ?? null,
+                'date_echeance'  => $dateEcheance,
+                'date_vente'     => now(),
             ];
 
             $saved[] = $this->venteService->creer($data, $lignesPourService);
@@ -248,8 +282,9 @@ class VenteController extends Controller
         $this->authorizeTenant($vente);
 
         $request->validate([
-            'client_id'    => 'nullable|exists:clients,id',
-            'montant_paye' => 'required|numeric|min:0',
+            'client_id'      => 'nullable|exists:clients,id',
+            'montant_paye'   => 'required|numeric|min:0',
+            'montant_remis'  => 'nullable|numeric|min:0',
             'new_lignes'            => 'nullable|array',
             'new_lignes.*.produit_id' => 'required_with:new_lignes|exists:produits,id',
             'new_lignes.*.quantite'   => 'required_with:new_lignes|integer|min:1',
@@ -326,15 +361,29 @@ class VenteController extends Controller
 
         $nouveauTotal = $montantTotal + $totalAjoute;
         $montantPaye = (float) $request->montant_paye;
-        if ($montantPaye > $nouveauTotal) $montantPaye = $nouveauTotal;
-        $montantReste = max(0, $nouveauTotal - $montantPaye);
-        $statut = $montantReste <= 0 ? 'paye' : ($montantPaye > 0 ? 'partiel' : 'impaye');
+        // Anonymous client = automatically fully paid
+        if (!$request->client_id) {
+            $montantPaye = $nouveauTotal;
+            $montantReste = 0;
+            $statut = 'paye';
+        } else {
+            if ($montantPaye > $nouveauTotal) $montantPaye = $nouveauTotal;
+            $montantReste = max(0, $nouveauTotal - $montantPaye);
+            $statut = $montantReste <= 0 ? 'paye' : ($montantPaye > 0 ? 'partiel' : 'impaye');
+        }
+
+        $montantRemis = $request->montant_remis ?? null;
+        $montantRemis = $montantRemis !== null && $montantRemis !== '' ? (float) $montantRemis : null;
+        $du = $montantRemis && $montantRemis > $nouveauTotal ? $montantRemis - $nouveauTotal : null;
+        if (!$du) $montantRemis = null;
 
         $vente->update([
             'client_id'      => $request->client_id,
             'montant_total'  => $nouveauTotal,
             'montant_paye'   => $montantPaye,
             'montant_reste'  => $montantReste,
+            'montant_remis'  => $montantRemis,
+            'du'             => $du,
             'statut_paiement'=> $statut,
         ]);
 

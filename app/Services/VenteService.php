@@ -57,6 +57,9 @@ class VenteService
             $montantPaye  = (float) ($data['montant_paye'] ?? $total);
             $montantReste = max(0, $total - $montantPaye);
 
+            $dateEcheance = $data['date_echeance'] ?? null;
+            unset($data['date_echeance']);
+
             $data['reference']       = $this->genererReference();
             $data['montant_total']   = $total;
             $data['montant_paye']    = $montantPaye;
@@ -97,6 +100,7 @@ class VenteService
                     'montant_initial' => $montantReste,
                     'montant_paye'    => 0,
                     'montant_restant' => $montantReste,
+                    'date_echeance'   => $dateEcheance,
                     'statut'          => $montantPaye > 0 ? 'partiel' : 'en_cours',
                     'notes'           => $data['client_id'] ? null : 'Client anonyme',
                 ]);

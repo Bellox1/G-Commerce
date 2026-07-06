@@ -18,7 +18,7 @@
                 </div>
             </div>
             
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <a href="{{ route('arrivages.index') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Liste des arrivages
                 </a>
@@ -48,9 +48,18 @@
                     <h3><i class="bi bi-info-circle"></i> Informations Générales</h3>
                 </div>
                 <div class="card-body" style="padding: 0;">
+                    @php
+                        $fournisseurs = $arrivage->produits->pluck('fournisseur.nom')->filter()->unique()->values();
+                    @endphp
                     <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
-                        <span style="font-weight: 500; font-size: .85rem;">Fournisseur :</span>
-                        <span style="font-weight: 600; font-size: .85rem;">{{ $arrivage->fournisseur?->nom ?? '—' }}</span>
+                        <span style="font-weight: 500; font-size: .85rem;">Fournisseur(s) :</span>
+                        <span style="font-weight: 600; font-size: .85rem; text-align: right;">
+                            @if($fournisseurs->isNotEmpty())
+                                {{ $fournisseurs->implode(', ') }}
+                            @else
+                                {{ $arrivage->fournisseur?->nom ?? '—' }}
+                            @endif
+                        </span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
                         <span style="font-weight: 500; font-size: .85rem;">Magasin de stockage :</span>
@@ -72,7 +81,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Produit</th>
+                                <th class="wrap-text">Produit</th>
                                 <th>Fournisseur</th>
                                 <th style="text-align: right;">Quantité</th>
                                 <th style="text-align: right;">Prix Achat (₦)</th>
@@ -85,7 +94,7 @@
                         <tbody>
                             @foreach($arrivage->produits as $ligne)
                             <tr>
-                                <td style="font-weight: 600;">{{ $ligne->produit?->nom }}</td>
+                                <td class="wrap-text" style="font-weight: 600;">{{ $ligne->produit?->nom }}</td>
                                 <td style="font-size: .8rem;">{{ $ligne->fournisseur?->nom ?? '—' }}</td>
                                 <td style="text-align: right;">{{ $ligne->quantite }} Carton</td>
                                 <td style="text-align: right;">{{ number_format($ligne->prix_unitaire_origine, 0, ',', ' ') }} ₦</td>
@@ -129,8 +138,34 @@
             </div>
         </div>
 
-        {{-- Détails des Frais logistiques --}}
+        {{-- Détails des Frais logistiques & Bénéfice --}}
         <div style="display: flex; flex-direction: column; gap: 20px;">
+            @php
+                $benefice = $arrivage->beneficePrevisionnel();
+            @endphp
+            <div class="card" style="border-left: 4px solid {{ $benefice >= 0 ? 'var(--success)' : 'var(--danger)' }};">
+                <div class="card-header">
+                    <h3><i class="bi bi-graph-up-arrow"></i> Bénéfice Prévisionnel</h3>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                        <span style="font-size: .85rem;">Revenu attendu (vente au prix suggéré) :</span>
+                        <span style="font-weight: 650; font-size: .85rem;">{{ number_format($arrivage->revenuAttendu(), 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                        <span style="font-size: .85rem;">Coût total réel :</span>
+                        <span style="font-weight: 650; font-size: .85rem;">{{ number_format($arrivage->total_cout_reel, 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 16px; background: {{ $benefice >= 0 ? '#f0fdf4' : '#fef2f2' }};">
+                        <span style="font-weight: 700; font-size: .95rem; color: {{ $benefice >= 0 ? 'var(--success)' : 'var(--danger)' }};">
+                            {{ $benefice >= 0 ? 'BÉNÉFICE' : 'PERTE' }}
+                        </span>
+                        <span style="font-weight: 700; font-size: 1.1rem; color: {{ $benefice >= 0 ? 'var(--success)' : 'var(--danger)' }};">
+                            {{ number_format($benefice, 0, ',', ' ') }} FCFA
+                        </span>
+                    </div>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-header">
                     <h3><i class="bi bi-wallet2"></i> Charges Importation</h3>

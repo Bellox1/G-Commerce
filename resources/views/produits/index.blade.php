@@ -28,6 +28,7 @@
         <table>
             <thead>
                 <tr>
+                    <th style="width: 50px;">Image</th>
                     <th>Réf</th>
                     <th>Désignation</th>
                     <th>Prix Vente</th>
@@ -40,8 +41,19 @@
             <tbody>
                 @forelse($produits as $p)
                 <tr>
-                    <td>PRD-{{ $p->id }}</td>
-                    <td style="font-weight: 600;">{{ $p->nom }}</td>
+                    <td>
+                        <a href="{{ route('produits.show', $p) }}">
+                        @if($p->image)
+                            <img src="{{ asset('storage/' . $p->image) }}" alt="{{ $p->nom }}" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid var(--border);">
+                        @else
+                            <span style="display:inline-flex; width:36px; height:36px; border-radius:6px; background:#f1f5f9; align-items:center; justify-content:center; color:#94a3b8; font-size:.8rem;">
+                                <i class="bi bi-image"></i>
+                            </span>
+                        @endif
+                        </a>
+                    </td>
+                    <td><a href="{{ route('produits.show', $p) }}" style="color: var(--primary); text-decoration: none;">PRD-{{ $p->id }}</a></td>
+                    <td style="font-weight: 600;"><a href="{{ route('produits.show', $p) }}" style="color: inherit; text-decoration: none;">{{ $p->nom }}</a></td>
                     <td style="font-weight: 600; color: var(--primary);">{{ (int) $p->prix_vente_conseille }} FCFA</td>
                     <td>
                         @php $s = $stockParProduit[$p->id] ?? 0; @endphp
@@ -83,7 +95,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">Aucun produit dans le catalogue.</td>
+                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 32px;">Aucun produit dans le catalogue.</td>
                 </tr>
                 @endforelse
             </tbody>

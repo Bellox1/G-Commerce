@@ -576,3 +576,6 @@ plusieurs devises
 plusieurs chaînes de magasins
 
 sans modification majeure du code.
+
+
+outils scan de vinerabilité semgrep

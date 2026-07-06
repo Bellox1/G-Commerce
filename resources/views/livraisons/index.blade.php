@@ -3,9 +3,48 @@
 @section('page-title', 'Livraisons')
 
 @section('content')
+{{-- Stats chiffre d'affaire --}}
+<div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="bi bi-currency-exchange"></i></div>
+        <div>
+            <div class="stat-val">{{ number_format($totalMontant, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Chiffre d'affaire (FCFA)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-cash-stack"></i></div>
+        <div>
+            <div class="stat-val">{{ number_format($totalPaye, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Montant encaissé (FCFA)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-truck-flatbed"></i></div>
+        <div>
+            <div class="stat-val">{{ $nbLivraisons }}</div>
+            <div class="stat-lbl">{{ $nbLivraisons > 1 ? 'Livraisons' : 'Livraison' }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="bi bi-clock-history"></i></div>
+        <div>
+            <div class="stat-val">{{ number_format(($totalParStatut['en_attente'] ?? 0), 0, ',', ' ') }}</div>
+            <div class="stat-lbl">En attente (FCFA)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-patch-check-fill"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--success);">{{ number_format(($totalParStatut['livre'] ?? 0), 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Livré (FCFA)</div>
+        </div>
+    </div>
+</div>
+
 <div class="card" style="margin-bottom: 20px;">
     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-        <h3 style="margin: 0;"><i class="bi bi-truck-flatbed"></i> Livraisons à effectuer</h3>
+        <h3 style="margin: 0;"><i class="bi bi-truck-flatbed"></i> Livraisons</h3>
         <div style="display: flex; gap: 8px;">
             <a href="{{ route('livraisons.index') }}" class="btn btn-sm {{ !request()->filled('statut') ? 'btn-primary' : 'btn-secondary' }}">Tous</a>
             <a href="{{ route('livraisons.index', ['statut' => 'en_attente']) }}" class="btn btn-sm {{ request('statut') === 'en_attente' ? 'btn-primary' : 'btn-secondary' }}">En attente</a>

@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('title', "Livraison : " . $vente->reference)
 
+
+
 @section('content')
 <div style="margin-bottom: 20px;">
     <a href="{{ route('livraisons.index') }}" class="btn btn-secondary btn-sm">
@@ -19,7 +21,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Désignation du Produit</th>
+                            <th class="wrap-text">Désignation du Produit</th>
                             <th style="text-align: center;">Quantité vendue</th>
                             <th style="text-align: right;">Prix Unitaire</th>
                             <th style="text-align: right;">Total Ligne</th>
@@ -28,7 +30,7 @@
                     <tbody>
                         @foreach($vente->lignes as $l)
                         <tr>
-                            <td style="font-weight: 500;">{{ $l->produit?->nom }}</td>
+                            <td class="wrap-text" style="font-weight: 500;">{{ $l->produit?->nom }}</td>
                             <td style="text-align: center; font-weight: 700; font-size: 1.1rem; color: var(--primary);">
                                 {{ $l->quantite }}
                             </td>

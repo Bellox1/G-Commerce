@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DepenseJournaliere;
 use App\Models\Dette;
 use App\Models\DettePaiement;
+use App\Models\Magasin;
 use App\Models\Produit;
 use App\Models\StockMouvement;
 use App\Models\Vente;
@@ -40,6 +42,39 @@ class DashboardController extends Controller
             ->whereYear('date_vente', \Carbon\Carbon::parse($date)->year)
             ->sum('montant_paye');
 
+        // Dépenses du jour
+        $depenseJour = DepenseJournaliere::where('tenant_id', $tenant->id)
+            ->whereDate('date_depense', $date)
+            ->sum('montant');
+
+        // Dépenses du mois
+        $depenseMois = DepenseJournaliere::where('tenant_id', $tenant->id)
+            ->whereMonth('date_depense', \Carbon\Carbon::parse($date)->month)
+            ->whereYear('date_depense', \Carbon\Carbon::parse($date)->year)
+            ->sum('montant');
+
+        // Total loyers des magasins (mensuel)
+        $totalLoyerMois = (float) Magasin::where('tenant_id', $tenant->id)->sum('loyer');
+
+        // Chiffre d'affaire net (encaissements - dépenses)
+        $caJour = $ventesJour - $depenseJour;
+        $caMois = $ventesMois - $depenseMois;
+
+        // Revenu net mensuel (ventes - dépenses - loyers)
+        $revenuNetMois = $caMois - $totalLoyerMois;
+
+        // Statistiques par personne (ventes du jour)
+        $statsParPersonne = \DB::table('ventes')
+            ->where('tenant_id', $tenant->id)
+            ->whereDate('date_vente', $date)
+            ->selectRaw('user_id, SUM(montant_paye) as total_ventes')
+            ->groupBy('user_id')
+            ->get()
+            ->map(function ($item) use ($tenant) {
+                $item->user = User::find($item->user_id);
+                return $item;
+            });
+
         // Nombre de ventes du jour filtré
         $nbVentesJour = Vente::where('tenant_id', $tenant->id)
             ->whereDate('date_vente', $date)
@@ -55,16 +90,22 @@ class DashboardController extends Controller
             ->whereIn('statut', ['en_cours', 'partiel', 'en_retard'])
             ->sum('montant_restant');
 
-        // Dettes en retard (non filtré)
-        $dettesEnRetard = Dette::where('tenant_id', $tenant->id)
-            ->where('statut', 'en_retard')
-            ->orWhere(function ($q) use ($tenant) {
-                $q->where('tenant_id', $tenant->id)
-                  ->whereNotNull('date_echeance')
-                  ->where('date_echeance', '<', today())
-                  ->whereNotIn('statut', ['solde']);
-            })
-            ->count();
+        // Dettes en retard (non filtré) — avec détails
+        $dettesEnRetardQuery = Dette::where('tenant_id', $tenant->id)
+            ->where(function ($q) {
+                $q->where('statut', 'en_retard')
+                  ->orWhere(function ($q2) {
+                      $q2->whereNotNull('date_echeance')
+                         ->where('date_echeance', '<', today())
+                         ->whereNotIn('statut', ['solde']);
+                  });
+            });
+        $dettesEnRetard = (clone $dettesEnRetardQuery)->count();
+        $dettesEnRetardListe = (clone $dettesEnRetardQuery)
+            ->with(['client', 'vente'])
+            ->orderByRaw('date_echeance ASC NULLS LAST')
+            ->limit(10)
+            ->get();
 
         // Produits sous seuil d'alerte (non filtré)
         $produits = Produit::where('tenant_id', $tenant->id)->get();
@@ -113,12 +154,90 @@ class DashboardController extends Controller
             ->orderByRaw('last_seen DESC NULLS LAST')
             ->get();
 
+        // Dépenses du jour (liste)
+        $depensesDuJour = DepenseJournaliere::where('tenant_id', $tenant->id)
+            ->whereDate('date_depense', $date)
+            ->with('user')
+            ->latest()
+            ->get();
+
+        // Livraisons
+        $nbLivraisonsEnAttente = Vente::where('tenant_id', $tenant->id)
+            ->where('statut_livraison', 'en_attente')
+            ->count();
+
+        $livraisonsDuJour = Vente::where('tenant_id', $tenant->id)
+            ->whereDate('date_livraison', $date)
+            ->count();
+
+        // Stock en temps réel (aperçu pour le 1er magasin)
+        $magasins = Magasin::where('tenant_id', $tenant->id)->get();
+        $stockApercu = collect();
+        $magasinPrincipal = $magasins->first();
+        if ($magasinPrincipal) {
+            $stockParProduit = $this->stock->getStockMagasin($magasinPrincipal->id);
+            $stockApercu = Produit::where('tenant_id', $tenant->id)
+                ->whereIn('id', array_keys($stockParProduit))
+                ->get()
+                ->map(fn($p) => [
+                    'produit' => $p,
+                    'stock'   => $stockParProduit[$p->id] ?? 0,
+                ])
+                ->sortBy('stock')
+                ->take(10);
+        }
+
         return view('dashboard', compact(
             'ventesJour','ventesMois','nbVentesJour',
+            'depenseJour','depenseMois','caJour','caMois','statsParPersonne',
+            'depensesDuJour',
             'dettePaiementsJour',
-            'totalDettes','dettesEnRetard',
+            'totalDettes','dettesEnRetard','dettesEnRetardListe',
             'stockAlertes','dernieresVentes','topProduits','tenant','date',
-            'employes'
+            'employes',
+            'totalLoyerMois','revenuNetMois',
+            'nbLivraisonsEnAttente','livraisonsDuJour',
+            'stockApercu','magasinPrincipal'
         ));
+    }
+
+    public function storeDepense(Request $request)
+    {
+        $user = Auth::user();
+        $tenant = $user->tenant;
+
+        $request->validate([
+            'montant'      => 'required|numeric|min:1',
+            'description'  => 'nullable|string|max:255',
+            'audio_base64' => 'nullable|string',
+        ]);
+
+        $audioPath = null;
+        if ($request->filled('audio_base64')) {
+            $raw = $request->audio_base64;
+            // Accept any data:audio/* or data:application/octet-stream base64
+            if (preg_match('/^data:[^;]+;base64,(.+)$/', $raw, $m)) {
+                $decoded = base64_decode($m[1]);
+                if ($decoded !== false && strlen($decoded) > 100) {
+                    $filename = 'depense_' . uniqid() . '.webm';
+                    $dir = storage_path('app/public/depenses');
+                    if (!is_dir($dir)) mkdir($dir, 0755, true);
+                    file_put_contents($dir . '/' . $filename, $decoded);
+                    $audioPath = 'depenses/' . $filename;
+                }
+            }
+        }
+
+        DepenseJournaliere::create([
+            'tenant_id'    => $tenant->id,
+            'user_id'      => $user->id,
+            'montant'      => $request->montant,
+            'description'  => $request->description,
+            'audio_path'   => $audioPath,
+            'date_depense' => $request->date ?: today()->format('Y-m-d'),
+        ]);
+
+        return redirect()->route('dashboard', ['date' => $request->date])
+            ->with('success', 'Dépense enregistrée.');
     }
 }

@@ -2,8 +2,40 @@
 @section('title', 'Détails Créance ' . $dette->client?->nomComplet())
 @section('page-title', 'Créance Client')
 
+@push('styles')
+<style>
+    .dette-totals-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+        margin-top: 20px;
+        border-top: 1px solid var(--border);
+        padding-top: 16px;
+    }
+    @media (max-width: 768px) {
+        .dette-totals-grid {
+            grid-template-columns: 1fr !important;
+            gap: 12px !important;
+        }
+        #bdette-page .page-grid-3 { gap: 16px; }
+    }
+    @media (max-width: 640px) {
+        #bdette-page table th, #bdette-page table td {
+            padding: 8px 6px;
+            font-size: 0.8rem;
+        }
+        #bdette-page table th:nth-child(3),
+        #bdette-page table td:nth-child(3),
+        #bdette-page table th:nth-child(4),
+        #bdette-page table td:nth-child(4) {
+            display: none;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="page-grid page-grid-3">
+<div class="page-grid page-grid-3" id="bdette-page">
     
     {{-- Section gauche : Détails et Historique des versements --}}
     <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -22,7 +54,7 @@
                     </a>
                 </p>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px; margin-top:20px; border-top: 1px solid var(--border); padding-top: 16px;">
+                <div class="dette-totals-grid">
                     <div>
                         <div style="font-size: .75rem; color: var(--text-muted);">Montant Initial</div>
                         <div style="font-size: 1.2rem; font-weight: 750;">{{ number_format($dette->montant_initial, 0, ',', ' ') }} F</div>
@@ -35,6 +67,47 @@
                         <div style="font-size: .75rem; color: var(--text-muted); color: var(--danger);">Reste à payer</div>
                         <div style="font-size: 1.2rem; font-weight: 770; color: var(--danger);">{{ number_format($dette->montant_restant, 0, ',', ' ') }} F</div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Date d'échéance --}}
+        <div class="card" style="border-left: 4px solid {{ $dette->estEnRetard() ? 'var(--danger)' : ($dette->date_echeance ? 'var(--warning)' : 'var(--border)') }};">
+            <div class="card-body">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <div style="font-size:.75rem; color:var(--text-muted);">Date d'échéance</div>
+                        <div style="font-size:1.1rem; font-weight:700; margin-top:2px;">
+                            @if($dette->date_echeance)
+                                {{ $dette->date_echeance->format('d/m/Y') }}
+                                @if($dette->estEnRetard())
+                                    <span class="badge badge-danger">En retard</span>
+                                @elseif($dette->date_echeance->isToday())
+                                    <span class="badge badge-warning">Aujourd'hui</span>
+                                @elseif($dette->date_echeance->isFuture())
+                                    <span class="badge badge-success">Dans {{ max(1, (int) ceil(now()->diffInDays($dette->date_echeance))) }} jour(s)</span>
+                                @endif
+                            @else
+                                <span style="color:var(--text-muted); font-weight:400;">Non définie</span>
+                            @endif
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ route('dettes.echeance', $dette) }}" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        @csrf
+                        @method('PUT')
+                        <select name="echeance_option" class="form-control echeance-select" style="min-width:140px; font-size:.85rem;">
+                            <option value="">-- Modifier --</option>
+                            <option value="today">Aujourd'hui</option>
+                            <option value="tomorrow">Demain</option>
+                            <option value="after_tomorrow">Après-demain</option>
+                            <option value="6_days">Dans 6 jours</option>
+                            <option value="2_weeks">Dans 2 semaines</option>
+                            <option value="1_month">Dans 1 mois</option>
+                            <option value="custom">Personnalisé...</option>
+                        </select>
+                        <input type="date" name="date_echeance_custom" class="form-control echeance-custom" style="display:none; width:140px; font-size:.85rem;">
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-calendar-check"></i></button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -117,4 +190,25 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.echeance-select').forEach(function(select) {
+        select.addEventListener('change', function() {
+            const customInput = this.closest('form').querySelector('.echeance-custom');
+            if (customInput) {
+                customInput.style.display = this.value === 'custom' ? 'block' : 'none';
+                if (this.value !== 'custom') {
+                    const map = { 'today': 0, 'tomorrow': 1, 'after_tomorrow': 2, '6_days': 6, '2_weeks': 14, '1_month': 30 };
+                    if (map[this.value] !== undefined) {
+                        const d = new Date();
+                        d.setDate(d.getDate() + map[this.value]);
+                        customInput.value = d.toISOString().split('T')[0];
+                    }
+                }
+            }
+        });
+    });
+</script>
+@endpush
 @endsection

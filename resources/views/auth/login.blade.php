@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ODJAMIaMi — Connexion</title>
+    <title>G-STOCKaMi — Connexion</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -27,7 +27,27 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-x: hidden;
         }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+        .anim-brand   { animation: fadeSlideUp 0.7s ease-out both; }
+        .anim-card    { animation: fadeSlideUp 0.7s ease-out 0.15s both; }
+        .anim-back    { animation: fadeIn 0.6s ease-out 0.5s both; }
+        .login-card { animation: fadeSlideUp 0.7s ease-out 0.15s both; }
+        .back-link  { animation: fadeIn 0.6s ease-out 0.5s both; }
+        .login-brand { animation: fadeSlideUp 0.7s ease-out both; }
         .login-container {
             width: 100%;
             max-width: 480px; 
@@ -203,14 +223,23 @@
         .back-link a:hover {
             color: var(--primary-light);
         }
+        @media (max-width: 480px) {
+            body { padding: 12px; align-items: flex-start; padding-top: 80px; }
+            .login-card { padding: 24px 20px; }
+            .login-title { font-size: 1.2rem; }
+            .brand-name { font-size: 1.4rem !important; }
+            .back-link a { font-size: 0.82rem; }
+            .login-card .brand-name { font-size: 1.8rem; }
+            .login-brand .brand-name { font-size: 2.2rem; }
+        }
     </style>
 </head>
 <body>
 
     <!-- Logo Top Left -->
-    <a href="{{ url('/') }}" style="position: absolute; top: 30px; left: 40px; text-decoration: none; display: flex; align-items: center; gap: 14px; z-index: 10;">
-        <img src="{{ asset('logo.svg') }}" alt="ODJAMI Logo" style="height: 50px; width: auto; object-fit: contain;">
-        <span class="brand-name" style="font-size: 1.8rem; color: var(--primary);">ODJAMI</span>
+    <a href="{{ url('/') }}" style="position: absolute; top: 30px; left: 40px; text-decoration: none; display: flex; align-items: flex-start; gap: 0; z-index: 10;">
+        <img src="{{ asset('logo.svg') }}" alt="G-STOCK Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+        <span class="brand-name" style="font-size: 1.8rem; color: var(--primary); margin-left: -2px;">G-STOCK</span>
     </a>
 
     <div class="login-container">
@@ -256,9 +285,9 @@
                     </div>
                     <div class="input-wrapper">
                         <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required style="padding-right: 48px;">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">
-                            <i id="toggleIcon" class="bi bi-eye"></i>
-                        </button>
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">
+                                <i id="toggleIcon" class="bi bi-eye-slash"></i>
+                            </button>
                     </div>
                 </div>
 
@@ -290,12 +319,12 @@
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                toggleIcon.classList.remove('bi-eye');
-                toggleIcon.classList.add('bi-eye-slash');
-            } else {
-                passwordInput.type = 'password';
                 toggleIcon.classList.remove('bi-eye-slash');
                 toggleIcon.classList.add('bi-eye');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
             }
         }
     </script>

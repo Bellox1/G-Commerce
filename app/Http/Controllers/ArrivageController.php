@@ -20,7 +20,7 @@ class ArrivageController extends Controller
     {
         $tenant = Auth::user()->tenant;
         $arrivages = Arrivage::where('tenant_id', $tenant->id)
-            ->with(['fournisseur', 'magasin', 'user'])
+            ->with(['fournisseur', 'magasin', 'user', 'produits'])
             ->latest()
             ->paginate(15);
 
@@ -86,6 +86,7 @@ class ArrivageController extends Controller
 
         $data['tenant_id'] = $user->tenant_id;
         $data['user_id']   = $user->id;
+        $data['date_arrivage'] = now();
         $data['statut']    = 'en_cours';
 
         $arrivage = $this->arrivageService->creer($data, $request->produits);

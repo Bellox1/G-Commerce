@@ -38,6 +38,22 @@ class Arrivage extends Model
     }
 
     /**
+     * Total des ventes attendues basé sur les prix suggérés
+     */
+    public function revenuAttendu(): float
+    {
+        return (float)$this->produits->sum(fn($l) => $l->prix_vente_suggere * $l->quantite);
+    }
+
+    /**
+     * Bénéfice prévisionnel = revenu attendu - coût total réel
+     */
+    public function beneficePrevisionnel(): float
+    {
+        return $this->revenuAttendu() - (float)$this->total_cout_reel;
+    }
+
+    /**
      * Recalcule et sauvegarde tous les totaux
      */
     public function recalculer(): void

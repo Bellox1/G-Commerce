@@ -27,6 +27,7 @@
                     <th>Nom</th>
                     <th>Adresse</th>
                     <th>Ville</th>
+                    <th style="text-align: right;">Loyer (FCFA/mois)</th>
                     <th style="text-align: center; width: 80px;">Actions</th>
                 </tr>
             </thead>
@@ -36,12 +37,14 @@
                     <td style="font-weight: 600;">{{ $m->nom }}</td>
                     <td>{{ $m->adresse ?? '—' }}</td>
                     <td>{{ $m->ville ?? '—' }}</td>
+                    <td style="text-align: right;">{{ $m->loyer ? number_format($m->loyer, 0, ',', ' ') . ' F' : '—' }}</td>
                     <td style="text-align: center;">
                         <button type="button" class="btn btn-secondary btn-sm edit-btn"
                             data-id="{{ $m->id }}"
                             data-nom="{{ $m->nom }}"
                             data-adresse="{{ $m->adresse }}"
                             data-ville="{{ $m->ville }}"
+                            data-loyer="{{ $m->loyer }}"
                             title="Modifier">
                             <i class="bi bi-pencil"></i>
                         </button>
@@ -49,7 +52,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">
                         Aucun dépôt enregistré.
                     </td>
                 </tr>
@@ -85,6 +88,11 @@
                 <input type="text" name="adresse" id="inputAdresse" class="form-control" placeholder="123 Rue du Marché">
             </div>
 
+            <div class="form-group">
+                <label class="form-label">Loyer mensuel (FCFA) <small style="color:var(--text-muted);">— optionnel</small></label>
+                <input type="number" name="loyer" id="inputLoyer" class="form-control" placeholder="Ex: 150000" min="0">
+            </div>
+
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
                 <button type="button" class="btn btn-secondary" id="btnAnnuler">Annuler</button>
                 <button type="submit" class="btn btn-primary" id="btnSave">
@@ -106,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputNom = document.getElementById('inputNom');
     const inputVille = document.getElementById('inputVille');
     const inputAdresse = document.getElementById('inputAdresse');
+    const inputLoyer = document.getElementById('inputLoyer');
     const modalTitle = document.getElementById('modalTitle');
     const modalSubtitle = document.getElementById('modalSubtitle');
     const btnSaveText = document.getElementById('btnSaveText');
@@ -132,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             inputNom.value = this.dataset.nom;
             inputVille.value = this.dataset.ville;
             inputAdresse.value = this.dataset.adresse;
+            inputLoyer.value = this.dataset.loyer || '';
             modalTitle.innerHTML = '<i class="bi bi-pencil"></i> Modifier le Dépôt';
             modalSubtitle.textContent = 'Modifier les informations du dépôt.';
             btnSaveText.textContent = 'Enregistrer';

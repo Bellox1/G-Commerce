@@ -10,7 +10,7 @@ class Magasin extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'tenant_id', 'nom', 'adresse', 'ville',
+        'tenant_id', 'nom', 'adresse', 'ville', 'loyer',
     ];
 
     public function tenant()     { return $this->belongsTo(Tenant::class); }
