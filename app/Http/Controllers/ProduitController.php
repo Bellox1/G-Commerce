@@ -26,6 +26,10 @@ class ProduitController extends Controller
             $stockParProduit = $this->stockService->getStockMagasin($selectedMagasinId);
         }
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $produits, 'stock' => $stockParProduit]);
+        }
+
         return view('produits.index', compact('produits', 'magasins', 'selectedMagasinId', 'stockParProduit'));
     }
 
@@ -45,6 +49,10 @@ class ProduitController extends Controller
             ->latest('date_mouvement')
             ->take(50)
             ->get();
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $produit, 'stock_par_magasin' => $stockParMagasin, 'mouvements' => $mouvements]);
+        }
 
         return view('produits.show', compact('produit', 'magasins', 'stockParMagasin', 'mouvements'));
     }
@@ -121,8 +129,7 @@ class ProduitController extends Controller
             );
         }
 
-        return redirect()->route('produits.index')
-            ->with('success', 'Produit créé avec succès.');
+        return $this->smartResponse('produits.index', 'Produit créé avec succès.');
     }
 
     public function edit(Produit $produit)
@@ -179,7 +186,7 @@ class ProduitController extends Controller
 
         $produit->update($data);
 
-        return redirect()->route('produits.index')->with('success', 'Produit mis à jour avec succès.');
+        return $this->smartResponse('produits.index', 'Produit mis à jour avec succès.');
     }
 
     public function destroy(Produit $produit)
@@ -187,7 +194,7 @@ class ProduitController extends Controller
         $this->authorizeModule('catalogues');
         $this->authorizeTenant($produit);
         $produit->delete();
-        return redirect()->route('produits.index')->with('success', 'Produit supprimé du catalogue.');
+        return $this->smartResponse('produits.index', 'Produit supprimé du catalogue.');
     }
 
     private function authorizeTenant(Produit $produit)

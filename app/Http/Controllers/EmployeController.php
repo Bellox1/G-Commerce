@@ -13,7 +13,14 @@ class EmployeController extends Controller
     {
         $this->authorizeModule('employes');
         $tenant = Auth::user()->tenant;
-        $employes = User::where('tenant_id', $tenant->id)->get();
+        $employes = User::where('tenant_id', $tenant->id)
+            ->where('id', '!=', $tenant->proprietaire_id)
+            ->get();
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $employes]);
+        }
+
         return view('employes.index', compact('employes'));
     }
 
@@ -28,7 +35,7 @@ class EmployeController extends Controller
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|max:255|unique:users,email',
             'telephone' => 'nullable|string|max:30',
-            'role'      => 'required|in:vendeur,livreur,magasinier',
+            'role'      => 'required|in:admin,vendeur,livreur,magasinier',
             'roles_secondaires' => 'nullable|array',
             'roles_secondaires.*' => 'in:vendeur,livreur,magasinier',
             'password'  => 'required|string|min:6|confirmed',
@@ -46,7 +53,7 @@ class EmployeController extends Controller
             'password'     => Hash::make($request->password),
         ]);
 
-        return redirect()->route('employes.index')->with('success', 'Employé créé avec succès.');
+        return $this->smartResponse('employes.index', 'Employé créé avec succès.');
     }
 
     public function edit(User $employe)
@@ -63,7 +70,7 @@ class EmployeController extends Controller
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|max:255|unique:users,email,' . $employe->id,
             'telephone' => 'nullable|string|max:30',
-            'role'      => 'required|in:vendeur,livreur,magasinier',
+            'role'      => 'required|in:admin,vendeur,livreur,magasinier',
             'roles_secondaires' => 'nullable|array',
             'roles_secondaires.*' => 'in:vendeur,livreur,magasinier',
             'actif'     => 'nullable|boolean',
@@ -80,7 +87,7 @@ class EmployeController extends Controller
 
         $employe->update($data);
 
-        return redirect()->route('employes.index')->with('success', 'Employé mis à jour.');
+        return $this->smartResponse('employes.index', 'Employé mis à jour.');
     }
 
     public function destroy(User $employe)
@@ -88,11 +95,14 @@ class EmployeController extends Controller
         $this->authorizeTenant($employe);
 
         if ($employe->id === Auth::id()) {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Vous ne pouvez pas supprimer votre propre compte.'], 400);
+            }
             return redirect()->route('employes.index')->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
 
         $employe->delete();
-        return redirect()->route('employes.index')->with('success', 'Employé retiré.');
+        return $this->smartResponse('employes.index', 'Employé retiré.');
     }
 
     private function authorizeTenant(User $employe)

@@ -38,6 +38,7 @@
                 <div class="form-group">
                     <label class="form-label">Rôle <span style="color:var(--danger);">*</span></label>
                     <select name="role" class="form-control" required>
+                        <option value="admin" @selected(old('role', $employe->role) === 'admin')>Admin</option>
                         <option value="vendeur" @selected(old('role', $employe->role) === 'vendeur')>Vendeur</option>
                         <option value="livreur" @selected(old('role', $employe->role) === 'livreur')>Livreur</option>
                         <option value="magasinier" @selected(old('role', $employe->role) === 'magasinier')>Magasinier</option>
@@ -71,17 +72,26 @@
             <script>
             document.addEventListener('DOMContentLoaded', function() {
                 var roleSelect = document.querySelector('select[name="role"]');
+                var secContainer = document.getElementById('rolesSecondaires');
                 var secCheckboxes = document.querySelectorAll('#rolesSecondaires .checkbox-group');
                 function filterSecondaires() {
                     var selected = roleSelect.value;
-                    secCheckboxes.forEach(function(group) {
-                        if (group.dataset.role === selected) {
-                            group.style.display = 'none';
+                    if (selected === 'admin') {
+                        secContainer.style.display = 'none';
+                        secCheckboxes.forEach(function(group) {
                             group.querySelector('input').checked = false;
-                        } else {
-                            group.style.display = '';
-                        }
-                    });
+                        });
+                    } else {
+                        secContainer.style.display = '';
+                        secCheckboxes.forEach(function(group) {
+                            if (group.dataset.role === selected) {
+                                group.style.display = 'none';
+                                group.querySelector('input').checked = false;
+                            } else {
+                                group.style.display = '';
+                            }
+                        });
+                    }
                 }
                 roleSelect.addEventListener('change', filterSecondaires);
                 filterSecondaires();

@@ -22,6 +22,10 @@ class TransfertController extends Controller
             ->latest()
             ->paginate(15);
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $transferts]);
+        }
+
         return view('transferts.index', compact('transferts'));
     }
 
@@ -73,6 +77,9 @@ class TransfertController extends Controller
             $stockDispo = $this->stockService->getStock($request->magasin_source_id, $p['produit_id']);
             if ($stockDispo < $p['quantite']) {
                 $produit = Produit::find($p['produit_id']);
+                if (request()->expectsJson() || request()->is('api/*')) {
+                    return response()->json(['success' => false, 'message' => "Stock insuffisant pour {$produit->nom} dans le magasin source (Disponible: {$stockDispo})."], 400);
+                }
                 return redirect()->back()
                     ->withInput()
                     ->with('error', "Stock insuffisant pour {$produit->nom} dans le magasin source (Disponible: {$stockDispo}).");
@@ -89,8 +96,7 @@ class TransfertController extends Controller
 
         $transfert = $this->stockService->transferer($data, $request->produits);
 
-        return redirect()->route('transferts.index')
-            ->with('success', "Transfert {$transfert->reference} effectué avec succès.");
+        return $this->smartResponse('transferts.index', "Transfert {$transfert->reference} effectué avec succès.");
     }
 
     public function show(Transfert $transfert)
@@ -98,6 +104,10 @@ class TransfertController extends Controller
         $this->authorizeModule('transferts');
         $this->authorizeTenant($transfert);
         $transfert->load(['magasinSource', 'magasinDestination', 'produits.produit', 'user', 'livreur']);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $transfert]);
+        }
 
         return view('transferts.show', compact('transfert'));
     }

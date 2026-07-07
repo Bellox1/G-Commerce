@@ -101,6 +101,6 @@ class WelcomeController extends Controller
             Log::error("Erreur lors de l'envoi de mail de contact : " . $e->getMessage());
         }
 
-        return redirect()->to('/#contact')->with('success', 'Votre demande de création de société a bien été envoyée. Nos administrateurs vous contacteront sous peu.');
+        return $this->smartResponse('/#contact', 'Votre demande de création de société a bien été envoyée. Nos administrateurs vous contacteront sous peu.');
     }
 }

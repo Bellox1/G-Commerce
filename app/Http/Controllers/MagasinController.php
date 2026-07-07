@@ -15,6 +15,10 @@ class MagasinController extends Controller
             ->orderBy('nom')
             ->get();
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $magasins]);
+        }
+
         return view('magasins.index', compact('magasins'));
     }
 
@@ -36,14 +40,17 @@ class MagasinController extends Controller
             'loyer'     => $validated['loyer'] ?: null,
         ]);
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->expectsJson() || $request->is('api/*')) {
             return response()->json([
+                'success' => true,
+                'message' => 'Dépôt créé avec succès.',
+                'redirect' => route('magasins.index'),
                 'id'  => $magasin->id,
                 'nom' => $magasin->nom,
             ]);
         }
 
-        return redirect()->route('magasins.index')->with('success', 'Dépôt créé avec succès.');
+        return $this->smartResponse('magasins.index', 'Dépôt créé avec succès.');
     }
 
     public function update(Request $request, Magasin $magasin)
@@ -62,6 +69,6 @@ class MagasinController extends Controller
         $validated['loyer'] = $validated['loyer'] ?: null;
         $magasin->update($validated);
 
-        return redirect()->route('magasins.index')->with('success', 'Dépôt modifié avec succès.');
+        return $this->smartResponse('magasins.index', 'Dépôt modifié avec succès.');
     }
 }

@@ -39,6 +39,10 @@ class LivraisonController extends Controller
             ->groupBy('statut_livraison')
             ->pluck('total', 'statut_livraison');
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $ventes, 'stats' => compact('totalMontant', 'totalPaye', 'nbLivraisons')]);
+        }
+
         return view('livraisons.index', compact(
             'ventes', 'totalMontant', 'totalPaye', 'nbLivraisons', 'totalParStatut'
         ));
@@ -52,6 +56,10 @@ class LivraisonController extends Controller
         }
 
         $vente->load(['client', 'user', 'magasin', 'lignes.produit', 'livreur']);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $vente]);
+        }
 
         return view('livraisons.show', compact('vente'));
     }
@@ -75,6 +83,6 @@ class LivraisonController extends Controller
             'note_livraison' => $request->note_livraison,
         ]);
 
-        return redirect()->back()->with('success', 'Statut de livraison mis à jour avec succès.');
+        return $this->smartResponse('livraisons.index', 'Statut de livraison mis à jour avec succès.');
     }
 }

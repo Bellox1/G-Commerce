@@ -88,7 +88,7 @@
                     </div>
                     <div class="paye-col" id="payeCol-0" style="display:none;">
                         <label class="form-label-sm">Montant payé (FCFA)</label>
-                        <input type="number" name="ventes[0][montant_paye]" class="form-control paye-input" value="0" min="0" readonly required>
+                        <input type="number" name="ventes[0][montant_paye]" class="form-control paye-input" value="0" min="0" readonly>
                         <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
                     </div>
                 </div>
@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="paye-col" id="payeCol-${idx}" style="display:none;">
                         <label class="form-label-sm">Montant payé (FCFA)</label>
-                        <input type="number" name="ventes[${idx}][montant_paye]" class="form-control paye-input" value="0" min="0" readonly required>
+                        <input type="number" name="ventes[${idx}][montant_paye]" class="form-control paye-input" value="0" min="0" readonly>
                         <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
                     </div>
                 </div>
@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
         card.querySelector('.save-card-btn').addEventListener('click', function() {
             if (hasOverstock()) { alert('Certains articles dépassent le stock disponible.'); return; }
             document.getElementById('save_one').value = card.dataset.index;
-            document.getElementById('venteForm').submit();
+            document.getElementById('venteForm').requestSubmit();
         });
         // Init remis visibility (credit default = unchecked, so remis visible by default)
         venteCount++;
@@ -861,7 +861,7 @@ document.addEventListener('DOMContentLoaded', function() {
     firstCard.querySelector('.save-card-btn').addEventListener('click', function() {
         if (hasOverstock()) { alert('Certains articles dépassent le stock disponible.'); return; }
         document.getElementById('save_one').value = firstCard.dataset.index;
-        document.getElementById('venteForm').submit();
+        document.getElementById('venteForm').requestSubmit();
     });
 
     // Init remis visibility for first card
@@ -999,7 +999,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="paye-col" id="payeCol-${cardIndex}" style="display:${vData.a_credit ? 'block' : 'none'};">
                             <label class="form-label-sm">Montant payé (FCFA)</label>
-                            <input type="number" name="ventes[${cardIndex}][montant_paye]" class="form-control paye-input" value="${vData.montant_paye || 0}" min="0" ${vData.a_credit ? '' : 'readonly'} required>
+                            <input type="number" name="ventes[${cardIndex}][montant_paye]" class="form-control paye-input" value="${vData.montant_paye || 0}" min="0" \${vData.a_credit ? '' : 'readonly'}>
                             <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
                         </div>
                     </div>
@@ -1071,7 +1071,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.querySelector('.save-card-btn').addEventListener('click', function() {
                 if (hasOverstock()) { alert('Certains articles dépassent le stock disponible.'); return; }
                 document.getElementById('save_one').value = card.dataset.index;
-                document.getElementById('venteForm').submit();
+                document.getElementById('venteForm').requestSubmit();
             });
             
             if (cardIndex >= venteCount) venteCount = cardIndex + 1;

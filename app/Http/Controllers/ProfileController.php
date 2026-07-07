@@ -11,6 +11,11 @@ class ProfileController extends Controller
     public function show()
     {
         $user = Auth::user();
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $user]);
+        }
+
         return view('profile', compact('user'));
     }
 
@@ -26,7 +31,7 @@ class ProfileController extends Controller
 
         $user->update($request->only(['name', 'email', 'telephone']));
 
-        return redirect()->route('profile')->with('success', 'Profil mis à jour.');
+        return $this->smartResponse('profile', 'Profil mis à jour.');
     }
 
     public function password(Request $request)
@@ -38,7 +43,7 @@ class ProfileController extends Controller
 
         Auth::user()->update(['password' => Hash::make($request->password)]);
 
-        return redirect()->route('profile')->with('success', 'Mot de passe modifié.');
+        return $this->smartResponse('profile', 'Mot de passe modifié.');
     }
 
     public function destroy(Request $request)
@@ -52,6 +57,6 @@ class ProfileController extends Controller
         Auth::logout();
         $user->delete();
 
-        return redirect('/')->with('success', 'Compte supprimé.');
+        return $this->smartResponse('/', 'Compte supprimé.');
     }
 }

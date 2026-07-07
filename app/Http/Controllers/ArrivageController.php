@@ -24,6 +24,10 @@ class ArrivageController extends Controller
             ->latest()
             ->paginate(15);
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $arrivages]);
+        }
+
         return view('arrivages.index', compact('arrivages'));
     }
 
@@ -91,13 +95,17 @@ class ArrivageController extends Controller
 
         $arrivage = $this->arrivageService->creer($data, $request->produits);
 
-        return redirect()->route('arrivages.show', $arrivage)->with('success', 'Arrivage enregistré avec succès. Vous pouvez maintenant le vérifier et le valider.');
+        return $this->smartResponse(route('arrivages.show', $arrivage), 'Arrivage enregistré avec succès. Vous pouvez maintenant le vérifier et le valider.');
     }
 
     public function show(Arrivage $arrivage)
     {
         $this->authorizeTenant($arrivage);
         $arrivage->load(['fournisseur', 'magasin', 'user', 'produits.produit', 'produits.fournisseur']);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $arrivage]);
+        }
 
         return view('arrivages.show', compact('arrivage'));
     }
@@ -183,7 +191,7 @@ class ArrivageController extends Controller
             $arrivage->recalculer();
         });
 
-        return redirect()->route('arrivages.show', $arrivage)->with('success', 'Arrivage mis à jour avec succès.');
+        return $this->smartResponse(route('arrivages.show', $arrivage), 'Arrivage mis à jour avec succès.');
     }
 
     public function valider(Arrivage $arrivage)
@@ -192,12 +200,15 @@ class ArrivageController extends Controller
         $this->authorizeTenant($arrivage);
 
         if ($arrivage->statut === 'receptionne') {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Cet arrivage a déjà été validé et réceptionné.'], 400);
+            }
             return redirect()->back()->with('error', 'Cet arrivage a déjà été validé et réceptionné.');
         }
 
         $this->arrivageService->valider($arrivage);
 
-        return redirect()->route('arrivages.show', $arrivage)->with('success', 'L\'arrivage a été validé. Les stocks ont été mis à jour et les prix conseillés ont été ajustés.');
+        return $this->smartResponse(route('arrivages.show', $arrivage), 'L\'arrivage a été validé. Les stocks ont été mis à jour et les prix conseillés ont été ajustés.');
     }
 
     public function updatePrixSuggere(Request $request, ArrivageProduit $arrivageProduit)
@@ -214,8 +225,7 @@ class ArrivageController extends Controller
             'prix_vente_suggere' => $request->input('prix_vente_suggere'),
         ]);
 
-        return redirect()->route('arrivages.show', $arrivage)
-            ->with('success', 'Prix suggéré mis à jour.');
+        return $this->smartResponse(route('arrivages.show', $arrivage), 'Prix suggéré mis à jour.');
     }
 
     public function destroy(Arrivage $arrivage)
@@ -224,12 +234,15 @@ class ArrivageController extends Controller
         $this->authorizeTenant($arrivage);
 
         if ($arrivage->statut === 'receptionne') {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Impossible de supprimer un arrivage déjà réceptionné.'], 400);
+            }
             return redirect()->back()->with('error', 'Impossible de supprimer un arrivage déjà réceptionné.');
         }
 
         $arrivage->delete();
 
-        return redirect()->route('arrivages.index')->with('success', 'Arrivage supprimé avec succès.');
+        return $this->smartResponse('arrivages.index', 'Arrivage supprimé avec succès.');
     }
 
     private function authorizeTenant(Arrivage $arrivage)

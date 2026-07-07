@@ -20,37 +20,36 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// ─── Auth ────────────────────────────────────────────
+// ─── Traitements Auth Web (Avec Sessions & Cookies) ────────────────────────
 Route::get('/login',  [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/logout',[LoginController::class, 'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Réinitialisation mot de passe
 Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPassword'])->name('password.request');
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetCode'])->name('password.email');
+
 Route::get('/reset-password', [PasswordResetController::class, 'showResetPassword'])->name('password.reset');
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 
-// ─── Page d'accueil publique ─────────────────────────
+// Page d'accueil publique
 Route::get('/', [WelcomeController::class, 'index']);
+
+// Contact (public)
+Route::post('/contact', [WelcomeController::class, 'submitContact'])->name('contact.submit');
 
 // Page de test avec identifiants
 Route::get('/test', function() {
     return view('test');
 });
 
-// Traitement du formulaire de contact (demande d'entreprise)
-Route::post('/contact', [WelcomeController::class, 'submitContact'])->name('contact.submit');
-
 // ─── App (protégé par auth) ───────────────────────────
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/dashboard/depense', [DashboardController::class, 'storeDepense'])->name('dashboard.depense.store');
 
-    // Sociétés / Tenants (Super Admin uniquement via middleware)
+    // Sociétés / Tenants (Super Admin uniquement)
     Route::middleware('super_admin')->group(function () {
-        Route::resource('tenants', TenantController::class);
+        Route::resource('tenants', TenantController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
         Route::post('tenants/{tenant}/magasins', [TenantController::class, 'storeMagasin'])->name('tenants.magasins.store');
         Route::delete('tenants/{tenant}/magasins/{magasin}', [TenantController::class, 'destroyMagasin'])->name('tenants.magasins.destroy');
     });
@@ -59,32 +58,28 @@ Route::middleware('auth')->group(function () {
     Route::middleware('ensure_tenant')->group(function () {
 
         // Produits
-        Route::resource('produits', ProduitController::class);
+        Route::resource('produits', ProduitController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
 
-        // Fournisseurs
-        Route::post('fournisseurs', [FournisseurController::class, 'store'])->name('fournisseurs.store');
-
-        // Magasins / Dépôts
+        // Magasins
         Route::get('magasins', [MagasinController::class, 'index'])->name('magasins.index');
         Route::post('magasins', [MagasinController::class, 'store'])->name('magasins.store');
         Route::put('magasins/{magasin}', [MagasinController::class, 'update'])->name('magasins.update');
 
         // Arrivages
-        Route::resource('arrivages', ArrivageController::class);
+        Route::resource('arrivages', ArrivageController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
         Route::post('arrivages/{arrivage}/valider', [ArrivageController::class, 'valider'])->name('arrivages.valider');
         Route::put('arrivages/produit/{arrivageProduit}/prix-suggere', [ArrivageController::class, 'updatePrixSuggere'])->name('arrivages.produit.prix-suggere');
 
         // Stock
         Route::get('stock',            [StockController::class, 'index'])->name('stock.index');
         Route::get('stock/mouvements', [StockController::class, 'mouvements'])->name('stock.mouvements');
-        Route::post('stock/ajuster',   [StockController::class, 'ajuster'])->name('stock.ajuster');
+        Route::post('stock/ajuster', [StockController::class, 'ajuster'])->name('stock.ajuster');
 
         // Transferts
-        Route::resource('transferts', TransfertController::class)->only(['index', 'create', 'store', 'show']);
+        Route::resource('transferts', TransfertController::class)->only(['index', 'create', 'show', 'store']);
 
         // Ventes
-        Route::resource('ventes', VenteController::class);
-        Route::post('ventes/{vente}/convertir-dette', [VenteController::class, 'convertirDette'])->name('ventes.convertir-dette');
+        Route::resource('ventes', VenteController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
 
         // Livraisons
         Route::get('livraisons', [LivraisonController::class, 'index'])->name('livraisons.index');
@@ -92,18 +87,24 @@ Route::middleware('auth')->group(function () {
         Route::put('livraisons/{vente}/statut', [LivraisonController::class, 'updateStatut'])->name('livraisons.update-statut');
 
         // Clients
-        Route::resource('clients', ClientController::class);
+        Route::resource('clients', ClientController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
 
         // Dettes
-        Route::resource('dettes', DetteController::class);
+        Route::resource('dettes', DetteController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
         Route::post('dettes/{dette}/payer', [DetteController::class, 'enregistrerPaiement'])->name('dettes.payer');
         Route::put('dettes/{dette}/echeance', [DetteController::class, 'updateEcheance'])->name('dettes.echeance');
 
-        // Analytique / Analyse avancée
+        // Fournisseurs
+        Route::resource('fournisseurs', FournisseurController::class)->only(['store', 'update', 'destroy']);
+
+        // Analytique / Analyse avancée (GET uniquement)
         Route::get('analytique', [AnalytiqueController::class, 'index'])->name('analytique');
 
         // Employés
-        Route::resource('employes', EmployeController::class)->except(['show']);
+        Route::resource('employes', EmployeController::class)->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
+
+        // Dépense du dashboard
+        Route::post('/dashboard/depense', [DashboardController::class, 'storeDepense'])->name('dashboard.depense.store');
 
         // Profil
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');

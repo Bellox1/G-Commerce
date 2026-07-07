@@ -11,11 +11,12 @@ class Tenant extends Model
 
     protected $fillable = [
         'nom', 'marque', 'activite', 'pays', 'ville',
-        'telephone', 'email', 'logo', 'actif',
+        'telephone', 'email', 'logo', 'actif', 'proprietaire_id',
     ];
 
     protected $casts = ['actif' => 'boolean'];
 
+    public function proprietaire()   { return $this->belongsTo(User::class, 'proprietaire_id'); }
     public function magasins()       { return $this->hasMany(Magasin::class); }
     public function users()          { return $this->hasMany(User::class); }
     public function produits()       { return $this->hasMany(Produit::class); }

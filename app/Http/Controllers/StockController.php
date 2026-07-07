@@ -30,6 +30,10 @@ class StockController extends Controller
             $stockParProduit = $this->stockService->getStockMagasin($selectedMagasinId);
         }
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $stockParProduit, 'magasin_id' => $selectedMagasinId]);
+        }
+
         return view('stock.index', compact('magasins', 'produits', 'selectedMagasinId', 'stockParProduit'));
     }
 
@@ -59,6 +63,10 @@ class StockController extends Controller
         $magasins = $tenant->magasins;
         $produits = Produit::where('tenant_id', $tenant->id)->get();
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $mouvements]);
+        }
+
         return view('stock.mouvements', compact('mouvements', 'magasins', 'produits'));
     }
 
@@ -85,6 +93,6 @@ class StockController extends Controller
             $request->note ?: 'Ajustement d\'inventaire manuel'
         );
 
-        return redirect()->back()->with('success', 'Le stock a été ajusté avec succès.');
+        return $this->smartResponse('stock.index', 'Le stock a été ajusté avec succès.');
     }
 }

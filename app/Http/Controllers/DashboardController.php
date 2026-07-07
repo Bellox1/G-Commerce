@@ -183,6 +183,7 @@ class DashboardController extends Controller
                     'produit' => $p,
                     'stock'   => $stockParProduit[$p->id] ?? 0,
                 ])
+                ->filter(fn($s) => $s['stock'] <= ($s['produit']->seuil_alerte ?? 0))
                 ->sortBy('stock')
                 ->take(10);
         }
@@ -237,7 +238,6 @@ class DashboardController extends Controller
             'date_depense' => $request->date ?: today()->format('Y-m-d'),
         ]);
 
-        return redirect()->route('dashboard', ['date' => $request->date])
-            ->with('success', 'Dépense enregistrée.');
+        return $this->smartResponse(route('dashboard', ['date' => $request->date]), 'Dépense enregistrée.');
     }
 }

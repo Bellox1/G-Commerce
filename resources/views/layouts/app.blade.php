@@ -311,7 +311,7 @@
                 <i class="bi bi-person-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
                 <span>{{ auth()->user()->name }}</span>
             </a>
-            <form action="{{ route('logout') }}" method="POST" style="margin-left:8px;">
+            <form action="{{ route('logout') }}" method="POST" data-no-api="true" style="margin-left:8px;">
                 @csrf
                 <button type="submit" style="background:none; border:none; cursor:pointer; display:flex; align-items:center;">
                     <i class="bi bi-box-arrow-right" style="font-size: 1.5rem; color: var(--text-muted);"></i>
@@ -417,6 +417,12 @@
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 {{ session('error') }}
+            </div>
+        @endif
+        @if(session('warning'))
+            <div class="alert" style="background:#fff3cd; color:#856404; border:1px solid #ffecb5;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {!! nl2br(e(session('warning'))) !!}
             </div>
         @endif
         @if($errors->any())
@@ -875,6 +881,242 @@
             });
         }
     });
+</script>
+<script>
+/**
+ * OdjaMi — Intercepteur AJAX Global
+ * Intercepte tous les formulaires non-GET et les soumet via l'API JSON.
+ * Pour désactiver sur un formulaire spécifique : <form data-no-api="true">
+ */
+(function () {
+    'use strict';
+
+    // Supprime les messages d'erreur injectés précédemment
+    function clearErrors(form) {
+        form.querySelectorAll('.api-error-msg').forEach(el => el.remove());
+        form.querySelectorAll('.api-field-error').forEach(el => {
+            el.classList.remove('api-field-error');
+            el.style.borderColor = '';
+        });
+    }
+
+    // Modale de confirmation personnalisée
+    function showConfirmModal(message, onConfirm, onCancel) {
+        const existing = document.querySelector('.custom-confirm-modal');
+        if (existing) existing.remove();
+        const overlay = document.createElement('div');
+        overlay.className = 'custom-confirm-modal';
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:440px;width:90%;box-shadow:0 16px 48px rgba(0,0,0,0.2);text-align:center;">
+            <div style="font-size:2.5rem;margin-bottom:12px;color:var(--warning);"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div style="font-size:.95rem;color:var(--text);line-height:1.5;margin-bottom:24px;white-space:pre-line;text-align:left;">${message}</div>
+            <div style="display:flex;gap:12px;justify-content:center;">
+                <button class="btn btn-primary" id="confirmYes" style="min-width:100px;">Oui, continuer</button>
+                <button class="btn btn-secondary" id="confirmNo" style="min-width:100px;">Non, annuler</button>
+            </div>
+        </div>`;
+        document.body.appendChild(overlay);
+        document.getElementById('confirmYes').addEventListener('click', function() {
+            overlay.remove();
+            if (onConfirm) onConfirm();
+        });
+        document.getElementById('confirmNo').addEventListener('click', function() {
+            overlay.remove();
+            if (onCancel) onCancel();
+        });
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.remove();
+                if (onCancel) onCancel();
+            }
+        });
+    }
+
+    // Affiche une erreur globale (toast ou alerte)
+    function showGlobalError(message) {
+        // Cherche un conteneur d'alerte existant ou en crée un
+        let alert = document.getElementById('api-global-alert');
+        if (!alert) {
+            alert = document.createElement('div');
+            alert.id = 'api-global-alert';
+            alert.style.cssText = 'position:fixed;top:80px;right:20px;z-index:9999;max-width:400px;';
+            document.body.appendChild(alert);
+        }
+        alert.innerHTML = `<div class="alert alert-danger alert-dismissible fade show shadow" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>`;
+        // Auto-fermeture après 6 secondes
+        setTimeout(() => { if (alert.firstChild) alert.firstChild.remove(); }, 6000);
+    }
+
+    // Affiche les erreurs de validation champ par champ
+    function showValidationErrors(form, errors) {
+        Object.entries(errors).forEach(([field, messages]) => {
+            // Normalise le nom (ex: produits.0.nom -> produits[0][nom])
+            const inputName = field.replace(/\.(\d+)\./g, '[$1][').replace(/\./g, '[') + (field.includes('.') ? ']' : '');
+            const input = form.querySelector(`[name="${field}"], [name="${inputName}"]`);
+            const errorText = Array.isArray(messages) ? messages[0] : messages;
+            if (input) {
+                input.style.borderColor = '#dc3545';
+                input.classList.add('api-field-error');
+                const errEl = document.createElement('div');
+                errEl.className = 'api-error-msg text-danger small mt-1';
+                errEl.textContent = errorText;
+                input.parentNode.insertBefore(errEl, input.nextSibling);
+            } else {
+                showGlobalError(errorText);
+            }
+        });
+    }
+
+    // Convertit une URL web en URL API
+    function toApiUrl(action, method) {
+        try {
+            const url = new URL(action, window.location.origin);
+            let path = url.pathname;
+            // Si c'est déjà une route /api/, on la laisse telle quelle
+            if (path.startsWith('/api/')) return action;
+            // On rajoute /api devant le chemin
+            return window.location.origin + '/api' + path + url.search;
+        } catch (e) {
+            return '/api' + action;
+        }
+    }
+
+    // Gère la soumission d'un formulaire
+    async function handleSubmit(e) {
+        const form = e.currentTarget;
+
+        // Ignorer si data-no-api="true"
+        if (form.dataset.noApi === 'true') return;
+
+        // Ignorer les formulaires GET (recherche, filtres...)
+        const method = (form.dataset.method || form.method || 'GET').toUpperCase();
+        if (method === 'GET') return;
+
+        e.preventDefault();
+
+        clearErrors(form);
+
+        // Construire l'URL API
+        const apiUrl = toApiUrl(form.action, method);
+
+        // Construire le body (FormData ou JSON)
+        const formData = new FormData(form);
+
+        // Le "_method" de Laravel pour PUT/DELETE/PATCH
+        const realMethod = formData.get('_method') ? formData.get('_method').toUpperCase() : method;
+
+        // Bouton de soumission — désactivation pendant la requête
+        const submitBtn = form.querySelector('[type="submit"]');
+        const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Chargement...';
+        }
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: ['GET', 'HEAD'].includes(realMethod) ? 'GET' : 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: ['GET', 'HEAD'].includes(realMethod) ? undefined : formData,
+            });
+
+            const contentType = response.headers.get('Content-Type') || '';
+
+            if (contentType.includes('application/json')) {
+                const data = await response.json();
+
+                if (response.ok && data.success !== false) {
+                    // Avertissement crédit — demande confirmation
+                    if (data.credit_warning) {
+                        showConfirmModal(data.message,
+                            function() {
+                                formData.append('ignore_credit_warning', '1');
+                                fetch(apiUrl, {
+                                    method: ['GET', 'HEAD'].includes(realMethod) ? 'GET' : 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                                        'X-Requested-With': 'XMLHttpRequest',
+                                    },
+                                    body: formData,
+                                }).then(r => r.json()).then(d => {
+                                    if (d.redirect) {
+                                        window.location.href = d.redirect;
+                                    } else if (d.errors) {
+                                        showValidationErrors(form, d.errors);
+                                        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                                    } else {
+                                        showGlobalError(d.message || 'Erreur lors de la validation.');
+                                        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                                    }
+                                }).catch(() => {
+                                    showGlobalError('Erreur lors de la validation.');
+                                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                                });
+                            },
+                            function() {
+                                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                            }
+                        );
+                        return;
+                    }
+                    // Succès — on redirige
+                    if (data.redirect) {
+                        setTimeout(() => { window.location.href = data.redirect; }, 300);
+                    } else {
+                        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                    }
+                } else if (response.status === 422) {
+                    // Erreurs de validation
+                    if (data.errors) {
+                        showValidationErrors(form, data.errors);
+                    } else {
+                        showGlobalError(data.message || 'Erreur de validation.');
+                    }
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                } else {
+                    // Autre erreur JSON
+                    showGlobalError(data.message || 'Une erreur est survenue.');
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+                }
+            } else {
+                // Réponse non-JSON — soumettre normalement
+                form.removeEventListener('submit', handleSubmit);
+                form.submit();
+            }
+        } catch (err) {
+            console.error('OdjaMi API Error:', err);
+            showGlobalError('Impossible de contacter le serveur. Vérifiez votre connexion.');
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
+        }
+    }
+
+    // Attacher l'intercepteur à tous les formulaires non-GET
+    function attachInterceptors() {
+        document.querySelectorAll('form:not([data-no-api="true"])').forEach(form => {
+            const method = (form.dataset.method || form.method || 'GET').toUpperCase();
+            if (method !== 'GET') {
+                form.removeEventListener('submit', handleSubmit); // éviter les doublons
+                form.addEventListener('submit', handleSubmit);
+            }
+        });
+    }
+
+    // Initialisation au chargement
+    document.addEventListener('DOMContentLoaded', attachInterceptors);
+
+    // Réattacher si du contenu dynamique est ajouté (modals, etc.)
+    const observer = new MutationObserver(attachInterceptors);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+})();
 </script>
 @stack('scripts')
 </body>

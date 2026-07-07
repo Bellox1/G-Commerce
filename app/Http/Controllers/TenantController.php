@@ -15,6 +15,11 @@ class TenantController extends Controller
     {
         $this->authorizeModule('tenants');
         $tenants = Tenant::withCount(['magasins', 'users'])->paginate(15);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $tenants]);
+        }
+
         return view('tenants.index', compact('tenants'));
     }
 
@@ -74,7 +79,7 @@ class TenantController extends Controller
             ]);
 
             // 3. Créer l'administrateur associé au tenant et à son magasin principal
-            User::create([
+            $admin = User::create([
                 'tenant_id' => $tenant->id,
                 'magasin_id' => $magasin->id,
                 'name' => $request->admin_name,
@@ -85,9 +90,12 @@ class TenantController extends Controller
                 'actif' => true,
                 'password' => Hash::make($request->admin_password),
             ]);
+
+            // Définir le propriétaire de la société
+            $tenant->update(['proprietaire_id' => $admin->id]);
         });
 
-        return redirect()->route('tenants.index')->with('success', 'Société et son administrateur créés avec succès !');
+        return $this->smartResponse('tenants.index', 'Société et son administrateur créés avec succès !');
     }
 
     public function show(Tenant $tenant)
@@ -120,14 +128,14 @@ class TenantController extends Controller
 
         $tenant->update($request->all());
 
-        return redirect()->route('tenants.show', $tenant)->with('success', 'Société mise à jour avec succès.');
+        return $this->smartResponse(route('tenants.show', $tenant), 'Société mise à jour avec succès.');
     }
 
     public function destroy(Tenant $tenant)
     {
         $this->authorizeModule('tenants');
         $tenant->delete();
-        return redirect()->route('tenants.index')->with('success', 'Société supprimée avec succès.');
+        return $this->smartResponse('tenants.index', 'Société supprimée avec succès.');
     }
 
     // Gestion des Magasins d'une société par le Super Admin
@@ -146,7 +154,7 @@ class TenantController extends Controller
             'adresse' => $request->adresse,
         ]);
 
-        return redirect()->back()->with('success', 'Magasin ajouté avec succès !');
+        return $this->smartResponse(route('tenants.show', $tenant), 'Magasin ajouté avec succès !');
     }
 
     public function destroyMagasin(Tenant $tenant, Magasin $magasin)
@@ -159,6 +167,6 @@ class TenantController extends Controller
 
         $magasin->delete();
 
-        return redirect()->back()->with('success', 'Magasin supprimé avec succès.');
+        return $this->smartResponse(route('tenants.show', $tenant), 'Magasin supprimé avec succès.');
     }
 }

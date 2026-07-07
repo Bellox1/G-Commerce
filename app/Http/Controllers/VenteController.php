@@ -27,6 +27,10 @@ class VenteController extends Controller
             ->latest()
             ->paginate(15);
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $ventes]);
+        }
+
         return view('ventes.index', compact('ventes'));
     }
 
@@ -91,7 +95,7 @@ class VenteController extends Controller
             'magasin_id'                  => 'required|exists:magasins,id',
             'ventes'                      => 'required|array|min:1',
             'ventes.*.client_id'          => 'nullable|exists:clients,id',
-            'ventes.*.montant_paye'       => 'required|numeric|min:0',
+            'ventes.*.montant_paye'       => 'nullable|numeric|min:0',
             'ventes.*.montant_remis'      => 'nullable|numeric|min:0',
             'ventes.*.lignes'             => 'required|array|min:1',
             'ventes.*.lignes.*.produit_id'=> 'required|exists:produits,id',
@@ -113,7 +117,7 @@ class VenteController extends Controller
             if (!isset($request->ventes[$i])) continue;
             $vData = $request->ventes[$i];
 
-            $montantPaye = (float) $vData['montant_paye'];
+            $montantPaye = (float) ($vData['montant_paye'] ?? 0);
 
             $lignesPourService = [];
             $totalLignes = 0;
@@ -124,6 +128,9 @@ class VenteController extends Controller
                 $qteCartouche = (int) ($l['quantite_cartouche'] ?? 0);
 
                 if ($qteCarton === 0 && $qteCartouche === 0) {
+                    if (request()->expectsJson() || request()->is('api/*')) {
+                        return response()->json(['success' => false, 'message' => "La quantité doit être supérieure à zéro pour {$produit->nom}."], 400);
+                    }
                     return redirect()->back()
                         ->withInput()
                         ->with('error', "La quantité doit être supérieure à zéro pour {$produit->nom}.");
@@ -135,6 +142,9 @@ class VenteController extends Controller
                 $cartonsNecessaires = $qteCarton + (int) ceil($qteCartouche / $cartoucheParCarton);
 
                 if ($stock < $cartonsNecessaires) {
+                    if (request()->expectsJson() || request()->is('api/*')) {
+                        return response()->json(['success' => false, 'message' => "Stock insuffisant pour {$produit->nom} (demandé: {$cartonsNecessaires} ctn, dispo: {$stock} ctn)."], 400);
+                    }
                     return redirect()->back()
                         ->withInput()
                         ->with('error', "Stock insuffisant pour {$produit->nom} (demandé: {$cartonsNecessaires} ctn, dispo: {$stock} ctn).");
@@ -175,27 +185,38 @@ class VenteController extends Controller
                 $du = $montantRemis && $montantRemis > $totalLignes ? $montantRemis - $totalLignes : null;
                 if (!$du) $montantRemis = null;
             } elseif ($montantPaye > $totalLignes) {
+                if (request()->expectsJson() || request()->is('api/*')) {
+                    return response()->json(['success' => false, 'message' => 'Le montant payé ne peut pas dépasser le total de la commande.'], 400);
+                }
                 return redirect()->back()
                     ->withInput()
                     ->with('error', 'Le montant payé ne peut pas dépasser le total de la commande.');
             }
 
-            // Vérifier la limite de crédit du client
-            if (($vData['a_credit'] ?? false) && !empty($vData['client_id'])) {
+            // Vérifier la limite de crédit du client (non bloquant)
+            if (($vData['a_credit'] ?? false) && !empty($vData['client_id']) && !$request->boolean('ignore_credit_warning')) {
                 $client = Client::find($vData['client_id']);
                 if ($client && $client->limite_credit > 0) {
                     $dettesEnCours = $client->totalDettesEnCours();
                     $montantRestant = $totalLignes - $montantPaye;
                     if ($dettesEnCours + $montantRestant > $client->limite_credit) {
                         $disponible = max(0, $client->limite_credit - $dettesEnCours);
+                        $msg = "ATTENTION : Ce client dépasse sa limite de crédit !\n"
+                            . "Dettes actuelles : " . number_format($dettesEnCours, 0, ',', ' ') . " FCFA\n"
+                            . "Limite : " . number_format($client->limite_credit, 0, ',', ' ') . " FCFA\n"
+                            . "Crédit disponible : " . number_format($disponible, 0, ',', ' ') . " FCFA.\n"
+                            . "Voulez-vous continuer la vente ?";
+                        if (request()->expectsJson() || request()->is('api/*')) {
+                            return response()->json([
+                                'credit_warning' => true,
+                                'message' => $msg,
+                                'confirm_label' => 'Oui, continuer',
+                                'cancel_label' => 'Non, annuler',
+                            ], 200);
+                        }
                         return redirect()->back()
                             ->withInput()
-                            ->with('error', "Ce client a atteint sa limite de crédit. Dettes actuelles : "
-                                . number_format($dettesEnCours, 0, ',', ' ')
-                                . " FCFA sur "
-                                . number_format($client->limite_credit, 0, ',', ' ')
-                                . " FCFA. Crédit disponible : "
-                                . number_format($disponible, 0, ',', ' ') . " FCFA.");
+                            ->with('warning', $msg);
                     }
                 }
             }
@@ -229,21 +250,24 @@ class VenteController extends Controller
             if (!empty($unsaved)) {
                 $request->session()->flash('unsaved_ventes', $unsaved);
             }
-            return redirect()->route('ventes.create')
-                ->with('success', 'Vente enregistrée. Continuez avec les autres clients.');
+            return $this->smartResponse('ventes.create', 'Vente enregistrée. Continuez avec les autres clients.');
         }
 
         $msg = count($saved) > 1
             ? count($saved) . ' ventes enregistrées avec succès.'
             : 'Vente enregistrée avec succès.';
 
-        return redirect()->route('ventes.index')->with('success', $msg);
+        return $this->smartResponse('ventes.index', $msg);
     }
 
     public function show(Vente $vente)
     {
         $this->authorizeTenant($vente);
         $vente->load(['client', 'user', 'magasin', 'lignes.produit', 'dette']);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $vente]);
+        }
 
         return view('ventes.show', compact('vente'));
     }
@@ -283,7 +307,7 @@ class VenteController extends Controller
 
         $request->validate([
             'client_id'      => 'nullable|exists:clients,id',
-            'montant_paye'   => 'required|numeric|min:0',
+            'montant_paye'   => 'nullable|numeric|min:0',
             'montant_remis'  => 'nullable|numeric|min:0',
             'new_lignes'            => 'nullable|array',
             'new_lignes.*.produit_id' => 'required_with:new_lignes|exists:produits,id',
@@ -329,6 +353,9 @@ class VenteController extends Controller
                 $stock = $this->stockService->getStock($magasinId, $l['produit_id']);
                 if ($stock < $l['quantite']) {
                     $produit = Produit::find($l['produit_id']);
+                    if (request()->expectsJson() || request()->is('api/*')) {
+                        return response()->json(['success' => false, 'message' => "Stock insuffisant pour {$produit->nom}."], 400);
+                    }
                     return redirect()->back()->withInput()->with('error', "Stock insuffisant pour {$produit->nom}.");
                 }
 
@@ -360,7 +387,7 @@ class VenteController extends Controller
         }
 
         $nouveauTotal = $montantTotal + $totalAjoute;
-        $montantPaye = (float) $request->montant_paye;
+        $montantPaye = (float) ($request->montant_paye ?? 0);
         // Anonymous client = automatically fully paid
         if (!$request->client_id) {
             $montantPaye = $nouveauTotal;
@@ -410,8 +437,7 @@ class VenteController extends Controller
             $vente->dette->delete();
         }
 
-        return redirect()->route('ventes.show', $vente)
-            ->with('success', 'Vente mise à jour.');
+        return $this->smartResponse(route('ventes.show', $vente), 'Vente mise à jour.');
     }
 
     public function convertirDette(Request $request, Vente $vente)
@@ -424,6 +450,9 @@ class VenteController extends Controller
         ]);
 
         if ($vente->dette) {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Cette vente est déjà liée à une dette.'], 400);
+            }
             return redirect()->back()->with('error', 'Cette vente est déjà liée à une dette.');
         }
 
@@ -447,8 +476,7 @@ class VenteController extends Controller
             'notes'           => $request->client_id ? null : 'Client anonyme',
         ]);
 
-        return redirect()->route('ventes.show', $vente)
-            ->with('success', 'Vente convertie en dette avec succès.');
+        return $this->smartResponse(route('ventes.show', $vente), 'Vente convertie en dette avec succès.');
     }
 
     private function authorizeTenant(Vente $vente)

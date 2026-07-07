@@ -32,6 +32,10 @@ class DetteController extends Controller
         $dettes = $query->paginate(15);
         $clients = \App\Models\Client::where('tenant_id', $tenant->id)->get();
 
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $dettes, 'clients' => $clients]);
+        }
+
         return view('dettes.index', compact('dettes', 'clients'));
     }
 
@@ -40,6 +44,10 @@ class DetteController extends Controller
         $this->authorizeModule('dettes');
         $this->authorizeTenant($dette);
         $dette->load(['client', 'vente.lignes.produit', 'paiements.user']);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $dette]);
+        }
 
         return view('dettes.show', compact('dette'));
     }
@@ -59,8 +67,7 @@ class DetteController extends Controller
 
         $dette->enregistrerPaiement($request->montant, 'especes', $user->id);
 
-        return redirect()->route('dettes.show', $dette)
-            ->with('success', 'Versement de ' . number_format($request->montant, 0, ',', ' ') . ' FCFA enregistré avec succès.');
+        return $this->smartResponse(route('dettes.show', $dette), 'Versement de ' . number_format($request->montant, 0, ',', ' ') . ' FCFA enregistré avec succès.');
     }
 
     /**
@@ -104,8 +111,7 @@ class DetteController extends Controller
 
         $dette->save();
 
-        return redirect()->route('dettes.show', $dette)
-            ->with('success', 'Date d\'échéance mise à jour.');
+        return $this->smartResponse(route('dettes.show', $dette), 'Date d\'échéance mise à jour.');
     }
 
     private function authorizeTenant(Dette $dette)

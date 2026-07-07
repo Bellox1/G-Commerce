@@ -43,20 +43,7 @@
 {{-- ─── Stats ─── --}}
 @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <a href="{{ route('ventes.create') }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
-            <i class="bi bi-receipt"></i> Facture
-        </a>
-        <a href="{{ route('ventes.index') }}" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
-            <i class="bi bi-cart"></i> Ventes
-        </a>
-        <a href="{{ route('livraisons.index') }}" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
-            <i class="bi bi-truck"></i> Livraisons
-        </a>
-        <a href="{{ route('stock.index') }}" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
-            <i class="bi bi-boxes"></i> Stock
-        </a>
-    </div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap;"></div>
     <a href="{{ route('analytique') }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; font-size:.85rem;">
         <i class="bi bi-bar-chart-line"></i> Analyse avancée
     </a>
@@ -575,27 +562,22 @@
         </div>
         @endif
 
-        {{-- Stock en temps réel --}}
+        {{-- Stock critique --}}
         @if($magasinPrincipal && $stockApercu->isNotEmpty())
         <div class="card">
             <div class="card-header">
-                <h3><i class="bi bi-boxes"></i> Stock en temps réel</h3>
+                <h3 style="color:var(--danger);"><i class="bi bi-exclamation-triangle"></i> Stock critique</h3>
                 <span style="font-size:.75rem; color:var(--text-muted);">{{ $magasinPrincipal->nom }}</span>
             </div>
             <div class="card-body" style="padding:0; max-height: 280px; overflow-y: auto;">
                 @foreach($stockApercu as $s)
                 <a href="{{ route('produits.show', $s['produit']) }}" style="display:flex; align-items:center; justify-content:space-between; padding:8px 16px; border-bottom:1px solid var(--border); text-decoration:none; color:inherit; transition:background .15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
                     <span style="font-size:.8rem;">{{ $s['produit']->nom }}</span>
-                    <span class="badge {{ $s['stock'] <= $s['produit']->seuil_alerte ? 'badge-danger' : 'badge-success' }}">
+                    <span class="badge badge-danger">
                         {{ $s['stock'] }} Carton
                     </span>
                 </a>
                 @endforeach
-            </div>
-            <div class="dash-footer" style="padding:10px 16px; border-top:1px solid var(--border);">
-                <a href="{{ route('stock.index') }}" style="font-size:.8rem; color:var(--primary); text-decoration:none;">
-                    Voir tout le stock <i class="bi bi-arrow-right"></i>
-                </a>
             </div>
         </div>
         @endif

@@ -13,6 +13,11 @@ class ClientController extends Controller
         $this->authorizeModule('clients');
         $tenant = Auth::user()->tenant;
         $clients = Client::where('tenant_id', $tenant->id)->get();
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $clients]);
+        }
+
         return view('clients.index', compact('clients'));
     }
 
@@ -38,7 +43,7 @@ class ClientController extends Controller
             'tenant_id' => $user->tenant_id,
         ]));
 
-        return redirect()->route('clients.index')->with('success', 'Client créé avec succès.');
+        return $this->smartResponse('clients.index', 'Client créé avec succès.');
     }
 
     public function edit(Client $client)
@@ -62,7 +67,7 @@ class ClientController extends Controller
 
         $client->update($request->all());
 
-        return redirect()->route('clients.index')->with('success', 'Client mis à jour avec succès.');
+        return $this->smartResponse('clients.index', 'Client mis à jour avec succès.');
     }
 
     public function destroy(Client $client)
@@ -70,7 +75,7 @@ class ClientController extends Controller
         $this->authorizeModule('clients');
         $this->authorizeTenant($client);
         $client->delete();
-        return redirect()->route('clients.index')->with('success', 'Client retiré de la base de données.');
+        return $this->smartResponse('clients.index', 'Client retiré de la base de données.');
     }
 
     private function authorizeTenant(Client $client)

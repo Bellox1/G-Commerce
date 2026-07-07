@@ -170,12 +170,21 @@ class AnalytiqueController extends Controller
             }
         }
 
-        return view('analytique', compact(
+        // ─── Réponse ───────────────────────────────────────────────────────
+        $data = compact(
             'moisLabels', 'moisData', 'depensesData', 'revenuNetData',
             'joursLabels', 'ventesJourData',
             'topProduits', 'statutLabels', 'statutData', 'statutColors',
             'ventesParVendeur', 'dettesData', 'nbVentesData',
-            'stockAlertes', 'loyerMensuel', 'annee', 'mois', 'tenant'
-        ));
+            'stockAlertes', 'loyerMensuel', 'annee', 'mois'
+        );
+
+        // API / mobile → JSON
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $data]);
+        }
+
+        // Web → Vue Blade
+        return view('analytique', array_merge($data, compact('tenant')));
     }
 }

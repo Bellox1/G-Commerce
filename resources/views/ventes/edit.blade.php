@@ -66,8 +66,8 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label">Montant payé (FCFA) *</label>
-                    <input type="number" name="montant_paye" id="montant_paye" class="form-control" value="{{ (int) $vente->montant_paye }}" min="0" required>
+                    <label class="form-label">Montant payé (FCFA)</label>
+                    <input type="number" name="montant_paye" id="montant_paye" class="form-control" value="{{ (int) $vente->montant_paye }}" min="0">
                     <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
                 </div>
             </div>
