@@ -3,48 +3,49 @@
 @section('page-title', 'Livraisons')
 
 @section('content')
-{{-- Stats chiffre d'affaire --}}
+@php
+    $nbEnAttente = $nbParStatut['en_attente'] ?? 0;
+    $nbLivre     = $nbParStatut['livre'] ?? 0;
+    $nbProbleme  = $nbParStatut['probleme'] ?? 0;
+@endphp
+{{-- Stats livraisons (compteurs) --}}
 <div class="stats-grid" style="margin-bottom:20px;">
     <div class="stat-card">
-        <div class="stat-icon blue"><i class="bi bi-currency-exchange"></i></div>
-        <div>
-            <div class="stat-val">{{ number_format($totalMontant, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Chiffre d'affaire (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-cash-stack"></i></div>
-        <div>
-            <div class="stat-val">{{ number_format($totalPaye, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Montant encaissé (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-truck-flatbed"></i></div>
+        <div class="stat-icon blue"><i class="bi bi-truck-flatbed"></i></div>
         <div>
             <div class="stat-val">{{ $nbLivraisons }}</div>
-            <div class="stat-lbl">{{ $nbLivraisons > 1 ? 'Livraisons' : 'Livraison' }}</div>
+            <div class="stat-lbl">Total livraisons</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon red"><i class="bi bi-clock-history"></i></div>
+        <div class="stat-icon orange"><i class="bi bi-clock-history"></i></div>
         <div>
-            <div class="stat-val">{{ number_format(($totalParStatut['en_attente'] ?? 0), 0, ',', ' ') }}</div>
-            <div class="stat-lbl">En attente (FCFA)</div>
+            <div class="stat-val">{{ $nbEnAttente }}</div>
+            <div class="stat-lbl">En attente</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-patch-check-fill"></i></div>
         <div>
-            <div class="stat-val" style="color:var(--success);">{{ number_format(($totalParStatut['livre'] ?? 0), 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Livré (FCFA)</div>
+            <div class="stat-val" style="color:var(--success);">{{ $nbLivre }}</div>
+            <div class="stat-lbl">Livrées</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--danger);">{{ $nbProbleme }}</div>
+            <div class="stat-lbl">Problème</div>
         </div>
     </div>
 </div>
 
 <div class="card" style="margin-bottom: 20px;">
     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-        <h3 style="margin: 0;"><i class="bi bi-truck-flatbed"></i> Livraisons</h3>
+        <h3 style="margin: 0; display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-truck-flatbed"></i> Livraisons
+            <span style="font-size:0.7rem; background:#f1f5f9; color:#64748b; border-radius:20px; padding:2px 8px; font-weight:600;">{{ $nbLivraisons }}</span>
+        </h3>
         <div style="display: flex; gap: 8px;">
             <a href="{{ route('livraisons.index') }}" class="btn btn-sm {{ !request()->filled('statut') ? 'btn-primary' : 'btn-secondary' }}">Tous</a>
             <a href="{{ route('livraisons.index', ['statut' => 'en_attente']) }}" class="btn btn-sm {{ request('statut') === 'en_attente' ? 'btn-primary' : 'btn-secondary' }}">En attente</a>

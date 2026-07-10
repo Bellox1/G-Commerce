@@ -49,89 +49,59 @@
     </a>
 </div>
 <div class="stats-grid">
+    <div class="stat-card" style="box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1); border-color: rgba(22, 163, 74, 0.2);">
+        <div class="stat-icon green" style="background: #dcfce7; color: #16a34a;"><i class="bi bi-graph-up-arrow"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--success); font-size: 1.6rem;">{{ $revenuNetMois == 0 ? 'Pas de revenu' : number_format($revenuNetMois, 0, ',', ' ') }}</div>
+            <div class="stat-lbl" style="font-weight: 700; color: #166534;">Revenu net du mois (FCFA)</div>
+        </div>
+    </div>
     <div class="stat-card">
         <div class="stat-icon blue"><i class="bi bi-currency-exchange"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($ventesJour, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ $ventesJour == 0 ? "Pas d'encaissé" : number_format($ventesJour, 0, ',', ' ') }}</div>
             <div class="stat-lbl">Encaissé le {{ \Carbon\Carbon::parse($date)->format('d/m') }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($caJour, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ $caJour == 0 ? 'Pas de C.A.' : number_format($caJour, 0, ',', ' ') }}</div>
             <div class="stat-lbl">C.A. du {{ \Carbon\Carbon::parse($date)->format('d/m') }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($ventesMois, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ $ventesMois == 0 ? 'Pas de ventes' : number_format($ventesMois, 0, ',', ' ') }}</div>
             <div class="stat-lbl">Ventes du mois (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon orange"><i class="bi bi-cash-stack"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($depenseMois, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ $depenseMois == 0 ? 'Pas de dépenses' : number_format($depenseMois, 0, ',', ' ') }}</div>
             <div class="stat-lbl">Dépenses du mois (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon blue"><i class="bi bi-bar-chart"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($caMois, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ $caMois == 0 ? 'Pas de C.A.' : number_format($caMois, 0, ',', ' ') }}</div>
             <div class="stat-lbl">C.A. du mois (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-building"></i></div>
-        <div>
-            <div class="stat-val" style="color:var(--danger);">{{ number_format($totalLoyerMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Loyers des dépôts (FCFA/mois)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
-        <div>
-            <div class="stat-val" style="color:var(--success);">{{ number_format($revenuNetMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Revenu net du mois (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-receipt"></i></div>
-        <div>
-            <div class="stat-val">{{ $nbVentesJour }}</div>
-            <div class="stat-lbl">Ventes du {{ \Carbon\Carbon::parse($date)->format('d/m') }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-cash-stack"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($dettePaiementsJour, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ $dettePaiementsJour == 0 ? 'Pas de dettes' : number_format($dettePaiementsJour, 0, ',', ' ') }}</div>
             <div class="stat-lbl">Dettes encaissées le {{ \Carbon\Carbon::parse($date)->format('d/m') }}</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-truck"></i></div>
-        <div>
-            <div class="stat-val">{{ $nbLivraisonsEnAttente }}</div>
-            <div class="stat-lbl">Livraisons en attente
-                <a href="{{ route('livraisons.index', ['statut' => 'en_attente']) }}" style="font-size:.7rem; color:var(--primary); text-decoration:none; margin-left:4px;">Gérer</a>
-            </div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
-        <div>
-            <div class="stat-val">{{ $livraisonsDuJour }}</div>
-            <div class="stat-lbl">Livrées aujourd'hui</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-credit-card-2-back"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($totalDettes, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ $totalDettes == 0 ? 'Pas de dettes' : number_format($totalDettes, 0, ',', ' ') }}</div>
             <div class="stat-lbl">Dettes actives (FCFA)
                 @if($dettesEnRetard > 0)
                     <span class="badge badge-danger" style="margin-left:4px;">{{ $dettesEnRetard }} en retard</span>
@@ -139,15 +109,6 @@
             </div>
         </div>
     </div>
-    @if(count($stockAlertes) > 0)
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
-        <div>
-            <div class="stat-val">{{ count($stockAlertes) }}</div>
-            <div class="stat-lbl">Produits en alerte stock</div>
-        </div>
-    </div>
-    @endif
 </div>
 
 {{-- Formulaire dépense du jour --}}
@@ -428,6 +389,55 @@
     </div>
 </div>
 @endif
+
+{{-- Indicateurs d'activité secondaires --}}
+<div style="margin-top: 10px; margin-bottom: 24px;">
+    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #475569; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-info-circle"></i> Autres indicateurs d'activité
+    </h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-receipt"></i></div>
+            <div>
+                <div class="stat-val">{{ $nbVentesJour == 0 ? 'Pas de ventes' : $nbVentesJour }}</div>
+                <div class="stat-lbl">Ventes du {{ \Carbon\Carbon::parse($date)->format('d/m') }}</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-building"></i></div>
+            <div>
+                <div class="stat-val" style="color:var(--danger);">{{ $totalLoyerMois == 0 ? 'Pas de loyers' : number_format($totalLoyerMois, 0, ',', ' ') }}</div>
+                <div class="stat-lbl">Loyers des dépôts (FCFA/mois)</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-truck"></i></div>
+            <div>
+                <div class="stat-val">{{ $nbLivraisonsEnAttente == 0 ? 'Pas de livraisons' : $nbLivraisonsEnAttente }}</div>
+                <div class="stat-lbl">Livraisons en attente
+                    <a href="{{ route('livraisons.index', ['statut' => 'en_attente']) }}" style="font-size:.7rem; color:var(--primary); text-decoration:none; margin-left:4px;">Gérer</a>
+                </div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
+            <div>
+                <div class="stat-val">{{ $livraisonsDuJour == 0 ? 'Pas de livrées' : $livraisonsDuJour }}</div>
+                <div class="stat-lbl">Livrées aujourd'hui</div>
+            </div>
+        </div>
+        @if(count($stockAlertes) > 0)
+        <div class="stat-card">
+            <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
+            <div>
+                <div class="stat-val">{{ count($stockAlertes) }}</div>
+                <div class="stat-lbl">Produits en alerte stock</div>
+            </div>
+        </div>
+        @endif
+    </div>
+</div>
+
 @else
     @if(count($stockAlertes) > 0)
     <div class="stats-grid">

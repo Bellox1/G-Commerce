@@ -5,7 +5,10 @@
 @section('content')
 <div class="card">
     <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
-        <h3><i class="bi bi-tag"></i> Tous les Articles</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-tag"></i> Tous les Articles
+            <span style="font-size:0.7rem; background:#f1f5f9; color:#64748b; border-radius:20px; padding:2px 8px; font-weight:600;">{{ method_exists($produits, 'total') ? $produits->total() : $produits->count() }}</span>
+        </h3>
         <div style="display: flex; gap: 8px; align-items: center;">
             <form method="GET" action="{{ route('produits.index') }}" id="filterForm">
                 <select name="magasin_id" class="form-control" style="width: auto; display: inline-block;" onchange="document.getElementById('filterForm').submit()">

@@ -5,7 +5,10 @@
 @section('content')
 <div class="card">
     <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
-        <h3><i class="bi bi-clock-history"></i> Tous les mouvements</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-clock-history"></i> Tous les mouvements
+            <span style="font-size:0.7rem; background:#f1f5f9; color:#64748b; border-radius:20px; padding:2px 8px; font-weight:600;">{{ method_exists($mouvements, 'total') ? $mouvements->total() : $mouvements->count() }}</span>
+        </h3>
         
         <form method="GET" action="{{ route('stock.mouvements') }}" style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select name="magasin_id" class="form-control" style="width: auto;">

@@ -5,7 +5,10 @@
 @section('content')
 <div class="card">
     <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
-        <h3><i class="bi bi-credit-card-2-back"></i> Suivi des impayés</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-credit-card-2-back"></i> Suivi des impayés
+            <span style="font-size:0.7rem; background:#f1f5f9; color:#64748b; border-radius:20px; padding:2px 8px; font-weight:600;">{{ method_exists($dettes, 'total') ? $dettes->total() : $dettes->count() }}</span>
+        </h3>
         
         <form method="GET" action="{{ route('dettes.index') }}" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
             <select name="client_id" class="form-control" style="width: auto;">

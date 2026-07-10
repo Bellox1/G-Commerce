@@ -30,7 +30,10 @@
 
 <div class="card">
     <div class="card-header">
-        <h3><i class="bi bi-receipt"></i> Historique des ventes</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-receipt"></i> Historique des ventes
+            <span style="font-size:0.7rem; background:#f1f5f9; color:#64748b; border-radius:20px; padding:2px 8px; font-weight:600;">{{ method_exists($ventes, 'total') ? $ventes->total() : $ventes->count() }}</span>
+        </h3>
         <a href="{{ route('ventes.create') }}" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-circle"></i> Nouvelle Vente
         </a>

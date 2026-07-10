@@ -4,7 +4,7 @@
 
 @section('content')
 <div style="display: flex; flex-direction: column; gap: 20px;">
-    <div class="card" style="background: white; border-left: 4px solid {{ $transfert->statut === 'livre' ? 'var(--success)' : 'var(--warning)' }};">
+    <div class="card" style="background: white;">
         <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
                 <span class="badge {{ $transfert->statut === 'livre' ? 'badge-success' : 'badge-warning' }}" style="margin-bottom: 6px;">
@@ -13,6 +13,9 @@
                 <h2 style="font-size: 1.4rem; font-weight: 700;">Transfert {{ $transfert->reference }}</h2>
                 <div style="font-size: .8rem; color: var(--text-muted); margin-top: 4px;">
                     <i class="bi bi-calendar"></i> Créé le {{ $transfert->created_at->format('d/m/Y à H:i') }} par <strong>{{ $transfert->user?->name }}</strong>
+                    @if($transfert->user?->role)
+                        <span style="background:#f1f5f9; color:#475569; border-radius:20px; padding:1px 7px; font-size:.7rem; font-weight:600; margin-left:4px;">{{ ucfirst($transfert->user->role) }}</span>
+                    @endif
                 </div>
             </div>
             <a href="{{ route('transferts.index') }}" class="btn btn-secondary">

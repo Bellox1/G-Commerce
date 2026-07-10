@@ -11,7 +11,10 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h3><i class="bi bi-building"></i> Liste des Sociétés clientes</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-building"></i> Liste des Sociétés clientes
+            <span style="font-size:0.7rem; background:#f1f5f9; color:#64748b; border-radius:20px; padding:2px 8px; font-weight:600;">{{ method_exists($tenants, 'total') ? $tenants->total() : $tenants->count() }}</span>
+        </h3>
     </div>
 
     <div class="table-wrap">

@@ -1,90 +1,68 @@
-# PROMPT COMPLET — SYSTÈME DE GESTION COMMERCIALE (IMPORTATION + VENTE)
+# SYSTÈME DE GESTION COMMERCIALE (E-STOCK / G-STOCK)
 
 ---
 
 # 1. OBJECTIF GLOBAL
 
-Créer une application web de gestion commerciale destinée aux commerçants de marché en Afrique de l’Ouest.
+Faire les calculs à la place des commerçants.
 
-Le système doit gérer :
+Le système calcule automatiquement :
+- le coût réel des produits importés selon le taux de change et les frais (transport, douane, manutention, commission, divers)
+- le prix de vente suggéré avec arrondi adapté au marché
+- le chiffre d'affaires (jour, mois, période)
+- le stock restant par produit et par magasin
+- les produits qui sont presque finis (alerte de stock faible)
+- les dettes clients et les paiements partiels
+- le revenu net (ventes - dépenses - loyers)
 
-* importation de produits (Nigeria → Bénin)
-* gestion de stock
-* ventes quotidiennes
-* dettes clients
-* multi-magasins
-* multi-utilisateurs
-* multi-sociétés (multi-tenant)
+Application web destinée aux commerçants de marché en Afrique de l'Ouest.
 
-Le système doit être SIMPLE pour l’utilisateur final mais STRUCTURÉ en interne.
+Le système est SIMPLE pour l'utilisateur final mais STRUCTURÉ en interne.
 
 ---
 
 # 2. CONTEXTE MÉTIER RÉEL
 
 Les commerçants :
-
-* achètent en Naira (NGN)
-* vendent en FCFA
-* utilisent un taux de change manuel
-* ajoutent frais (transport, douane, etc.)
-* arrondissent les prix (25 / 50 / 100 / 500 / 1000)
-* ne travaillent pas avec des marges fixes
-* adaptent les prix selon le client
+- achètent en Naira (NGN)
+- vendent en FCFA
+- utilisent un taux de change manuel
+- ajoutent frais (transport, douane, manutention, commission, divers)
+- arrondissent les prix (100 / 500 / 1000 FCFA selon le montant)
+- ne travaillent pas avec des marges fixes
+- adaptent les prix selon le client
 
 Le prix peut changer selon :
-
-* client
-* concurrence
-* urgence de vente
-* stock disponible
+- client
+- concurrence
+- urgence de vente
+- stock disponible
 
 ---
 
 # 3. STRUCTURE MULTI-TENANT
 
-Chaque société est isolée totalement.
+Chaque société est isolée totalement via une colonne `tenant_id` sur toutes les tables métier.
 
 Chaque société contient :
-
-* magasins
-* produits
-* utilisateurs
-* ventes
-* clients
-* dettes
-* arrivages
-
-Toutes les tables doivent inclure :
-
-tenant_id
+- magasins
+- produits
+- utilisateurs
+- ventes
+- clients
+- dettes
+- arrivages
+- fournisseurs
+- transferts
+- dépenses journalières
 
 Objectif : permettre SaaS multi-entreprises sans refonte.
 
 ---
 
-# 4. SOCIÉTÉ PILOTE
+# 4. EXEMPLE DE SOCIÉTÉ
 
-Nom : SAÏMOUS
-Marque : RICCI
-
-Activité :
-
-* importation Nigeria / Chine
-* vente de produits alimentaires et ménagers
-
-Produits :
-
-* OMO
-* savon
-* lait
-* bonbons
-* chewing-gum
-* tomates importées RICCI
-
-Localisation :
-
-Cotonou – Saint Michel
+Exemple : SAÏMOUS (marque RICCI) — importation Nigeria/Chine, vente de produits alimentaires et ménagers, Cotonou – Saint Michel.
 
 ---
 
@@ -92,490 +70,309 @@ Cotonou – Saint Michel
 
 ## 5.1 Super Administrateur (propriétaire société)
 
-Peut :
-
-* créer société
-* gérer magasins
-* créer utilisateurs
-* gérer produits
-* gérer arrivages
-* voir statistiques globales
-* voir dettes globales
-* attribuer rôles
-
----
+Peut tout gérer : société, magasins, utilisateurs, produits, arrivages, ventes, stock, dettes, transferts, livraisons, statistiques globales.
 
 ## 5.2 Administrateur
 
-Peut :
-
-* gérer produits
-* gérer arrivages
-* consulter ventes
-* gérer stock
-* gérer dettes
-
----
+Mêmes droits que super admin SAUF gestion de la société elle-même. Peut créer des utilisateurs, gérer produits, arrivages, ventes, stock, dettes, transferts, livraisons, dépenses, analytique.
 
 ## 5.3 Vendeur
 
-Peut :
+Peut : créer ventes, voir stock, appliquer prix, enregistrer paiements, créer dette client, gérer clients.
 
-* créer ventes
-* voir stock
-* appliquer prix
-* enregistrer paiements
-* créer dette client
+## 5.4 Livreur
 
----
+Peut : voir commandes en attente, livrer produits, valider livraison, signaler problème.
 
-## 5.4 Livreur / Contrôleur
-
-Peut :
-
-* voir commandes
-* livrer produits
-* valider livraison
-* confirmer quantités
-* signaler problème
-
----
 ## 5.5 Magasinier
 
-Peut:
+Peut : voir stock magasin, gérer arrivages, gérer produits, gérer transferts, gérer livraisons.
 
-* voir stock magasin
-* gérer stock magasin
-* gérer transferts entre magasin et boutique
-* gérer arrivages
-* gérer produits
+## 5.6 Rôles secondaires
 
+Tout utilisateur peut avoir un ou plusieurs rôles secondaires (ex: un magasinier peut aussi être livreur). Les permissions sont cumulatives : le système vérifie à la fois le rôle principal et les rôles secondaires via `hasRole()`.
 
-Je rapplle que l'Administrateur peut tout faire sauf ceer les utilisateurs 
-En plus de ça un magasiner peut etre livreur de sorte que les utilsateurs dans le cas ou 
-ils sont mener à excer des travux qui ne sont pa sls leurqu'il puisse les acomplir sans pb grace 
-àl'ajour sup de role par le super ou admin ,ca serai des rolessecondare pour eux et ils peut 
-les desactiver u les activer aussi 
+---
+
 # 6. GESTION DES MAGASINS
 
-Une société peut avoir plusieurs magasins.
+Une société peut avoir plusieurs magasins. Chaque magasin contient du stock, des ventes, et des utilisateurs.
 
-Chaque magasin contient :
+Le stock est calculé par magasin via les mouvements de stock, pas par arrivage pour l'utilisateur final.
 
-* stock global
-* ventes
-* utilisateurs
-
-Le stock est géré par magasin, pas par arrivage pour l’utilisateur final.
+Attributs d'un magasin : nom, adresse, ville, loyer mensuel (pour le calcul analytique).
 
 ---
 
 # 7. GESTION DES ARRIVAGES (IMPORTATION)
 
-Chaque importation est un arrivage indépendant.
+Chaque importation est un arrivage indépendant avec référence auto-générée (ARR-2026-001).
 
-## Données arrivage :
+## Données arrivage
+- date
+- fournisseur (optionnel)
+- magasin de destination
+- pays d'origine (défaut: NG)
+- taux NGN → FCFA
+- frais : transport, douane, manutention, commission, divers
+- commentaire
+- statut : en_cours, receptionne, annule
 
-* date
-* fournisseur
-* taux NGN → FCFA
-* transport
-* douane
-* frais divers
-* commentaire
+## Produits dans un arrivage
+- produit
+- quantité (en cartons)
+- prix unitaire en Naira
+- fournisseur par ligne (optionnel)
 
----
+## Conversion et répartition des frais
 
-## Produits dans un arrivage :
+1. Total NGN = somme(quantité × prix_unitaire_origine)
+2. Total FCFA = Total NGN × taux_change
+3. Coût réel = Total FCFA + somme(tous les frais)
+4. Pour chaque produit :
+   - proportion = total_origine_ligne / total_origine_arrivage
+   - valeur_fcfa = total_origine_ligne × taux_change
+   - part_frais = total_frais × proportion
+   - coût_total_réel = valeur_fcfa + part_frais
+   - coût_unitaire_réel = coût_total_réel / quantité
+   - prix_vente_suggéré = arrondi(coût_unitaire_réel)
 
-* produit
-* quantité
-* prix unitaire en Naira
-* total NGN
-
----
-
-## Exemple concret Nigeria
-
-Arrivage #001 :
-
-* taux : 1 NGN = 4 FCFA
-* transport : 50 000 FCFA
-* douane : 30 000 FCFA
-
-Produits :
-
-* Kampé : 50 000 NGN
-* OMO : 30 000 NGN
-* Bonbon : 20 000 NGN
-
----
-
-## Conversion
-
-Formule :
-
-TOTAL NGN × taux = valeur FCFA
-
-Exemple :
-
-100 000 NGN × 4 = 400 000 FCFA
-
----
-
-## Répartition des frais
-
-Tous les frais sont répartis automatiquement selon la valeur de chaque produit dans l’arrivage.
-
-Frais inclus :
-
-* transport
-* douane
-* manutention
-* commissions
-* divers
-
-Résultat :
-
-* coût achat
-* part frais produit
-* coût réel final
+## Validation d'un arrivage
+- Crée un mouvement de stock `entree_arrivage` pour chaque produit
+- Met à jour `produit.prix_vente_conseille` avec le prix suggéré
+- Passe le statut à `receptionne`
 
 ---
 
 # 8. GESTION DU STOCK
 
-Le stock affiché est GLOBAL par magasin.
+Le stock n'est PAS une valeur statique. Il est calculé à partir des mouvements.
 
-Exemple :
+## Types de mouvements de stock
+- `entree_arrivage` : arrivage validé
+- `sortie_vente` : vente
+- `transfert_sortie` : transfert vers autre magasin
+- `transfert_entree` : réception de transfert
+- `ajustement_positif` : correction manuelle (augmentation)
+- `ajustement_negatif` : correction manuelle (diminution)
 
-Kampé :
+## Règle fondamentale
+Stock = somme(entree_arrivage + transfert_entree + ajustement_positif) - somme(sortie_vente + transfert_sortie + ajustement_negatif)
 
-* Arrivage 1 : 50 unités
-* Arrivage 2 : 200 unités
-
-Stock total = 250 unités
-
-IMPORTANT :
-
-* le vendeur NE choisit PAS l’arrivage
-* stock = somme des entrées - sorties
+Tout mouvement est horodaté et traçable (utilisateur, référence, note).
 
 ---
 
 # 9. GESTION DES PRIX
 
-Aucune marge fixe imposée.
+Aucune marge fixe imposée. Le système propose un prix suggéré lors de l'arrivage, mais le commerçant peut toujours le modifier dans la vente.
 
-Le système fait :
+## Règles d'arrondi (Produit::arrondir)
+- < 30 000 FCFA : arrondi au 100 supérieur
+- 30 000 - 49 999 FCFA : arrondi au 500 supérieur
+- >= 50 000 FCFA : arrondi au 1 000 supérieur
 
-1. calcul coût réel
-2. propose prix suggéré
-3. arrondi automatique
+Le prix reste modifiable manuellement au moment de la vente.
 
----
-
-## Règles d’arrondi
-
-* 25 FCFA
-* 50 FCFA
-* 100 FCFA
-* 500 FCFA
-* 1000 FCFA
-
-Exemples :
-
-* 3287 → 3300
-* 5550 → 5600
-* 8970 → 9000
-* 12430 → 12500
-
-Le prix reste modifiable manuellement.
+Le produit a deux champs de prix :
+- `prix_vente_conseille` : prix suggéré par le système (mis à jour lors des arrivages)
+- `prix_marche` : prix manuel que le commerçant peut fixer librement
 
 ---
 
 # 10. GESTION DES VENTES
 
-Lors d’une vente :
+## Création d'une vente
+- sélection du produit
+- quantité ajoutée
+- prix modifiable (le système enregistre à la fois le prix conseillé et le prix réellement vendu)
+- vendeur
+- magasin
+- client (optionnel)
+- mode de paiement : espèces, mobile_money, virement, crédit
 
-* produit sélectionné
-* quantité ajoutée
-* prix modifiable
+## Gestion de la monnaie
+- `montant_remis` : montant donné par le client
+- `du` : monnaie à rendre (si trop-perçu)
 
-Le système enregistre :
+## Support cartouche
+Les produits peuvent avoir des sous-unités (`cartouche`). Le stock est géré en cartons. Lors d'une vente en cartouche, la déduction du stock se fait par `ceil(quantité_cartouche / cartouche_par_carton)`.
 
-* prix conseillé
-* prix vendu réel
-* vendeur
-* magasin
-* client (optionnel)
+## Génération de référence
+Format : VNT-2026-00001 (auto-incrément sur l'année)
+
+## Statuts de livraison
+- en_attente, livre, probleme
+
+## Dette automatique
+Si `montant_reste > 0`, une dette est automatiquement créée.
+
+## Limite de crédit client
+Si le client a une `limite_credit`, un avertissement non-bloquant est affiché quand le total des dettes en cours + nouveau crédit dépasse la limite.
+
+## Modification de vente
+Possibilité de modifier les quantités (avec ajustement de stock), d'ajouter des lignes, et de convertir en dette si impayé.
 
 ---
 
 # 11. GESTION DES DETTES
 
-Si paiement partiel :
+Une dette peut évoluer dans le temps avec des paiements partiels.
 
-Exemple :
+## Création
+- automatique à la vente si montant_reste > 0
+- montant_initial, montant_paye, montant_restant
+- date d'échéance configurable
+- client (optionnel — dette anonyme possible)
 
-Total : 50 000
-Payé : 20 000
-Reste : 30 000
+## Paiements
+- enregistrement de paiements partiels (`DettePaiement`)
+- mise à jour automatique du montant_paye et montant_restant
+- statut auto : en_cours → partiel → soldé
+- si échéance dépassée : statut passé automatiquement à en_retard
 
-Création automatique de dette :
+## Synchronisation
+Les paiements de dette sont synchronisés avec la vente d'origine (mise à jour de montant_paye, montant_reste, statut_paiement).
 
-* client
-* montant restant
-* date
-* échéance
-* statut
-
-Statuts :
-
-* en cours
-* partiel
-* soldé
-* en retard
+## Modes de paiement des dettes
+- espèces, mobile_money, virement
 
 ---
 
-# 12. TABLEAU DE BORD
+# 12. GESTION DES TRANSFERTS ENTRE MAGASINS
 
-Afficher :
+Les produits peuvent être déplacés d'un magasin à un autre avec traçabilité complète.
 
-* ventes du jour
-* ventes du mois
-* produits les plus vendus
-* stock faible
-* dettes clients
-* derniers arrivages
-* chiffre encaissé
+## Format
+- référence auto-générée (TRF-2026-001)
+- magasin source et destination
+- un ou plusieurs produits avec quantités
+- livreur assigné optionnel
+- statut : en_attente, en_transit, livre, annule
 
----
-
-# 13. HISTORIQUE IMPORTANT
-
-Le système doit permettre :
-
-* voir dernier arrivage
-* voir contenu arrivage
-* voir ventes par période
-* voir ventes par produit
-* voir dettes client
-* traçabilité complète
+## Logique
+1. Création du transfert avec statut `en_transit`
+2. Mouvement `transfert_sortie` sur le magasin source (-stock)
+3. Mouvement `transfert_entree` sur le magasin destination (+stock)
+4. Passage à `livre` avec date de livraison
 
 ---
 
-# 14. LOGIQUE PRINCIPALE
+# 13. GESTION DES LIVRAISONS
 
-Le système doit être :
-
-SIMPLE pour l’utilisateur
-STRUCTURÉ pour le backend
-
-Côté utilisateur :
-
-* pas de FIFO visible
-* pas de calcul complexe
-* pas de comptabilité technique
-
-Côté système :
-
-* calculs précis
-* traçabilité complète
-* données normalisées
+Module dédié au suivi des livraisons des ventes.
+- filtrage des ventes par statut de livraison
+- assignation d'un livreur
+- mise à jour du statut et de la date de livraison
+- signalement de problème
+- statistiques : livraisons en attente, livraisons du jour, montants totaux
 
 ---
 
-# 15. ARCHITECTURE TECHNIQUE
+# 14. DÉPENSES JOURNALIÈRES
 
-* architecture MVC
-* base relationnelle
-* API-ready
-* multi-tenant natif
-* séparation stricte des données
+Enregistrement des dépenses quotidiennes directement depuis le tableau de bord.
+- montant, description, date
+- enregistrement audio optionnel (via micro, upload base64)
+- utilisateur qui a enregistré
+- utilisé dans le calcul du revenu net journalier et mensuel
 
 ---
 
-# OBJECTIF FINAL
+# 15. TABLEAU DE BORD
 
-Créer un système professionnel mais simple pour :
+Le tableau de bord affiche :
+- ventes du jour (montant et nombre)
+- ventes du mois
+- dépenses du jour et du mois
+- chiffre d'affaires du jour et du mois (ventes - dépenses)
+- loyers du mois (total des loyers des magasins)
+- revenu net du mois (CA - loyers)
+- paiements de dettes du jour
+- total des dettes en cours
+- dettes en retard (nombre et montant)
+- produits en stock faible (sous le seuil d'alerte)
+- dernières ventes (5 dernières)
+- top produits du mois (5 meilleures ventes)
+- vente par employé
+- dépenses du jour (avec utilisateur)
+- livraisons en attente et du jour
+- employés (ordonnés par dernière activité)
 
-* importation Nigeria → Bénin
-* gestion de stock global
-* ventes flexibles
-* dettes clients
-* multi-magasins
-* multi-sociétés
+---
 
-tout en restant évolutif vers un SaaS complet.
+# 16. ANALYTIQUE
 
-6.1 GESTION DES TRANSFERTS ENTRE MAGASINS (IMPORTANT)
+Page d'analyse avec graphiques et indicateurs :
+- évolution mensuelle des ventes (12 mois)
+- évolution quotidienne des ventes (par mois)
+- top 10 des produits les plus vendus
+- répartition des statuts de paiement
+- dépenses mensuelles
+- revenu net mensuel (ventes - dépenses - loyers)
+- ventes par vendeur
+- création de dettes par mois
+- nombre de ventes par mois
+- alertes de stock
 
-Les produits peuvent être déplacés d’un magasin à un autre.
+Filtrable par année et mois.
 
-Exemple :
+---
 
-Magasin A envoie 30 Kampé vers Magasin B
-Règle métier
+# 17. CLIENTS
 
-Le système ne doit jamais simplement modifier le stock.
+- gestion des clients avec nom, téléphone, adresse, ville
+- limite de crédit configurable par client
+- calcul automatique du total des dettes en cours
+- désactivation possible (client inactif)
 
-Chaque transfert doit être enregistré comme un mouvement.
+---
 
-Type de transfert
+# 18. FOURNISSEURS
 
-Un transfert est composé de :
+- gestion des fournisseurs avec pays (défaut: Nigeria), devise (défaut: NGN), téléphone, email
+- peuvent être assignés par arrivage ou par ligne d'arrivage
 
-sortie du magasin source
-entrée dans le magasin destination
-Exemple
+---
 
-Transfert #001 :
+# 19. EMPLOYÉS (UTILISATEURS)
 
-produit : Kampé
-quantité : 30
-de : Magasin A
-vers : Magasin B
-date : 02/07/2026
-Résultat automatique
+- CRUD des utilisateurs d'une société
+- attribution du rôle principal et des rôles secondaires
+- activation/désactivation
+- mot de passe avec validation (min 6 car, majuscule, minuscule, chiffre, spécial)
+- protection : un utilisateur ne peut pas se supprimer lui-même
 
-Magasin A :
+---
 
--30 Kampé
+# 20. ARCHITECTURE TECHNIQUE
 
-Magasin B :
+- Laravel 12 + SQLite/MySQL
+- architecture MVC
+- multi-tenant natif via tenant_id
+- authentification session (web) + Sanctum tokens (API)
+- middleware : EnsureTenant, SuperAdmin, UpdateUserLastSeen
+- services : ArrivageService, StockService, VenteService
+- vues Blade avec Tailwind CSS
+- API REST complète (routes api.php)
+- validation des formulaires en français
 
-+30 Kampé
-Règle importante
+## Base de données (36 migrations)
+Tables principales : tenants, magasins, users, fournisseurs, produits, arrivages, arrivage_produits, clients, stock_mouvements, ventes, vente_lignes, dettes, dette_paiements, transferts, transfert_produits, depenses_journalieres
 
-Le vendeur ne doit PAS voir la complexité du transfert.
+---
 
-Il voit uniquement :
+# 21. RÈGLES FONDAMENTALES
 
-stock mis à jour
-historique simple si nécessaire
-8.1 LOGIQUE AVANCÉE DE STOCK (TRÈS IMPORTANT)
+1. Le commerçant pense en simplicité, pas en comptabilité.
+2. En backend : tout doit être traçable, calculé correctement, auditable.
+3. Le prix n'est jamais bloqué — le vendeur peut toujours l'ajuster.
+4. Le stock est calculé par les mouvements, pas stocké comme valeur simple.
+5. Chaque opération (vente, arrivage, transfert, ajustement) génère des mouvements de stock.
+6. Toutes les données sont isolées par tenant (société).
 
-Le stock ne doit pas être une simple valeur.
+---
 
-Il doit être calculé à partir des mouvements.
+# 22. EXTENSION FUTURE (SAAS)
 
-Types de mouvements de stock :
-entrée (arrivage)
-sortie (vente)
-transfert sortie
-transfert entrée
-ajustement manuel
-Règle fondamentale
-
-Stock = somme des entrées - somme des sorties
-
-Exemple réel
-
-Kampé :
-
-arrivage : +300
-ventes : -50
-transfert vers autre magasin : -30
-
-Stock final = 220
-
-Important
-
-Le système doit conserver un historique complet des mouvements.
-
-9.1 LOGIQUE RÉELLE DES PRIX (MARCHÉ BÉNINOIS)
-
-Les commerçants ne suivent pas un prix fixe basé sur le coût.
-
-Ils utilisent :
-
-prix du marché
-concurrence
-rapidité d’écoulement
-intuition commerciale
-Cas réel
-
-Un produit peut coûter :
-
-4 900 FCFA aujourd’hui
-5 000 FCFA demain
-4 800 FCFA en période de promotion
-Règle métier
-
-Le système propose un prix mais le commerçant peut toujours le modifier.
-
-Prix de référence
-
-Chaque produit doit avoir :
-
-prix conseillé système
-prix marché manuel (modifiable)
-10.1 VENTE FLEXIBLE (TRÈS IMPORTANT)
-
-Lors d’une vente :
-
-le prix n’est jamais bloqué
-le vendeur peut ajuster le prix selon le client
-Exemple réel
-
-Produit Kampé :
-
-prix conseillé : 5 000 FCFA
-
-Vente réelle :
-
-client A : 5 000 FCFA
-client B : 4 800 FCFA
-client C : 5 200 FCFA
-Règle système
-
-Le système doit enregistrer :
-
-prix conseillé
-prix réellement vendu
-11.1 DETTES CLIENTS AVANCÉES
-
-Une dette peut évoluer dans le temps.
-
-Cas réel
-
-Client paie en plusieurs fois :
-
-50 000 total
-20 000 payé
-reste 30 000
-Fonctionnalités obligatoires
-ajout de paiements partiels
-mise à jour automatique du reste
-échéance configurable
-alertes retard
-16. IMPORTANT : COHÉRENCE TERRAIN (TRÈS CRITIQUE)
-
-Le système doit respecter une règle fondamentale :
-
-Le commerçant pense en simplicité, pas en comptabilité.
-
-Donc ne pas afficher :
-FIFO
-coût moyen pondéré
-calculs complexes
-structures techniques
-Mais en backend :
-tout doit être traçable
-tout doit être calculé correctement
-tout doit être auditables
-17. EXTENSION FUTURE (SAAS)
-
-Le système doit pouvoir évoluer vers :
-
-plusieurs sociétés indépendantes
-plusieurs pays
-plusieurs devises
-plusieurs chaînes de magasins
-
-sans modification majeure du code.
-
-
-outils scan de vinerabilité semgrep
+Le système peut évoluer vers plusieurs sociétés, pays, devises, chaînes de magasins sans modification majeure du code.

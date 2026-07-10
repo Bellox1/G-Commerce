@@ -123,10 +123,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('employes', [EmployeController::class, 'store']);
         Route::put('employes/{employe}', [EmployeController::class, 'update']);
         Route::delete('employes/{employe}', [EmployeController::class, 'destroy']);
-
-        // ── Profil ────────────────────────────────────────────────────────
-        Route::put('/profile', [ProfileController::class, 'update']);
-        Route::put('/profile/password', [ProfileController::class, 'password']);
-        Route::delete('/profile', [ProfileController::class, 'destroy']);
     });
+
+    // ── Profil (accessible à tous les utilisateurs authentifiés, y compris super_admin) ──
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/password', [ProfileController::class, 'password']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
 });

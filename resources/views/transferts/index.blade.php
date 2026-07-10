@@ -5,7 +5,10 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h3><i class="bi bi-arrow-left-right"></i> Historique des Transferts</h3>
+        <h3 style="display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-arrow-left-right"></i> Historique des Transferts
+            <span style="font-size:0.7rem; background:#f1f5f9; color:#64748b; border-radius:20px; padding:2px 8px; font-weight:600;">{{ method_exists($transferts, 'total') ? $transferts->total() : $transferts->count() }}</span>
+        </h3>
         @if(Auth::user()->peutGererTransferts())
         <a href="{{ route('transferts.create') }}" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-circle"></i> Nouveau Transfert

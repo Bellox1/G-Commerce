@@ -216,24 +216,25 @@
 
         /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #fff; border-radius: var(--radius-card); padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); }
+        .stat-card { background: #fff; border-radius: var(--radius-card); padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); min-width: 0; overflow: hidden; }
+        .stat-card > div:last-child { min-width: 0; overflow: hidden; flex: 1; }
         @media (max-width: 1100px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 640px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .stat-card { padding: 14px; gap: 10px; }
-            .stat-icon { width: 36px; height: 36px; font-size: 1rem; }
-            .stat-val { font-size: 1.2rem; }
-            .stat-lbl { font-size: 0.65rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stat-card { padding: 10px; gap: 8px; }
+            .stat-icon { width: 32px !important; height: 32px !important; font-size: 0.9rem !important; flex-shrink: 0; }
+            .stat-val { font-size: clamp(0.8rem, 3.5vw, 1.15rem) !important; }
+            .stat-lbl { font-size: 0.58rem !important; }
         }
         .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
         .stat-icon.blue { background: #dbeafe; color: #1d4ed8; }
         .stat-icon.green { background: #dcfce7; color: #15803d; }
         .stat-icon.orange { background: #ffedd5; color: #c2410c; }
         .stat-icon.red { background: #fee2e2; color: #b91c1c; }
-        .stat-val { font-size: 1.5rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-        .stat-lbl { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; }
+        .stat-val { font-size: clamp(0.85rem, 2vw, 1.5rem); font-weight: 700; line-height: 1; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat-lbl { font-size: clamp(0.6rem, 1.1vw, 0.75rem); color: var(--text-muted); font-weight: 500; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
 
         /* ─── Breadcrumb Nav Links ─── */
         .nav-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.82rem; padding: 5px 10px; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }

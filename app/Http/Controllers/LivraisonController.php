@@ -39,12 +39,25 @@ class LivraisonController extends Controller
             ->groupBy('statut_livraison')
             ->pluck('total', 'statut_livraison');
 
+        // Compteurs par statut (toujours sur la totalité du tenant, sans filtre)
+        $nbParStatutRaw = Vente::where('tenant_id', $tenant->id)
+            ->selectRaw("statut_livraison, COUNT(*) as nb")
+            ->groupBy('statut_livraison')
+            ->get()
+            ->pluck('nb', 'statut_livraison')
+            ->toArray();
+        $nbParStatut = [
+            'en_attente' => $nbParStatutRaw['en_attente'] ?? 0,
+            'livre'      => $nbParStatutRaw['livre'] ?? 0,
+            'probleme'   => $nbParStatutRaw['probleme'] ?? 0,
+        ];
+
         if (request()->expectsJson() || request()->is('api/*')) {
             return response()->json(['success' => true, 'data' => $ventes, 'stats' => compact('totalMontant', 'totalPaye', 'nbLivraisons')]);
         }
 
         return view('livraisons.index', compact(
-            'ventes', 'totalMontant', 'totalPaye', 'nbLivraisons', 'totalParStatut'
+            'ventes', 'totalMontant', 'totalPaye', 'nbLivraisons', 'totalParStatut', 'nbParStatut'
         ));
     }
 

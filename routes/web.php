@@ -105,11 +105,11 @@ Route::middleware('auth')->group(function () {
 
         // Dépense du dashboard
         Route::post('/dashboard/depense', [DashboardController::class, 'storeDepense'])->name('dashboard.depense.store');
-
-        // Profil
-        Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
-        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
+
+    // Profil (accessible à tous les utilisateurs authifiés, y compris super_admin)
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
