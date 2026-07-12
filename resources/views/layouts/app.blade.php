@@ -391,6 +391,9 @@
                     <i class="bi bi-person-badge"></i> Employés
                 </a>
                 @endif
+                <a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}">
+                    <i class="bi bi-question-circle"></i> FAQ
+                </a>
             @endif
         </div>
     </div>

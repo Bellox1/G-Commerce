@@ -18,6 +18,7 @@ use App\Http\Controllers\AnalytiqueController;
 use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FaqController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Traitements Auth Web (Avec Sessions & Cookies) ────────────────────────
@@ -46,6 +47,7 @@ Route::get('/test', function() {
 Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/faq', [FaqController::class, 'index'])->name('faq');
 
     // Sociétés / Tenants (Super Admin uniquement)
     Route::middleware('super_admin')->group(function () {

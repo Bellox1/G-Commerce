@@ -134,9 +134,9 @@
             position: absolute; inset: 0;
             background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
-        .hero-inner { max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 1; }
+        .hero-inner { width: 100%; display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 1; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(234,141,34,.15); border: 1px solid rgba(234,141,34,.4); color: var(--secondary); padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
-        .hero-title { font-family: 'Montserrat', sans-serif; font-size: 3.6rem; font-weight: 900; color: #fff; line-height: 1.25; letter-spacing: -2px; margin-bottom: 24px; }
+        .hero-title { font-family: 'Montserrat', sans-serif; font-size: 3rem; font-weight: 900; color: #fff; line-height: 1.45; letter-spacing: -2px; margin-bottom: 24px; }
         .arc-underline {
             position: relative;
             display: inline-block;
@@ -151,7 +151,7 @@
             height: 15px;
             pointer-events: none;
         }
-        .hero-desc { font-size: 1.1rem; color: rgba(255,255,255,0.8); line-height: 1.7; margin-bottom: 40px; max-width: 480px; }
+        .hero-desc { font-size: 1.1rem; color: rgba(255,255,255,0.8); line-height: 1.7; margin-bottom: 40px; }
         .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
         .btn-hero-primary { display: inline-flex; align-items: center; gap: 10px; background: #fff; color: var(--primary); padding: 14px 30px; border-radius: 10px; font-weight: 800; font-size: 1rem; text-decoration: none; transition: all .3s; box-shadow: 0 8px 25px rgba(0,0,0,.15); }
         .btn-hero-primary:hover { background: var(--secondary); color: #fff; transform: translateY(-3px); box-shadow: 0 16px 35px rgba(0,0,0,.2); }
@@ -179,6 +179,174 @@
         .mock-bar-label { font-size: 0.72rem; color: rgba(255,255,255,.55); width: 80px; flex-shrink: 0; }
         .mock-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden; }
         .mock-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--secondary), #f97316); }
+
+        .phone-frame {
+            position: relative;
+            width: 280px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 36px;
+            padding: 12px;
+            box-shadow: 0 25px 60px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.1);
+        }
+        .phone-notch {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 24px;
+            background: #1a1a2e;
+            border-radius: 0 0 16px 16px;
+            z-index: 2;
+        }
+        .phone-notch::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: rgba(255,255,255,.15);
+            border-radius: 99px;
+        }
+        .phone-screen {
+            border-radius: 28px;
+            overflow: hidden;
+            background: #0a3d2d;
+            aspect-ratio: 9/16;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .phone-screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tablet-frame {
+            position: relative;
+            width: 360px;
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 14px;
+            box-shadow: 0 25px 60px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.1);
+        }
+        .tablet-camera {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,.12);
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .tablet-screen {
+            border-radius: 16px;
+            overflow: hidden;
+            background: #0a3d2d;
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tablet-screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ─── MULTI-DEVICE SECTION ─── */
+        .multi-device-section {
+            padding: 80px 5%;
+            background: transparent;
+            text-align: center;
+        }
+        .multi-device-inner { max-width: 1100px; margin: 0 auto; }
+        .devices-showcase {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        /* PC */
+        .pc-frame { text-align: center; }
+        .pc-screen {
+            width: 520px;
+            height: 320px;
+            background: #1a1a2e;
+            border-radius: 12px 12px 0 0;
+            border: 4px solid #2a2a3e;
+            border-bottom: none;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pc-screen img { width: 100%; height: 100%; object-fit: cover; }
+        .pc-stand {
+            width: 100px;
+            height: 40px;
+            margin: 0 auto;
+            background: #2a2a3e;
+            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+        }
+
+        /* Tablette large */
+        .tablet-frame-lg {
+            position: relative;
+            width: 200px;
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 15px 40px rgba(0,0,0,.3), inset 0 0 0 2px rgba(255,255,255,.08);
+        }
+        .tablet-screen-lg {
+            border-radius: 14px;
+            overflow: hidden;
+            background: #0a3d2d;
+            aspect-ratio: 3/4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tablet-screen-lg img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Téléphone petit */
+        .phone-frame-sm {
+            position: relative;
+            width: 120px;
+            background: #1a1a2e;
+            border-radius: 22px;
+            padding: 8px;
+            box-shadow: 0 15px 40px rgba(0,0,0,.3), inset 0 0 0 2px rgba(255,255,255,.08);
+        }
+        .phone-notch-sm {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 14px;
+            background: #1a1a2e;
+            border-radius: 0 0 10px 10px;
+            z-index: 2;
+        }
+        .phone-screen-sm {
+            border-radius: 18px;
+            overflow: hidden;
+            background: #0a3d2d;
+            aspect-ratio: 9/16;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .phone-screen-sm img { width: 100%; height: 100%; object-fit: cover; }
 
         /* ─── ENTRY OVERLAY ─── */
         #entry-overlay {
@@ -290,6 +458,7 @@
         }
         .feat-row:nth-child(even) {
             flex-direction: row-reverse;
+            gap: 40px;
         }
         .feat-col-text {
             flex: 1;
@@ -318,11 +487,23 @@
             display: block;
         }
         .feat-row:nth-child(even) .feat-image-card {
-            border-radius: 24px 90px 24px 90px;
-            border-color: var(--secondary); /* Trait de couleur orange en arc */
+            border: none;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
+            max-width: 100%;
         }
         .feat-row:nth-child(even) .feat-image-card img {
-            border-radius: 18px 78px 18px 78px;
+            border-radius: 0;
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            display: block;
+        }
+        .feat-row:nth-child(even) .feat-col-image {
+            flex: 1.3;
+            margin: 0 0 0 40px;
+            padding: 0;
         }
         .feat-image-card:hover {
             transform: translateY(-6px);
@@ -568,7 +749,7 @@
         .footer-bottom { border-top: 1px solid rgba(255,255,255,.07); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: #4b5563; font-size: 0.85rem; }
 
         /* Responsive */
-        @media (max-width: 1024px) { .hero-inner { grid-template-columns: 1fr; } .hero-visual { display: none; } .hero-title { font-size: 2.8rem; } }
+        @media (max-width: 1024px) { .hero-inner { grid-template-columns: 1fr; } .hero-visual { display: none; } .hero-title { font-size: 2.8rem; } .devices-showcase { flex-direction: column; align-items: center; gap: 20px; } .pc-screen { width: 100%; max-width: 480px; height: auto; aspect-ratio: 16/10; } }
 
         @media (max-width: 768px) {
             .nav-links-pub { display: none; }
@@ -579,6 +760,7 @@
             .hero-stat { width: calc(50% - 8px); }
             .section-title { font-size: 2rem; }
             .feat-image-card img { height: 200px; }
+            .feat-row:nth-child(even) .feat-image-card img { border-radius: 0; aspect-ratio: 1/1; width: 100%; height: auto; }
             .role-accordion-header { padding: 14px 16px; gap: 12px; }
             .role-accordion-content { padding: 0 16px 20px 60px; font-size: 0.9rem; }
             .role-accordion-header h4 { font-size: 1rem; }
@@ -593,8 +775,10 @@
             .feat-title { font-size: 1.5rem; }
             .feat-image-card { border-radius: 40px 12px 40px 12px; padding: 8px; }
             .feat-image-card img { height: 160px; border-radius: 32px 8px 32px 8px; }
-            .feat-row:nth-child(even) .feat-image-card { border-radius: 12px 40px 12px 40px; }
-            .feat-row:nth-child(even) .feat-image-card img { border-radius: 8px 32px 8px 32px; }
+            .feat-row:nth-child(even) .feat-image-card { border-radius: 0; border: none; background: transparent; padding: 0; box-shadow: none; }
+            .feat-row:nth-child(even) .feat-image-card img { border-radius: 0; aspect-ratio: 1/1; width: 100%; height: auto; }
+            .pc-screen { width: 280px; height: 180px; }
+            .pc-stand { width: 60px; height: 25px; }
             .role-accordion-content { padding: 0 16px 16px 52px; font-size: 0.85rem; }
             .role-accordion-header { padding: 12px 14px; gap: 10px; }
             .role-accordion-icon { width: 24px; height: 24px; font-size: 0.7rem; border-radius: 6px; }
@@ -798,7 +982,7 @@
     <section class="hero">
         <div class="hero-inner">
             <div class="hero-content anim-hero-content">
-                 <h1 class="hero-title">Gérez factures, ventes, livraisons et <span class="arc-underline">stock<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span> en temps réel</h1>
+                 <h1 class="hero-title">Gérer <span class="arc-underline">stocks<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span>, factures, ventes, livraisons, dettes et <span class="arc-underline">chiffre d'affaires<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span> en temps réel</h1>
                 <p class="hero-desc">L'outil indispensable pour votre commerce : G-STOCK gère intelligemment votre stock, déclenche des alertes avant rupture, centralise la facturation et offre un suivi commercial complet pour propulser vos activités.</p>
                 <div class="hero-actions">
                     <a href="{{ route('login') }}" class="btn-hero-primary">
@@ -809,54 +993,15 @@
                     </a>
                 </div>
                 <div class="hero-stats anim-hero-stats">
-                    <div class="hero-stat"><div class="stat-val">4</div><div class="stat-lbl">Rôles métier</div></div>
                     <div class="hero-stat"><div class="stat-val">∞</div><div class="stat-lbl">Sociétés</div></div>
                     <div class="hero-stat"><div class="stat-val">100%</div><div class="stat-lbl">Multi-magasins</div></div>
                 </div>
             </div>
             <div class="hero-visual anim-hero-visual">
-                <div class="hero-card-mockup">
-                    <div class="mock-header">
-                        <div class="mock-dot" style="background:#ef4444;"></div>
-                        <div class="mock-dot" style="background:#f59e0b;"></div>
-                        <div class="mock-dot" style="background:#22c55e;"></div>
-                        <span style="margin-left:8px; font-size:.75rem; color:rgba(255,255,255,.4);">Dashboard G-STOCK</span>
-                    </div>
-                    <div class="mock-stat-grid">
-                        <div class="mock-stat">
-                            <div class="ms-val">32 000 000</div>
-                            <div class="ms-lbl">Ventes du jour (FCFA)</div>
-                            <div class="ms-trend">↑ +12% vs hier</div>
-                        </div>
-                        <div class="mock-stat">
-                            <div class="ms-val">47</div>
-                            <div class="ms-lbl">Transactions</div>
-                            <div class="ms-trend">↑ +5 aujourd'hui</div>
-                        </div>
-                        <div class="mock-stat">
-                            <div class="ms-val">3</div>
-                            <div class="ms-lbl">Alertes stock bas</div>
-                            <div class="ms-trend" style="color:#f97316;">⚠ À réapprovisionner</div>
-                        </div>
-                        <div class="mock-stat">
-                            <div class="ms-val">12</div>
-                            <div class="ms-lbl">Livraisons en attente</div>
-                            <div class="ms-trend">🚚 En cours</div>
-                        </div>
-                    </div>
-                    <div class="mock-bar-row">
-                        <div class="mock-bar">
-                            <span class="mock-bar-label">Savon GLIC</span>
-                            <div class="mock-bar-track"><div class="mock-bar-fill" style="width:82%;"></div></div>
-                        </div>
-                        <div class="mock-bar">
-                            <span class="mock-bar-label">Riz 5kg</span>
-                            <div class="mock-bar-track"><div class="mock-bar-fill" style="width:65%;"></div></div>
-                        </div>
-                        <div class="mock-bar">
-                            <span class="mock-bar-label">Huile Coco</span>
-                            <div class="mock-bar-track"><div class="mock-bar-fill" style="width:47%;"></div></div>
-                        </div>
+                <div class="phone-frame">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <!-- Remplacer par ta capture phone ici -->
                     </div>
                 </div>
             </div>
@@ -909,7 +1054,6 @@
                 </div>
             </div>
             <div class="feat-col-image">
-                <div class="feat-ring-decoration ring-bl"></div>
                 <div class="feat-image-card">
                     <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&auto=format&fit=crop&q=80" alt="Ventes & Facturation">
                 </div>
@@ -949,9 +1093,36 @@
                 </div>
             </div>
             <div class="feat-col-image">
-                <div class="feat-ring-decoration ring-bl"></div>
                 <div class="feat-image-card">
                     <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80" alt="Gestion des Dettes & SaaS">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Device Section -->
+    <section class="multi-device-section">
+        <div class="multi-device-inner">
+            <span class="feat-badge reveal">Disponible partout</span>
+            <h2 class="section-title reveal" style="margin-bottom: 50px;">Sur <span class="arc-underline" style="color: var(--primary);">tous vos écrans<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span></h2>
+            <div class="devices-showcase reveal">
+                <div class="device pc-frame">
+                    <div class="pc-screen">
+                        <!-- Capture PC ici -->
+                    </div>
+                    <div class="pc-stand"></div>
+                </div>
+                <div class="device tablet-frame-lg">
+                    <div class="tablet-camera"></div>
+                    <div class="tablet-screen-lg">
+                        <!-- Capture tablette ici -->
+                    </div>
+                </div>
+                <div class="device phone-frame-sm">
+                    <div class="phone-notch-sm"></div>
+                    <div class="phone-screen-sm">
+                        <!-- Capture téléphone ici -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -962,8 +1133,8 @@
         <div class="roles-inner">
             <div style="text-align:center;" class="reveal">
                 <div class="section-label reveal reveal-delay-1">Organisation des accès</div>
-                <h2 class="section-title reveal reveal-delay-2">Un rôle précis pour chaque acteur</h2>
-                <p class="section-sub reveal reveal-delay-3" style="margin:0 auto; max-width:650px;">Chaque utilisateur n'accède qu'aux fonctionnalités de son rôle. Les rôles secondaires permettent plus de flexibilité sans compromettre la sécurité de votre base de données.</p>
+                <h2 class="section-title reveal reveal-delay-2">Organisez l'accès de chaque collaborateur</h2>
+                <p class="section-sub reveal reveal-delay-3" style="margin:0 auto; max-width:650px;">Vous pouvez séparer les droits d'accès de votre équipe : qui voit les ventes, qui gère le stock, qui livre. Chaque collaborateur accède uniquement à ce qui le concerne, sans confusion.</p>
             </div>
             
             <div class="roles-accordion">
@@ -1016,7 +1187,7 @@
                                 <li><strong>Maîtrisez</strong> les entrées et sorties : à chaque mouvement son historique pour une traçabilité sans faille</li>
                                 <li><strong>Organisez</strong> vos stocks entre plusieurs dépôts avec les transferts inter-magasins en un clic</li>
                                 <li><strong>Anticipez</strong> les ruptures avec des inventaires physiques et des ajustements précis</li>
-                                <li><strong>Collaborez</strong> efficacement : peut cumuler le rôle secondaire de livreur pour les urgences terrain</li>
+                                <li><strong>Collaborez</strong> efficacement : peut aussi assister la livraison en cas d'urgence terrain</li>
                             </ul>
                         </div>
                     </div>
@@ -1136,7 +1307,7 @@
                     @else
                         <li><a href="{{ route('login') }}" style="color: #374151;"><i class="bi bi-box-arrow-in-right"></i>Se connecter</a></li>
                     @endif
-                    <li><a href="#roles" style="color: #374151;"><i class="bi bi-shield-lock"></i>Rôles & Permissions</a></li>
+
                 </ul>
             </div>
         </div>
