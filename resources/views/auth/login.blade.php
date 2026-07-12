@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G-STOCKaMi — Connexion</title>
+    <title>PilotixaMi — Connexion</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -238,8 +238,7 @@
 
     <!-- Logo Top Left -->
     <a href="{{ url('/') }}" style="position: absolute; top: 30px; left: 40px; text-decoration: none; display: flex; align-items: flex-start; gap: 0; z-index: 10;">
-        <img src="{{ asset('logo.svg') }}" alt="G-STOCK Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
-        <span class="brand-name" style="font-size: 1.8rem; color: var(--primary); margin-left: -2px;">G-STOCK</span>
+        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" style="height: 72px; width: 72px; object-fit: contain; border-radius: 16px;">
     </a>
 
     <div class="login-container">

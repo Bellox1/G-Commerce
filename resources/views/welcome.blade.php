@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G-STOCK — Logiciel de Gestion Commerciale Multi-Magasins</title>
-    <meta name="description" content="G-STOCK est une solution SaaS de gestion commerciale multi-tenant pour les PME africaines : ventes, stock, livraisons, dettes, arrivages et plus.">
+    <title>Pilotix — Logiciel de Gestion Commerciale Multi-Magasins</title>
+    <meta name="description" content="Pilotix est une solution SaaS de gestion commerciale multi-tenant pour les PME africaines : ventes, stock, livraisons, dettes, arrivages et plus.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -21,6 +21,16 @@
         html { scroll-behavior: smooth; }
         body { font-family: 'Inter', sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
 
+        /* ─── TOP BANNER ─── */
+        .top-banner {
+            background: var(--primary); color: #fff;
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            padding: 8px 5%; font-size: 0.82rem; font-weight: 500;
+        }
+        .top-banner a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .top-banner a:hover { opacity: .85; }
+        .top-banner span { opacity: .3; }
+
         /* ─── NAV ─── */
         nav {
             position: sticky; top: 0; z-index: 100;
@@ -30,14 +40,13 @@
             border-bottom: 1px solid rgba(0,0,0,0.06);
             flex-wrap: wrap; gap: 6px 0; justify-content: space-between;
         }
-        .nav-logo { display: flex; align-items: center; gap: 0; text-decoration: none; flex-shrink: 0; }
-        .nav-logo img { margin-top: -10px; }
-        .nav-logo .icon-box { width: 36px; height: 36px; background: var(--primary); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-        .nav-logo .icon-box i { color: #fff; font-size: 1.1rem; }
-        .nav-logo .logo-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.4rem; color: var(--primary); letter-spacing: -1.5px; text-transform: uppercase; margin-left: -2px; }
+        .nav-logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
+        .nav-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
         .nav-links-pub { display: flex; align-items: center; gap: 32px; margin-left: auto; flex-wrap: wrap; }
         .nav-links-pub a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.92rem; white-space: nowrap; }
         .nav-links-pub a:hover, .nav-links-pub a.nav-active { color: var(--primary); }
+        .btn-nav-phone { background: var(--primary); color: #fff !important; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s; white-space: nowrap; }
+        .btn-nav-phone:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,94,73,.3); }
         .btn-nav { background: var(--primary); color: #fff !important; padding: 9px 22px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; transition: all .2s; }
         .btn-nav:hover { background: var(--primary-light) !important; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,94,73,.3); }
 
@@ -272,12 +281,15 @@
             align-items: flex-end;
             justify-content: center;
             gap: 30px;
+            max-width: 100%;
+            overflow: hidden;
         }
 
         /* PC */
-        .pc-frame { text-align: center; }
+        .pc-frame { text-align: center; flex-shrink: 0; }
         .pc-screen {
             width: 520px;
+            max-width: 520px;
             height: 320px;
             background: #1a1a2e;
             border-radius: 12px 12px 0 0;
@@ -356,27 +368,17 @@
             transition: opacity 0.8s ease;
         }
         #entry-overlay.hide { opacity: 0; pointer-events: none; }
-        .entry-svg-wrap { width: 160px; }
-        .entry-svg-wrap svg { width: 100%; height: auto; display: block; }
-        .entry-piece {
-            opacity: 0;
-            transform-origin: center bottom;
-            animation: bottomToTopReveal 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-            animation-delay: calc(var(--i) * 0.12s);
+        .entry-logo-wrap {
+            width: 150px; height: 150px;
+            border-radius: 32px; overflow: hidden;
+            animation: logoEntryAnim 1s cubic-bezier(0.25,1,0.5,1) both;
+            box-shadow: 0 8px 40px rgba(16,94,73,.3);
         }
-        @keyframes bottomToTopReveal {
-            0% {
-                opacity: 0;
-                transform: translateY(120px) scale(0.85);
-            }
-            70% {
-                opacity: 0.8;
-                transform: translateY(-10px) scale(1.02);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .entry-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        @keyframes logoEntryAnim {
+            0%   { opacity: 0; transform: scale(0.5) translateY(40px); }
+            70%  { opacity: 1; transform: scale(1.06) translateY(-5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
         .entry-text {
             margin-top: 28px; text-align: center;
@@ -601,8 +603,12 @@
                 max-width: 100%;
             }
             .feat-image-card img {
-                height: 280px;
-            }
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 14px;
+            display: block;
+        }
         }
 
         /* ─── ROLES ACCORDION ─── */
@@ -710,7 +716,7 @@
         }
 
         /* ─── CTA ─── */
-        .cta { padding: 100px 5%; background: linear-gradient(135deg, #0a3d2d, #105e49); text-align: center; position: relative; overflow: hidden; }
+        .cta { padding: 100px 5%; background: url('https://i.pinimg.com/736x/6a/cd/1b/6acd1b1405369a5b0457877eed1dc42d.jpg') center/cover no-repeat; text-align: center; position: relative; overflow: hidden; }
         .cta h2 { font-family: 'Montserrat', sans-serif; font-size: 2.8rem; font-weight: 900; color: #fff; letter-spacing: -1px; margin-bottom: 16px; }
         .cta p { font-size: 1.15rem; color: rgba(255,255,255,.75); max-width: 520px; margin: 0 auto 40px; line-height: 1.7; }
         .cta-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 60px; text-align: left; }
@@ -722,6 +728,7 @@
         .cta-form-box .form-control { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 12px 16px; border-radius: 10px; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
         .cta-form-box .form-control:focus { outline: none; border-color: var(--secondary); background: rgba(255, 255, 255, 0.18); box-shadow: 0 0 0 4px rgba(234, 141, 34, 0.15); }
         .cta-form-box .form-control::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .cta-form-box select.form-control option { background: #1f2937; color: #fff; padding: 8px; }
         .btn-cta-submit { background: var(--secondary); color: #fff; border: none; padding: 14px 28px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 10px 20px rgba(234, 141, 34, 0.2); }
         .btn-cta-submit:hover { background: #f97316; transform: translateY(-2px); box-shadow: 0 15px 30px rgba(234, 141, 34, 0.3); }
         @media (max-width: 991px) {
@@ -749,7 +756,17 @@
         .footer-bottom { border-top: 1px solid rgba(255,255,255,.07); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: #4b5563; font-size: 0.85rem; }
 
         /* Responsive */
-        @media (max-width: 1024px) { .hero-inner { grid-template-columns: 1fr; } .hero-visual { display: none; } .hero-title { font-size: 2.8rem; } .devices-showcase { flex-direction: column; align-items: center; gap: 20px; } .pc-screen { width: 100%; max-width: 480px; height: auto; aspect-ratio: 16/10; } }
+        @media (max-width: 1024px) {
+            .hero-inner { grid-template-columns: 1fr; }
+            .hero-visual { display: none; }
+            .hero-title { font-size: 2.8rem; }
+            .devices-showcase { flex-direction: column; align-items: center; gap: 20px; }
+            .pc-frame { width: 80%; max-width: 480px; }
+            .pc-screen { width: 100%; height: auto; aspect-ratio: 16/10; border-width: 3px; }
+            .pc-stand { width: 80px; height: 28px; }
+            .tablet-frame-lg { width: 160px; }
+            .phone-frame-sm { width: 100px; }
+        }
 
         @media (max-width: 768px) {
             .nav-links-pub { display: none; }
@@ -759,8 +776,20 @@
             .hero-stats { gap: 16px; flex-wrap: wrap; }
             .hero-stat { width: calc(50% - 8px); }
             .section-title { font-size: 2rem; }
-            .feat-image-card img { height: 200px; }
-            .feat-row:nth-child(even) .feat-image-card img { border-radius: 0; aspect-ratio: 1/1; width: 100%; height: auto; }
+            .feat-image-card img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 14px;
+            display: block;
+        }
+            .feat-row:nth-child(even) .feat-image-card img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 14px;
+            display: block;
+        }
             .role-accordion-header { padding: 14px 16px; gap: 12px; }
             .role-accordion-content { padding: 0 16px 20px 60px; font-size: 0.9rem; }
             .role-accordion-header h4 { font-size: 1rem; }
@@ -773,12 +802,40 @@
             .hero-stat .stat-val { font-size: 1.5rem; }
             .section-title { font-size: 1.6rem; }
             .feat-title { font-size: 1.5rem; }
-            .feat-image-card { border-radius: 40px 12px 40px 12px; padding: 8px; }
-            .feat-image-card img { height: 160px; border-radius: 32px 8px 32px 8px; }
-            .feat-row:nth-child(even) .feat-image-card { border-radius: 0; border: none; background: transparent; padding: 0; box-shadow: none; }
-            .feat-row:nth-child(even) .feat-image-card img { border-radius: 0; aspect-ratio: 1/1; width: 100%; height: auto; }
-            .pc-screen { width: 280px; height: 180px; }
-            .pc-stand { width: 60px; height: 25px; }
+            .feat-image-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(16, 94, 73, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+            .feat-image-card img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 14px;
+            display: block;
+        }
+            .feat-row:nth-child(even) .feat-image-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(16, 94, 73, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+            .feat-row:nth-child(even) .feat-image-card img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border-radius: 14px;
+            display: block;
+        }
+            .pc-screen { width: 320px; height: auto; aspect-ratio: 16/10; }
+            .pc-stand { width: 70px; height: 28px; }
             .role-accordion-content { padding: 0 16px 16px 52px; font-size: 0.85rem; }
             .role-accordion-header { padding: 12px 14px; gap: 10px; }
             .role-accordion-icon { width: 24px; height: 24px; font-size: 0.7rem; border-radius: 6px; }
@@ -804,9 +861,26 @@
             0%, 100% { transform: translateY(0); }
             50%      { transform: translateY(-12px); }
         }
+        @keyframes logoEntry {
+            0%   { opacity: 0; transform: scale(0.6) translateY(30px); }
+            60%  { opacity: 1; transform: scale(1.05) translateY(-4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes logoGlow {
+            0%, 100% { box-shadow: 0 8px 32px rgba(16,94,73,.25), 0 0 60px rgba(234,141,34,.08); }
+            50%      { box-shadow: 0 12px 40px rgba(16,94,73,.35), 0 0 80px rgba(234,141,34,.15); }
+        }
         .anim-hero-content { animation: fadeSlideUp 0.9s ease-out both; }
         .anim-hero-visual  { animation: fadeSlideUp 0.9s ease-out 0.3s both; }
         .anim-hero-stats   { animation: fadeIn 0.8s ease-out 0.6s both; }
+        .hero-logo-wrap {
+            display: flex; align-items: center; justify-content: center;
+            width: 180px; height: 180px; margin: 0 auto;
+            border-radius: 40px; overflow: hidden;
+            animation: logoEntry 1s ease-out 0.5s both, logoGlow 3s ease-in-out infinite 1.5s;
+            background: #fff; border: 3px solid rgba(255,255,255,.15);
+        }
+        .hero-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
         .reveal {
             opacity: 0;
@@ -822,119 +896,35 @@
         .reveal-delay-3 { transition-delay: 0.3s; }
         .reveal-delay-4 { transition-delay: 0.4s; }
 
-        .feat-image-card { animation: floatSlow 6s ease-in-out infinite; }
-        .feat-row:nth-child(even) .feat-image-card { animation-delay: -3s; }
+        .feat-image-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(16, 94, 73, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .feat-row:nth-child(even) .feat-image-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 8px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(16, 94, 73, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body>
 
     <!-- Entry Overlay -->
     <div id="entry-overlay">
-        <div class="entry-svg-wrap" style="width: 170px;">
-            <svg viewBox="0 0 431 775" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="paint0_linear_921_6071" x1="-0.215805" y1="0.0726477" x2="375.488" y2="375.777" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#020d0a"/>
-                        <stop offset="0.99696" stop-color="#052c22"/>
-                    </linearGradient>
-                    <linearGradient id="paint1_linear_921_6071" x1="187.834" y1="0" x2="187.834" y2="375.668" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#052c22"/>
-                        <stop offset="1" stop-color="#105e49"/>
-                    </linearGradient>
-                </defs>
-
-                <!-- Concentric Isometric Cubes -->
-                <g class="entry-piece" style="--i: 2">
-                    <rect width="375.668" height="375.668" transform="matrix(0.866025 0.5 0 1 50 210.745)" fill="url(#paint1_linear_921_6071)" stroke="#105e49" stroke-width="2"/>
-                    <rect width="375.668" height="375.668" transform="matrix(0.866025 -0.5 0 1 375.34 398.579)" stroke="#105e49" stroke-width="2"/>
-                    <rect width="375.668" height="375.668" transform="matrix(0.866025 0.5 -0.866025 0.5 375.34 22.9108)" fill="url(#paint0_linear_921_6071)" stroke="#105e49" stroke-width="2"/>
-                </g>
-
-                <g class="entry-piece" style="--i: 3">
-                    <rect width="300.357" height="300.357" transform="matrix(0.866025 0.5 -0.866025 0.5 375.34 98.2216)" stroke="#167e65" stroke-width="1.5"/>
-                    <rect width="300.357" height="300.357" transform="matrix(0.866025 0.5 0 1 115.221 248.4)" stroke="#167e65" stroke-width="1.5"/>
-                    <rect width="300.357" height="300.357" transform="matrix(0.866025 -0.5 0 1 375.34 398.579)" stroke="#167e65" stroke-width="1.5"/>
-
-                    <rect width="227.214" height="227.214" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 171.365)" stroke="#1a9e7a" stroke-width="1.5"/>
-                    <rect width="227.214" height="227.214" transform="matrix(0.866025 0.5 0 1 178.566 284.972)" stroke="#1a9e7a" stroke-width="1.5"/>
-                    <rect width="227.214" height="227.214" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" stroke="#1a9e7a" stroke-width="1.5"/>
-                </g>
-
-                <g class="entry-piece" style="--i: 4">
-                    <rect width="159.01" height="159.01" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 239.569)" stroke="#2ec4a0"/>
-                    <rect width="159.01" height="159.01" transform="matrix(0.866025 0.5 0 1 237.632 319.074)" stroke="#2ec4a0"/>
-                    <rect width="159.01" height="159.01" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" stroke="#2ec4a0"/>
-                </g>
-
-                <g class="entry-piece" style="--i: 3">
-                    <rect width="94.294" height="94.294" transform="matrix(0.866025 0.5 -0.866025 0.5 375.339 304.285)" fill="#167e65" stroke="#ea8d22" stroke-width="1.5"/>
-                    <rect width="94.294" height="94.294" transform="matrix(0.866025 0.5 0 1 293.678 351.432)" fill="#0a3d2d" stroke="#ea8d22" stroke-width="1.5"/>
-                    <rect width="94.294" height="94.294" transform="matrix(0.866025 -0.5 0 1 375.339 398.579)" fill="#105e49" stroke="#ea8d22" stroke-width="1.5"/>
-                </g>
-
-                <!-- MAGASIN (Shop storefront) at the top -->
-                <g class="entry-piece" style="--i: 5">
-                    <g transform="translate(111, 10) scale(1.6)">
-                        <path d="M 20 20 L 120 20 L 135 40 L 5 40 Z" fill="#ea8d22" />
-                        <path d="M 23 20 L 39 20 L 32 40 L 16 40 Z" fill="#ffffff" opacity="0.35"/>
-                        <path d="M 60 20 L 76 20 L 71 40 L 55 40 Z" fill="#ffffff" opacity="0.35"/>
-                        <path d="M 97 20 L 113 20 L 110 40 L 94 40 Z" fill="#ffffff" opacity="0.35"/>
-                        <path d="M 20 20 L 120 20 L 135 40 L 5 40 Z" fill="none" stroke="#d97706" stroke-width="2"/>
-                        
-                        <rect x="15" y="40" width="110" height="60" rx="3" fill="#031611" stroke="#167e65" stroke-width="2.5"/>
-                        <rect x="25" y="50" width="40" height="35" rx="2" fill="none" stroke="#1a9e7a" stroke-width="1.5"/>
-                        <line x1="27" y1="67" x2="63" y2="67" stroke="#1a9e7a" stroke-width="1"/>
-                        <rect x="30" y="54" width="8" height="11" rx="1" fill="#ea8d22" opacity="0.95"/>
-                        <rect x="45" y="56" width="12" height="9" rx="1" fill="#f59e0b" opacity="0.95"/>
-                        
-                        <rect x="75" y="50" width="35" height="48" rx="2" fill="none" stroke="#1a9e7a" stroke-width="1.5"/>
-                        <rect x="80" y="58" width="10" height="40" rx="1" fill="#167e65"/>
-                        <circle cx="83" cy="78" r="1.5" fill="#ea8d22"/>
-                    </g>
-                </g>
-
-                <!-- STOCK (Isometric packages stack) at the bottom-left -->
-                <g class="entry-piece" style="--i: 1">
-                    <g transform="translate(10, 560) scale(1.6)">
-                        <path d="M 55 20 L 75 30 L 55 40 L 35 30 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1.5"/>
-                        <line x1="35" y1="30" x2="75" y2="30" stroke="#d97706" stroke-width="2" opacity="0.8"/>
-                        <path d="M 35 30 L 55 40 L 55 60 L 35 50 Z" fill="#105e49" stroke="#0a3d2d" stroke-width="1.5"/>
-                        <path d="M 55 40 L 75 30 L 75 50 L 55 60 Z" fill="#167e65" stroke="#105e49" stroke-width="1.5"/>
-
-                        <path d="M 35 48 L 55 58 L 35 68 L 15 58 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1.5"/>
-                        <line x1="15" y1="58" x2="55" y2="58" stroke="#d97706" stroke-width="2" opacity="0.8"/>
-                        <path d="M 15 58 L 35 68 L 35 88 L 15 78 Z" fill="#105e49" stroke="#0a3d2d" stroke-width="1.5"/>
-                        <path d="M 35 68 L 55 58 L 55 78 L 35 88 Z" fill="#167e65" stroke="#105e49" stroke-width="1.5"/>
-
-                        <path d="M 55 58 L 75 48 L 95 58 L 75 68 Z" fill="#fcd34d" stroke="#f59e0b" stroke-width="1.5"/>
-                        <line x1="55" y1="58" x2="95" y2="58" stroke="#d97706" stroke-width="2" opacity="0.8"/>
-                        <path d="M 75 68 L 95 58 L 95 78 L 75 88 Z" fill="#167e65" stroke="#105e49" stroke-width="1.5"/>
-                    </g>
-                </g>
-
-                <!-- CHIFFRE D'AFFAIRES (Isometric growth chart) at the bottom-right -->
-                <g class="entry-piece" style="--i: 2">
-                    <g transform="translate(250, 565) scale(1.6)">
-                        <path d="M 28 55 L 38 60 L 28 65 L 18 60 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1"/>
-                        <path d="M 18 60 L 28 65 L 28 80 L 18 75 Z" fill="#ea8d22" stroke="#d97706" stroke-width="1"/>
-                        <path d="M 28 65 L 38 60 L 38 75 L 28 80 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
-
-                        <path d="M 48 40 L 58 45 L 48 50 L 38 45 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1"/>
-                        <path d="M 38 45 L 48 50 L 48 80 L 38 75 Z" fill="#ea8d22" stroke="#d97706" stroke-width="1"/>
-                        <path d="M 48 50 L 58 45 L 58 75 L 48 80 Z" fill="#d97706" stroke="#b45309" stroke-width="1"/>
-
-                        <path d="M 68 25 L 78 30 L 68 35 L 58 30 Z" fill="#fcd34d" stroke="#f59e0b" stroke-width="1"/>
-                        <path d="M 58 30 L 68 35 L 68 80 L 58 75 Z" fill="#f59e0b" stroke="#ea8d22" stroke-width="1"/>
-                        <path d="M 68 35 L 78 30 L 78 75 L 68 80 Z" fill="#ea8d22" stroke="#d97706" stroke-width="1"/>
-
-                        <path d="M 15 65 Q 40 45 74 19" fill="none" stroke="#167e65" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <polygon points="69,18 76,17 74,24" fill="#167e65"/>
-                    </g>
-                </g>
-            </svg>
+        <div class="entry-logo-wrap">
+            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix">
         </div>
         <div class="entry-text">
-            <span class="entry-text-main">G-STOCK</span>
+            <span class="entry-text-main">Pilotix</span>
             <span class="entry-text-sub">Gestion Commerciale &amp; Stock</span>
         </div>
     </div>
@@ -944,16 +934,24 @@
         }, 3600);
     </script>
 
+    <!-- Top Banner -->
+    <div class="top-banner">
+        <a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a>
+        <span>|</span>
+        <a href="mailto:pilotrix@gmail.com"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a>
+    </div>
+
     <!-- Nav -->
     <nav>
         <a href="/" class="nav-logo">
-            <img src="{{ asset('logo.svg') }}" alt="G-STOCK Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 9px;">
-            <span class="logo-name">G-STOCK</span>
+            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo">
         </a>
         <div class="nav-links-pub">
             <a href="#fonctionnalites">Fonctionnalités</a>
             <a href="#roles">Rôles & Accès</a>
-            <a href="#contact">Contact</a>
+            <a href="#offres">Tarif</a>
+            <a href="{{ route('partenaires') }}">Partenariat</a>
+            <a href="#contact">Demande</a>
             @if (Auth::check())
                 <a href="{{ route('dashboard') }}" class="btn-nav"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
             @else
@@ -969,7 +967,10 @@
     <div class="mobile-menu" id="mobileMenu">
         <a href="#fonctionnalites" onclick="closeMenu()"><i class="bi bi-grid-1x2"></i> Fonctionnalités</a>
         <a href="#roles" onclick="closeMenu()"><i class="bi bi-people"></i> Rôles & Accès</a>
-        <a href="#contact" onclick="closeMenu()"><i class="bi bi-chat-dots"></i> Contact</a>
+        <a href="#offres" onclick="closeMenu()"><i class="bi bi-tag"></i> Tarif</a>
+        <a href="{{ route('partenaires') }}" onclick="closeMenu()"><i class="bi bi-handshake"></i> Partenariat</a>
+        <a href="#contact" onclick="closeMenu()"><i class="bi bi-chat-dots"></i> Demande</a>
+        <a href="tel:+2290146862536" onclick="closeMenu()"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a>
         <div class="mobile-menu-divider"></div>
         @if (Auth::check())
             <a href="{{ route('dashboard') }}" class="btn-nav-mobile"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
@@ -982,8 +983,8 @@
     <section class="hero">
         <div class="hero-inner">
             <div class="hero-content anim-hero-content">
-                 <h1 class="hero-title">Gérer <span class="arc-underline">stocks<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span>, factures, ventes, livraisons, dettes et <span class="arc-underline">chiffre d'affaires<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span> en temps réel</h1>
-                <p class="hero-desc">L'outil indispensable pour votre commerce : G-STOCK gère intelligemment votre stock, déclenche des alertes avant rupture, centralise la facturation et offre un suivi commercial complet pour propulser vos activités.</p>
+                 <h1 class="hero-title">Gérer <span class="arc-underline">stocks<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span>, factures, ventes, livraisons, dettes et <span class="arc-underline" style="white-space:nowrap;">chiffre d'affaires<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span> en temps réel</h1>
+                <p class="hero-desc">L'outil indispensable pour votre commerce : Pilotix gère intelligemment votre stock, déclenche des alertes avant rupture, centralise la facturation et offre un suivi commercial complet pour propulser vos activités.</p>
                 <div class="hero-actions">
                     <a href="{{ route('login') }}" class="btn-hero-primary">
                         <i class="bi bi-box-arrow-in-right"></i> Accéder à mon espace
@@ -1001,7 +1002,7 @@
                 <div class="phone-frame">
                     <div class="phone-notch"></div>
                     <div class="phone-screen">
-                        <!-- Remplacer par ta capture phone ici -->
+                        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                 </div>
             </div>
@@ -1016,7 +1017,7 @@
         <div class="decor-arc decor-arc-2"></div>
 
         <div class="features-header reveal">
-            <div class="section-label reveal reveal-delay-1">Ce qu'G-STOCK fait pour vous</div>
+            <div class="section-label reveal reveal-delay-1">Ce qu'Pilotix fait pour vous</div>
             <h2 class="section-title reveal reveal-delay-2">Un outil complet, pensé pour le <span class="arc-underline" style="color: var(--primary);">Marché local et Magasins<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span></h2>
             <p class="section-sub reveal reveal-delay-3">Découvrez comment chaque module structure et sécurise vos processus commerciaux quotidiens.</p>
         </div>
@@ -1026,7 +1027,7 @@
             <div class="feat-col-text">
                 <span class="feat-badge"><i class="bi bi-box-seam"></i> Logistique</span>
                 <h3 class="feat-title">Suivi des stocks en temps réel par dépôt</h3>
-                <p class="feat-desc">Ne soyez plus jamais pris au dépourvu. Suivez l’état de vos produits de façon globale et par point de stockage physique. G-STOCK calcule automatiquement les niveaux critiques pour vous alerter en cas de stock bas.</p>
+                <p class="feat-desc">Ne soyez plus jamais pris au dépourvu. Suivez l’état de vos produits de façon globale et par point de stockage physique. Pilotix calcule automatiquement les niveaux critiques pour vous alerter en cas de stock bas.</p>
                 <div class="bullet-list">
                     <div class="bullet-item"><i class="bi bi-check2"></i> Multi-dépôts : gestion indépendante par magasin physique.</div>
                     <div class="bullet-item"><i class="bi bi-check2"></i> Seuils d'alerte : notification dynamique avant rupture.</div>
@@ -1124,6 +1125,66 @@
                         <!-- Capture téléphone ici -->
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Offres -->
+    <section id="offres" class="features-section" style="padding-top:40px; padding-bottom:80px;">
+        <div class="features-header reveal">
+            <div class="section-label">Nos Offres</div>
+            <h2 class="section-title">Choisissez votre version</h2>
+            <p class="section-sub" style="font-size:1.1rem; color:var(--muted); max-width:600px; margin:0 auto; line-height:1.6;">Deux options simples. Zéro engagement.</p>
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap; max-width:1100px; margin:0 auto;" class="reveal">
+            <!-- Offre Locale -->
+            <div style="flex:1; min-width:320px; max-width:450px; background:#fff; border-radius:24px; padding:48px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.03); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
+                <h3 style="font-family:'Montserrat',sans-serif; font-size:1.8rem; font-weight:900; color:var(--text); margin-bottom:6px;">Version Locale</h3>
+                
+                <div style="margin-bottom:24px;">
+                    <div style="font-family:'Montserrat', sans-serif; font-size:2.5rem; font-weight:900; color:var(--text); letter-spacing:-1px;">79 900 <span style="font-size:1rem; font-weight:700; color:var(--muted);">FCFA</span></div>
+                    <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-top:4px;">Paiement unique, licence à vie</div>
+                </div>
+
+                <ul style="list-style:none; padding:0; margin:0 0 30px; display:flex; flex-direction:column; gap:12px; border-top:1px solid #f1f5f9; padding-top:24px; flex-grow:1;">
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion complète des stocks, ventes, achats & fournisseurs</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Suivi des créances clients & dettes fournisseurs</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion multi-utilisateurs avec droits d'accès</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Rapports & statistiques de vente en temps réel</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion des catégories, dépôts & transferts</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Impression de reçus, factures & états de stock</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-x-circle" style="color:#ef4444; font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Accessible uniquement depuis un seul ordinateur</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-x-circle" style="color:#ef4444; font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Pas de synchronisation de données à distance</span></li>
+                </ul>
+
+                <a href="#contact" style="display:block; text-align:center; padding:16px; background:rgba(16,94,73,0.06); color:var(--primary); border-radius:12px; font-weight:800; font-size:1.05rem; text-decoration:none; transition:all .2s;">Souscrire maintenant</a>
+            </div>
+
+            <!-- Offre Cloud -->
+            <div style="flex:1; min-width:320px; max-width:450px; background:#fff; border-radius:24px; padding:48px; border:2px solid var(--secondary); box-shadow:0 15px 40px rgba(234,141,34,0.1); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
+                <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg, var(--secondary), #f59e0b); color:#fff; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:2px; padding:8px 0; text-align:center; border-radius:22px 22px 0 0;">Le plus populaire</div>
+                
+                <h3 style="font-family:'Montserrat',sans-serif; font-size:1.8rem; font-weight:900; color:var(--text); margin-bottom:6px; margin-top:10px;">Version Cloud Sync</h3>
+                
+                <div style="margin-bottom:24px;">
+                    <div style="font-family:'Montserrat', sans-serif; font-size:2.5rem; font-weight:900; color:var(--text); letter-spacing:-1px;">3 500 <span style="font-size:1rem; font-weight:700; color:var(--muted);">FCFA / mois</span></div>
+                    <div style="font-size:0.85rem; font-weight:700; color:var(--secondary); margin-top:4px;">Jusqu'à -30% sur l'engagement</div>
+                </div>
+
+                <ul style="list-style:none; padding:0; margin:0 0 30px; display:flex; flex-direction:column; gap:12px; border-top:1px solid #f1f5f9; padding-top:24px; flex-grow:1;">
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion complète des stocks, ventes, achats & fournisseurs</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Suivi des créances clients & dettes fournisseurs</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion multi-utilisateurs avec droits d'accès</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Rapports & statistiques de vente en temps réel</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion des catégories, dépôts & transferts</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Impression de reçus, factures & états de stock</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Accessible partout (PC, Mobile, Tablette)</span></li>
+                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Synchronisation des données à distance</span></li>
+                </ul>
+
+                <a href="#contact" style="display:block; text-align:center; padding:16px; background:var(--secondary); color:#fff; border-radius:12px; font-weight:800; font-size:1.05rem; text-decoration:none; transition:all .2s; box-shadow:0 8px 20px rgba(234,141,34,0.3);">Souscrire maintenant</a>
             </div>
         </div>
     </section>
@@ -1234,7 +1295,7 @@
                 <h3>Créer ma société</h3>
 
                 @if(session('success'))
-                    <div style="background: rgba(22, 163, 74, 0.2); border: 1px solid #16a34a; padding: 14px; border-radius: 10px; color: #4ade80; font-size: 0.9rem; margin-bottom: 20px; font-weight: 500;">
+                    <div style="background: rgba(22, 163, 74, 0.9); border: 1px solid #4ade80; padding: 16px; border-radius: 10px; color: #fff; font-size: 0.95rem; margin-bottom: 20px; font-weight: 600; text-align:center;">
                         <i class="bi bi-check-circle-fill" style="margin-right: 6px;"></i> {{ session('success') }}
                     </div>
                 @endif
@@ -1243,33 +1304,59 @@
                     @csrf
                     <div class="form-group">
                         <label class="form-label" for="nom_societe">Nom de la société *</label>
-                        <input type="text" name="nom_societe" id="nom_societe" class="form-control" placeholder="Ex: Mon Entreprise SARL" required value="{{ old('nom_societe') }}">
+                        <input type="text" name="nom_societe" id="nom_societe" class="form-control" placeholder="Ex: Mon Entreprise SARL" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Adresse email de contact *</label>
+                        <input type="email" name="email" id="email" class="form-control" placeholder="Ex: contact@entreprise.com" required>
                     </div>
 
                     <div class="form-row-contact">
                         <div class="form-group" style="flex:1;">
                             <label class="form-label" for="localisation">Pays / Localisation *</label>
-                            <input type="text" name="localisation" id="localisation" class="form-control" placeholder="Ex: Bénin" required value="{{ old('localisation') }}">
+                            <input type="text" name="localisation" id="localisation" class="form-control" placeholder="Ex: Bénin" required>
                         </div>
                         <div class="form-group" style="flex:1;">
                             <label class="form-label" for="ville">Ville *</label>
-                            <input type="text" name="ville" id="ville" class="form-control" placeholder="Ex: Cotonou" required value="{{ old('ville') }}">
+                            <input type="text" name="ville" id="ville" class="form-control" placeholder="Ex: Cotonou" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="telephone">Numéro de téléphone *</label>
-                        <input type="text" name="telephone" id="telephone" class="form-control" placeholder="Ex: +229 97 00 00 00" required value="{{ old('telephone') }}">
+                        <input type="text" name="telephone" id="telephone" class="form-control" placeholder="Ex: +229 97 00 00 00" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="secteurs_activite">Secteurs d'activité *</label>
-                        <input type="text" name="secteurs_activite" id="secteurs_activite" class="form-control" placeholder="Ex: Import/Export, Distribution, Vente au détail" required value="{{ old('secteurs_activite') }}">
+                        <input type="text" name="secteurs_activite" id="secteurs_activite" class="form-control" placeholder="Ex: Import/Export, Distribution, Vente au détail" required>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="email">Adresse email de contact *</label>
-                        <input type="email" name="email" id="email" class="form-control" placeholder="Ex: contact@entreprise.com" required value="{{ old('email') }}">
+                    <div class="form-row-contact">
+                        <div class="form-group" style="flex:1;">
+                            <label class="form-label" for="type_souscription">Type de souscription *</label>
+                            <select name="type_souscription" id="type_souscription" class="form-control" required onchange="updateDuree()">
+                                <option value="cloud">Cloud Sync (3 500 FCFA/mois)</option>
+                                <option value="local">Locale (79 900 FCFA)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label class="form-label" for="duree">Durée</label>
+                            <select name="duree" id="duree" class="form-control" onchange="updateDuree()">
+                                <option value="vie" id="opt-vie">À vie</option>
+                                <option value="1" id="opt-1" selected>1 mois</option>
+                                <option value="3" id="opt-3">3 mois</option>
+                                <option value="6" id="opt-6">6 mois</option>
+                                <option value="12" id="opt-12">1 an</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="price-display" style="display:flex; align-items:center; gap:10px; padding:12px 16px; background:rgba(255,255,255,0.1); border-radius:10px; margin-bottom:16px;">
+                        <span style="font-weight:800; font-size:1.3rem; color:#fff;" id="price-total">3 500 FCFA</span>
+                        <span style="font-size:0.8rem; color:rgba(255,255,255,0.5); font-weight:600;" id="price-period">/mois</span>
+                        <span id="price-eco" style="display:none; font-size:0.75rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.15); padding:2px 10px; border-radius:8px; margin-left:auto;"></span>
                     </div>
 
                     <button type="submit" class="btn-cta-submit">
@@ -1284,9 +1371,8 @@
     <footer style="background:#ffffff; border-top: 1px solid #e5e7eb;">
         <div class="footer-top">
             <div class="footer-brand">
-                <div style="display:flex; align-items:flex-start; gap:0; margin-bottom:10px;">
-                    <img src="{{ asset('logo.svg') }}" alt="G-STOCK Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 9px;">
-                    <span class="logo-name" style="color: var(--primary); letter-spacing:-1.5px; margin-left:-2px;">G-STOCK</span>
+                <div style="margin-bottom:10px;">
+                    <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
                 </div>
                 <p style="color: #6b7280;">Solution de gestion commerciale multi-tenant pour les PME d'Afrique de l'Ouest.</p>
             </div>
@@ -1307,13 +1393,21 @@
                     @else
                         <li><a href="{{ route('login') }}" style="color: #374151;"><i class="bi bi-box-arrow-in-right"></i>Se connecter</a></li>
                     @endif
-
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h5 style="color: #374151;">Contact</h5>
+                <ul>
+                    <li><a href="tel:+2290146862536" style="color: #374151;"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
+                    <li><a href="mailto:pilotrix@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a></li>
+                    <li><a href="mailto:belloxdigital@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> belloxdigital@gmail.com</a></li>
+                    <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-handshake"></i> Partenariat</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom" style="border-top: 1px solid #e5e7eb; color: #6b7280;">
-            <span>© {{ date('Y') }} G-STOCK — Gestion commerciale multi-tenant</span>
-            <span>Tous droits réservés</span>
+            <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-tenant</span>
+            <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a></span>
         </div>
     </footer>
 <script>
@@ -1382,6 +1476,66 @@
 
     window.addEventListener('scroll', setActiveLink);
     setActiveLink();
+
+    function updateDuree() {
+        var type = document.getElementById('type_souscription').value;
+        var duree = document.getElementById('duree').value;
+        var optVie = document.getElementById('opt-vie');
+        var opt1 = document.getElementById('opt-1');
+        var opt3 = document.getElementById('opt-3');
+        var opt6 = document.getElementById('opt-6');
+        var opt12 = document.getElementById('opt-12');
+        var sel = document.getElementById('duree');
+        var priceTotal = document.getElementById('price-total');
+        var pricePeriod = document.getElementById('price-period');
+        var priceEco = document.getElementById('price-eco');
+
+        if (type === 'local') {
+            optVie.style.display = '';
+            opt1.style.display = 'none'; opt3.style.display = 'none';
+            opt6.style.display = 'none'; opt12.style.display = 'none';
+            sel.value = 'vie';
+            priceTotal.textContent = '79 900 FCFA';
+            pricePeriod.textContent = 'Paiement unique';
+            priceEco.style.display = 'none';
+        } else {
+            optVie.style.display = 'none';
+            opt1.style.display = ''; opt3.style.display = '';
+            opt6.style.display = ''; opt12.style.display = '';
+            if (sel.value === 'vie') sel.value = '1';
+            updateCloudPrice();
+        }
+    }
+
+    function updateCloudPrice() {
+        var duree = document.getElementById('duree').value;
+        var priceTotal = document.getElementById('price-total');
+        var pricePeriod = document.getElementById('price-period');
+        var priceEco = document.getElementById('price-eco');
+        var tarif = 3500;
+        var prix, label, economie, taux;
+
+        if (duree === '1') {
+            prix = tarif; label = '/mois';
+            priceEco.style.display = 'none';
+        } else if (duree === '3') {
+            prix = 9000; label = 'pour 3 mois';
+            economie = (tarif * 3) - prix; taux = Math.round((economie / (tarif * 3)) * 100);
+            priceEco.style.display = ''; priceEco.textContent = '-' + economie.toLocaleString() + ' FCFA (' + taux + '%)';
+        } else if (duree === '6') {
+            prix = 16800; label = 'pour 6 mois';
+            economie = (tarif * 6) - prix; taux = Math.round((economie / (tarif * 6)) * 100);
+            priceEco.style.display = ''; priceEco.textContent = '-' + economie.toLocaleString() + ' FCFA (' + taux + '%)';
+        } else if (duree === '12') {
+            prix = 30000; label = 'pour 1 an';
+            economie = (tarif * 12) - prix; taux = Math.round((economie / (tarif * 12)) * 100);
+            priceEco.style.display = ''; priceEco.textContent = '-' + economie.toLocaleString() + ' FCFA (' + taux + '%)';
+        }
+        priceTotal.textContent = prix.toLocaleString() + ' FCFA';
+        pricePeriod.textContent = label;
+    }
+
+    updateDuree();
 </script>
 </body>
 </html>

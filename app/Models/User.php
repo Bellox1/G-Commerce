@@ -35,6 +35,7 @@ class User extends Authenticatable
     public function isVendeur(): bool    { return $this->role === 'vendeur'; }
     public function isLivreur(): bool    { return $this->role === 'livreur'; }
     public function isMagasinier(): bool { return $this->role === 'magasinier'; }
+    public function isPrestataire(): bool { return $this->role === 'prestataire'; }
 
     /**
      * Vérifie si l'utilisateur a un rôle (principal ou secondaire)

@@ -20,6 +20,8 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\PartenaireController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Admin\DemandeController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Traitements Auth Web (Avec Sessions & Cookies) ────────────────────────
@@ -42,6 +44,15 @@ Route::post('/contact', [WelcomeController::class, 'submitContact'])->name('cont
 // Partenaires (public)
 Route::get('/partenaires', [PartenaireController::class, 'index'])->name('partenaires');
 
+// Pages légales (public)
+Route::get('/conditions', function() { return view('conditions'); })->name('conditions');
+Route::get('/confidentialite', function() { return view('confidentialite'); })->name('confidentialite');
+
+// Systèmes de Souscription et Partenariat (Public)
+        Route::get('/devenir-partenaire', [SubscriptionController::class, 'showPrestataireForm'])->name('prestataire.form');
+
+        Route::post('/partenaires/candidature', [PartenaireController::class, 'submit'])->name('prestataire.submit');
+
 // Page de test avec identifiants
 Route::get('/test', function() {
     return view('test');
@@ -58,6 +69,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('tenants', TenantController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
         Route::post('tenants/{tenant}/magasins', [TenantController::class, 'storeMagasin'])->name('tenants.magasins.store');
         Route::delete('tenants/{tenant}/magasins/{magasin}', [TenantController::class, 'destroyMagasin'])->name('tenants.magasins.destroy');
+        
+        // Validation des prestataires
+        Route::get('/admin/prestataires', [DemandeController::class, 'indexPrestataires'])->name('admin.prestataires');
+        Route::post('/admin/prestataires/{id}/valider', [DemandeController::class, 'validerPrestataire'])->name('admin.prestataires.valider');
     });
 
     // ─── Routes métier (utilisateurs avec un tenant associé) ───────────

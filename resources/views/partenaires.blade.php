@@ -3,377 +3,686 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G-STOCK — Partenaires</title>
+    <title>Pilotix — Programme Partenaires</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
             --primary: #105e49;
             --primary-light: #167e65;
             --secondary: #ea8d22;
-            --bg: #f4f7f6;
-            --text: #1f2937;
-            --muted: #6b7280;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: #fff; color: var(--text); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
 
-        /* ─── NAV ─── */
         nav {
             position: sticky; top: 0; z-index: 100;
             display: flex; align-items: center;
-            padding: 0 5%; min-height: 68px;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding: 0 5%; min-height: 64px;
+            background: #fff; border-bottom: 1px solid var(--border);
             justify-content: space-between;
         }
         .nav-logo { display: flex; align-items: center; text-decoration: none; }
-        .nav-logo img { margin-top: -10px; }
-        .nav-logo .icon-box { width: 36px; height: 36px; background: var(--primary); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
-        .nav-logo .icon-box i { color: #fff; font-size: 1.1rem; }
-        .nav-logo .logo-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.4rem; color: var(--primary); letter-spacing: -1.5px; text-transform: uppercase; margin-left: -2px; }
+        .nav-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
         .nav-links { display: flex; align-items: center; gap: 24px; margin-left: auto; }
-        .nav-links a { color: var(--text); text-decoration: none; font-weight: 600; font-size: .9rem; }
+        .nav-links a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
         .nav-links a:hover { color: var(--primary); }
-        .btn-nav { background: var(--primary); color: #fff !important; padding: 9px 22px; border-radius: 8px; font-weight: 700; font-size: .9rem; transition: all .2s; }
-        .btn-nav:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,94,73,.3); }
+        .btn-nav { background: var(--primary); color: #fff !important; padding: 10px 22px; border-radius: 8px; font-weight: 700; }
+        .btn-nav:hover { background: var(--primary-light); }
 
-        /* ─── HERO ─── */
-        .hero-part {
-            background: linear-gradient(135deg, #0a3d2d 0%, #105e49 50%, #167e65 100%);
-            padding: 80px 5% 70px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+        .hero {
+            background: linear-gradient(135deg, #0a3d2d, #105e49, #167e65);
+            padding: 100px 5% 80px; text-align: center;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .hero-part::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        .hero .badge {
+            display: inline-block; background: rgba(234,141,34,.15);
+            border: 1px solid rgba(234,141,34,.3); color: var(--secondary);
+            padding: 6px 18px; border-radius: 50px; font-size: 0.75rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 20px;
         }
-        .hero-part > * { position: relative; z-index: 1; }
-        .hero-part .badge-top { display: inline-flex; align-items: center; gap: 8px; background: rgba(234,141,34,.15); border: 1px solid rgba(234,141,34,.4); color: var(--secondary); padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: .78rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
-        .hero-part h1 { font-family: 'Montserrat', sans-serif; font-size: 2.8rem; font-weight: 900; color: #fff; line-height: 1.3; letter-spacing: -2px; margin-bottom: 18px; }
-        .hero-part h1 span { color: var(--secondary); }
-        .hero-part p { font-size: 1.1rem; color: rgba(255,255,255,.75); max-width: 620px; margin: 0 auto; line-height: 1.7; }
-        .hero-part .hero-actions { display: flex; gap: 14px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
-        .hero-part .btn-hero-primary { display: inline-flex; align-items: center; gap: 10px; background: #fff; color: var(--primary); padding: 14px 30px; border-radius: 10px; font-weight: 800; font-size: 1rem; text-decoration: none; transition: all .3s; box-shadow: 0 8px 25px rgba(0,0,0,.15); }
-        .hero-part .btn-hero-primary:hover { background: var(--secondary); color: #fff; transform: translateY(-3px); }
-        .hero-part .btn-hero-sec { display: inline-flex; align-items: center; gap: 10px; border: 2px solid rgba(255,255,255,.3); color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all .3s; }
-        .hero-part .btn-hero-sec:hover { border-color: #fff; background: rgba(255,255,255,.1); }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 16px; max-width: 700px; }
+        .hero h1 span { color: var(--secondary); }
+        .hero p { font-size: 1.05rem; color: rgba(255,255,255,.75); max-width: 550px; line-height: 1.6; margin-bottom: 32px; }
+        .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary { background: var(--primary); color: #fff; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; text-decoration: none; border: none; cursor: pointer; }
+        .btn-primary:hover { background: var(--primary-light); color: #fff; }
 
-        /* ─── SECTION COMMON ─── */
-        .section-part { padding: 80px 5%; }
-        .section-part.alt { background: var(--bg); }
-        .section-part .section-header { text-align: center; margin-bottom: 50px; }
-        .section-part .section-header h2 { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 900; color: var(--primary); margin-bottom: 12px; letter-spacing: -1px; }
-        .section-part .section-header p { color: var(--muted); font-size: 1rem; max-width: 580px; margin: 0 auto; line-height: 1.6; }
+        .section { padding: 80px 5%; }
+        .section.alt { background: #fff; }
+        .section-title { text-align: center; margin-bottom: 48px; }
+        .section-title .tag {
+            display: inline-block; font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; color: var(--primary);
+            background: rgba(16,94,73,.08); padding: 6px 16px; border-radius: 50px;
+            margin-bottom: 12px;
+        }
+        .section-title h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+        .section-title p { color: var(--muted); font-size: 0.95rem; }
 
-        /* ─── HOW IT WORKS ─── */
-        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 900px; margin: 0 auto; }
-        .step-card { text-align: center; padding: 30px 24px; background: #fff; border-radius: 16px; border: 1px solid #e5e7eb; transition: all .3s; }
-        .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(16,94,73,.08); }
-        .step-num { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.2rem; margin: 0 auto 16px; }
-        .step-card h3 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1rem; color: var(--text); margin-bottom: 8px; }
-        .step-card p { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+        .table-wrap {
+            max-width: 850px; margin: 0 auto;
+            border: 1px solid var(--border); border-radius: 12px;
+            overflow: hidden; background: #fff;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f1f5f9; }
+        thead th { padding: 14px 20px; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; border-bottom: 2px solid var(--border); }
+        tbody td { padding: 14px 20px; text-align: left; font-size: 0.9rem; border-bottom: 1px solid #f1f5f9; color: var(--text); }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
 
-        /* ─── PRICING CARDS ─── */
-        .pricing-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1100px; margin: 0 auto; }
-        .pricing-card {
-            background: #fff;
-            border-radius: 18px;
-            padding: 32px 24px 28px;
-            text-align: center;
-            border: 2px solid #e5e7eb;
+        /* ─── VIDEO ─── */
+        .video-section { max-width: 800px; margin: 0 auto 60px; }
+        .video-wrapper {
+            position: relative; padding-bottom: 56.25%; height: 0;
+            border-radius: 16px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+        }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* ─── FORMULAIRE MULTI-ÉTAPES ─── */
+        .form-section { max-width: 750px; margin: 0 auto; }
+        .form-card {
+            background: #fff; border-radius: 16px; padding: 40px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+        .form-card h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+        .form-card .sub-text { color: var(--muted); font-size: 0.92rem; margin-bottom: 32px; line-height: 1.5; }
+
+        /* Stepper */
+        .stepper { display: flex; justify-content: space-between; margin-bottom: 36px; position: relative; }
+        .stepper::before { content: ''; position: absolute; top: 18px; left: 40px; right: 40px; height: 3px; background: #e5e7eb; z-index: 0; }
+        .step-dot {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            z-index: 1; flex: 1;
+        }
+        .step-dot .dot {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #e5e7eb; color: #9ca3af;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 0.85rem;
             transition: all .3s;
-            position: relative;
-            overflow: hidden;
         }
-        .pricing-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(16,94,73,.12); border-color: var(--primary); }
-        .pricing-card.popular { border-color: var(--secondary); background: linear-gradient(180deg, #fffbf5 0%, #fff 40%); }
-        .pricing-card.popular:hover { box-shadow: 0 20px 50px rgba(234,141,34,.15); }
-        .popular-badge { position: absolute; top: 0; left: 0; right: 0; background: var(--secondary); color: #fff; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 0; }
-        .plan-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 1.4rem; color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
-        .pricing-card.popular .plan-icon { background: linear-gradient(135deg, var(--secondary), #f9a825); }
-        .plan-name { font-family: 'Montserrat', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
-        .plan-price { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 900; color: var(--primary); margin: 10px 0 2px; letter-spacing: -1.5px; }
-        .pricing-card.popular .plan-price { color: var(--secondary); }
-        .plan-price span { font-size: .8rem; font-weight: 600; color: var(--muted); letter-spacing: 0; }
-        .plan-desc { color: var(--muted); font-size: .82rem; margin-bottom: 18px; line-height: 1.5; }
-        .plan-features { list-style: none; padding: 0; margin: 0 0 20px; text-align: left; }
-        .plan-features li { padding: 7px 0; font-size: .82rem; color: var(--text); display: flex; align-items: flex-start; gap: 8px; border-bottom: 1px solid #f3f4f6; }
-        .plan-features li:last-child { border-bottom: none; }
-        .plan-features li i { color: #16a34a; font-size: .85rem; margin-top: 2px; flex-shrink: 0; }
-
-        /* ─── COMMISSION TABLE ─── */
-        .commission-wrap { max-width: 800px; margin: 50px auto 0; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.06); border: 1px solid #e5e7eb; }
-        .commission-wrap h3 { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--primary); padding: 22px 28px 0; margin: 0; }
-        .commission-wrap > p { padding: 4px 28px 16px; color: var(--muted); font-size: .85rem; margin: 0; }
-        .commission-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
-        .commission-table thead th { background: var(--primary); color: #fff; font-weight: 700; padding: 12px 16px; text-align: center; font-size: .82rem; letter-spacing: .5px; }
-        .commission-table thead th:first-child { text-align: left; padding-left: 28px; }
-        .commission-table tbody td { padding: 14px 16px; text-align: center; border-bottom: 1px solid #f3f4f6; font-weight: 500; }
-        .commission-table tbody td:first-child { text-align: left; padding-left: 28px; font-weight: 700; color: var(--text); }
-        .commission-table tbody tr:last-child td { border-bottom: none; }
-        .commission-table tbody tr:hover { background: #f9fafb; }
-        .badge-dur { background: #e0f2f1; color: #105e49; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-size: .8rem; }
-        .badge-dur.pop { background: #fff3e0; color: #ea8d22; }
-        .pct { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--primary); }
-
-        /* ─── ADVANTAGES ─── */
-        .adv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 900px; margin: 0 auto; }
-        .adv-card { background: #fff; border-radius: 14px; padding: 28px 22px; border: 1px solid #e5e7eb; text-align: center; transition: all .3s; }
-        .adv-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(16,94,73,.08); }
-        .adv-card i { font-size: 2rem; color: var(--primary); margin-bottom: 12px; display: block; }
-        .adv-card h4 { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: .95rem; color: var(--text); margin-bottom: 6px; }
-        .adv-card p { color: var(--muted); font-size: .83rem; line-height: 1.5; }
-
-        /* ─── CTA FINAL ─── */
-        .cta-part { background: linear-gradient(135deg, #0a3d2d 0%, #105e49 50%, #167e65 100%); padding: 70px 5%; text-align: center; }
-        .cta-part h2 { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 900; color: #fff; margin-bottom: 14px; letter-spacing: -1px; }
-        .cta-part p { color: rgba(255,255,255,.7); font-size: 1rem; max-width: 500px; margin: 0 auto 30px; line-height: 1.6; }
-        .cta-part .cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-        .cta-part .btn-cta-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--secondary); color: #fff; padding: 14px 32px; border-radius: 10px; font-weight: 800; font-size: 1rem; text-decoration: none; transition: all .3s; box-shadow: 0 8px 25px rgba(234,141,34,.3); }
-        .cta-part .btn-cta-primary:hover { background: #d67d18; transform: translateY(-3px); }
-        .cta-part .btn-cta-sec { display: inline-flex; align-items: center; gap: 10px; border: 2px solid rgba(255,255,255,.3); color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all .3s; }
-        .cta-part .btn-cta-sec:hover { border-color: #fff; background: rgba(255,255,255,.1); }
-
-        /* ─── FOOTER ─── */
-        footer { background: #fff; border-top: 1px solid #e5e7eb; padding: 28px 5%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: .85rem; }
-        footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
-        footer a:hover { text-decoration: underline; }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 900px) {
-            .hero-part h1 { font-size: 2rem; }
-            .steps-grid, .adv-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
-            .pricing-cards { grid-template-columns: repeat(2, 1fr); max-width: 500px; margin-left: auto; margin-right: auto; }
-            .commission-wrap { margin: 50px 10px 0; overflow-x: auto; }
-            .commission-table { min-width: 480px; }
-            .nav-links { gap: 14px; }
-            .nav-links a { font-size: .82rem; }
+        .step-dot.active .dot { background: var(--primary); color: #fff; box-shadow: 0 0 0 4px rgba(16,94,73,.15); }
+        .step-dot.done .dot { background: var(--primary); color: #fff; }
+        .step-dot .dot-label {
+            font-size: 0.68rem; font-weight: 600; color: var(--muted);
+            text-align: center; white-space: nowrap;
         }
-        @media (max-width: 560px) {
-            .pricing-cards { grid-template-columns: 1fr; max-width: 360px; }
+        .step-dot.active .dot-label, .step-dot.done .dot-label { color: var(--primary); }
+
+        /* Progress bar */
+        .progress-bar { height: 4px; background: #e5e7eb; border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
+        .progress-bar .fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width .4s ease; }
+
+        /* Step panels */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; animation: fadeStep .35s ease; }
+        @keyframes fadeStep { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .step-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; color: var(--primary); }
+        .step-subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; }
+
+        /* Questions */
+        .q-group { margin-bottom: 18px; }
+        .q-group label { display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+        .q-group label .q-num { display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: rgba(16,94,73,.08); color: var(--primary); font-size: 0.72rem; font-weight: 800; text-align: center; line-height: 24px; margin-right: 6px; }
+        .q-group input, .q-group select, .q-group textarea {
+            width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 0.92rem; font-family: 'Inter', sans-serif; color: var(--text); background: #fff; transition: all .2s;
         }
-        @media (max-width: 500px) {
-            .nav-links a:not(.btn-nav) { display: none; }
+        .q-group input:focus, .q-group select:focus, .q-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16,94,73,0.1); }
+        .q-group textarea { resize: vertical; min-height: 80px; }
+        .q-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media(max-width: 600px) { .q-row { grid-template-columns: 1fr; } }
+
+        /* Nav buttons */
+        .step-nav { display: flex; gap: 12px; margin-top: 28px; }
+        .btn-next, .btn-prev {
+            flex: 1; padding: 13px; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 0.95rem; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all .2s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-next { background: var(--primary); color: #fff; }
+        .btn-next:hover { background: var(--primary-light); }
+        .btn-prev { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+        .btn-prev:hover { background: #e2e8f0; }
+        .btn-submit {
+            flex: 1; padding: 16px; border: none; border-radius: 10px;
+            background: var(--secondary); color: #fff;
+            font-weight: 800; font-size: 1rem; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: all .2s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-submit:hover { background: #d47d1e; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(234,141,34,0.3); }
+
+        .alert { padding: 14px 18px; border-radius: 10px; margin-bottom: 24px; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .alert-s { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .alert-d { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 40px; }
+        .footer-brand { flex: 1; min-width: 200px; }
+        .footer-brand .logo-name { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; text-transform: uppercase; color: var(--primary); }
+        .footer-brand p { margin-top: 10px; color: #6b7280; font-size: 0.85rem; line-height: 1.6; max-width: 260px; }
+        .footer-col { min-width: 130px; }
+        .footer-col h5 { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; margin-bottom: 12px; }
+        .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .footer-col ul li a { color: #374151; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+        .footer-col ul li a:hover { color: var(--primary); }
+        .footer-bottom { border-top: 1px solid #e5e7eb; padding-top: 20px; display: flex; justify-content: space-between; color: #6b7280; font-size: 0.8rem; flex-wrap: wrap; gap: 8px; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .section-title h2 { font-size: 1.5rem; }
+            .section { padding: 60px 5%; }
+            thead th, tbody td { padding: 10px 12px; font-size: 0.8rem; }
+            .table-wrap { overflow-x: auto; }
+            table { min-width: 600px; }
+        }
+        @media (max-width: 600px) {
+            .nav-links { display: none; }
+            .hero-btns { flex-direction: column; align-items: center; }
+            .btn-primary { width: 100%; max-width: 280px; text-align: center; }
+            .footer-top { flex-direction: column; }
+            .footer-bottom { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
 <body>
-    <nav>
-        <a href="/" class="nav-logo">
-            <img src="{{ asset('logo.svg') }}" alt="G-STOCK" style="height: 40px; width: 40px; object-fit: contain; border-radius: 9px;">
-            <span class="logo-name">G-STOCK</span>
-        </a>
-        <div class="nav-links">
-            <a href="/">Accueil</a>
-            <a href="/#fonctionnalites">Fonctionnalités</a>
-            @if (Auth::check())
-                <a href="{{ route('dashboard') }}" class="btn-nav"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
-            @else
-                <a href="{{ route('login') }}" class="btn-nav"><i class="bi bi-box-arrow-in-right"></i> Connexion</a>
+
+<nav>
+    <a href="/" class="nav-logo">
+        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix">
+    </a>
+    <div class="nav-links">
+        <a href="/">Accueil</a>
+        <a href="/#offres">Offres</a>
+        @if (Auth::check())
+            <a href="{{ route('dashboard') }}" class="btn-nav">Tableau de bord</a>
+        @else
+            <a href="{{ route('prestataire.form') }}" class="btn-nav">Devenir Partenaire</a>
+        @endif
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="badge">Gagnez avec nous</div>
+    <h1>Monétisez votre <span>réseau d'affaires</span></h1>
+    <p>Devenez partenaire Pilotix et touchez des commissions sur chaque licence vendue grâce à vos recommandations.</p>
+    <div class="hero-btns">
+        <a href="#gains" class="btn-primary" style="background:var(--secondary);">Voir vos commissions</a>
+        <a href="#video" class="btn-primary" style="background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3);">Voir la vidéo</a>
+    </div>
+</section>
+
+<!-- VIDÉO -->
+<section class="section alt" id="video">
+    <div class="section-title">
+        <div class="tag">Découvrez Pilotix</div>
+        <h2>Comment ça marche</h2>
+        <p>Regardez cette courte vidéo pour comprendre ce que Pilotix offre à vos futurs clients.</p>
+    </div>
+    <div class="video-section">
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Pilotix — Présentation" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+</section>
+
+<!-- FORMULAIRE QUESTIONNAIRE -->
+<section class="section" id="candidature">
+    <div class="section-title">
+        <div class="tag">Candidature</div>
+        <h2>Rejoignez le programme</h2>
+        <p>Répondez à ces questions pour que nous puissions mieux vous accompagner.</p>
+    </div>
+    <div class="form-section">
+        <div class="form-card">
+            @if(session('success'))
+                <div class="alert alert-s"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
             @endif
+            @if($errors->any())
+                <div class="alert alert-d"><i class="bi bi-exclamation-triangle-fill"></i> @foreach($errors->all() as $e) {{ $e }} @endforeach</div>
+            @endif
+
+            <h3>Formulaire de candidature</h3>
+            <p class="sub-text">5 étapes rapides — vos réponses nous aident à vous accompagner.</p>
+
+            <!-- Stepper -->
+            <div class="stepper">
+                <div class="step-dot active" data-step="1"><div class="dot">1</div><div class="dot-label">Infos</div></div>
+                <div class="step-dot" data-step="2"><div class="dot">2</div><div class="dot-label">Réseau</div></div>
+                <div class="step-dot" data-step="3"><div class="dot">3</div><div class="dot-label">Expérience</div></div>
+                <div class="step-dot" data-step="4"><div class="dot">4</div><div class="dot-label">Terrain</div></div>
+                <div class="step-dot" data-step="5"><div class="dot">5</div><div class="dot-label">Motivation</div></div>
+            </div>
+            <div class="progress-bar"><div class="fill" id="progressFill" style="width:20%"></div></div>
+
+            <form action="{{ route('prestataire.submit') }}" method="POST" id="candidatureForm">
+                @csrf
+
+                <!-- ═══ ÉTAPE 1 — Infos personnelles ═══ -->
+                <div class="step-panel active" data-panel="1">
+                    <div class="step-title"><i class="bi bi-person-fill"></i> Vos informations</div>
+                    <div class="step-subtitle">Comment pouvons-nous vous contacter ?</div>
+
+                    <div class="q-row">
+                        <div class="q-group">
+                            <label><span class="q-num">1</span> Nom *</label>
+                            <input type="text" name="nom" placeholder="Votre nom" required>
+                        </div>
+                        <div class="q-group">
+                            <label><span class="q-num">2</span> Prénom *</label>
+                            <input type="text" name="prenom" placeholder="Votre prénom" required>
+                        </div>
+                    </div>
+                    <div class="q-row">
+                        <div class="q-group">
+                            <label><span class="q-num">3</span> Email *</label>
+                            <input type="email" name="email" placeholder="votre@email.com" required>
+                        </div>
+                        <div class="q-group">
+                            <label><span class="q-num">4</span> Téléphone *</label>
+                            <input type="text" name="telephone" placeholder="+229 XX XX XX XX" required>
+                        </div>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">5</span> Ville / Zone d'intervention *</label>
+                        <input type="text" name="q5" placeholder="Ex: Cotonou, Porto-Novo" required>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">6</span> Quelle est votre activité principale ? *</label>
+                        <input type="text" name="q6" placeholder="Ex: Vendeur, Commerçant, Agent commercial" required>
+                    </div>
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-next" onclick="goStep(2)">Suivant <i class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- ═══ ÉTAPE 2 — Réseau ═══ -->
+                <div class="step-panel" data-panel="2">
+                    <div class="step-title"><i class="bi bi-people-fill"></i> Votre réseau</div>
+                    <div class="step-subtitle">Parlez-nous de votre entourage professionnel.</div>
+
+                    <div class="q-group">
+                        <label><span class="q-num">7</span> Nombre approximatif de commerces/boutiques dans votre réseau ? *</label>
+                        <select name="q7" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="1-5">1 à 5</option>
+                            <option value="6-15">6 à 15</option>
+                            <option value="16-30">16 à 30</option>
+                            <option value="31-50">31 à 50</option>
+                            <option value="50+">Plus de 50</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">8</span> Quels secteurs d'activité représentent vos clients ? *</label>
+                        <input type="text" name="q8" placeholder="Ex: Alimentation, Mode, Pharmacie, Électronique" required>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">9</span> Quel type de commerçants ciblez-vous en priorité ? *</label>
+                        <select name="q9" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Petits commerces">Petits commerces / Boutiques</option>
+                            <option value="Grossistes">Grossistes / Grossistes-détaillants</option>
+                            <option value="Supermarchés">Supermarchés / Supérettes</option>
+                            <option value="Marchés">Commerçants de marché</option>
+                            <option value="Tous">Tous types de commerces</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">10</span> Combien de commerçants comptez-vous contacter par mois ? *</label>
+                        <select name="q10" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="1-5">1 à 5</option>
+                            <option value="6-15">6 à 15</option>
+                            <option value="16-30">16 à 30</option>
+                            <option value="30+">Plus de 30</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">11</span> Quels canaux utilisez-vous pour vendre / contacter vos clients ? *</label>
+                        <input type="text" name="q11" placeholder="Ex: Visites terrain, Appels, WhatsApp, Réseaux sociaux" required>
+                    </div>
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-prev" onclick="goStep(1)"><i class="bi bi-arrow-left"></i> Retour</button>
+                        <button type="button" class="btn-next" onclick="goStep(3)">Suivant <i class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- ═══ ÉTAPE 3 — Expérience ═══ -->
+                <div class="step-panel" data-panel="3">
+                    <div class="step-title"><i class="bi bi-lightbulb-fill"></i> Votre expérience</div>
+                    <div class="step-subtitle">Avez-vous déjà vendu un logiciel ou un service digital ?</div>
+
+                    <div class="q-group">
+                        <label><span class="q-num">12</span> Avez-vous déjà vendu un logiciel ou un service digital ? *</label>
+                        <select name="q12" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Oui">Oui</option>
+                            <option value="Non">Non</option>
+                            <option value="Un peu">Un peu d'expérience</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">13</span> Quel est votre principal atout pour convaincre un commerçant ? *</label>
+                        <textarea name="q13" placeholder="Ex: Je connais bien les commerçants de ma zone, je suis très persuasif..." required></textarea>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">14</span> Les commerçants que vous connaissez gèrent-ils déjà un logiciel ? *</label>
+                        <select name="q14" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Non, aucun">Non, aucun</option>
+                            <option value="Oui, basique">Oui, un logiciel basique (caisse, cahier)</option>
+                            <option value="Oui, avancé">Oui, un logiciel plus avancé</option>
+                            <option value="Je ne sais pas">Je ne sais pas</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">15</span> Quel est le principal problème des commerçants que vous côtoyez ? *</label>
+                        <textarea name="q15" placeholder="Ex: Perdre le suivi des stocks, les dettes clients, la fraude des employés..." required></textarea>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">16</span> Savez-vous expliquer les avantages d'un logiciel de gestion ? *</label>
+                        <select name="q16" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Oui, facilement">Oui, facilement</option>
+                            <option value="Oui, avec un peu de formation">Oui, avec un peu de formation</option>
+                            <option value="Non, j'aurai besoin d'aide">Non, j'aurai besoin d'aide</option>
+                        </select>
+                    </div>
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-prev" onclick="goStep(2)"><i class="bi bi-arrow-left"></i> Retour</button>
+                        <button type="button" class="btn-next" onclick="goStep(4)">Suivant <i class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- ═══ ÉTAPE 4 — Terrain ═══ -->
+                <div class="step-panel" data-panel="4">
+                    <div class="step-title"><i class="bi bi-geo-alt-fill"></i> Engagement terrain</div>
+                    <div class="step-subtitle">Êtes-vous prêt à vendre sur le terrain ?</div>
+
+                    <div class="q-group">
+                        <label><span class="q-num">17</span> Êtes-vous à l'aise pour faire une démonstration devant un client ? *</label>
+                        <select name="q17" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Oui">Oui, aucun problème</option>
+                            <option value="Avec un peu de pratique">Avec un peu de pratique</option>
+                            <option value="Non">Non, pas du tout</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">18</span> Pouvez-vous assurer un suivi après la vente (installation, formation) ? *</label>
+                        <select name="q18" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Oui">Oui, je peux</option>
+                            <option value="Avec un petit support">Avec un petit support technique</option>
+                            <option value="Non">Non, pas possible</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">19</span> Combien de temps par semaine pouvez-vous dédier à la vente Pilotix ? *</label>
+                        <select name="q19" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="1-3h">1 à 3 heures</option>
+                            <option value="4-8h">4 à 8 heures</option>
+                            <option value="8-15h">8 à 15 heures</option>
+                            <option value="15h+">Plus de 15 heures (temps plein)</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">20</span> Avez-vous un véhicule pour les visites terrain ? *</label>
+                        <select name="q20" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Oui, moto">Oui, moto</option>
+                            <option value="Oui, voiture">Oui, voiture</option>
+                            <option value="Non">Non</option>
+                            <option value="Transport en commun">Transport en commun</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">21</span> Connaissez-vous des commerçants dans d'autres villes ? *</label>
+                        <select name="q21" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Oui, plusieurs">Oui, plusieurs villes</option>
+                            <option value="Oui, une ou deux">Oui, une ou deux autres villes</option>
+                            <option value="Non, uniquement ma ville">Non, uniquement ma ville</option>
+                        </select>
+                    </div>
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-prev" onclick="goStep(3)"><i class="bi bi-arrow-left"></i> Retour</button>
+                        <button type="button" class="btn-next" onclick="goStep(5)">Suivant <i class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- ═══ ÉTAPE 5 — Motivation ═══ -->
+                <div class="step-panel" data-panel="5">
+                    <div class="step-title"><i class="bi bi-rocket-takeoff-fill"></i> Votre motivation</div>
+                    <div class="step-subtitle">Dernière ligne droite — à vous de jouer !</div>
+
+                    <div class="q-group">
+                        <label><span class="q-num">22</span> Accepteriez-vous une formation gratuite sur le produit Pilotix ? *</label>
+                        <select name="q22" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Oui, avec plaisir">Oui, avec plaisir</option>
+                            <option value="Oui, si nécessaire">Oui, si nécessaire</option>
+                            <option value="Non">Non merci</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">23</span> Quel objectif de vente vous semblerait réaliste par mois ? *</label>
+                        <select name="q23" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="1-2 clients">1 à 2 clients</option>
+                            <option value="3-5 clients">3 à 5 clients</option>
+                            <option value="6-10 clients">6 à 10 clients</option>
+                            <option value="10+ clients">Plus de 10 clients</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">24</span> Souhaitez-vous des revenus récurrents ou ponctuels ? *</label>
+                        <select name="q24" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="Récurrents">Récurrents (commissions mensuelles sur Cloud)</option>
+                            <option value="Ponctuels">Ponctuels (commission unique sur Licence Locale)</option>
+                            <option value="Les deux">Les deux m'intéressent</option>
+                        </select>
+                    </div>
+                    <div class="q-group">
+                        <label><span class="q-num">25</span> Pourquoi Pilotix vous intéresse-t-il ? *</label>
+                        <textarea name="q25" placeholder="Partagez votre motivation..." required></textarea>
+                    </div>
+
+                    <div class="step-nav">
+                        <button type="button" class="btn-prev" onclick="goStep(4)"><i class="bi bi-arrow-left"></i> Retour</button>
+                        <button type="submit" class="btn-submit"><i class="bi bi-send-fill"></i> Soumettre ma candidature</button>
+                    </div>
+                </div>
+
+            </form>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <!-- ═══ HERO ═══ -->
-    <section class="hero-part">
-        <div class="badge-top"><i class="bi bi-handshake"></i> Programme Partenaires</div>
-        <h1>Devenez <span>Partenaire</span><br>G-STOCK</h1>
-        <p>Recommandez G-STOCK à vos contacts et gagnez une commission sur chaque client actif. Plus vous parrainez, plus vos revenus augmentent.</p>
-        <div class="hero-actions">
-            <a href="#forfaits" class="btn-hero-primary"><i class="bi bi-graph-up-arrow"></i> Voir les tarifs</a>
-            <a href="#comment" class="btn-hero-sec"><i class="bi bi-play-circle"></i> Comment ça marche</a>
+<!-- GRILLE DES COMMISSIONS -->
+<section class="section alt" id="gains">
+    <div class="section-title">
+        <div class="tag">Vos gains</div>
+        <h2>Grille des commissions</h2>
+        <p>Des taux qui augmentent avec l'engagement.</p>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Version</th>
+                    <th>Durée</th>
+                    <th>Prix client</th>
+                    <th>Taux</th>
+                    <th>Commission</th>
+                    <th>Sur 1 an</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Locale</td>
+                    <td>Licence à vie</td>
+                    <td>79 900 FCFA</td>
+                    <td>5%</td>
+                    <td>3 995 FCFA</td>
+                    <td>3 995 FCFA</td>
+                </tr>
+                <tr>
+                    <td rowspan="4">Cloud Sync</td>
+                    <td>1 mois</td>
+                    <td>3 500 FCFA</td>
+                    <td>7%</td>
+                    <td>245 FCFA</td>
+                    <td>2 940 FCFA</td>
+                </tr>
+                <tr>
+                    <td>3 mois</td>
+                    <td>9 000 FCFA</td>
+                    <td>10%</td>
+                    <td>900 FCFA</td>
+                    <td>3 600 FCFA</td>
+                </tr>
+                <tr>
+                    <td>6 mois</td>
+                    <td>16 800 FCFA</td>
+                    <td>15%</td>
+                    <td>2 520 FCFA</td>
+                    <td>5 040 FCFA</td>
+                </tr>
+                <tr>
+                    <td>12 mois</td>
+                    <td>30 000 FCFA</td>
+                    <td>20%</td>
+                    <td>6 000 FCFA</td>
+                    <td>6 000 FCFA</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- BONUS -->
+<section class="section" id="primes">
+    <div class="section-title">
+        <div class="tag">Bonus</div>
+        <h2>Plus vous amenez, plus vous gagnez</h2>
+        <p>Des primes cumulées selon le nombre de sociétés que vous référez.</p>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Clients référencés</th>
+                    <th>Bonus</th>
+                    <th>Prime estimée</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1 client</td>
+                    <td>Commissions standard</td>
+                    <td>Selon l'offre souscrite</td>
+                </tr>
+                <tr>
+                    <td>3 clients et plus</td>
+                    <td>+ Accès prioritaire au support</td>
+                    <td>Bonus de fidélité</td>
+                </tr>
+                <tr>
+                    <td>5 clients et plus</td>
+                    <td>+ Récompense exclusive</td>
+                    <td>À partir de 25 000 FCFA</td>
+                </tr>
+                <tr>
+                    <td>10 clients et plus</td>
+                    <td>+ Statut Partenaire Premium</td>
+                    <td>À partir de 50 000 FCFA</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p style="text-align:center; font-size:0.82rem; color:#64748b; margin-top:16px; max-width:700px; margin-left:auto; margin-right:auto;">
+        Les primes et bonus sont versés <strong>tant que le client paie</strong>. Tant que l'abonnement est actif et à jour, le partenaire continue de toucher ses gains.
+    </p>
+</section>
+
+<!-- Footer -->
+<footer style="background:#fff; border-top:1px solid #e5e7eb; padding:40px 5%;">
+    <div class="footer-top">
+        <div class="footer-brand">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
+            </div>
+            <p>Solution de gestion commerciale multi-tenant pour les PME d'Afrique de l'Ouest.</p>
         </div>
-    </section>
-
-    <!-- ═══ COMMENT ÇA MARCHE ═══ -->
-    <section class="section-part alt" id="comment">
-        <div class="section-header">
-            <h2>Comment ça marche ?</h2>
-            <p>Devenez partenaire en 3 étapes simples et commencez à générer des revenus récurrents.</p>
+        <div class="footer-col">
+            <h5>Contact</h5>
+            <ul>
+                <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
+                <li><a href="mailto:pilotrix@gmail.com"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a></li>
+            </ul>
         </div>
-        <div class="steps-grid">
-            <div class="step-card">
-                <div class="step-num">1</div>
-                <h3>Choisissez votre durée</h3>
-                <p>Sélectionnez la durée qui vous convient : 1 mois, 3 mois, 6 mois ou 1 an.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num">2</div>
-                <h3>Parrainez des clients</h3>
-                <p>Partagez votre lien ou recommandez G-STOCK à votre réseau. Chaque client actif vous rapporte.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num">3</div>
-                <h3>Gagnez des commissions</h3>
-                <p>Recevez un pourcentage sur les ventes de vos clients. Plus ils sont nombreux, plus votre taux augmente.</p>
-            </div>
-        </div>
-    </section>
+    </div>
+    <div class="footer-bottom">
+        <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-tenant</span>
+        <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a></span>
+    </div>
+</footer>
 
-    <!-- ═══ FORFAITS ═══ -->
-    <section class="section-part" id="forfaits">
-        <div class="section-header">
-            <h2>Nos forfaits partenaires</h2>
-            <p>Plus la durée est longue, plus votre taux de commission est élevé.</p>
-        </div>
+<script>
+function goStep(n) {
+    const form = document.getElementById('candidatureForm');
+    const current = document.querySelector('.step-panel.active');
+    const currentNum = parseInt(current.dataset.panel);
 
-        <div class="pricing-cards">
-            <!-- 1 MOIS -->
-            <div class="pricing-card">
-                <div class="plan-icon"><i class="bi bi-calendar3"></i></div>
-                <div class="plan-name">1 Mois</div>
-                <div class="plan-price">5 000 <span>FCFA</span></div>
-                <div class="plan-desc">Idéal pour tester le programme partenaire sans engagement.</div>
-                <ul class="plan-features">
-                    <li><i class="bi bi-check-circle-fill"></i> Accès au tableau de bord partenaire</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Suivi de vos commissions</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Commission de 5%</li>
-                </ul>
-            </div>
+    if (n > currentNum) {
+        const inputs = current.querySelectorAll('input[required], select[required], textarea[required]');
+        let valid = true;
+        inputs.forEach(inp => {
+            if (!inp.value.trim()) { inp.style.borderColor = '#ef4444'; valid = false; }
+            else { inp.style.borderColor = ''; }
+        });
+        if (!valid) { inputs[0].focus(); return; }
+    }
 
-            <!-- 3 MOIS -->
-            <div class="pricing-card">
-                <div class="plan-icon"><i class="bi bi-calendar-week"></i></div>
-                <div class="plan-name">3 Mois</div>
-                <div class="plan-price">13 500 <span>FCFA</span></div>
-                <div class="plan-desc">L'équivalent de 4 500 FCFA/mois. Économisez 10%.</div>
-                <ul class="plan-features">
-                    <li><i class="bi bi-check-circle-fill"></i> Tout le forfait 1 Mois</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Commission de 8%</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Support prioritaire</li>
-                </ul>
-            </div>
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector(`[data-panel="${n}"]`).classList.add('active');
 
-            <!-- 6 MOIS -->
-            <div class="pricing-card popular">
-                <div class="popular-badge">Populaire</div>
-                <div class="plan-icon"><i class="bi bi-calendar-month"></i></div>
-                <div class="plan-name">6 Mois</div>
-                <div class="plan-price">24 000 <span>FCFA</span></div>
-                <div class="plan-desc">L'équivalent de 4 000 FCFA/mois. Économisez 20%.</div>
-                <ul class="plan-features">
-                    <li><i class="bi bi-check-circle-fill"></i> Tout le forfait 3 Mois</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Commission de 12%</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Gestion de plusieurs clients</li>
-                </ul>
-            </div>
+    document.querySelectorAll('.step-dot').forEach(d => {
+        const s = parseInt(d.dataset.step);
+        d.classList.remove('active', 'done');
+        if (s === n) d.classList.add('active');
+        else if (s < n) d.classList.add('done');
+    });
 
-            <!-- 1 AN -->
-            <div class="pricing-card">
-                <div class="plan-icon"><i class="bi bi-calendar2-event"></i></div>
-                <div class="plan-name">1 An</div>
-                <div class="plan-price">42 000 <span>FCFA</span></div>
-                <div class="plan-desc">L'équivalent de 3 500 FCFA/mois. Économisez 30%.</div>
-                <ul class="plan-features">
-                    <li><i class="bi bi-check-circle-fill"></i> Tout le forfait 6 Mois</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Commission de 15%</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Support dédié & accompagnement</li>
-                </ul>
-            </div>
-        </div>
+    document.getElementById('progressFill').style.width = (n * 20) + '%';
 
-        <!-- Tableau des commissions -->
-        <div class="commission-wrap">
-            <h3><i class="bi bi-graph-up-arrow" style="margin-right:8px;"></i>Grille des commissions</h3>
-            <p>Votre pourcentage de commission est fixe et dépend de la durée de votre forfait.</p>
-            <table class="commission-table">
-                <thead>
-                    <tr>
-                        <th>Durée</th>
-                        <th>Prix</th>
-                        <th>Prix / mois</th>
-                        <th>Commission</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="badge-dur">1 Mois</span></td>
-                        <td>5 000 FCFA</td>
-                        <td>5 000 FCFA</td>
-                        <td><span class="pct">5%</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge-dur">3 Mois</span></td>
-                        <td>13 500 FCFA</td>
-                        <td>4 500 FCFA</td>
-                        <td><span class="pct">8%</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge-dur pop">6 Mois</span></td>
-                        <td>24 000 FCFA</td>
-                        <td>4 000 FCFA</td>
-                        <td><span class="pct">12%</span></td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge-dur">1 An</span></td>
-                        <td>42 000 FCFA</td>
-                        <td>3 500 FCFA</td>
-                        <td><span class="pct">15%</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+    if (n === 5) {
+        document.querySelector('.step-subtitle:last-of-type').textContent = 'Dernière ligne droite — à vous de jouer !';
+    }
 
-    <!-- ═══ AVANTAGES ═══ -->
-    <section class="section-part alt">
-        <div class="section-header">
-            <h2>Pourquoi devenir partenaire ?</h2>
-            <p>Rejoignez un programme conçu pour vous aider à réussir.</p>
-        </div>
-        <div class="adv-grid">
-            <div class="adv-card">
-                <i class="bi bi-cash-coin"></i>
-                <h4>Revenus récurrents</h4>
-                <p>Gagnez chaque mois tant que vos clients restent actifs sur la plateforme.</p>
-            </div>
-            <div class="adv-card">
-                <i class="bi bi-graph-up-arrow"></i>
-                <h4>Commissions plus élevées</h4>
-                <p>Plus votre durée est longue, plus votre taux de commission est important.</p>
-            </div>
-            <div class="adv-card">
-                <i class="bi bi-speedometer2"></i>
-                <h4>Suivi en temps réel</h4>
-                <p>Tableau de bord dédié pour suivre vos commissions et vos clients actifs.</p>
-            </div>
-            <div class="adv-card">
-                <i class="bi bi-headset"></i>
-                <h4>Support dédié</h4>
-                <p>Une équipe à votre disposition pour vous accompagner dans votre croissance.</p>
-            </div>
-            <div class="adv-card">
-                <i class="bi bi-shield-check"></i>
-                <h4>Paiements sécurisés</h4>
-                <p>Vos commissions sont calculées automatiquement et payées à terme fixe.</p>
-            </div>
-            <div class="adv-card">
-                <i class="bi bi-people-fill"></i>
-                <h4>Réseau illimité</h4>
-                <p>Parrainez autant de clients que vous le souhaitez, sans limite.</p>
-            </div>
-        </div>
-    </section>
+    current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
 
-    <!-- ═══ CTA FINAL ═══ -->
-    <section class="cta-part">
-        <h2>Prêt à gagner avec G-STOCK ?</h2>
-        <p>Rejoignez notre réseau de partenaires et transformez votre recommandation en source de revenus.</p>
-        <div class="cta-actions">
-            <a href="{{ route('login') }}" class="btn-cta-primary"><i class="bi bi-box-arrow-in-right"></i> Commencer maintenant</a>
-            <a href="/" class="btn-cta-sec"><i class="bi bi-arrow-left"></i> Retour à l'accueil</a>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <span>&copy; {{ date('Y') }} G-STOCK — Partenaires</span>
-        <span><a href="/">Accueil</a> &middot; <a href="/#contact">Contact</a></span>
-    </footer>
 </body>
 </html>

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Gestion des Arrivages (🇧🇯->🇳🇬, 🇨🇳->🇧🇯)')
+@section('title', 'Gestion des Arrivages')
 @section('page-title', 'Liste des Arrivages')
 
 @section('content')
@@ -93,5 +93,9 @@
         {{ $arrivages->links() }}
     </div>
     @endif
+
+    <div style="padding: 12px 20px; border-top: 1px solid var(--border); text-align: right;">
+        <small style="color: var(--text-muted);">Ex : 🇧🇯→🇳🇬, 🇨🇳→🇧🇯</small>
+    </div>
 </div>
 @endsection

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'G-STOCK') — {{ Auth::check() ? (Auth::user()->tenant?->nom ?? 'G-STOCK') : 'G-STOCK' }}</title>
+    <title>@yield('title', 'Pilotix') — {{ Auth::check() ? (Auth::user()->tenant?->nom ?? 'Pilotix') : 'Pilotix' }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts -->
@@ -233,8 +233,8 @@
         .stat-icon.green { background: #dcfce7; color: #15803d; }
         .stat-icon.orange { background: #ffedd5; color: #c2410c; }
         .stat-icon.red { background: #fee2e2; color: #b91c1c; }
-        .stat-val { font-size: clamp(0.85rem, 2vw, 1.5rem); font-weight: 700; line-height: 1; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .stat-lbl { font-size: clamp(0.6rem, 1.1vw, 0.75rem); color: var(--text-muted); font-weight: 500; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+        .stat-val { font-size: clamp(0.85rem, 2vw, 1.5rem); font-weight: 700; line-height: 1; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; }
+        .stat-lbl { font-size: clamp(0.6rem, 1.1vw, 0.75rem); color: var(--text-muted); font-weight: 500; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
 
         /* ─── Breadcrumb Nav Links ─── */
         .nav-link { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 0.82rem; padding: 5px 10px; border-radius: 6px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
@@ -303,8 +303,7 @@
     <!-- Top Header -->
     <header class="app-header">
         <a href="{{ url('/') }}" class="header-brand">
-            <img src="{{ asset('logo.svg') }}" alt="G-STOCK" style="height: 40px; width: 40px; object-fit: contain; border-radius: 9px;">
-            <div class="logo-text" style="margin-left: -2px;">G-STOCK</div>
+            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
         </a>
 
         <div class="header-user">
@@ -338,6 +337,9 @@
                 {{-- Le Super Admin ne voit que la gestion des sociétés --}}
                 <a href="{{ route('tenants.index') }}" class="nav-link {{ request()->routeIs('tenants.*') ? 'active' : '' }}">
                     <i class="bi bi-building-fill-check"></i> Sociétés
+                </a>
+                <a href="{{ route('admin.prestataires') }}" class="nav-link {{ request()->routeIs('admin.prestataires') ? 'active' : '' }}">
+                    <i class="bi bi-person-plus"></i> Partenaires
                 </a>
             @else
                 {{-- Liens métier selon les droits du rôle --}}

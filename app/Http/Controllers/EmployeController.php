@@ -33,7 +33,7 @@ class EmployeController extends Controller
     {
         $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255|unique:users,email',
+            'email'     => 'required|email|max:255',
             'telephone' => 'nullable|string|max:30',
             'role'      => 'required|in:admin,vendeur,livreur,magasinier',
             'roles_secondaires' => 'nullable|array',
@@ -41,10 +41,40 @@ class EmployeController extends Controller
             'password'  => 'required|string|min:6|confirmed',
         ]);
 
-        $user = Auth::user();
+        $currentUser = Auth::user();
+        $existingUser = User::withoutGlobalScopes()->where('email', $request->email)->first();
+
+        if ($existingUser) {
+            $roles = $existingUser->roles_secondaires ?? [];
+            if ($existingUser->role === 'prestataire') {
+                $existingUser->update([
+                    'tenant_id' => $currentUser->tenant_id,
+                    'magasin_id' => $currentUser->magasin_id,
+                    'role' => $request->role,
+                ]);
+                if (!in_array('prestataire', $roles)) {
+                    $roles[] = 'prestataire';
+                }
+                if ($request->roles_secondaires) {
+                    foreach ($request->roles_secondaires as $sr) {
+                        if (!in_array($sr, $roles)) {
+                            $roles[] = $sr;
+                        }
+                    }
+                }
+                $existingUser->update(['roles_secondaires' => $roles]);
+            } else {
+                if ($request->expectsJson() || request()->is('api/*')) {
+                    return response()->json(['success' => false, 'message' => 'Cet email est déjà utilisé.'], 422);
+                }
+                return back()->withInput()->with('error', 'Cet email est déjà utilisé par un autre compte.');
+            }
+
+            return $this->smartResponse('employes.index', 'Employé créé avec succès.');
+        }
 
         User::create([
-            'tenant_id'    => $user->tenant_id,
+            'tenant_id'    => $currentUser->tenant_id,
             'name'         => $request->name,
             'email'        => $request->email,
             'telephone'    => $request->telephone,
@@ -68,13 +98,23 @@ class EmployeController extends Controller
 
         $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255|unique:users,email,' . $employe->id,
+            'email'     => 'required|email|max:255',
             'telephone' => 'nullable|string|max:30',
             'role'      => 'required|in:admin,vendeur,livreur,magasinier',
             'roles_secondaires' => 'nullable|array',
             'roles_secondaires.*' => 'in:vendeur,livreur,magasinier',
             'actif'     => 'nullable|boolean',
         ]);
+
+        if ($request->email !== $employe->email) {
+            $conflict = User::withoutGlobalScopes()->where('email', $request->email)->where('id', '!=', $employe->id)->first();
+            if ($conflict) {
+                if ($request->expectsJson() || request()->is('api/*')) {
+                    return response()->json(['success' => false, 'message' => 'Cet email est déjà utilisé.'], 422);
+                }
+                return back()->withInput()->with('error', 'Cet email est déjà utilisé par un autre compte.');
+            }
+        }
 
         $data = $request->only(['name', 'email', 'telephone', 'role']);
         $data['actif'] = $request->boolean('actif');

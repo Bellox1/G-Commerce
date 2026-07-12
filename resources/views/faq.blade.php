@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Guide d\'utilisation')
-@section('subtitle', 'Apprenez à utiliser chaque module de G-STOCK')
+@section('subtitle', 'Apprenez à utiliser chaque module de Pilotix')
 
 @push('styles')
 <style>
@@ -853,7 +853,7 @@
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
-            C'est ici que vous gérez vos <strong>points de stockage physique</strong>. Chaque dépôt (ou magasin) est un endroit où vous stockez et vendez vos produits. G-STOCK est conçu pour la <strong>multi-magasins</strong> : vous pouvez en avoir autant que nécessaire (Magasin Principal, Entrepôt, Boutique de quartier...). Chaque dépôt a son propre stock, ses propres ventes et ses propres statistiques.
+            C'est ici que vous gérez vos <strong>points de stockage physique</strong>. Chaque dépôt (ou magasin) est un endroit où vous stockez et vendez vos produits. Pilotix est conçu pour la <strong>multi-magasins</strong> : vous pouvez en avoir autant que nécessaire (Magasin Principal, Entrepôt, Boutique de quartier...). Chaque dépôt a son propre stock, ses propres ventes et ses propres statistiques.
         </div>
     </div>
 
@@ -912,7 +912,7 @@
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
-            C'est ici que vous gérez les <strong>comptes utilisateurs</strong> de votre équipe. Chaque employé a un compte avec un email et un mot de passe pour se connecter à G-STOCK. Vous définissez leurs <strong>rôles</strong> pour contrôler ce que chacun peut voir et faire dans l'application. C'est un outil de sécurité essentiel pour protéger vos données commerciales.
+            C'est ici que vous gérez les <strong>comptes utilisateurs</strong> de votre équipe. Chaque employé a un compte avec un email et un mot de passe pour se connecter à Pilotix. Vous définissez leurs <strong>rôles</strong> pour contrôler ce que chacun peut voir et faire dans l'application. C'est un outil de sécurité essentiel pour protéger vos données commerciales.
         </div>
     </div>
 

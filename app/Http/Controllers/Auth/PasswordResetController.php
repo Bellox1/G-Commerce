@@ -45,17 +45,17 @@ class PasswordResetController extends Controller
         try {
             Mail::send([], [], function ($message) use ($email, $otp, $resetUrl) {
                 $message->to($email)
-                    ->subject('G-STOCK — Réinitialisation de votre mot de passe')
+                    ->subject('Pilotix — Réinitialisation de votre mot de passe')
                     ->html("
                         <div style=\"font-family: 'Inter', sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;\">
                             <div style=\"text-align: center; margin-bottom: 24px;\">
-                                <h2 style=\"color: #105e49; font-weight: 800; font-size: 24px; margin: 0 0 8px 0;\">G-STOCK</h2>
+                                <h2 style=\"color: #105e49; font-weight: 800; font-size: 24px; margin: 0 0 8px 0;\">Pilotix</h2>
                                 <p style=\"color: #6b7280; font-size: 14px; margin: 0;\">Gestion commerciale & stock</p>
                             </div>
                             <div style=\"border-bottom: 1px solid #f3f4f6; margin-bottom: 24px;\"></div>
                             <h3 style=\"color: #1f2937; font-weight: 700; font-size: 18px; margin: 0 0 12px 0;\">Demande de réinitialisation</h3>
                             <p style=\"color: #4b5563; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;\">
-                                Bonjour,<br><br>Vous avez demandé la réinitialisation de votre mot de passe pour votre compte G-STOCK. Voici votre code de validation à usage unique (OTP) :
+                                Bonjour,<br><br>Vous avez demandé la réinitialisation de votre mot de passe pour votre compte Pilotix. Voici votre code de validation à usage unique (OTP) :
                             </p>
                             <div style=\"background-color: #f4faf8; border: 1px dashed #167e65; border-radius: 8px; text-align: center; padding: 15px 0; margin-bottom: 20px;\">
                                 <span style=\"font-size: 32px; font-weight: 800; letter-spacing: 6px; color: #105e49;\">{$otp}</span>

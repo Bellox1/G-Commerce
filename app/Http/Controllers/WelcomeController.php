@@ -23,74 +23,84 @@ class WelcomeController extends Controller
     {
         $data = $request->validate([
             'nom_societe'        => 'required|string|max:255',
-            'localisation'       => 'required|string|max:50', // Pays
+            'localisation'       => 'required|string|max:50',
             'ville'              => 'required|string|max:100',
             'telephone'          => 'required|string|max:50',
             'secteurs_activite'  => 'required|string|max:255',
             'email'              => 'required|email|max:255',
+            'type_souscription'  => 'required|in:local,cloud',
+            'duree'              => 'required|string',
         ]);
 
-        // Récupérer les super admins
         $superAdmins = User::where('role', 'super_admin')->get();
         $recipientEmails = $superAdmins->pluck('email')->toArray();
 
-        // Toujours inclure l'email configuré comme destinataire principal
         $adminEmail = config('mail.from.address', 'belloxdigital@gmail.com');
         $recipientEmails = array_unique(array_merge([$adminEmail], $recipientEmails));
 
-        // Préparation du message
-        $subject = "Nouvelle demande de création de société — G-STOCK";
         $societe = e($data['nom_societe']);
         $localisation = e($data['localisation']);
         $ville = e($data['ville']);
         $telephone = e($data['telephone']);
         $secteursActivite = e($data['secteurs_activite']);
         $emailContact = e($data['email']);
+        $typeSouscription = $data['type_souscription'] === 'cloud' ? 'Cloud Sync (3 500 FCFA/mois)' : 'Locale (79 900 FCFA)';
+        $duree = $data['type_souscription'] === 'local' ? 'Licence à vie' : ($data['duree'] . ' mois');
+
+        $subject = "Nouvelle demande de création de société — Pilotix";
 
         try {
-            Mail::send([], [], function ($message) use ($recipientEmails, $subject, $societe, $localisation, $ville, $telephone, $secteursActivite, $emailContact) {
+            Mail::send([], [], function ($message) use ($recipientEmails, $subject, $societe, $localisation, $ville, $telephone, $secteursActivite, $emailContact, $typeSouscription, $duree) {
                 $message->to($recipientEmails)
                     ->subject($subject)
                     ->html("
                         <div style=\"font-family: 'Inter', sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;\">
                             <div style=\"text-align: center; margin-bottom: 24px;\">
-                                <h2 style=\"color: #105e49; font-weight: 800; font-size: 24px; margin: 0 0 8px 0;\">G-STOCK</h2>
+                                <h2 style=\"color: #105e49; font-weight: 800; font-size: 24px; margin: 0 0 8px 0;\">Pilotix</h2>
                                 <p style=\"color: #6b7280; font-size: 14px; margin: 0;\">Gestion commerciale & stock</p>
                             </div>
                             <div style=\"border-bottom: 1px solid #f3f4f6; margin-bottom: 24px;\"></div>
                             <h3 style=\"color: #1f2937; font-weight: 700; font-size: 18px; margin: 0 0 12px 0;\">Nouvelle demande de création de société</h3>
                             <p style=\"color: #4b5563; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;\">
-                                Une demande a été soumise depuis la page d'accueil d'G-STOCK.
+                                Une demande a été soumise depuis la page d'accueil d'Pilotix.
                             </p>
                             <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;\">
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 120px; font-weight: 600;\">Société</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Société</td>
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937; font-weight: 600;\">{$societe}</td>
                                 </tr>
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 120px; font-weight: 600;\">Localisation</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Localisation</td>
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$localisation}</td>
                                 </tr>
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 120px; font-weight: 600;\">Ville</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Ville</td>
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$ville}</td>
                                 </tr>
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 120px; font-weight: 600;\">Téléphone</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Téléphone</td>
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$telephone}</td>
                                 </tr>
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 120px; font-weight: 600;\">Secteurs</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Secteurs</td>
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$secteursActivite}</td>
                                 </tr>
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 120px; font-weight: 600;\">Email</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Email</td>
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$emailContact}</td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Type souscription</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937; font-weight: 600;\">{$typeSouscription}</td>
+                                </tr>
+                                <tr>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Durée</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$duree}</td>
                                 </tr>
                             </table>
                             <div style=\"text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f3f4f6;\">
                                 <p style=\"color: #9ca3af; font-size: 12px; margin: 0;\">
-                                    G-STOCK — Gestion commerciale &amp; stock<br>
+                                    Pilotix — Gestion commerciale &amp; stock<br>
                                     Cet email est un accusé de réception automatique.
                                 </p>
                             </div>

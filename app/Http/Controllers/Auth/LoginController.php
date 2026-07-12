@@ -35,6 +35,12 @@ class LoginController extends Controller
             }
 
             $request->session()->regenerate();
+
+            $user = Auth::user();
+            if ($user->role === 'prestataire') {
+                return redirect()->route('profile');
+            }
+
             return redirect()->route('dashboard');
         }
 
