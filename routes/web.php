@@ -19,6 +19,7 @@ use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\PartenaireController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Traitements Auth Web (Avec Sessions & Cookies) ────────────────────────
@@ -37,6 +38,9 @@ Route::get('/', [WelcomeController::class, 'index']);
 
 // Contact (public)
 Route::post('/contact', [WelcomeController::class, 'submitContact'])->name('contact.submit');
+
+// Partenaires (public)
+Route::get('/partenaires', [PartenaireController::class, 'index'])->name('partenaires');
 
 // Page de test avec identifiants
 Route::get('/test', function() {
