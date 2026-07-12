@@ -223,7 +223,7 @@
         .phone-screen {
             border-radius: 28px;
             overflow: hidden;
-            background: #0a3d2d;
+            background: #ffffff;
             aspect-ratio: 9/16;
             display: flex;
             align-items: center;
@@ -300,7 +300,7 @@
             align-items: center;
             justify-content: center;
         }
-        .pc-screen img { width: 100%; height: 100%; object-fit: cover; }
+        .pc-screen img { width: 100%; height: 100%; object-fit: contain; }
         .pc-stand {
             width: 100px;
             height: 40px;
@@ -358,7 +358,7 @@
             align-items: center;
             justify-content: center;
         }
-        .phone-screen-sm img { width: 100%; height: 100%; object-fit: cover; }
+        .phone-screen-sm img { width: 100%; height: 100%; object-fit: contain; }
 
         /* ─── ENTRY OVERLAY ─── */
         #entry-overlay {
@@ -1002,7 +1002,7 @@
                 <div class="phone-frame">
                     <div class="phone-notch"></div>
                     <div class="phone-screen">
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="width:100%; height:100%; object-fit:contain;">
                     </div>
                 </div>
             </div>
@@ -1109,20 +1109,20 @@
             <div class="devices-showcase reveal">
                 <div class="device pc-frame">
                     <div class="pc-screen">
-                        <!-- Capture PC ici -->
+                        <img src="{{ asset('pc.png') }}" alt="Pilotix sur PC">
                     </div>
                     <div class="pc-stand"></div>
                 </div>
                 <div class="device tablet-frame-lg">
                     <div class="tablet-camera"></div>
                     <div class="tablet-screen-lg">
-                        <!-- Capture tablette ici -->
+                        <img src="{{ asset('tablette.jpeg') }}" alt="Pilotix sur Tablette">
                     </div>
                 </div>
                 <div class="device phone-frame-sm">
                     <div class="phone-notch-sm"></div>
                     <div class="phone-screen-sm">
-                        <!-- Capture téléphone ici -->
+                        <img src="{{ asset('telephone.jpeg') }}" alt="Pilotix sur Téléphone">
                     </div>
                 </div>
             </div>
