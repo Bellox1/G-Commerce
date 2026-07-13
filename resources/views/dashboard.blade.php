@@ -4,6 +4,8 @@
 
 @push('styles')
 <style>
+    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
     @media (max-width: 640px) {
         .dash-date-form { flex-wrap: wrap; width: 100%; }
         .dash-date-form label { font-size: .75rem; }
@@ -25,29 +27,41 @@
         <a href="{{ route('dashboard') }}" style="font-size:.8rem; color:var(--primary); text-decoration:none; white-space:nowrap;">Réinitialiser</a>
     @endif
 </form>
+@if(in_array(auth()->user()->role, ['super_admin', 'admin']))
+    <a href="{{ route('analytique') }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; font-size:.85rem;">
+        <i class="bi bi-bar-chart-line"></i> Analyse avancée
+    </a>
+@endif
 @endsection
 
 @section('content')
 
 {{-- Bannière d'introduction de la société --}}
-<div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; border: none; padding: 20px 24px; margin-bottom: 24px; display: flex; flex-direction: row; align-items: center; gap: 16px; border-radius: var(--radius-card); box-shadow: var(--shadow-card);">
-    <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
-        <i class="bi bi-building" style="color: #fff;"></i>
-    </div>
-    <div>
-        <h2 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: #fff; font-family: 'Montserrat', sans-serif;">{{ $tenant->nom }}</h2>
-        <p style="margin: 2px 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.85); font-family: 'Inter', sans-serif;">Espace commercial connecté &bull; Marque : {{ $tenant->marque ?? 'N/A' }}</p>
-    </div>
+@php
+    $offreActive = $tenant->isOffreActive();
+    $joursRestants = $tenant->offre_expires_at ? max(0, (int) now()->diffInDays($tenant->offre_expires_at, false)) : null;
+    $nomOffre = $tenant->offre_code ? (\App\Models\CommissionRule::where('code', $tenant->offre_code)->value('nom') ?? $tenant->offre_code) : 'Aucune';
+@endphp
+<div style="display:flex; align-items:center; gap:10px; padding:10px 0; margin-bottom:16px; font-size:.85rem; border-bottom:1px solid var(--border);">
+    <span style="font-weight:800; font-size:1.1rem; color:var(--text); font-family:'Montserrat',sans-serif;">{{ $tenant->nom }}.</span>
+    <span style="display:inline-flex; align-items:center; gap:6px; color:var(--text-muted);">
+        @if($offreActive)
+            <span style="width:8px; height:8px; border-radius:50%; background:var(--success); animation:pulse-dot 1.5s infinite; flex-shrink:0;"></span>
+            Offre {{ $nomOffre }}
+            @if($joursRestants !== null)
+                &middot; {{ $joursRestants }}j restant(s)
+            @else
+                &middot; Licence à vie
+            @endif
+        @else
+            <span style="width:8px; height:8px; border-radius:50%; background:var(--danger); animation:pulse-dot 1.5s infinite; flex-shrink:0;"></span>
+            Offre expirée &middot; Contactez-nous
+        @endif
+    </span>
 </div>
 
 {{-- ─── Stats ─── --}}
 @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
-<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-    <div style="display:flex; gap:6px; flex-wrap:wrap;"></div>
-    <a href="{{ route('analytique') }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; font-size:.85rem;">
-        <i class="bi bi-bar-chart-line"></i> Analyse avancée
-    </a>
-</div>
 <div class="stats-grid">
     <div class="stat-card" style="box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1); border-color: rgba(22, 163, 74, 0.2);">
         <div class="stat-icon green" style="background: #dcfce7; color: #16a34a;"><i class="bi bi-graph-up-arrow"></i></div>
@@ -71,24 +85,10 @@
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+        <div class="stat-icon red"><i class="bi bi-receipt"></i></div>
         <div>
-            <div class="stat-val">{{ $ventesMois == 0 ? 'Pas de ventes' : number_format($ventesMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Ventes du mois (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-cash-stack"></i></div>
-        <div>
-            <div class="stat-val">{{ $depenseMois == 0 ? 'Pas de dépenses' : number_format($depenseMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Dépenses du mois (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon blue"><i class="bi bi-bar-chart"></i></div>
-        <div>
-            <div class="stat-val">{{ $caMois == 0 ? 'Pas de C.A.' : number_format($caMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">C.A. du mois (FCFA)</div>
+            <div class="stat-val" style="color:var(--danger);">{{ $depenseJour == 0 ? 'Pas de dépense' : '- ' . number_format($depenseJour, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Dépenses du {{ \Carbon\Carbon::parse($date)->format('d/m') }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
@@ -101,340 +101,22 @@
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-credit-card-2-back"></i></div>
         <div>
-            <div class="stat-val">{{ $totalDettes == 0 ? 'Pas de dettes' : number_format($totalDettes, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Dettes actives (FCFA)
+            <div class="stat-val">{{ $totalDettes == 0 ? '0' : number_format($totalDettes, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Mes dettes clients (FCFA)
                 @if($dettesEnRetard > 0)
                     <span class="badge badge-danger" style="margin-left:4px;">{{ $dettesEnRetard }} en retard</span>
                 @endif
             </div>
         </div>
     </div>
-</div>
-
-{{-- Formulaire dépense du jour --}}
-<div class="card" style="margin-bottom: 24px;">
-    <div class="card-header">
-        <h3><i class="bi bi-cash"></i> Enregistrer une dépense</h3>
-    </div>
-    <div class="card-body">
-        <form method="POST" action="{{ route('dashboard.depense.store') }}" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
-            @csrf
-            <input type="hidden" name="date" value="{{ $date }}">
-            <input type="hidden" name="audio_base64" id="depense-audio-base64" value="">
-            <div style="flex: 1; min-width: 150px;">
-                <label class="form-label" style="font-size: .8rem;">Montant (FCFA) *</label>
-                <input type="number" name="montant" class="form-control" min="1" required placeholder="0">
-            </div>
-            <div style="flex: 2; min-width: 200px;" id="desc-group">
-                <label class="form-label" style="font-size: .8rem;">Description</label>
-                <div style="display: flex; gap: 4px; align-items: center;">
-                    <input type="text" name="description" id="depense-desc" class="form-control" placeholder="Ex: Eau, transport, réparation..." maxlength="255" style="flex: 1;">
-                    <button type="button" id="mic-btn" class="btn btn-outline-secondary" title="Enregistrer un vocal" style="padding: 6px 10px; flex-shrink:0;">
-                        <i class="bi bi-mic"></i>
-                    </button>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Ajouter</button>
-        </form>
-
-        <div style="margin-top: 16px;">
-            <h4 style="font-size: .9rem; font-weight: 600; margin-bottom: 8px; color: #475569;">
-                <i class="bi bi-list-ul"></i> Dépenses du {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
-            </h4>
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th style="text-align: right;">Montant (FCFA)</th>
-                            <th>Enregistré par</th>
-                            <th>Heure</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($depensesDuJour as $d)
-                        <tr>
-                            <td>
-                                @if($d->audio_path)
-                                <div style="display:flex;align-items:center;gap:6px;">
-                                    <span>{{ $d->description ?: '-' }}</span>
-                                    <audio controls style="height:32px;width:140px;">
-                                        <source src="{{ asset('storage/' . $d->audio_path) }}" type="audio/webm">
-                                    </audio>
-                                </div>
-                                @else
-                                    {{ $d->description ?: '-' }}
-                                @endif
-                            </td>
-                            <td style="text-align: right; font-weight: 600; color: #dc2626;">-{{ number_format($d->montant, 0, ',', ' ') }}</td>
-                            <td>{{ $d->user?->name ?? 'N/A' }}</td>
-                            <td>{{ $d->created_at->format('H:i') }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">Aucune dépense ce jour</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                    @if($depensesDuJour->count() > 0)
-                    <tfoot>
-                        <tr style="background: #f1f5f9; font-weight: 700;">
-                            <td>Total</td>
-                            <td style="text-align: right; color: #dc2626;">-{{ number_format($depenseJour, 0, ',', ' ') }} FCFA</td>
-                            <td colspan="2"></td>
-                        </tr>
-                    </tfoot>
-                    @endif
-                </table>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="bi bi-building"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--danger);">{{ $totalDettesSociete == 0 ? '0' : '- ' . number_format($totalDettesSociete, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Mes dettes société (FCFA)
+                <a href="{{ route('dettes-societe.index') }}" style="font-size:.7rem; color:var(--primary);">Voir</a>
             </div>
         </div>
-    </div>
-</div>
-
-<script>
-(function() {
-    const micBtn = document.getElementById('mic-btn');
-    const descInput = document.getElementById('depense-desc');
-    const descGroup = document.getElementById('desc-group');
-    const audioBase64Input = document.getElementById('depense-audio-base64');
-    const form = micBtn?.closest('form');
-    if (!micBtn || !descInput || !audioBase64Input || !form) return;
-
-    // ── Diagnostics ──
-    const diag = document.createElement('div');
-    diag.style.cssText = 'font-size:.7rem;color:#64748b;margin-top:2px;';
-    micBtn.closest('div').after(diag);
-
-    function log(msg) { diag.textContent = msg; }
-
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        micBtn.disabled = true; micBtn.style.opacity = '.4';
-        log('❌ Micro non supporté par le navigateur');
-        return;
-    }
-
-    let mr = null, chunks = [], stream = null, busy = false, sec = 0, timer = null;
-
-    micBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        if (mr) {
-            if (mr.state === 'recording') {
-                mr.stop();
-                log('⏹️ Arrêt…');
-                return;
-            }
-            if (mr.state === 'paused') {
-                log('▶️ Reprise…');
-                mr.resume();
-                micBtn.className = 'btn btn-danger';
-                micBtn.innerHTML = '<i class="bi bi-stop-fill"></i>';
-                micBtn.title = 'Arrêter';
-                return;
-            }
-        }
-
-        // ── Démarrer ──
-        log('🎤 Demande micro…');
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(function(s) {
-            log('✅ Micro OK');
-            stream = s;
-            mr = new MediaRecorder(s);
-            chunks = [];
-            sec = 0;
-
-            if (descGroup) descGroup.style.display = 'none';
-            micBtn.className = 'btn btn-danger';
-            micBtn.innerHTML = '<i class="bi bi-stop-fill"></i>';
-            micBtn.title = 'Arrêter';
-
-            let ind = document.getElementById('mic-indicator');
-            if (!ind) {
-                ind = document.createElement('div');
-                ind.id = 'mic-indicator';
-                micBtn.closest('div').after(ind);
-            }
-            ind.style.cssText = 'font-size:.75rem;color:#dc2626;font-weight:600;margin-top:4px;display:flex;align-items:center;gap:4px;';
-            ind.innerHTML = '<span style="display:inline-block;width:8px;height:8px;background:#dc2626;border-radius:50%;animation:mic-pulse 1s infinite;"></span> 🔴 <span id="mic-timer">0s</span>';
-
-            timer = setInterval(function() {
-                sec++;
-                const el = document.getElementById('mic-timer');
-                if (el) el.textContent = sec + 's';
-            }, 1000);
-
-            mr.ondataavailable = function(e) {
-                if (e.data.size > 0) chunks.push(e.data);
-                log('📦 Données: ' + chunks.length + ' blocs');
-            };
-
-            mr.onstop = function() {
-                log('⏹️ Traitement…');
-                if (timer) { clearInterval(timer); timer = null; }
-                const oldInd = document.getElementById('mic-indicator');
-
-                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-                mr = null;
-
-                if (descGroup) descGroup.style.display = '';
-                micBtn.className = 'btn btn-outline-secondary';
-                micBtn.innerHTML = '<i class="bi bi-mic"></i>';
-                micBtn.title = 'Enregistrer';
-
-                if (chunks.length === 0) {
-                    oldInd?.remove();
-                    log('⚠️ Aucune donnée audio');
-                    return;
-                }
-
-                const blob = new Blob(chunks, { type: 'audio/webm' });
-                log('✅ ' + (blob.size/1024).toFixed(0) + ' Ko');
-
-                const url = URL.createObjectURL(blob);
-                const audio = document.createElement('audio');
-                audio.controls = true;
-                audio.src = url;
-                audio.style.cssText = 'width:100%;margin-top:4px;';
-                if (oldInd) oldInd.replaceWith(audio);
-
-                busy = true;
-                const r = new FileReader();
-                r.onloadend = function() {
-                    audioBase64Input.value = r.result;
-                    busy = false;
-                    log('✅ Prêt à envoyer');
-                };
-                r.readAsDataURL(blob);
-            };
-
-            mr.onerror = function(e) {
-                log('❌ Erreur: ' + (e.error || 'inconnue'));
-                document.getElementById('mic-indicator')?.remove();
-                if (timer) { clearInterval(timer); timer = null; }
-                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-                mr = null;
-                if (descGroup) descGroup.style.display = '';
-                micBtn.className = 'btn btn-outline-secondary';
-                micBtn.innerHTML = '<i class="bi bi-mic"></i>';
-            };
-
-            try {
-                mr.start(1000);
-                log('🔴 Enregistrement…');
-            } catch(e) {
-                log('❌ Erreur démarrage: ' + e.message);
-            }
-        }).catch(function(err) {
-            log('❌ ' + err.message);
-            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                alert('Veuillez autoriser le microphone dans les paramètres du navigateur.');
-            }
-        });
-    });
-
-    // Stop recording on submit
-    form.addEventListener('submit', function(e) {
-        if (busy) {
-            e.preventDefault();
-            const btn = form.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Audio…';
-            const wait = setInterval(function() {
-                if (!busy) {
-                    clearInterval(wait);
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-plus-circle"></i> Ajouter';
-                    form.submit();
-                }
-            }, 100);
-            return;
-        }
-        if (mr && (mr.state === 'recording' || mr.state === 'paused')) {
-            e.preventDefault();
-            mr.stop();
-            const check = setInterval(function() {
-                if (!mr) { clearInterval(check); form.submit(); }
-            }, 50);
-        }
-    });
-})();
-</script>
-<style>
-@keyframes mic-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
-</style>
-
-{{-- Stats par personne --}}
-@if(count($statsParPersonne) > 0)
-<div class="card" style="margin-bottom: 24px;">
-    <div class="card-header">
-        <h3><i class="bi bi-people"></i> Ventes par vendeur le {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</h3>
-    </div>
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Vendeur</th>
-                    <th style="text-align: right;">Ventes (FCFA)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($statsParPersonne as $stat)
-                <tr>
-                    <td style="font-weight: 600;">{{ $stat->user?->name ?? 'N/A' }}</td>
-                    <td style="text-align: right;">{{ number_format($stat->total_ventes, 0, ',', ' ') }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-@endif
-
-{{-- Indicateurs d'activité secondaires --}}
-<div style="margin-top: 10px; margin-bottom: 24px;">
-    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px; color: #475569; display: flex; align-items: center; gap: 8px;">
-        <i class="bi bi-info-circle"></i> Autres indicateurs d'activité
-    </h3>
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon orange"><i class="bi bi-receipt"></i></div>
-            <div>
-                <div class="stat-val">{{ $nbVentesJour == 0 ? 'Pas de ventes' : $nbVentesJour }}</div>
-                <div class="stat-lbl">Ventes du {{ \Carbon\Carbon::parse($date)->format('d/m') }}</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon orange"><i class="bi bi-building"></i></div>
-            <div>
-                <div class="stat-val" style="color:var(--danger);">{{ $totalLoyerMois == 0 ? 'Pas de loyers' : number_format($totalLoyerMois, 0, ',', ' ') }}</div>
-                <div class="stat-lbl">Loyers des dépôts (FCFA/mois)</div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon orange"><i class="bi bi-truck"></i></div>
-            <div>
-                <div class="stat-val">{{ $nbLivraisonsEnAttente == 0 ? 'Pas de livraisons' : $nbLivraisonsEnAttente }}</div>
-                <div class="stat-lbl">Livraisons en attente
-                    <a href="{{ route('livraisons.index', ['statut' => 'en_attente']) }}" style="font-size:.7rem; color:var(--primary); text-decoration:none; margin-left:4px;">Gérer</a>
-                </div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
-            <div>
-                <div class="stat-val">{{ $livraisonsDuJour == 0 ? 'Pas de livrées' : $livraisonsDuJour }}</div>
-                <div class="stat-lbl">Livrées aujourd'hui</div>
-            </div>
-        </div>
-        @if(count($stockAlertes) > 0)
-        <div class="stat-card">
-            <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
-            <div>
-                <div class="stat-val">{{ count($stockAlertes) }}</div>
-                <div class="stat-lbl">Produits en alerte stock</div>
-            </div>
-        </div>
-        @endif
     </div>
 </div>
 
@@ -512,7 +194,7 @@
 
         {{-- Dettes en retard --}}
         @if(count($dettesEnRetardListe) > 0)
-        <div class="card" style="border-left: 4px solid var(--danger);">
+        <div class="card">
             <div class="card-header">
                 <h3 style="color:var(--danger);"><i class="bi bi-exclamation-triangle-fill"></i> Créances en retard ({{ $dettesEnRetard }})</h3>
                 <a href="{{ route('dettes.index') }}" style="font-size:.8rem; color:var(--primary); text-decoration:none;">
@@ -664,5 +346,345 @@
         </div>
     </div>
 </div>
+
+<div class="stats-grid" style="margin-bottom: 16px;">
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
+        <div>
+            <div class="stat-val">{{ $ventesMois == 0 ? 'Pas de ventes' : number_format($ventesMois, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Ventes du mois (FCFA)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-cash-stack"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--danger);">{{ $depenseMois == 0 ? 'Pas de dépenses' : '- ' . number_format($depenseMois, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Dépenses du mois (FCFA)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="bi bi-bar-chart"></i></div>
+        <div>
+            <div class="stat-val">{{ $caMois == 0 ? 'Pas de C.A.' : number_format($caMois, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">C.A. du mois (FCFA)</div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom: 24px;">
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-receipt"></i></div>
+        <div>
+            <div class="stat-val">{{ $nbVentesJour == 0 ? 'Pas de ventes' : $nbVentesJour }}</div>
+            <div class="stat-lbl">Ventes du {{ \Carbon\Carbon::parse($date)->format('d/m') }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-building"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--danger);">{{ $totalLoyerMois == 0 ? 'Pas de loyers' : '- ' . number_format($totalLoyerMois, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Loyers des dépôts (FCFA/mois)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="bi bi-people"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--danger);">{{ $totalSalairesMois == 0 ? 'Pas de salaires' : '- ' . number_format($totalSalairesMois, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Salaires employés (FCFA/mois)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-truck"></i></div>
+        <div>
+            <div class="stat-val">{{ $nbLivraisonsEnAttente == 0 ? 'Pas de livraisons' : $nbLivraisonsEnAttente }}</div>
+            <div class="stat-lbl">Livraisons en attente
+                <a href="{{ route('livraisons.index', ['statut' => 'en_attente']) }}" style="font-size:.7rem; color:var(--primary); text-decoration:none; margin-left:4px;">Gérer</a>
+            </div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
+        <div>
+            <div class="stat-val">{{ $livraisonsDuJour == 0 ? 'Aucun produit livré aujourd\'hui' : $livraisonsDuJour }}</div>
+            <div class="stat-lbl">Produits livrés aujourd'hui</div>
+        </div>
+    </div>
+</div>
+
+{{-- Stats par personne --}}
+@if(count($statsParPersonne) > 0)
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <h3><i class="bi bi-people"></i> Ventes par vendeur le {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</h3>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vendeur</th>
+                    <th style="text-align: right;">Ventes (FCFA)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($statsParPersonne as $stat)
+                <tr>
+                    <td style="font-weight: 600;">{{ $stat->user?->name ?? 'N/A' }}</td>
+                    <td style="text-align: right;">{{ number_format($stat->total_ventes, 0, ',', ' ') }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
+{{-- Formulaire dépense du jour --}}
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <h3><i class="bi bi-cash"></i> Enregistrer une dépense</h3>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ route('dashboard.depense.store') }}" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+            @csrf
+            <input type="hidden" name="date" value="{{ $date }}">
+            <input type="hidden" name="audio_base64" id="depense-audio-base64" value="">
+            <div style="flex: 1; min-width: 150px;">
+                <label class="form-label" style="font-size: .8rem;">Montant (FCFA) *</label>
+                <input type="number" name="montant" class="form-control" min="1" required placeholder="0">
+            </div>
+            <div style="flex: 2; min-width: 200px;" id="desc-group">
+                <label class="form-label" style="font-size: .8rem;">Description</label>
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    <input type="text" name="description" id="depense-desc" class="form-control" placeholder="Ex: Eau, transport, réparation..." maxlength="255" style="flex: 1;">
+                    <button type="button" id="mic-btn" class="btn btn-outline-secondary" title="Enregistrer un vocal" style="padding: 6px 10px; flex-shrink:0;">
+                        <i class="bi bi-mic"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Ajouter</button>
+        </form>
+
+        <div style="margin-top: 16px;">
+            <h4 style="font-size: .9rem; font-weight: 600; margin-bottom: 8px; color: #475569;">
+                <i class="bi bi-list-ul"></i> Dépenses du {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
+            </h4>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th style="text-align: right;">Montant (FCFA)</th>
+                            <th>Enregistré par</th>
+                            <th>Heure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($depensesDuJour as $d)
+                        <tr>
+                            <td>
+                                @if($d->audio_path)
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span>{{ $d->description ?: '-' }}</span>
+                                    <audio controls style="height:32px;width:140px;">
+                                        <source src="{{ asset('storage/' . $d->audio_path) }}" type="audio/webm">
+                                    </audio>
+                                </div>
+                                @else
+                                    {{ $d->description ?: '-' }}
+                                @endif
+                            </td>
+                            <td style="text-align: right; font-weight: 600; color: #dc2626;">-{{ number_format($d->montant, 0, ',', ' ') }}</td>
+                            <td>{{ $d->user?->name ?? 'N/A' }}</td>
+                            <td>{{ $d->created_at->format('H:i') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">Aucune dépense ce jour</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                    @if($depensesDuJour->count() > 0)
+                    <tfoot>
+                        <tr style="background: #f1f5f9; font-weight: 700;">
+                            <td>Total</td>
+                            <td style="text-align: right; color: #dc2626;">-{{ number_format($depenseJour, 0, ',', ' ') }} FCFA</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                    @endif
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const micBtn = document.getElementById('mic-btn');
+    const descInput = document.getElementById('depense-desc');
+    const descGroup = document.getElementById('desc-group');
+    const audioBase64Input = document.getElementById('depense-audio-base64');
+    const form = micBtn?.closest('form');
+    if (!micBtn || !descInput || !audioBase64Input || !form) return;
+
+    const diag = document.createElement('div');
+    diag.style.cssText = 'font-size:.7rem;color:#64748b;margin-top:2px;';
+    micBtn.closest('div').after(diag);
+
+    function log(msg) { diag.textContent = msg; }
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        micBtn.disabled = true; micBtn.style.opacity = '.4';
+        log('Micro non supporté par le navigateur');
+        return;
+    }
+
+    let mr = null, chunks = [], stream = null, busy = false, sec = 0, timer = null;
+
+    micBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        if (mr) {
+            if (mr.state === 'recording') {
+                mr.stop();
+                log('Arrêt…');
+                return;
+            }
+            if (mr.state === 'paused') {
+                log('Reprise…');
+                mr.resume();
+                micBtn.className = 'btn btn-danger';
+                micBtn.innerHTML = '<i class="bi bi-stop-fill"></i>';
+                micBtn.title = 'Arrêter';
+                return;
+            }
+        }
+
+        log('Demande micro…');
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function(s) {
+            log('Micro OK');
+            stream = s;
+            mr = new MediaRecorder(s);
+            chunks = [];
+            sec = 0;
+
+            if (descGroup) descGroup.style.display = 'none';
+            micBtn.className = 'btn btn-danger';
+            micBtn.innerHTML = '<i class="bi bi-stop-fill"></i>';
+            micBtn.title = 'Arrêter';
+
+            let ind = document.getElementById('mic-indicator');
+            if (!ind) {
+                ind = document.createElement('div');
+                ind.id = 'mic-indicator';
+                micBtn.closest('div').after(ind);
+            }
+            ind.style.cssText = 'font-size:.75rem;color:#dc2626;font-weight:600;margin-top:4px;display:flex;align-items:center;gap:4px;';
+            ind.innerHTML = '<span style="display:inline-block;width:8px;height:8px;background:#dc2626;border-radius:50%;animation:mic-pulse 1s infinite;"></span> <span id="mic-timer">0s</span>';
+
+            timer = setInterval(function() {
+                sec++;
+                const el = document.getElementById('mic-timer');
+                if (el) el.textContent = sec + 's';
+            }, 1000);
+
+            mr.ondataavailable = function(e) {
+                if (e.data.size > 0) chunks.push(e.data);
+                log('Données: ' + chunks.length + ' blocs');
+            };
+
+            mr.onstop = function() {
+                log('Traitement…');
+                if (timer) { clearInterval(timer); timer = null; }
+                const oldInd = document.getElementById('mic-indicator');
+
+                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+                mr = null;
+
+                if (descGroup) descGroup.style.display = '';
+                micBtn.className = 'btn btn-outline-secondary';
+                micBtn.innerHTML = '<i class="bi bi-mic"></i>';
+                micBtn.title = 'Enregistrer';
+
+                if (chunks.length === 0) {
+                    oldInd?.remove();
+                    log('Aucune donnée audio');
+                    return;
+                }
+
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                log((blob.size/1024).toFixed(0) + ' Ko');
+
+                const url = URL.createObjectURL(blob);
+                const audio = document.createElement('audio');
+                audio.controls = true;
+                audio.src = url;
+                audio.style.cssText = 'width:100%;margin-top:4px;';
+                if (oldInd) oldInd.replaceWith(audio);
+
+                busy = true;
+                const r = new FileReader();
+                r.onloadend = function() {
+                    audioBase64Input.value = r.result;
+                    busy = false;
+                    log('Prêt à envoyer');
+                };
+                r.readAsDataURL(blob);
+            };
+
+            mr.onerror = function(e) {
+                log('Erreur: ' + (e.error || 'inconnue'));
+                document.getElementById('mic-indicator')?.remove();
+                if (timer) { clearInterval(timer); timer = null; }
+                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+                mr = null;
+                if (descGroup) descGroup.style.display = '';
+                micBtn.className = 'btn btn-outline-secondary';
+                micBtn.innerHTML = '<i class="bi bi-mic"></i>';
+            };
+
+            try {
+                mr.start(1000);
+                log('Enregistrement…');
+            } catch(e) {
+                log('Erreur démarrage: ' + e.message);
+            }
+        }).catch(function(err) {
+            log(err.message);
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                alert('Veuillez autoriser le microphone dans les paramètres du navigateur.');
+            }
+        });
+    });
+
+    form.addEventListener('submit', function(e) {
+        if (busy) {
+            e.preventDefault();
+            const btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Audio…';
+            const wait = setInterval(function() {
+                if (!busy) {
+                    clearInterval(wait);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-plus-circle"></i> Ajouter';
+                    form.submit();
+                }
+            }, 100);
+            return;
+        }
+        if (mr && (mr.state === 'recording' || mr.state === 'paused')) {
+            e.preventDefault();
+            mr.stop();
+            const check = setInterval(function() {
+                if (!mr) { clearInterval(check); form.submit(); }
+            }, 50);
+        }
+    });
+})();
+</script>
+<style>
+@keyframes mic-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+</style>
 
 @endsection

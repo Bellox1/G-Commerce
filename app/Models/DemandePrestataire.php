@@ -15,7 +15,8 @@ class DemandePrestataire extends Model
         'motivation',
         'questionnaire',
         'statut',
-        'user_id'
+        'user_id',
+        'password'
     ];
 
     protected $casts = [

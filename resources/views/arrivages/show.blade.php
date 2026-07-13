@@ -6,7 +6,7 @@
 <div style="display: flex; flex-direction: column; gap: 20px;">
     
     {{-- Entête & Statut --}}
-    <div class="card" style="background: white; border-left: 4px solid {{ $arrivage->statut === 'receptionne' ? 'var(--success)' : 'var(--warning)' }};">
+    <div class="card" style="background: white;">
         <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
                 <span class="badge {{ $arrivage->statut === 'receptionne' ? 'badge-success' : 'badge-warning' }}" style="margin-bottom: 6px;">
@@ -143,7 +143,7 @@
             @php
                 $benefice = $arrivage->beneficePrevisionnel();
             @endphp
-            <div class="card" style="border-left: 4px solid {{ $benefice >= 0 ? 'var(--success)' : 'var(--danger)' }};">
+            <div class="card">
                 <div class="card-header">
                     <h3><i class="bi bi-graph-up-arrow"></i> Bénéfice Prévisionnel</h3>
                 </div>

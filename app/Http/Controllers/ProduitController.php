@@ -83,6 +83,7 @@ class ProduitController extends Controller
                 },
             ],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image_url' => 'nullable|url|max:2048',
             'description' => 'nullable|string',
             'seuil_alerte' => 'required|integer|min:0',
             'prix_vente_conseille' => 'nullable|integer|min:0',
@@ -98,9 +99,12 @@ class ProduitController extends Controller
             ? (int) ceil($request->prix_cartouche / 100) * 100
             : null;
 
-        $imagePath = $request->hasFile('image')
-            ? $request->file('image')->store('produits', 'public')
-            : null;
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('produits', 'public');
+        } elseif ($request->filled('image_url')) {
+            $imagePath = $request->image_url;
+        }
 
         $produit = Produit::create([
             'tenant_id'           => $tenant->id,
@@ -158,6 +162,7 @@ class ProduitController extends Controller
                 },
             ],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image_url' => 'nullable|url|max:2048',
             'description' => 'nullable|string',
             'seuil_alerte' => 'required|integer|min:0',
             'prix_vente_conseille' => 'nullable|integer|min:0',
@@ -172,10 +177,15 @@ class ProduitController extends Controller
         $data['a_cartouche'] = $request->boolean('a_cartouche');
 
         if ($request->hasFile('image')) {
-            if ($produit->image) {
+            if ($produit->image && !str_starts_with($produit->image, 'http')) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($produit->image);
             }
             $data['image'] = $request->file('image')->store('produits', 'public');
+        } elseif ($request->filled('image_url')) {
+            if ($produit->image && !str_starts_with($produit->image, 'http')) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($produit->image);
+            }
+            $data['image'] = $request->image_url;
         }
         if (!$data['a_cartouche']) {
             $data['cartouche_par_carton'] = null;

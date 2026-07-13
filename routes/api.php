@@ -18,6 +18,7 @@ use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\DetteSocieteController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Traitements Auth Publics ────────────────────────────────────────────
@@ -118,6 +119,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('dettes/{dette}', [DetteController::class, 'destroy']);
         Route::post('dettes/{dette}/payer', [DetteController::class, 'enregistrerPaiement'])->name('dettes.payer');
         Route::put('dettes/{dette}/echeance', [DetteController::class, 'updateEcheance'])->name('dettes.echeance');
+
+        // ── Dettes Société ────────────────────────────────────────────────
+        Route::get('dettes-societe', [DetteSocieteController::class, 'index']);
+        Route::get('dettes-societe/{dette}', [DetteSocieteController::class, 'show']);
+        Route::post('dettes-societe', [DetteSocieteController::class, 'store']);
+        Route::post('dettes-societe/{dette}/payer', [DetteSocieteController::class, 'enregistrerPaiement']);
+        Route::delete('dettes-societe/{dette}', [DetteSocieteController::class, 'destroy']);
 
         // ── Employés ─────────────────────────────────────────────────────
         Route::post('employes', [EmployeController::class, 'store']);

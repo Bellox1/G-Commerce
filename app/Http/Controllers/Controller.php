@@ -22,7 +22,7 @@ abstract class Controller
             'transferts' => $user->peutGererTransferts(),
             'employes'   => $user->peutGererUtilisateurs(),
             'livraisons' => $user->peutGererLivraisons(),
-            'tenants'    => $user->isSuperAdmin(),
+            'tenants'    => $user->isSuperAdmin() || $user->hasRole('prestataire'),
             'catalogues' => $user->peutModifierCatalogues(),
             default      => true,
         };

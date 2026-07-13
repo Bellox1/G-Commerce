@@ -21,7 +21,7 @@ class ArrivageController extends Controller
         $tenant = Auth::user()->tenant;
         $arrivages = Arrivage::where('tenant_id', $tenant->id)
             ->with(['fournisseur', 'magasin', 'user', 'produits'])
-            ->latest()
+            ->orderByDesc('id')
             ->paginate(15);
 
         if (request()->expectsJson() || request()->is('api/*')) {

@@ -36,6 +36,13 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">Salaire mensuel (FCFA)</label>
+                    <input type="number" name="salaire" class="form-control" value="{{ old('salaire', $employe->salaire) }}" min="0" placeholder="Ex : 150000">
+                </div>
+            </div>
+
+            <div class="form-row form-row-2">
+                <div class="form-group">
                     <label class="form-label">Rôle <span style="color:var(--danger);">*</span></label>
                     <select name="role" class="form-control" required>
                         <option value="admin" @selected(old('role', $employe->role) === 'admin')>Admin</option>

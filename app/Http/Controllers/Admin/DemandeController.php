@@ -18,6 +18,12 @@ class DemandeController extends Controller
         return view('admin.prestataires.index', compact('demandes'));
     }
 
+    public function showPrestataire($id)
+    {
+        $demande = DemandePrestataire::findOrFail($id);
+        return view('admin.prestataires.show', compact('demande'));
+    }
+
     public function validerPrestataire($id)
     {
         $demande = DemandePrestataire::findOrFail($id);
@@ -50,20 +56,22 @@ class DemandeController extends Controller
                     function ($message) use ($demande) {
                         $message->to($demande->email)
                             ->subject('Vous êtes maintenant partenaire Pilotix !')
-                            ->from('pilotrix@gmail.com', 'Pilotix');
+                            ->from('noreply@pilotix.com', 'Pilotix');
                     }
                 );
             } catch (\Exception $e) {}
 
-            return back()->with('success', "Compte existant {$existingUser->email} mis à jour — rôle prestataire ajouté en secondaire.");
+            return back()->with('success', "Compte existant {$existingUser->email} mis à jour — rôle prestataire ajouté.");
         }
 
-        $password = Str::random(10);
+        $plainPassword = Str::random(10);
+        $hashedPassword = Hash::make($plainPassword);
+
         $user = User::create([
             'name' => $demande->nom . ' ' . $demande->prenom,
             'email' => $demande->email,
             'telephone' => $demande->telephone,
-            'password' => Hash::make($password),
+            'password' => $hashedPassword,
             'role' => 'prestataire',
             'actif' => true
         ]);
@@ -77,19 +85,68 @@ class DemandeController extends Controller
             Mail::raw(
                 "Bonjour {$demande->prenom},\n\n" .
                 "Votre demande de partenariat a été approuvée !\n\n" .
-                "Voici vos identifiants :\n" .
+                "Un compte a été créé pour vous. Voici vos identifiants :\n" .
                 "Email : {$demande->email}\n" .
-                "Mot de passe temporaire : {$password}\n\n" .
+                "Mot de passe : {$plainPassword}\n\n" .
                 "Connectez-vous sur " . url('/login') . " puis changez votre mot de passe depuis votre profil.\n\n" .
                 "Bienvenue dans l'équipe Pilotix !",
                 function ($message) use ($demande) {
                     $message->to($demande->email)
-                        ->subject('Votre compte Pilotix est prêt !')
+                        ->subject('Votre compte partenaire Pilotix est prêt !')
+                        ->from('noreply@pilotix.com', 'Pilotix');
+                }
+            );
+        } catch (\Exception $e) {}
+
+        return back()->with('success', 'Nouveau compte créé pour ' . $user->email . ' — mot de passe temporaire : ' . $plainPassword . '.');
+    }
+
+    public function rejeterPrestataire($id)
+    {
+        $demande = DemandePrestataire::findOrFail($id);
+        
+        if ($demande->statut !== 'en_attente') {
+            return back()->with('error', 'Demande déjà traitée.');
+        }
+
+        $demande->update([
+            'statut' => 'rejete'
+        ]);
+
+        try {
+            Mail::raw(
+                "Bonjour {$demande->prenom},\n\n" .
+                "Nous avons bien étudié votre demande de partenariat pour Pilotix.\n" .
+                "Malheureusement, nous ne pouvons pas y donner une suite favorable pour le moment.\n\n" .
+                "Cordialement,\nL'équipe Pilotix",
+                function ($message) use ($demande) {
+                    $message->to($demande->email)
+                        ->subject('Votre demande de partenariat Pilotix')
                         ->from('pilotrix@gmail.com', 'Pilotix');
                 }
             );
         } catch (\Exception $e) {}
 
-        return back()->with('success', 'Nouveau compte créé pour ' . $user->email . ' — mot de passe : ' . $password . '.');
+        return back()->with('success', 'La demande a été rejetée.');
+    }
+
+    public function indexCommissions()
+    {
+        $commissions = \App\Models\Commission::with(['partenaire', 'tenant'])->latest()->get();
+        return view('admin.commissions.index', compact('commissions'));
+    }
+
+    public function updateCommissionStatut(Request $request, $id)
+    {
+        $commission = \App\Models\Commission::findOrFail($id);
+        $request->validate([
+            'statut' => 'required|in:en_attente,reglee'
+        ]);
+
+        $commission->update([
+            'statut' => $request->statut
+        ]);
+
+        return back()->with('success', 'Statut de la commission mis à jour.');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Arrivage;
 use App\Models\ArrivageProduit;
+use App\Models\DetteSociete;
 use App\Models\Produit;
 use App\Models\StockMouvement;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,18 @@ class ArrivageService
             // Calculer les totaux et répartir les frais
             $arrivage->load('produits');
             $arrivage->recalculer();
+
+            // Créer automatiquement la dette société (ce que la société doit pour cet arrivage)
+            DetteSociete::create([
+                'tenant_id'     => $arrivage->tenant_id,
+                'fournisseur_id'=> $arrivage->fournisseur_id,
+                'arrivage_id'   => $arrivage->id,
+                'montant'       => $arrivage->total_cout_reel,
+                'montant_paye'  => 0,
+                'description'   => "Arrivage {$arrivage->reference}",
+                'date_dette'    => now(),
+                'statut'        => 'en_cours',
+            ]);
 
             return $arrivage;
         });

@@ -216,9 +216,8 @@
 
 <!-- HERO -->
 <section class="hero">
-    <div class="badge">Gagnez avec nous</div>
     <h1>Monétisez votre <span>réseau d'affaires</span></h1>
-    <p>Devenez partenaire Pilotix et touchez des commissions sur chaque licence vendue grâce à vos recommandations.</p>
+    <p>Gagnez jusqu'à <span style="background:#facc15; color:#000; padding:2px 10px; border-radius:4px; font-weight:800; font-size:1.1em;">110 000 FCFA</span> pour 10 clients avec l'offre Max.</p>
     <div class="hero-btns">
         <a href="#gains" class="btn-primary" style="background:var(--secondary);">Voir vos commissions</a>
         <a href="#video" class="btn-primary" style="background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3);">Voir la vidéo</a>
@@ -632,7 +631,7 @@
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                 <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
             </div>
-            <p>Solution de gestion commerciale multi-tenant pour les PME d'Afrique de l'Ouest.</p>
+            <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
         <div class="footer-col">
             <h5>Contact</h5>

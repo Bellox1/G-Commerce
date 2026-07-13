@@ -32,7 +32,7 @@
                     @foreach($demandes as $d)
                     <tr>
                         <td>{{ $d->created_at->format('d/m/Y') }}</td>
-                        <td class="fw-bold">{{ $d->nom }} {{ $d->prenom }}</td>
+                        <td class="fw-bold"><a href="{{ route('admin.prestataires.show', $d->id) }}" style="color:var(--primary); text-decoration:none;">{{ $d->nom }} {{ $d->prenom }}</a></td>
                         <td>{{ $d->email }}</td>
                         <td>{{ $d->telephone }}</td>
                         <td>{{ $d->entreprise ?? '—' }}</td>
@@ -47,14 +47,24 @@
                         </td>
                         <td>
                             @if($d->statut === 'en_attente')
-                                <form action="{{ route('admin.prestataires.valider', $d->id) }}" method="POST" style="display:inline;" data-no-api="true">
-                                    @csrf
-                                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Valider cette demande ? Un compte prestataire sera créé automatiquement.')">
-                                        <i class="bi bi-check-lg"></i> Valider
-                                    </button>
-                                </form>
+                                <div style="display: flex; gap: 6px;">
+                                    <form action="{{ route('admin.prestataires.valider', $d->id) }}" method="POST" style="display:inline;" data-no-api="true">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Approuver cette demande ? Le compte partenaire sera créé automatiquement.')">
+                                            <i class="bi bi-check-lg"></i> Approuver
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('admin.prestataires.rejeter', $d->id) }}" method="POST" style="display:inline;" data-no-api="true">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Rejeter cette demande ?')">
+                                            <i class="bi bi-x-lg"></i> Rejeter
+                                        </button>
+                                    </form>
+                                </div>
+                            @elseif($d->statut === 'approuve')
+                                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Approuvé</span>
                             @else
-                                <span class="text-muted">Traité</span>
+                                <span class="text-danger fw-bold"><i class="bi bi-x-circle-fill"></i> Rejeté</span>
                             @endif
                         </td>
                     </tr>

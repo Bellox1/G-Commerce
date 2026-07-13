@@ -27,6 +27,7 @@ class Arrivage extends Model
     public function fournisseur() { return $this->belongsTo(Fournisseur::class); }
     public function user()        { return $this->belongsTo(User::class); }
     public function produits()    { return $this->hasMany(ArrivageProduit::class); }
+    public function detteSociete() { return $this->hasOne(DetteSociete::class); }
 
     /**
      * Total des frais de l'arrivage

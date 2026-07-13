@@ -12,7 +12,7 @@ class User extends Authenticatable
     use Notifiable, SoftDeletes, HasApiTokens;
 
     protected $fillable = [
-        'tenant_id','magasin_id','name','email','telephone',
+        'tenant_id','magasin_id','name','email','telephone','salaire',
         'role','roles_secondaires','actif','password',
     ];
 
@@ -28,6 +28,8 @@ class User extends Authenticatable
     public function tenant()  { return $this->belongsTo(Tenant::class); }
     public function magasin() { return $this->belongsTo(Magasin::class); }
     public function ventes()  { return $this->hasMany(Vente::class); }
+    public function commissions() { return $this->hasMany(Commission::class, 'partenaire_id'); }
+    public function tenantsCrees() { return $this->hasMany(Tenant::class, 'partenaire_id'); }
 
     // Vérifications de rôle principal
     public function isSuperAdmin(): bool { return $this->role === 'super_admin'; }

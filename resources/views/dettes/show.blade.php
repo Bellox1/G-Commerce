@@ -41,7 +41,7 @@
     <div style="display: flex; flex-direction: column; gap: 20px;">
         
         {{-- Fiche Dette --}}
-        <div class="card" style="border-left: 4px solid {{ $dette->montant_restant <= 0 ? 'var(--success)' : 'var(--danger)' }};">
+        <div class="card">
             <div class="card-body">
                 <span class="badge {{ $dette->montant_restant <= 0 ? 'badge-success' : 'badge-danger' }}" style="margin-bottom: 8px;">
                     {{ $dette->montant_restant <= 0 ? 'Soldée' : 'Impayée / Active' }}
@@ -72,7 +72,7 @@
         </div>
 
         {{-- Date d'échéance --}}
-        <div class="card" style="border-left: 4px solid {{ $dette->estEnRetard() ? 'var(--danger)' : ($dette->date_echeance ? 'var(--warning)' : 'var(--border)') }};">
+        <div class="card">
             <div class="card-body">
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
                     <div>

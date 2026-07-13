@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DepenseJournaliere;
 use App\Models\Dette;
 use App\Models\DettePaiement;
+use App\Models\DetteSociete;
 use App\Models\Magasin;
 use App\Models\Produit;
 use App\Models\StockMouvement;
@@ -13,6 +14,7 @@ use App\Models\User;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -24,6 +26,7 @@ class DashboardController extends Controller
         if ($user->isSuperAdmin()) {
             return redirect()->route('tenants.index');
         }
+
         $tenant = $user->tenant;
 
         $date = $request->date ?: today()->format('Y-m-d');
@@ -56,12 +59,18 @@ class DashboardController extends Controller
         // Total loyers des magasins (mensuel)
         $totalLoyerMois = (float) Magasin::where('tenant_id', $tenant->id)->sum('loyer');
 
+        // Total salaires des employés actifs (mensuel)
+        $totalSalairesMois = (float) User::where('tenant_id', $tenant->id)
+            ->where('actif', true)
+            ->whereNotNull('salaire')
+            ->sum('salaire');
+
         // Chiffre d'affaire net (encaissements - dépenses)
         $caJour = $ventesJour - $depenseJour;
         $caMois = $ventesMois - $depenseMois;
 
-        // Revenu net mensuel (ventes - dépenses - loyers)
-        $revenuNetMois = $caMois - $totalLoyerMois;
+        // Revenu net mensuel (ventes encaissées - dépenses - loyers - salaires)
+        $revenuNetMois = $caMois - $totalLoyerMois - $totalSalairesMois;
 
         // Statistiques par personne (ventes du jour)
         $statsParPersonne = \DB::table('ventes')
@@ -170,6 +179,11 @@ class DashboardController extends Controller
             ->whereDate('date_livraison', $date)
             ->count();
 
+        // Dettes société (non filtré)
+        $totalDettesSociete = DetteSociete::where('tenant_id', $tenant->id)
+            ->where('statut', 'en_cours')
+            ->sum(DB::raw('montant - montant_paye'));
+
         // Stock en temps réel (aperçu pour le 1er magasin)
         $magasins = Magasin::where('tenant_id', $tenant->id)->get();
         $stockApercu = collect();
@@ -194,9 +208,10 @@ class DashboardController extends Controller
             'depensesDuJour',
             'dettePaiementsJour',
             'totalDettes','dettesEnRetard','dettesEnRetardListe',
+            'totalDettesSociete',
             'stockAlertes','dernieresVentes','topProduits','tenant','date',
             'employes',
-            'totalLoyerMois','revenuNetMois',
+            'totalLoyerMois','revenuNetMois','totalSalairesMois',
             'nbLivraisonsEnAttente','livraisonsDuJour',
             'stockApercu','magasinPrincipal'
         ));

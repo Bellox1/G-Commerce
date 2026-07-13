@@ -47,7 +47,11 @@
                     <td>
                         <a href="{{ route('produits.show', $p) }}">
                         @if($p->image)
-                            <img src="{{ asset('storage/' . $p->image) }}" alt="{{ $p->nom }}" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid var(--border);">
+                            @php $imgSrc = str_starts_with($p->image, 'http') ? $p->image : asset('storage/' . $p->image); @endphp
+                            <img src="{{ $imgSrc }}" alt="{{ $p->nom }}" style="width:36px; height:36px; border-radius:6px; object-fit:cover; border:1px solid var(--border);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                            <span style="display:none; width:36px; height:36px; border-radius:6px; background:#f1f5f9; align-items:center; justify-content:center; color:#94a3b8; font-size:.8rem;">
+                                <i class="bi bi-image"></i>
+                            </span>
                         @else
                             <span style="display:inline-flex; width:36px; height:36px; border-radius:6px; background:#f1f5f9; align-items:center; justify-content:center; color:#94a3b8; font-size:.8rem;">
                                 <i class="bi bi-image"></i>

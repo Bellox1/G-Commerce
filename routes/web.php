@@ -14,6 +14,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\MagasinController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\DetteSocieteController;
 use App\Http\Controllers\AnalytiqueController;
 use App\Http\Controllers\EmployeController;
 use App\Http\Controllers\WelcomeController;
@@ -72,11 +73,18 @@ Route::middleware('auth')->group(function () {
         
         // Validation des prestataires
         Route::get('/admin/prestataires', [DemandeController::class, 'indexPrestataires'])->name('admin.prestataires');
+        Route::get('/admin/prestataires/{id}', [DemandeController::class, 'showPrestataire'])->name('admin.prestataires.show');
         Route::post('/admin/prestataires/{id}/valider', [DemandeController::class, 'validerPrestataire'])->name('admin.prestataires.valider');
+        Route::post('/admin/prestataires/{id}/rejeter', [DemandeController::class, 'rejeterPrestataire'])->name('admin.prestataires.rejeter');
+        
+        // Gestion des commissions
+        Route::get('/admin/commissions', [DemandeController::class, 'indexCommissions'])->name('admin.commissions');
+        Route::post('/admin/commissions/{id}/statut', [DemandeController::class, 'updateCommissionStatut'])->name('admin.commissions.statut');
+        Route::post('/tenants/{tenant}/renouveler', [TenantController::class, 'renewOffer'])->name('tenants.renew');
     });
 
     // ─── Routes métier (utilisateurs avec un tenant associé) ───────────
-    Route::middleware('ensure_tenant')->group(function () {
+    Route::middleware(['ensure_tenant', 'offer_active'])->group(function () {
 
         // Produits
         Route::resource('produits', ProduitController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
@@ -118,6 +126,13 @@ Route::middleware('auth')->group(function () {
         // Fournisseurs
         Route::resource('fournisseurs', FournisseurController::class)->only(['store', 'update', 'destroy']);
 
+        // Dettes Société (dettes que la société doit aux fournisseurs)
+        Route::get('dettes-societe', [DetteSocieteController::class, 'index'])->name('dettes-societe.index');
+        Route::get('dettes-societe/{dette}', [DetteSocieteController::class, 'show'])->name('dettes-societe.show');
+        Route::post('dettes-societe', [DetteSocieteController::class, 'store'])->name('dettes-societe.store');
+        Route::post('dettes-societe/{dette}/payer', [DetteSocieteController::class, 'enregistrerPaiement'])->name('dettes-societe.payer');
+        Route::delete('dettes-societe/{dette}', [DetteSocieteController::class, 'destroy'])->name('dettes-societe.destroy');
+
         // Analytique / Analyse avancée (GET uniquement)
         Route::get('analytique', [AnalytiqueController::class, 'index'])->name('analytique');
 
@@ -133,4 +148,13 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'password'])->name('profile.password');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Espace partenaire (accessible à tous les users ayant le rôle prestataire)
+    Route::get('/prestataire/dashboard', [\App\Http\Controllers\PrestataireSpaceController::class, 'dashboard'])->name('prestataire.dashboard');
+    Route::get('/prestataire/mes-societes', [\App\Http\Controllers\PrestataireSpaceController::class, 'mesSocietes'])->name('prestataire.mes-societes');
+    Route::get('/prestataire/societes/creer', [\App\Http\Controllers\PrestataireSpaceController::class, 'createTenant'])->name('prestataire.tenants.create');
+    Route::post('/prestataire/societes', [\App\Http\Controllers\PrestataireSpaceController::class, 'storeTenant'])->name('prestataire.tenants.store');
+    Route::get('/prestataire/societes/{tenant}/modifier', [\App\Http\Controllers\PrestataireSpaceController::class, 'editTenant'])->name('prestataire.tenants.edit');
+    Route::put('/prestataire/societes/{tenant}', [\App\Http\Controllers\PrestataireSpaceController::class, 'updateTenant'])->name('prestataire.tenants.update');
+    Route::post('/prestataire/societes/{tenant}/renouveler', [\App\Http\Controllers\PrestataireSpaceController::class, 'renewOffer'])->name('prestataire.tenants.renew');
 });

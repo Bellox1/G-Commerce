@@ -54,7 +54,6 @@
 </nav>
 
 <div class="page-header">
-    <div class="tag">Légal</div>
     <h1>Conditions d'utilisation</h1>
     <p class="date">En vigueur depuis le {{ date('d/m/Y') }}</p>
 </div>
@@ -131,7 +130,7 @@
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
                 <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
             </div>
-            <p>Solution de gestion commerciale pour les PME d'Afrique de l'Ouest.</p>
+            <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
         <div class="footer-col">
             <h5>Fonctionnalités</h5>
@@ -151,8 +150,8 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale</span>
-        <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a></span>
+        <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-Dépôt ou Magasin</span>
+        <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
     </div>
 </footer>
 

@@ -214,8 +214,18 @@
         .badge-danger { background: #fee2e2; color: #991b1b; }
         .badge-gray { background: #f1f5f9; color: #475569; }
 
+        /* Pagination */
+        .pagination { display: flex; align-items: center; gap: 4px; list-style: none; padding: 12px 0; margin: 0; flex-wrap: wrap; justify-content: center; }
+        .pagination li { margin: 0; }
+        .pagination li a, .pagination li span { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; padding: 0 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; text-decoration: none; color: var(--text); border: 1px solid var(--border); background: #fff; transition: all 0.15s; }
+        .pagination li a:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .pagination li.active span { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 700; }
+        .pagination li.disabled span { color: #cbd5e1; border-color: #e2e8f0; background: #f8fafc; cursor: not-allowed; }
+        .pagination svg { width: 14px; height: 14px; flex-shrink: 0; }
+        @media (max-width: 640px) { .pagination { gap: 2px; } .pagination li a, .pagination li span { min-width: 28px; height: 28px; font-size: 0.75rem; padding: 0 6px; } .pagination svg { width: 12px; height: 12px; } }
+
         /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: #fff; border-radius: var(--radius-card); padding: 20px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 14px; box-shadow: var(--shadow-sm); min-width: 0; overflow: hidden; }
         .stat-card > div:last-child { min-width: 0; overflow: hidden; flex: 1; }
         @media (max-width: 1100px) {
@@ -341,8 +351,12 @@
                 <a href="{{ route('admin.prestataires') }}" class="nav-link {{ request()->routeIs('admin.prestataires') ? 'active' : '' }}">
                     <i class="bi bi-person-plus"></i> Partenaires
                 </a>
+                <a href="{{ route('admin.commissions') }}" class="nav-link {{ request()->routeIs('admin.commissions') ? 'active' : '' }}">
+                    <i class="bi bi-wallet2"></i> Commissions
+                </a>
             @else
-                {{-- Liens métier selon les droits du rôle --}}
+                {{-- Liens métier seulement si l'utilisateur a un tenant associé --}}
+                @if(Auth::user()->tenant)
                 @if(Auth::user()->peutGererProduits())
                 <a href="{{ route('produits.index') }}" class="nav-link {{ request()->routeIs('produits.*') ? 'active' : '' }}">
                     <i class="bi bi-box2"></i> Produits
@@ -369,8 +383,11 @@
                 </a>
                 @endif
                 @if(Auth::user()->peutGererDettes())
-                <a href="{{ route('dettes.index') }}" class="nav-link {{ request()->routeIs('dettes.*') ? 'active' : '' }}">
+                <a href="{{ route('dettes.index') }}" class="nav-link {{ request()->routeIs('dettes.*') ? 'active' : '' }}" style="{{ !request()->routeIs('dettes.*') ? 'color: var(--danger);' : '' }}">
                     <i class="bi bi-credit-card-2-back"></i> Dettes
+                </a>
+                <a href="{{ route('dettes-societe.index') }}" class="nav-link {{ request()->routeIs('dettes-societe.*') ? 'active' : '' }}" style="{{ !request()->routeIs('dettes-societe.*') ? 'color: var(--danger);' : '' }}">
+                    <i class="bi bi-building"></i> Dettes Société
                 </a>
                 @endif
                 @if(Auth::user()->peutGererTransferts())
@@ -393,9 +410,21 @@
                     <i class="bi bi-person-badge"></i> Employés
                 </a>
                 @endif
+                @endif
+
                 <a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}">
                     <i class="bi bi-question-circle"></i> FAQ
                 </a>
+            @endif
+
+            {{-- Onglets prestataire - visible pour tous les utilisateurs avec le rôle prestataire --}}
+            @if(Auth::user()->hasRole('prestataire'))
+            <a href="{{ route('prestataire.dashboard') }}" class="nav-link {{ request()->routeIs('prestataire.dashboard') ? 'active' : '' }}">
+                <i class="bi bi-speedometer2"></i> Mon Business
+            </a>
+            <a href="{{ route('prestataire.mes-societes') }}" class="nav-link {{ request()->routeIs('prestataire.mes-societes') ? 'active' : '' }}">
+                <i class="bi bi-building"></i> Mes Sociétés
+            </a>
             @endif
         </div>
     </div>
@@ -444,6 +473,7 @@
     </main>
 
     {{-- Mini calculatrice flottante --}}
+    @unless(request()->routeIs('ventes.show', 'dettes.show'))
     <div id="calcFab" class="calc-fab" title="Calculatrice">
         <i class="bi bi-calculator"></i>
     </div>
@@ -863,6 +893,7 @@
             updateDisplay();
         })();
     </script>
+    @endunless
 
 @endauth
 

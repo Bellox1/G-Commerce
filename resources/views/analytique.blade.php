@@ -182,25 +182,25 @@
         <h3><i class="bi bi-calculator" style="color:var(--primary);"></i> Résumé {{ $annee }}</h3>
         <div class="chart-sub">Chiffres clés annuels</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
-            <div style="background:#f0fdf4; padding:14px; border-radius:8px; text-align:center;">
-                <div style="font-size:1.3rem; font-weight:800; color:#16a34a;">{{ number_format($totalVentesAn, 0, ',', ' ') }}</div>
+            <div style="background:#f8f9fa; padding:14px; border-radius:8px; text-align:center;">
+                <div style="font-size:1.3rem; font-weight:800; color:#1f2937;">{{ number_format($totalVentesAn, 0, ',', ' ') }} F</div>
                 <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Total ventes</div>
             </div>
             <div style="background:#fef2f2; padding:14px; border-radius:8px; text-align:center;">
-                <div style="font-size:1.3rem; font-weight:800; color:#dc2626;">{{ number_format($totalDepensesAn, 0, ',', ' ') }}</div>
+                <div style="font-size:1.3rem; font-weight:800; color:#dc2626;">{{ number_format($totalDepensesAn, 0, ',', ' ') }} F</div>
                 <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Total dépenses</div>
             </div>
-            <div style="background:#fff7ed; padding:14px; border-radius:8px; text-align:center;">
-                <div style="font-size:1.3rem; font-weight:800; color:#d97706;">{{ number_format($totalLoyerAn, 0, ',', ' ') }}</div>
+            <div style="background:#fef2f2; padding:14px; border-radius:8px; text-align:center;">
+                <div style="font-size:1.3rem; font-weight:800; color:#dc2626;">{{ number_format($totalLoyerAn, 0, ',', ' ') }} F</div>
                 <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Loyers annuels</div>
             </div>
-            <div style="background:#eff6ff; padding:14px; border-radius:8px; text-align:center;">
-                <div style="font-size:1.3rem; font-weight:800; color:#2563eb;">{{ number_format($nbVentesAn, 0, ',', ' ') }}</div>
-                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Ventes totales</div>
+            <div style="background:#f8f9fa; padding:14px; border-radius:8px; text-align:center;">
+                <div style="font-size:1.3rem; font-weight:800; color:#1f2937;">{{ $nbVentesAn }}</div>
+                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Nombre de ventes</div>
             </div>
-            <div style="grid-column:1/-1; background:#f5f3ff; padding:18px; border-radius:8px; text-align:center;">
-                <div style="font-size:1.6rem; font-weight:900; color:#7c3aed;">
-                    {{ number_format($totalNetAn, 0, ',', ' ') }} FCFA
+            <div style="grid-column:1/-1; background:#f8f9fa; padding:18px; border-radius:8px; text-align:center; border:2px solid #1f2937;">
+                <div style="font-size:1.6rem; font-weight:900; color:#000;">
+                    {{ number_format($totalNetAn, 0, ',', ' ') }} F
                 </div>
                 <div style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase;">Revenu net annuel</div>
             </div>

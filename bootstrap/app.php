@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'super_admin'   => SuperAdminMiddleware::class,
             'ensure_tenant' => EnsureTenantMiddleware::class,
+            'offer_active'  => \App\Http\Middleware\OfferActiveMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

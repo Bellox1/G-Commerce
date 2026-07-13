@@ -17,8 +17,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transferts', function (Blueprint $table) {
-            $table->foreignId('produit_id')->nullable(false)->change();
-            $table->integer('quantite')->nullable(false)->change();
+            $table->foreignId('produit_id')->nullable()->change();
+            $table->integer('quantite')->nullable()->change();
         });
     }
 };

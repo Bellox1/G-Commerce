@@ -18,12 +18,13 @@ class EnsureTenantMiddleware
         $user = Auth::user();
 
         if ($user && $user->isSuperAdmin()) {
-            // Le super_admin n'a pas de tenant : on le renvoie vers la gestion des sociétés
             return redirect()->route('tenants.index');
         }
 
         if ($user && !$user->tenant) {
-            // Utilisateur sans tenant (incohérence de données)
+            if ($user->hasRole('prestataire')) {
+                return redirect()->route('prestataire.dashboard');
+            }
             Auth::logout();
             return redirect()->route('login')->withErrors(['email' => 'Votre compte n\'est associé à aucune société. Contactez l\'administrateur.']);
         }

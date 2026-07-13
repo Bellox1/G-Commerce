@@ -39,6 +39,7 @@ class EmployeController extends Controller
             'roles_secondaires' => 'nullable|array',
             'roles_secondaires.*' => 'in:vendeur,livreur,magasinier',
             'password'  => 'required|string|min:6|confirmed',
+            'salaire'   => 'nullable|numeric|min:0',
         ]);
 
         $currentUser = Auth::user();
@@ -78,6 +79,7 @@ class EmployeController extends Controller
             'name'         => $request->name,
             'email'        => $request->email,
             'telephone'    => $request->telephone,
+            'salaire'      => $request->salaire,
             'role'         => $request->role,
             'roles_secondaires' => $request->roles_secondaires ?? [],
             'password'     => Hash::make($request->password),
@@ -104,6 +106,7 @@ class EmployeController extends Controller
             'roles_secondaires' => 'nullable|array',
             'roles_secondaires.*' => 'in:vendeur,livreur,magasinier',
             'actif'     => 'nullable|boolean',
+            'salaire'   => 'nullable|numeric|min:0',
         ]);
 
         if ($request->email !== $employe->email) {
@@ -118,6 +121,7 @@ class EmployeController extends Controller
 
         $data = $request->only(['name', 'email', 'telephone', 'role']);
         $data['actif'] = $request->boolean('actif');
+        $data['salaire'] = $request->salaire ?: null;
         $data['roles_secondaires'] = $request->roles_secondaires ?? [];
 
         if ($request->filled('password')) {

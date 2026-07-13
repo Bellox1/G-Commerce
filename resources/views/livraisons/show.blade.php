@@ -52,7 +52,7 @@
         @if($vente->notes)
         <div class="card">
             <h4 style="margin-bottom: 10px;"><i class="bi bi-sticky"></i> Note client ou vendeur :</h4>
-            <div style="padding: 12px; background: #fffbeb; border-left: 4px solid var(--warning); border-radius: 4px; font-family: 'Inter', sans-serif;">
+            <div style="padding: 12px; background: #fffbeb; border-radius: 4px; font-family: 'Inter', sans-serif;">
                 {{ $vente->notes }}
             </div>
         </div>
@@ -62,7 +62,7 @@
     <!-- Statut et informations client -->
     <div>
         <!-- Statut de livraison actuel -->
-        <div class="card" style="border-top: 4px solid {{ $vente->statut_livraison === 'livre' ? 'var(--success)' : ($vente->statut_livraison === 'probleme' ? 'var(--danger)' : 'var(--warning)') }}">
+        <div class="card">
             <h3 style="margin-bottom:12px;"><i class="bi bi-info-circle"></i> Info Livraison</h3>
             
             <div style="margin-bottom: 20px;">

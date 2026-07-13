@@ -360,46 +360,7 @@
         }
         .phone-screen-sm img { width: 100%; height: 100%; object-fit: contain; }
 
-        /* ─── ENTRY OVERLAY ─── */
-        #entry-overlay {
-            position: fixed; inset: 0; z-index: 9999;
-            background: #fff;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease;
-        }
-        #entry-overlay.hide { opacity: 0; pointer-events: none; }
-        .entry-logo-wrap {
-            width: 150px; height: 150px;
-            border-radius: 32px; overflow: hidden;
-            animation: logoEntryAnim 1s cubic-bezier(0.25,1,0.5,1) both;
-            box-shadow: 0 8px 40px rgba(16,94,73,.3);
-        }
-        .entry-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
-        @keyframes logoEntryAnim {
-            0%   { opacity: 0; transform: scale(0.5) translateY(40px); }
-            70%  { opacity: 1; transform: scale(1.06) translateY(-5px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .entry-text {
-            margin-top: 28px; text-align: center;
-            opacity: 0;
-            animation: textReveal 0.8s ease-out 2.5s forwards;
-        }
-        .entry-text-main {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 900; font-size: 2.6rem;
-            color: #105e49; letter-spacing: 6px; display: block;
-        }
-        .entry-text-sub {
-            font-family: 'Inter', sans-serif;
-            font-weight: 500; font-size: 0.85rem;
-            color: rgba(255,255,255,.5);
-            letter-spacing: 3px; text-transform: uppercase; display: block; margin-top: 6px;
-        }
-        @keyframes textReveal {
-            0% { opacity: 0; transform: translateY(20px) scale(0.95); letter-spacing: 20px; }
-            100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: 6px; }
-        }
+
 
         /* ─── NOUVEAU WEB DESIGN ASYMÉTRIQUE ALTERNÉ ─── */
         .features-section {
@@ -918,21 +879,6 @@
 </head>
 <body>
 
-    <!-- Entry Overlay -->
-    <div id="entry-overlay">
-        <div class="entry-logo-wrap">
-            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix">
-        </div>
-        <div class="entry-text">
-            <span class="entry-text-main">Pilotix</span>
-            <span class="entry-text-sub">Gestion Commerciale &amp; Stock</span>
-        </div>
-    </div>
-    <script>
-        setTimeout(() => {
-            document.getElementById('entry-overlay').classList.add('hide');
-        }, 3600);
-    </script>
 
     <!-- Top Banner -->
     <div class="top-banner">
@@ -983,8 +929,8 @@
     <section class="hero">
         <div class="hero-inner">
             <div class="hero-content anim-hero-content">
-                 <h1 class="hero-title">Gérer <span class="arc-underline">stocks<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span>, factures, ventes, livraisons, dettes et <span class="arc-underline" style="white-space:nowrap;">chiffre d'affaires<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span> en temps réel</h1>
-                <p class="hero-desc">L'outil indispensable pour votre commerce : Pilotix gère intelligemment votre stock, déclenche des alertes avant rupture, centralise la facturation et offre un suivi commercial complet pour propulser vos activités.</p>
+                 <h1 class="hero-title">Pilotez votre entreprise avec <span style="color:var(--secondary);">confiance</span></h1>
+                <p class="hero-desc">Passez de l'estimation à la maîtrise.<br>Gérez vos <strong style="color:var(--secondary);">ventes</strong>, <strong style="color:var(--secondary);">stocks</strong>, <strong style="color:var(--secondary);">arrivages</strong>, <strong style="color:var(--secondary);">factures</strong>, <strong style="color:var(--secondary);">dettes clients</strong>, <strong style="color:var(--secondary);">dépenses</strong> et <strong style="color:var(--secondary);">finances</strong> au même endroit. Centralisez toutes vos opérations commerciales et suivez vos performances en temps réel pour prendre les meilleures décisions.</p>
                 <div class="hero-actions">
                     <a href="{{ route('login') }}" class="btn-hero-primary">
                         <i class="bi bi-box-arrow-in-right"></i> Accéder à mon espace
@@ -1001,8 +947,9 @@
             <div class="hero-visual anim-hero-visual">
                 <div class="phone-frame">
                     <div class="phone-notch"></div>
-                    <div class="phone-screen">
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="width:100%; height:100%; object-fit:contain;">
+                    <div class="phone-screen" style="position:relative;">
+                        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="width:100%; height:auto; object-fit:contain;">
+                        <p style="position:absolute; bottom:20px; left:0; right:0; text-align:center; color:#000; font-size:0.85rem; font-weight:700; letter-spacing:1px;">Pilotez. Controlez. Progressez.</p>
                     </div>
                 </div>
             </div>
@@ -1374,7 +1321,7 @@
                 <div style="margin-bottom:10px;">
                     <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
                 </div>
-                <p style="color: #6b7280;">Solution de gestion commerciale multi-tenant pour les PME d'Afrique de l'Ouest.</p>
+                <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
             </div>
             <div class="footer-links">
                 <h5 style="color: #374151;">Fonctionnalités</h5>
@@ -1406,8 +1353,8 @@
             </div>
         </div>
         <div class="footer-bottom" style="border-top: 1px solid #e5e7eb; color: #6b7280;">
-            <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-tenant</span>
-            <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a></span>
+            <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-Dépôt ou Magasin</span>
+            <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
         </div>
     </footer>
 <script>

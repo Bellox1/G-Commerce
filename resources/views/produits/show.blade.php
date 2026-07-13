@@ -5,12 +5,16 @@
 @section('content')
 <div style="display: flex; flex-direction: column; gap: 20px;">
     {{-- En-tête --}}
-    <div class="card" style="border-left: 4px solid {{ $produit->actif ? 'var(--success)' : 'var(--danger)' }};">
+    <div class="card">
         <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div style="display: flex; align-items: center; gap: 16px;">
                 @if($produit->image)
-                    <img src="{{ asset('storage/' . $produit->image) }}" alt="{{ $produit->nom }}"
-                         style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);">
+                    @php $imgSrc = str_starts_with($produit->image, 'http') ? $produit->image : asset('storage/' . $produit->image); @endphp
+                    <img src="{{ $imgSrc }}" alt="{{ $produit->nom }}"
+                         style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span style="display:none; width:64px; height:64px; border-radius:8px; background:#f1f5f9; align-items:center; justify-content:center; color:#94a3b8; font-size:1.5rem;">
+                        <i class="bi bi-image"></i>
+                    </span>
                 @else
                     <span style="display: inline-flex; width: 64px; height: 64px; border-radius: 8px; background: #f1f5f9; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.5rem;">
                         <i class="bi bi-image"></i>
@@ -46,8 +50,12 @@
             <div class="card">
                 <div class="card-body" style="padding: 16px; display: flex; justify-content: center;">
                     @if($produit->image)
-                        <img src="{{ asset('storage/' . $produit->image) }}" alt="{{ $produit->nom }}"
-                             style="max-width: 100%; max-height: 300px; border-radius: 8px; object-fit: contain;">
+                        @php $imgSrc = str_starts_with($produit->image, 'http') ? $produit->image : asset('storage/' . $produit->image); @endphp
+                        <img src="{{ $imgSrc }}" alt="{{ $produit->nom }}"
+                             style="max-width: 100%; max-height: 300px; border-radius: 8px; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <span style="display:none; width:200px; height:200px; border-radius:8px; background:#f1f5f9; align-items:center; justify-content:center; color:#94a3b8; font-size:3rem;">
+                            <i class="bi bi-image"></i>
+                        </span>
                     @else
                         <span style="display: inline-flex; width: 200px; height: 200px; border-radius: 8px; background: #f1f5f9; align-items: center; justify-content: center; color: #94a3b8; font-size: 3rem;">
                             <i class="bi bi-image"></i>
@@ -130,18 +138,35 @@
                 </div>
                 <div class="card-body" style="padding: 0; max-height: 400px; overflow-y: auto;">
                     @forelse($mouvements as $mvt)
+                    @php
+                        $typeConfig = [
+                            'entree_arrivage'     => ['label'=>'Arrivage',          'icon'=>'bi-box-arrow-in-down',    'badge'=>'badge-success'],
+                            'sortie_vente'        => ['label'=>'Sortie Vente',       'icon'=>'bi-cart-dash',             'badge'=>'badge-danger'],
+                            'transfert_entree'    => ['label'=>'Transfert Entrée',  'icon'=>'bi-arrow-down-circle',    'badge'=>'badge-success'],
+                            'transfert_sortie'    => ['label'=>'Transfert Sortie',  'icon'=>'bi-arrow-up-circle',      'badge'=>'badge-warning'],
+                            'ajustement_positif'  => ['label'=>'Ajust. +',          'icon'=>'bi-plus-circle',          'badge'=>'badge-success'],
+                            'ajustement_negatif'  => ['label'=>'Ajust. -',          'icon'=>'bi-dash-circle',          'badge'=>'badge-danger'],
+                        ];
+                        $cfg = $typeConfig[$mvt->type] ?? ['label'=>ucfirst($mvt->type), 'icon'=>'bi-arrow-repeat', 'badge'=>'badge-gray'];
+                        $isEntree = $mvt->signe() > 0;
+                    @endphp
                     <div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: .8rem;">
-                        <span class="badge {{ in_array($mvt->type, ['entree_arrivage','transfert_entree','ajustement_positif']) ? 'badge-success' : 'badge-danger' }}" style="min-width: 70px; text-align: center;">
-                            {{ $mvt->signe() > 0 ? '+' : '-' }}{{ $mvt->quantite }}
-                        </span>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600;">{{ ucfirst(str_replace('_', ' ', $mvt->type)) }}</div>
-                            <div style="color: var(--text-muted); font-size: .75rem;">
-                                {{ $mvt->magasin?->nom }} @if($mvt->user) · {{ $mvt->user->name }} @endif
+                        <div style="width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.9rem;"
+                             class="{{ $cfg['badge'] }}">
+                            <i class="bi {{ $cfg['icon'] }}"></i>
+                        </div>
+                        <div style="flex: 1; min-width:0;">
+                            <div style="font-weight: 600;">{{ $cfg['label'] }}</div>
+                            <div style="color: var(--text-muted); font-size: .75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                {{ $mvt->magasin?->nom }}
+                                @if($mvt->note) · {{ $mvt->note }} @endif
                             </div>
                         </div>
-                        <div style="color: var(--text-muted); font-size: .75rem; text-align: right; white-space: nowrap;">
-                            {{ $mvt->date_mouvement?->format('d/m/Y H:i') }}
+                        <div style="text-align:right; flex-shrink:0;">
+                            <div style="font-weight:700; font-size:.9rem; color:{{ $isEntree ? 'var(--success)' : 'var(--danger)' }};">
+                                {{ $isEntree ? '+' : '-' }}{{ $mvt->quantite }}
+                            </div>
+                            <div style="color: var(--text-muted); font-size: .72rem;">{{ $mvt->date_mouvement?->format('d/m/Y') }}</div>
                         </div>
                     </div>
                     @empty
