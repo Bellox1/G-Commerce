@@ -45,9 +45,18 @@ Route::post('/contact', [WelcomeController::class, 'submitContact'])->name('cont
 // Partenaires (public)
 Route::get('/partenaires', [PartenaireController::class, 'index'])->name('partenaires');
 
-// Pages légales (public)
+// Page légales (public)
 Route::get('/conditions', function() { return view('conditions'); })->name('conditions');
 Route::get('/confidentialite', function() { return view('confidentialite'); })->name('confidentialite');
+
+// Page de téléchargement (public)
+Route::get('/download', function() { return view('download'); })->name('download');
+
+// Onboarding mobile (public — redirige vers dashboard si connecté)
+Route::get('/onboarding', function() {
+    if (Auth::check()) return redirect()->route('dashboard');
+    return view('onboarding');
+})->name('onboarding');
 
 // Systèmes de Souscription et Partenariat (Public)
         Route::get('/devenir-partenaire', [SubscriptionController::class, 'showPrestataireForm'])->name('prestataire.form');

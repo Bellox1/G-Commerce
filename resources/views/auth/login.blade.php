@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PilotixaMi — Connexion</title>
+    <title>Connexion — PILOTRIX</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -223,8 +224,15 @@
         .back-link a:hover {
             color: var(--primary-light);
         }
+        .login-logo-link {
+            position: absolute; top: 30px; left: 40px;
+            text-decoration: none; z-index: 10;
+        }
+        .login-logo-img {
+            height: 72px; width: 72px; object-fit: contain; border-radius: 16px;
+        }
         @media (max-width: 480px) {
-            body { padding: 12px; align-items: flex-start; padding-top: 80px; }
+            body { padding: 12px; align-items: flex-start; padding-top: 120px; }
             .login-card { padding: 24px 20px; }
             .login-title { font-size: 1.2rem; }
             .brand-name { font-size: 1.4rem !important; }
@@ -237,8 +245,8 @@
 <body>
 
     <!-- Logo Top Left -->
-    <a href="{{ url('/') }}" style="position: absolute; top: 30px; left: 40px; text-decoration: none; display: flex; align-items: flex-start; gap: 0; z-index: 10;">
-        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" style="height: 72px; width: 72px; object-fit: contain; border-radius: 16px;">
+    <a href="{{ url('/') }}" class="login-logo-link">
+        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" class="login-logo-img">
     </a>
 
     <div class="login-container">
@@ -303,9 +311,16 @@
 
         <!-- Retour accueil public -->
         <div class="back-link">
-            <a href="{{ url('/') }}">
-                <i class="bi bi-arrow-left"></i> Retour au site de présentation
+            <a href="/" id="backLink">
+                <i class="bi bi-arrow-left"></i> Retour
             </a>
+        </div>
+
+        <!-- Télécharger l'app -->
+        <div style="text-align:center; margin-top:20px;">
+            <button onclick="installPWA()" id="loginInstallBtn" style="display:none; background:var(--primary); color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:700; font-size:.9rem; cursor:pointer; gap:8px; box-shadow:0 4px 14px rgba(16,94,73,.25);">
+                <i class="bi bi-download"></i> Télécharger l'app sur l'écran d'accueil
+            </button>
         </div>
 
     </div>
@@ -326,6 +341,28 @@
                 toggleIcon.classList.add('bi-eye-slash');
             }
         }
+    </script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#105e49">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <script>
+    var deferredPrompt = null;
+    // Si PWA (standalone), retour sur /onboarding au lieu de /
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        document.getElementById('backLink').href = '{{ route("onboarding") }}';
+    }
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        var btn = document.getElementById('loginInstallBtn');
+        if (btn) btn.style.display = 'inline-flex';
+    });
+    function installPWA() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
+    }
     </script>
 </body>
 </html>

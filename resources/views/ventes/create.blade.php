@@ -95,7 +95,7 @@
                 <div class="remis-row" id="remisRow-0">
                     <div>
                         <label class="form-label-sm">Montant remis (FCFA)</label>
-                        <input type="number" name="ventes[0][montant_remis]" class="form-control remis-input" value="0" min="0">
+                        <input type="number" name="ventes[0][montant_remis]" class="form-control remis-input" placeholder="Montant remis" min="0">
                     </div>
                     <div>
                         <label class="form-label-sm">Du client (FCFA)</label>
@@ -652,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="remis-row" id="remisRow-${idx}">
                     <div>
                         <label class="form-label-sm">Montant remis (FCFA)</label>
-                        <input type="number" name="ventes[${idx}][montant_remis]" class="form-control remis-input" value="0" min="0">
+                        <input type="number" name="ventes[${idx}][montant_remis]" class="form-control remis-input" placeholder="Montant remis" min="0">
                     </div>
                     <div>
                         <label class="form-label-sm">Du client (FCFA)</label>
@@ -1006,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="remis-row ${vData.a_credit ? '' : ''}" id="remisRow-${cardIndex}">
                         <div>
                             <label class="form-label-sm">Montant remis (FCFA)</label>
-                            <input type="number" name="ventes[${cardIndex}][montant_remis]" class="form-control remis-input" value="${vData.montant_remis || 0}" min="0">
+                            <input type="number" name="ventes[${cardIndex}][montant_remis]" class="form-control remis-input" placeholder="Montant remis" value="${vData.montant_remis || ''}" min="0">
                         </div>
                         <div>
                             <label class="form-label-sm">Du client (FCFA)</label>

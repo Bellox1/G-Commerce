@@ -2,8 +2,15 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Pilotix') — {{ Auth::check() ? (Auth::user()->tenant?->nom ?? 'Pilotix') : 'Pilotix' }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>@yield('title', 'Tableau de bord') — PILOTRIX</title>
+    <meta name="description" content="@yield('meta_description', 'PILOTRIX — Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.')">
+    <meta name="keywords" content="gestion stock, ventes, clients, livraisons, dettes, multi-magasins, applicaition gestion, pilotrix">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="@yield('title', 'Tableau de bord') — PILOTRIX">
+    <meta property="og:description" content="Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PILOTRIX">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts -->
@@ -11,6 +18,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- PWA Meta -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#105e49">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PILOTRIX">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
 
     <style>
         :root {
@@ -40,6 +57,7 @@
             margin: 0;
             padding: 0;
             width: 100%;
+            overflow-x: hidden;
         }
 
         /* ─── Typography & Utilities ─── */
@@ -184,6 +202,9 @@
             .breadcrumb-nav-links { display: none; }
             .breadcrumb-nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: #fff; padding: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card); z-index: 999; gap: 4px; }
             .breadcrumb-nav-links.open .nav-link { width: 100%; }
+            .nav-dropdown { width: 100%; }
+            .nav-dropdown-btn { width: 100%; justify-content: center; }
+            .nav-dropdown-menu { position: static; box-shadow: none; border: none; background: var(--bg); margin-top: 4px; }
         }
 
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; font-family: 'Inter', sans-serif; transition: all 0.2s; }
@@ -251,6 +272,20 @@
         .nav-link:hover { background: rgba(0,0,0,0.03); color: var(--text); }
         .nav-link.active { color: #fff; background: var(--primary); }
         .nav-link i { font-size: 0.95rem; line-height: 1; display: inline-flex; align-items: center; }
+        /* ─── Nav Dropdown (Plus menu) ─── */
+        .nav-dropdown { position: relative; display: inline-flex; }
+        .nav-dropdown-btn { color: var(--text-muted); background: none; border: 1px solid var(--border); font-weight: 600; font-size: 0.82rem; padding: 5px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s; }
+        .nav-dropdown-btn:hover { background: rgba(0,0,0,0.03); color: var(--text); border-color: #cbd5e1; }
+        .nav-dropdown-btn i { font-size: 0.85rem; transition: transform 0.2s; }
+        .nav-dropdown-btn.open i { transform: rotate(180deg); }
+        .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); min-width: 200px; z-index: 1000; padding: 6px; }
+        .nav-dropdown-menu.show { display: block; }
+        .nav-dropdown-menu .nav-link { width: 100%; padding: 8px 12px; font-size: 0.82rem; border-radius: 6px; }
+        .nav-dropdown-menu .nav-link:hover { background: var(--bg); }
+        .nav-dropdown-menu .nav-link.active { color: #fff; background: var(--primary); }
+        @media (max-width: 640px) {
+            .nav-dropdown-menu { right: auto; left: 0; }
+        }
 
         /* ─── Page Grid 2 columns ─── */
         .page-grid-2 { grid-template-columns: 1fr; }
@@ -305,6 +340,35 @@
         .checkbox-label:hover .checkbox-custom { border-color: var(--primary); }
 
     </style>
+    <style>
+        .table-search-wrap {
+            display: flex; align-items: center; gap: 8px; padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-search-field {
+            position: relative; flex: 1; max-width: 360px;
+        }
+        .table-search-wrap .table-search-input {
+            width: 100%; padding: 8px 12px 8px 36px;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-size: .85rem; background: var(--bg); color: var(--text);
+            transition: border-color .2s;
+        }
+        .table-search-wrap .table-search-input:focus {
+            outline: none; border-color: var(--primary);
+        }
+        .table-search-field .table-search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: .9rem; pointer-events: none;
+        }
+        .table-search-wrap .table-search-count {
+            font-size: .75rem; color: var(--text-muted); white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+            .table-search-wrap { padding: 10px 12px; }
+            .table-search-wrap .table-search-input { max-width: 100%; font-size: .8rem; }
+        }
+    </style>
     @stack('styles')
 </head>
 <body>
@@ -312,11 +376,14 @@
 @auth
     <!-- Top Header -->
     <header class="app-header">
-        <a href="{{ url('/') }}" class="header-brand">
+        <a href="{{ url('/') }}" class="header-brand" id="headerBrand">
             <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
         </a>
 
         <div class="header-user">
+            <a href="{{ route('download') }}" title="Télécharger l'app" id="downloadLink" style="display:flex; align-items:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; justify-content:center; flex-shrink:0;">
+                <i class="bi bi-download" style="font-size:1.2rem;"></i>
+            </a>
             <a href="{{ route('profile') }}" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
                 <i class="bi bi-person-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
                 <span>{{ auth()->user()->name }}</span>
@@ -386,35 +453,57 @@
                 <a href="{{ route('dettes.index') }}" class="nav-link {{ request()->routeIs('dettes.*') ? 'active' : '' }}" style="{{ !request()->routeIs('dettes.*') ? 'color: var(--danger);' : '' }}">
                     <i class="bi bi-credit-card-2-back"></i> Dettes
                 </a>
-                <a href="{{ route('dettes-societe.index') }}" class="nav-link {{ request()->routeIs('dettes-societe.*') ? 'active' : '' }}" style="{{ !request()->routeIs('dettes-societe.*') ? 'color: var(--danger);' : '' }}">
-                    <i class="bi bi-building"></i> Dettes Société
-                </a>
                 @endif
                 @if(Auth::user()->peutGererTransferts())
                 <a href="{{ route('transferts.index') }}" class="nav-link {{ request()->routeIs('transferts.*') ? 'active' : '' }}">
                     <i class="bi bi-arrow-left-right"></i> Transferts
                 </a>
                 @endif
-                @if(Auth::user()->peutGererStock())
-                <a href="{{ route('stock.index') }}" class="nav-link {{ request()->routeIs('stock.*') ? 'active' : '' }}">
-                    <i class="bi bi-boxes"></i> Stock
-                </a>
-                @endif
-                @if(Auth::user()->peutGererMagasins())
-                <a href="{{ route('magasins.index') }}" class="nav-link {{ request()->routeIs('magasins.*') ? 'active' : '' }}">
-                    <i class="bi bi-shop"></i> Dépôts
-                </a>
-                @endif
-                @if(Auth::user()->peutGererUtilisateurs())
-                <a href="{{ route('employes.index') }}" class="nav-link {{ request()->routeIs('employes.*') ? 'active' : '' }}">
-                    <i class="bi bi-person-badge"></i> Employés
-                </a>
+
+                {{-- Menu déroulant : liens secondaires --}}
+                @php
+                    $hasSecondary = Auth::user()->peutGererDettes() || Auth::user()->peutGererStock() || Auth::user()->peutGererMagasins() || Auth::user()->peutGererUtilisateurs();
+                    $isSecondaryActive = request()->routeIs('dettes-societe.*') || request()->routeIs('stock.*') || request()->routeIs('magasins.*') || request()->routeIs('employes.*') || request()->routeIs('faq');
+                @endphp
+                @if($hasSecondary)
+                <div class="nav-dropdown" id="navDropdown">
+                    <button class="nav-dropdown-btn {{ $isSecondaryActive ? 'open' : '' }}" onclick="document.getElementById('navDropdown').querySelector('.nav-dropdown-menu').classList.toggle('show'); this.classList.toggle('open');">
+                        <i class="bi bi-three-dots"></i> Plus <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="nav-dropdown-menu">
+                        @if(Auth::user()->peutGererDettes())
+                        <a href="{{ route('dettes-societe.index') }}" class="nav-link {{ request()->routeIs('dettes-societe.*') ? 'active' : '' }}" style="{{ !request()->routeIs('dettes-societe.*') ? 'color: var(--danger);' : '' }}">
+                            <i class="bi bi-building"></i> Dettes Société
+                        </a>
+                        @endif
+                        @if(Auth::user()->peutGererStock())
+                        <a href="{{ route('stock.index') }}" class="nav-link {{ request()->routeIs('stock.*') ? 'active' : '' }}">
+                            <i class="bi bi-boxes"></i> Stock
+                        </a>
+                        @endif
+                        @if(Auth::user()->peutGererMagasins())
+                        <a href="{{ route('magasins.index') }}" class="nav-link {{ request()->routeIs('magasins.*') ? 'active' : '' }}">
+                            <i class="bi bi-shop"></i> Dépôts
+                        </a>
+                        @endif
+                        @if(Auth::user()->peutGererUtilisateurs())
+                        <a href="{{ route('employes.index') }}" class="nav-link {{ request()->routeIs('employes.*') ? 'active' : '' }}">
+                            <i class="bi bi-person-badge"></i> Employés
+                        </a>
+                        @endif
+                        <a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}">
+                            <i class="bi bi-question-circle"></i> FAQ
+                        </a>
+                    </div>
+                </div>
                 @endif
                 @endif
 
+                @if(!Auth::user()->tenant)
                 <a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}">
                     <i class="bi bi-question-circle"></i> FAQ
                 </a>
+                @endif
             @endif
 
             {{-- Onglets prestataire - visible pour tous les utilisateurs avec le rôle prestataire --}}
@@ -917,6 +1006,14 @@
                 icon.classList.toggle('bi-x-lg');
             });
         }
+        // Fermer le dropdown "Plus" en cliquant à l'extérieur
+        document.addEventListener('click', function(e) {
+            var dd = document.getElementById('navDropdown');
+            if (dd && !dd.contains(e.target)) {
+                dd.querySelector('.nav-dropdown-menu')?.classList.remove('show');
+                dd.querySelector('.nav-dropdown-btn')?.classList.remove('open');
+            }
+        });
     });
 </script>
 <script>
@@ -1119,14 +1216,22 @@
                     }
                     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
                 } else {
-                    // Autre erreur JSON
+                    // Autre erreur JSON — si 401/419, session expirée
+                    if (response.status === 401 || response.status === 419) {
+                        window.location.href = '/login';
+                        return;
+                    }
                     showGlobalError(data.message || 'Une erreur est survenue.');
                     if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
                 }
             } else {
-                // Réponse non-JSON — soumettre normalement
-                form.removeEventListener('submit', handleSubmit);
-                form.submit();
+                // Réponse non-JSON — session expirée ou redirection classique
+                if (response.status === 401 || response.status === 419) {
+                    window.location.href = '/login';
+                    return;
+                }
+                // Rediriger vers la page finale (après 302 de Laravel)
+                window.location.href = response.url;
             }
         } catch (err) {
             console.error('OdjaMi API Error:', err);
@@ -1135,12 +1240,13 @@
         }
     }
 
-    // Attacher l'intercepteur à tous les formulaires non-GET
+    // Attacher l'intercepteur — DÉSACTIVÉ (les formulaires web fonctionnent normalement)
+    // Si besoin, activer uniquement sur les formulaires avec data-api="true"
     function attachInterceptors() {
-        document.querySelectorAll('form:not([data-no-api="true"])').forEach(form => {
+        document.querySelectorAll('form[data-api="true"]:not([data-no-api="true"])').forEach(form => {
             const method = (form.dataset.method || form.method || 'GET').toUpperCase();
             if (method !== 'GET') {
-                form.removeEventListener('submit', handleSubmit); // éviter les doublons
+                form.removeEventListener('submit', handleSubmit);
                 form.addEventListener('submit', handleSubmit);
             }
         });
@@ -1153,6 +1259,108 @@
     const observer = new MutationObserver(attachInterceptors);
     observer.observe(document.body, { childList: true, subtree: true });
 
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.table-search-input').forEach(function(input) {
+        var wrap = input.closest('.table-search-wrap');
+        var tableWrap = wrap ? wrap.parentElement : null;
+        var table = tableWrap ? tableWrap.querySelector('table') : null;
+        var countEl = wrap ? wrap.querySelector('.table-search-count') : null;
+        if (!table) return;
+        var tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+
+        function doSearch() {
+            var q = input.value.trim().toLowerCase();
+            var visible = 0;
+            rows.forEach(function(row) {
+                if (row.querySelector('td[colspan]')) { row.style.display = ''; return; }
+                var text = row.textContent.toLowerCase();
+                var match = !q || text.indexOf(q) !== -1;
+                row.style.display = match ? '' : 'none';
+                if (match) visible++;
+            });
+            if (countEl) {
+                countEl.textContent = visible + ' sur ' + rows.filter(function(r){ return !r.querySelector('td[colspan]'); }).length;
+            }
+        }
+        input.addEventListener('input', doSearch);
+        doSearch();
+    });
+});
+</script>
+<script>
+// ─── PWA : masquer Télécharger + corriger lien logo ───
+(function() {
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    if (isStandalone) {
+        var dl = document.getElementById('downloadLink');
+        if (dl) dl.style.display = 'none';
+        var brand = document.getElementById('headerBrand');
+        if (brand) brand.href = '{{ route("onboarding") }}';
+    }
+})();
+// ─── PWA Service Worker + Install Banner ───
+(function() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                reg.addEventListener('updatefound', function() {
+                    var newWorker = reg.installing;
+                    if (newWorker) {
+                        newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        });
+                    }
+                });
+            }).catch(function() {});
+        });
+    }
+
+    var deferredPrompt = null;
+    var installBanner = null;
+    var dismissed = localStorage.getItem('pwa_install_dismissed');
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (!dismissed) showInstallBanner();
+    });
+
+    function showInstallBanner() {
+        if (installBanner || document.getElementById('pwa-install-banner')) return;
+        installBanner = document.createElement('div');
+        installBanner.id = 'pwa-install-banner';
+        installBanner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#105e49;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:10000;font-size:.85rem;box-shadow:0 -4px 20px rgba(0,0,0,.15);flex-wrap:wrap;';
+        installBanner.innerHTML = '<span style="flex:1;min-width:200px;">📲 Installer <strong>PILOTRIX</strong> sur votre écran d\'accueil</span>' +
+            '<button id="pwa-install-btn" style="background:#fff;color:#105e49;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;">Installer</button>' +
+            '<button id="pwa-dismiss-btn" style="background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;">Plus tard</button>';
+        document.body.appendChild(installBanner);
+
+        document.getElementById('pwa-install-btn').addEventListener('click', function() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
+            installBanner.remove();
+            installBanner = null;
+        });
+        document.getElementById('pwa-dismiss-btn').addEventListener('click', function() {
+            localStorage.setItem('pwa_install_dismissed', '1');
+            dismissed = '1';
+            installBanner.remove();
+            installBanner = null;
+        });
+    }
+
+    window.addEventListener('appinstalled', function() {
+        if (installBanner) { installBanner.remove(); installBanner = null; }
+        localStorage.removeItem('pwa_install_dismissed');
+    });
 })();
 </script>
 @stack('scripts')

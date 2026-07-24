@@ -75,7 +75,7 @@
             <div class="edit-grid" style="display: grid; gap: 16px; grid-template-columns: 1fr 1fr; margin-top: 12px;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label">Montant remis (FCFA)</label>
-                    <input type="number" name="montant_remis" class="form-control" value="{{ (int) ($vente->montant_remis ?? 0) }}" min="0">
+                    <input type="number" name="montant_remis" class="form-control" placeholder="Montant remis" value="{{ $vente->montant_remis ?: '' }}" min="0">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label">Du client (FCFA)</label>

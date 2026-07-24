@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilotix — Réinitialiser le mot de passe</title>
+    <title>Réinitialiser le mot de passe — PILOTRIX</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -40,8 +41,15 @@
         }
         .login-card { animation: fadeSlideUp 0.7s ease-out 0.15s both; }
         .back-link  { animation: fadeIn 0.6s ease-out 0.5s both; }
+        .login-logo-link {
+            position: absolute; top: 30px; left: 40px;
+            text-decoration: none; z-index: 10;
+        }
+        .login-logo-img {
+            height: 72px; width: 72px; object-fit: contain; border-radius: 16px;
+        }
         @media (max-width: 480px) {
-            body { padding: 12px; align-items: flex-start; padding-top: 80px; }
+            body { padding: 12px; align-items: flex-start; padding-top: 120px; }
             .login-card { padding: 24px 20px; }
             .login-title { font-size: 1.2rem; }
             .btn-submit { font-size: 0.9rem; padding: 12px; }
@@ -192,8 +200,8 @@
 </head>
 <body>
 
-    <a href="{{ url('/') }}" style="position: absolute; top: 30px; left: 40px; text-decoration: none; display: flex; align-items: flex-start; gap: 0; z-index: 10;">
-        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" style="height: 72px; width: 72px; object-fit: contain; border-radius: 16px;">
+    <a href="{{ url('/') }}" class="login-logo-link">
+        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" class="login-logo-img">
     </a>
 
     <div class="login-container">

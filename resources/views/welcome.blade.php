@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pilotix — Logiciel de Gestion Commerciale Multi-Magasins</title>
+    <title>PILOTRIX — Logiciel de Gestion Commerciale Multi-Magasins</title>
+    <meta name="description" content="PILOTRIX : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel.">
+    <meta name="keywords" content="logiciel gestion, gestion stock, ventes en ligne, clients, livraisons, arrivages, dettes, multi-magasins, pilotrix, application gestion">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="PILOTRIX — Logiciel de Gestion Commerciale Multi-Magasins">
+    <meta property="og:description" content="Gérez vos ventes, stocks, clients, livraisons et dettes en temps réel. Solution complète pour commerçants.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PILOTRIX">
     <meta name="description" content="Pilotix est une solution SaaS de gestion commerciale multi-tenant pour les PME africaines : ventes, stock, livraisons, dettes, arrivages et plus.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -896,7 +903,8 @@
             <a href="#fonctionnalites">Fonctionnalités</a>
             <a href="#roles">Rôles & Accès</a>
             <a href="#offres">Tarif</a>
-            <a href="{{ route('partenaires') }}">Partenariat</a>
+            <a href="{{ route('partenaires') }}"><i class="bi bi-people"></i> Partenariat</a>
+            <a href="{{ route('download') }}"><i class="bi bi-download"></i> Télécharger</a>
             <a href="#contact">Demande</a>
             @if (Auth::check())
                 <a href="{{ route('dashboard') }}" class="btn-nav"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
@@ -914,7 +922,8 @@
         <a href="#fonctionnalites" onclick="closeMenu()"><i class="bi bi-grid-1x2"></i> Fonctionnalités</a>
         <a href="#roles" onclick="closeMenu()"><i class="bi bi-people"></i> Rôles & Accès</a>
         <a href="#offres" onclick="closeMenu()"><i class="bi bi-tag"></i> Tarif</a>
-        <a href="{{ route('partenaires') }}" onclick="closeMenu()"><i class="bi bi-handshake"></i> Partenariat</a>
+        <a href="{{ route('partenaires') }}" onclick="closeMenu()"><i class="bi bi-people"></i> Partenariat</a>
+        <a href="{{ route('download') }}" onclick="closeMenu()"><i class="bi bi-download"></i> Télécharger</a>
         <a href="#contact" onclick="closeMenu()"><i class="bi bi-chat-dots"></i> Demande</a>
         <a href="tel:+2290146862536" onclick="closeMenu()"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a>
         <div class="mobile-menu-divider"></div>
@@ -935,6 +944,9 @@
                     <a href="{{ route('login') }}" class="btn-hero-primary">
                         <i class="bi bi-box-arrow-in-right"></i> Accéder à mon espace
                     </a>
+                    <button onclick="installPWA()" class="btn-hero-sec" id="heroInstallBtn" style="cursor:pointer; display:none;">
+                        <i class="bi bi-download"></i> Télécharger l'app
+                    </button>
                     <a href="#fonctionnalites" class="btn-hero-sec">
                         Voir les fonctionnalités <i class="bi bi-arrow-down"></i>
                     </a>
@@ -1348,7 +1360,7 @@
                     <li><a href="tel:+2290146862536" style="color: #374151;"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
                     <li><a href="mailto:pilotrix@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a></li>
                     <li><a href="mailto:belloxdigital@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> belloxdigital@gmail.com</a></li>
-                    <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-handshake"></i> Partenariat</a></li>
+                    <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-people"></i> Partenariat</a></li>
                 </ul>
             </div>
         </div>
@@ -1484,5 +1496,29 @@
 
     updateDuree();
 </script>
+<script>
+// ─── PWA Install ───
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    var heroBtn = document.getElementById('heroInstallBtn');
+    if (heroBtn) heroBtn.style.display = 'inline-flex';
+});
+function installPWA() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
+}
+window.addEventListener('appinstalled', function() {
+    var heroBtn = document.getElementById('heroInstallBtn');
+    if (heroBtn) heroBtn.style.display = 'none';
+    deferredPrompt = null;
+});
+</script>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#105e49">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 </body>
 </html>

@@ -20,7 +20,8 @@
 @endpush
 
 @section('actions')
-<form method="GET" action="{{ route('dashboard') }}" class="dash-date-form" style="display:flex; align-items:center; gap:8px; margin-right:40px;">
+<div style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap; white-space:nowrap;">
+<form method="GET" action="{{ route('dashboard') }}" class="dash-date-form" style="display:flex; align-items:center; gap:8px;">
     <label style="font-size:.85rem; font-weight:600; color:var(--text); white-space:nowrap;">Date :</label>
     <input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()" style="padding:5px 10px; border:1px solid var(--border); border-radius:6px; font-size:.85rem; max-width:150px;">
     @if($date !== today()->format('Y-m-d'))
@@ -28,10 +29,11 @@
     @endif
 </form>
 @if(in_array(auth()->user()->role, ['super_admin', 'admin']))
-    <a href="{{ route('analytique') }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; font-size:.85rem;">
+    <a href="{{ route('analytique') }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; font-size:.85rem; white-space:nowrap;">
         <i class="bi bi-bar-chart-line"></i> Analyse avancée
     </a>
 @endif
+</div>
 @endsection
 
 @section('content')
@@ -48,15 +50,11 @@
         @if($offreActive)
             <span style="width:8px; height:8px; border-radius:50%; background:var(--success); animation:pulse-dot 1.5s infinite; flex-shrink:0;"></span>
             Offre {{ $nomOffre }}
-            @if($joursRestants !== null)
-                &middot; {{ $joursRestants }}j restant(s)
-            @else
-                &middot; Licence à vie
-            @endif
         @else
             <span style="width:8px; height:8px; border-radius:50%; background:var(--danger); animation:pulse-dot 1.5s infinite; flex-shrink:0;"></span>
-            Offre expirée &middot; Contactez-nous
+            Offre expirée
         @endif
+    </span>
     </span>
 </div>
 

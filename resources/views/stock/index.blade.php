@@ -22,6 +22,13 @@
                 </select>
             </form>
         </div>
+        <div class="table-search-wrap">
+            <div class="table-search-field">
+                <i class="bi bi-search table-search-icon"></i>
+                <input type="text" class="table-search-input" placeholder="Rechercher un produit...">
+            </div>
+            <span class="table-search-count"></span>
+        </div>
         <div class="table-wrap">
             <table>
                 <thead>
