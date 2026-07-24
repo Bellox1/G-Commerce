@@ -120,7 +120,7 @@
     <h2>Besoin d'aide ?</h2>
     <p>Pour toute question, écrivez-nous :</p>
     <ul>
-        <li>Email : <a href="mailto:pilotrix@gmail.com" style="color:var(--primary); font-weight:600;">pilotrix@gmail.com</a></li>
+        <li>Email : <a href="mailto:pilotrixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotrixcontact@gmail.com</a></li>
         <li>Téléphone : <a href="tel:+2290146862536" style="color:var(--primary); font-weight:600;">+229 01 46 86 25 36</a></li>
     </ul>
 
@@ -147,7 +147,7 @@
             <h5>Contact</h5>
             <ul>
                 <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                <li><a href="mailto:pilotrix@gmail.com"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a></li>
+                <li><a href="mailto:pilotrixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
             </ul>
         </div>
     </div>

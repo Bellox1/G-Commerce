@@ -69,7 +69,7 @@ class PartenaireController extends Controller
         ]);
 
         $emails = array_filter([
-            'belloxdigital@gmail.com',
+            'pilotrixcontact@gmail.com',
             config('admin.email'),
         ]);
 
@@ -78,7 +78,7 @@ class PartenaireController extends Controller
                 \Mail::raw($this->buildMailBody($partner), function ($message) use ($email, $partner) {
                     $message->to($email)
                         ->subject("Nouvelle candidature partenaire — {$partner->nom} {$partner->prenom}")
-                        ->from('noreply@pilotix.com', 'Pilotix');
+                        ->from('pilotrixcontact@gmail.com', 'Pilotix');
                 });
             } catch (\Exception $e) {
                 \Log::warning("Email candidature échoué pour {$email}: " . $e->getMessage());

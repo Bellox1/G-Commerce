@@ -891,7 +891,7 @@
     <div class="top-banner">
         <a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a>
         <span>|</span>
-        <a href="mailto:pilotrix@gmail.com"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a>
+        <a href="mailto:pilotrixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a>
     </div>
 
     <!-- Nav -->
@@ -1358,8 +1358,8 @@
                 <h5 style="color: #374151;">Contact</h5>
                 <ul>
                     <li><a href="tel:+2290146862536" style="color: #374151;"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                    <li><a href="mailto:pilotrix@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a></li>
-                    <li><a href="mailto:belloxdigital@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> belloxdigital@gmail.com</a></li>
+                    <li><a href="mailto:pilotrixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
+                    <li><a href="mailto:pilotrixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
                     <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-people"></i> Partenariat</a></li>
                 </ul>
             </div>

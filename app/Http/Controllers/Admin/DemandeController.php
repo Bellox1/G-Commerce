@@ -56,7 +56,7 @@ class DemandeController extends Controller
                     function ($message) use ($demande) {
                         $message->to($demande->email)
                             ->subject('Vous êtes maintenant partenaire Pilotix !')
-                            ->from('noreply@pilotix.com', 'Pilotix');
+                            ->from('pilotrixcontact@gmail.com', 'Pilotix');
                     }
                 );
             } catch (\Exception $e) {}
@@ -93,7 +93,7 @@ class DemandeController extends Controller
                 function ($message) use ($demande) {
                     $message->to($demande->email)
                         ->subject('Votre compte partenaire Pilotix est prêt !')
-                        ->from('noreply@pilotix.com', 'Pilotix');
+                        ->from('pilotrixcontact@gmail.com', 'Pilotix');
                 }
             );
         } catch (\Exception $e) {}
@@ -122,7 +122,7 @@ class DemandeController extends Controller
                 function ($message) use ($demande) {
                     $message->to($demande->email)
                         ->subject('Votre demande de partenariat Pilotix')
-                        ->from('pilotrix@gmail.com', 'Pilotix');
+                        ->from('pilotrixcontact@gmail.com', 'Pilotix');
                 }
             );
         } catch (\Exception $e) {}

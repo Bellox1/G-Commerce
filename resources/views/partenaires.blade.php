@@ -640,7 +640,7 @@
             <h5>Contact</h5>
             <ul>
                 <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                <li><a href="mailto:pilotrix@gmail.com"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a></li>
+                <li><a href="mailto:pilotrixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
             </ul>
         </div>
     </div>

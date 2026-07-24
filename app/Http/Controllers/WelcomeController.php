@@ -35,7 +35,7 @@ class WelcomeController extends Controller
         $superAdmins = User::where('role', 'super_admin')->get();
         $recipientEmails = $superAdmins->pluck('email')->toArray();
 
-        $adminEmail = config('mail.from.address', 'belloxdigital@gmail.com');
+        $adminEmail = config('mail.from.address', 'pilotrixcontact@gmail.com');
         $recipientEmails = array_unique(array_merge([$adminEmail], $recipientEmails));
 
         $societe = e($data['nom_societe']);

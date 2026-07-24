@@ -66,7 +66,7 @@
     <p>Pilotix est un logiciel de gestion commerciale édité au Bénin. On développe cette solution pour aider les PME et commerçants d'Afrique de l'Ouest à mieux gérer leur activité.</p>
     <p>Si vous avez des questions sur vos données, contactez-nous directement :</p>
     <ul>
-        <li>Email : <a href="mailto:pilotrix@gmail.com" style="color:var(--primary); font-weight:600;">pilotrix@gmail.com</a></li>
+        <li>Email : <a href="mailto:pilotrixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotrixcontact@gmail.com</a></li>
         <li>Téléphone : <a href="tel:+2290146862536" style="color:var(--primary); font-weight:600;">+229 01 46 86 25 36</a></li>
     </ul>
 
@@ -112,7 +112,7 @@
         <li><strong>Demander la suppression</strong> de vos données.</li>
         <li><strong>Récupérer vos données</strong> dans un format simple.</li>
     </ul>
-    <p>Pour exercer ces droits, envoyez un email à <a href="mailto:pilotrix@gmail.com" style="color:var(--primary); font-weight:600;">pilotrix@gmail.com</a>.</p>
+    <p>Pour exercer ces droits, envoyez un email à <a href="mailto:pilotrixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotrixcontact@gmail.com</a>.</p>
 
     <h2>8. Cookies</h2>
     <p>Pilotix utilise uniquement des cookies techniques (pour garder votre session ouverte). Pas de cookies publicitaires ni de suivi.</p>
@@ -126,7 +126,7 @@
     <h2>Besoin d'aide ?</h2>
     <p>Pour toute question sur vos données ou cette politique :</p>
     <ul>
-        <li>Email : <a href="mailto:pilotrix@gmail.com" style="color:var(--primary); font-weight:600;">pilotrix@gmail.com</a></li>
+        <li>Email : <a href="mailto:pilotrixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotrixcontact@gmail.com</a></li>
         <li>Téléphone : <a href="tel:+2290146862536" style="color:var(--primary); font-weight:600;">+229 01 46 86 25 36</a></li>
     </ul>
 
@@ -153,7 +153,7 @@
             <h5>Contact</h5>
             <ul>
                 <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                <li><a href="mailto:pilotrix@gmail.com"><i class="bi bi-envelope"></i> pilotrix@gmail.com</a></li>
+                <li><a href="mailto:pilotrixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
             </ul>
         </div>
     </div>
