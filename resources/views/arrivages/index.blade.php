@@ -3,6 +3,10 @@
 @section('page-title', 'Liste des Arrivages')
 
 @section('content')
+@php
+    $deviseSym = ['NGN' => '₦', 'EUR' => '€', 'USD' => '$', 'CNY' => '¥', 'XOF' => '', 'AUTRE' => ''];
+    $deviseNom = ['NGN' => 'Naira', 'EUR' => 'Euro', 'USD' => 'Dollar', 'CNY' => 'Yuan', 'XOF' => 'FCFA', 'AUTRE' => ''];
+@endphp
 <div class="card">
     <div class="card-header">
         <h3 style="display:flex; align-items:center; gap:8px;">
@@ -31,7 +35,7 @@
                     <th>Date</th>
                     <th>Fournisseur</th>
                     <th>Destination</th>
-                    <th>Taux (Naira / FCFA)</th>
+                    <th>Taux (Devise / FCFA)</th>
                     <th style="text-align: right;">Valeur Origine</th>
                     <th style="text-align: right;">Total Frais (FCFA)</th>
                     <th style="text-align: right;">Coût Total Réel (FCFA)</th>
@@ -48,11 +52,11 @@
                             {{ $arr->reference }}
                         </a>
                     </td>
-                    <td>{{ $arr->created_at->format('d/m/Y') }}</td>
+                    <td>{{ $arr->created_at->fr('d F Y') }}</td>
                     <td>{{ $arr->fournisseur?->nom ?? '—' }}</td>
                     <td><span class="badge badge-gray">{{ $arr->magasin?->nom }}</span></td>
-                    <td>1 ₦ = {{ number_format($arr->taux_change, 4, ',', ' ') }} FCFA</td>
-                    <td style="text-align: right;">{{ number_format($arr->total_valeur_origine, 0, ',', ' ') }} ₦</td>
+                    <td>1 {{ $deviseSym[$arr->devise_origine] ?? '' }} = {{ number_format($arr->taux_change, 0, ',', ' ') }} FCFA</td>
+                    <td style="text-align: right;">{{ number_format($arr->total_valeur_origine, 0, ',', ' ') }} {{ $deviseSym[$arr->devise_origine] ?? ($deviseNom[$arr->devise_origine] ?? '') }}</td>
                     <td style="text-align: right; color: var(--warning); font-weight: 500;">
                         {{ number_format($arr->frais_transport + $arr->frais_douane + $arr->frais_manutention + $arr->frais_divers, 0, ',', ' ') }}
                     </td>

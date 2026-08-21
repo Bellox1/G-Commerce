@@ -91,8 +91,8 @@
 
     {{-- 2. Revenu net vs Dépenses vs Loyers (barres groupées) --}}
     <div class="chart-card">
-        <h3><i class="bi bi-bar-chart" style="color:var(--success);"></i> Revenu net mensuel</h3>
-        <div class="chart-sub">Ventes − Dépenses − Loyers = Revenu net (FCFA)</div>
+        <h3><i class="bi bi-bar-chart" style="color:var(--success);"></i> Résultat mensuel</h3>
+        <div class="chart-sub">C.A. − Dépenses − Loyers = Résultat (FCFA)</div>
         <div class="chart-wrap">
             <canvas id="chartRevenuNet"></canvas>
         </div>
@@ -109,7 +109,7 @@
 
     {{-- 4. Top 10 produits (barres horizontales) --}}
     <div class="chart-card">
-        <h3><i class="bi bi-trophy" style="color:#d97706;"></i> Top 10 produits</h3>
+        <h3><i class="bi bi-trophy" style="color:#d97706;"></i> Classement des produits les plus vendus</h3>
         <div class="chart-sub">Les produits les plus vendus (quantité)</div>
         <div class="chart-wrap" style="max-height:360px;">
             <canvas id="chartTopProduits"></canvas>
@@ -170,29 +170,29 @@
         @endif
     </div>
 
-    {{-- 10. Résumé chiffres clés --}}
+    {{-- 10. Résumé chiffres clés (cumulé à date) --}}
     @php
         $totalVentesAn = array_sum($moisData);
         $totalDepensesAn = array_sum($depensesData);
-        $totalLoyerAn = $loyerMensuel * 12;
+        $totalLoyerAn = $loyersCumules;
         $totalNetAn = $totalVentesAn - $totalDepensesAn - $totalLoyerAn;
         $nbVentesAn = array_sum($nbVentesData);
     @endphp
     <div class="chart-card">
-        <h3><i class="bi bi-calculator" style="color:var(--primary);"></i> Résumé {{ $annee }}</h3>
-        <div class="chart-sub">Chiffres clés annuels</div>
+        <h3><i class="bi bi-calculator" style="color:var(--primary);"></i> Résumé {{ $annee }} — au {{ $dateDuJour }}</h3>
+        <div class="chart-sub">Cumulé à date (ne compare pas à une année complète)</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
             <div style="background:#f8f9fa; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#1f2937;">{{ number_format($totalVentesAn, 0, ',', ' ') }} F</div>
-                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Total ventes</div>
+                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">C.A. cumulé (année)</div>
             </div>
             <div style="background:#fef2f2; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#dc2626;">{{ number_format($totalDepensesAn, 0, ',', ' ') }} F</div>
-                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Total dépenses</div>
+                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Dépenses cumulées</div>
             </div>
             <div style="background:#fef2f2; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#dc2626;">{{ number_format($totalLoyerAn, 0, ',', ' ') }} F</div>
-                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Loyers annuels</div>
+                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Loyers cumulés à date</div>
             </div>
             <div style="background:#f8f9fa; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#1f2937;">{{ $nbVentesAn }}</div>
@@ -202,7 +202,7 @@
                 <div style="font-size:1.6rem; font-weight:900; color:#000;">
                     {{ number_format($totalNetAn, 0, ',', ' ') }} F
                 </div>
-                <div style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase;">Revenu net annuel</div>
+                <div style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase;">Résultat cumulé à date</div>
             </div>
         </div>
     </div>
@@ -217,7 +217,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof Chart === 'undefined') return;
 
-    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
     Chart.defaults.font.size = 11;
     Chart.defaults.color = '#6b7280';
     Chart.defaults.responsive = true;
@@ -262,9 +262,9 @@ document.addEventListener('DOMContentLoaded', function () {
         data: {
             labels: {!! json_encode($moisLabels) !!},
             datasets: [
-                { label: 'Ventes', data: {{ json_encode($moisData) }}, backgroundColor: '#16a34a88', borderColor: '#16a34a', borderWidth: 1 },
+                { label: 'C.A.', data: {{ json_encode($moisData) }}, backgroundColor: '#16a34a88', borderColor: '#16a34a', borderWidth: 1 },
                 { label: 'Dépenses', data: {{ json_encode($depensesData) }}, backgroundColor: '#dc262688', borderColor: '#dc2626', borderWidth: 1 },
-                { label: 'Revenu net', data: {{ json_encode($revenuNetData) }}, backgroundColor: '#105e4988', borderColor: '#105e49', borderWidth: 1 },
+                { label: 'Résultat', data: {{ json_encode($revenuNetData) }}, backgroundColor: '#105e4988', borderColor: '#105e49', borderWidth: 1 },
             ]
         },
         options: {

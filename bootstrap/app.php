@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'super_admin'   => SuperAdminMiddleware::class,
             'ensure_tenant' => EnsureTenantMiddleware::class,
             'offer_active'  => \App\Http\Middleware\OfferActiveMiddleware::class,
+            'plan'          => \App\Http\Middleware\CheckPlan::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

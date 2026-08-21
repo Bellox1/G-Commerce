@@ -63,7 +63,17 @@
 
 <form method="POST" action="{{ route('ventes.store') }}" id="venteForm">
     @csrf
-    <input type="hidden" name="magasin_id" value="{{ $selectedMagasin->id }}">
+
+    <div class="form-group" style="margin-bottom: 16px; max-width: 360px;">
+        <label class="form-label">Magasin / Boutique <span style="color:#dc2626;">*</span></label>
+        <select name="magasin_id" class="form-control" id="magasin-select">
+            @foreach($magasins as $m)
+                <option value="{{ $m->id }}" {{ $selectedMagasin->id == $m->id ? 'selected' : '' }}>
+                    {{ $m->nom }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
     <div id="ventes-container">
         {{-- Première vente --}}
@@ -313,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     hiddenId.value = p.id;
                     input.value = p.nom;
                     input.classList.remove('input-invalid');
-                    prixInput.value = p.prix;
+                    prixInput.value = Math.round(p.prix_vente_conseille ?? p.prix ?? 0);
                     
                     row.dataset.stock = p.stock;
                     row.dataset.cartoucheParCarton = p.cartouche_par_carton || '1';
@@ -324,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (p.a_cartouche && p.cartouche_par_carton) {
                         if (cartoucheCol) cartoucheCol.style.display = 'flex';
-                        if (prixCartoucheInput) prixCartoucheInput.value = p.prix_cartouche || '';
+                        if (prixCartoucheInput) prixCartoucheInput.value = p.prix_cartouche ? Math.round(p.prix_cartouche) : '';
                         if (qteCartoucheInput) qteCartoucheInput.value = 0;
                     } else {
                         if (cartoucheCol) cartoucheCol.style.display = 'none';

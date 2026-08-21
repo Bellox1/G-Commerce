@@ -22,10 +22,14 @@ class AnalytiqueController extends Controller
         $annee = $request->annee ?: date('Y');
         $mois  = $request->mois  ?: date('m');
 
-        // ─── Ventes mensuelles (12 mois) ───
+        $isSqlite = \DB::connection()->getDriverName() === 'sqlite';
+        $monthSql = fn($col) => $isSqlite ? "strftime('%m', {$col})" : "DATE_FORMAT({$col}, '%m')";
+        $daySql   = fn($col) => $isSqlite ? "strftime('%d', {$col})" : "DATE_FORMAT({$col}, '%d')";
+
+        // ─── Ventes mensuelles (12 mois) — CA = montant_total (ventes réalisées) ───
         $ventesMensuelles = Vente::where('tenant_id', $tenant->id)
             ->whereYear('date_vente', $annee)
-            ->selectRaw("strftime('%m', date_vente) as mois, SUM(montant_paye) as total")
+            ->selectRaw("{$monthSql('date_vente')} as mois, SUM(montant_total) as total")
             ->groupBy('mois')
             ->orderBy('mois')
             ->pluck('total', 'mois');
@@ -36,12 +40,12 @@ class AnalytiqueController extends Controller
             $moisData[] = (float) ($ventesMensuelles[$key] ?? 0);
         }
 
-        // ─── Ventes quotidiennes du mois ───
+        // ─── Ventes quotidiennes du mois — CA = montant_total ───
         $joursDansMois = cal_days_in_month(CAL_GREGORIAN, $mois, $annee);
         $ventesQuotidiennes = Vente::where('tenant_id', $tenant->id)
             ->whereYear('date_vente', $annee)
             ->whereMonth('date_vente', $mois)
-            ->selectRaw("strftime('%d', date_vente) as jour, SUM(montant_paye) as total")
+            ->selectRaw("{$daySql('date_vente')} as jour, SUM(montant_total) as total")
             ->groupBy('jour')
             ->orderBy('jour')
             ->pluck('total', 'jour');
@@ -88,7 +92,7 @@ class AnalytiqueController extends Controller
         // ─── Dépenses mensuelles ───
         $depensesMensuelles = DepenseJournaliere::where('tenant_id', $tenant->id)
             ->whereYear('date_depense', $annee)
-            ->selectRaw("strftime('%m', date_depense) as mois, SUM(montant) as total")
+            ->selectRaw("{$monthSql('date_depense')} as mois, SUM(montant) as total")
             ->groupBy('mois')
             ->orderBy('mois')
             ->pluck('total', 'mois');
@@ -102,17 +106,22 @@ class AnalytiqueController extends Controller
         // Loyers mensuels fixes
         $loyerMensuel = (float) Magasin::where('tenant_id', $tenant->id)->sum('loyer');
 
+        // Loyers cumulés à date (on ne compare pas à une année complète)
+        $moisEcoules = ($annee == date('Y')) ? (int) date('n') : 12;
+        $loyersCumules = $loyerMensuel * $moisEcoules;
+        $dateDuJour = \Carbon\Carbon::now()->fr('d F Y');
+
         // Revenu net mensuel
         $revenuNetData = [];
         for ($i = 0; $i < 12; $i++) {
             $revenuNetData[] = $moisData[$i] - $depensesData[$i] - $loyerMensuel;
         }
 
-        // ─── Ventes par vendeur (année) ───
+        // ─── Ventes par vendeur (année) — CA = montant_total ───
         $ventesParVendeur = \DB::table('ventes')
             ->where('tenant_id', $tenant->id)
             ->whereYear('date_vente', $annee)
-            ->selectRaw('user_id, SUM(montant_paye) as total')
+            ->selectRaw('user_id, SUM(montant_total) as total')
             ->groupBy('user_id')
             ->orderByDesc('total')
             ->get()
@@ -124,7 +133,7 @@ class AnalytiqueController extends Controller
         // ─── Dettes: total par mois ───
         $dettesCrees = Dette::where('tenant_id', $tenant->id)
             ->whereYear('created_at', $annee)
-            ->selectRaw("strftime('%m', created_at) as mois, SUM(montant_restant) as total")
+            ->selectRaw("{$monthSql('created_at')} as mois, SUM(montant_restant) as total")
             ->groupBy('mois')
             ->orderBy('mois')
             ->pluck('total', 'mois');
@@ -141,7 +150,7 @@ class AnalytiqueController extends Controller
         // ─── Nombre de ventes par mois ───
         $nbVentesParMois = Vente::where('tenant_id', $tenant->id)
             ->whereYear('date_vente', $annee)
-            ->selectRaw("strftime('%m', date_vente) as mois, COUNT(*) as total")
+            ->selectRaw("{$monthSql('date_vente')} as mois, COUNT(*) as total")
             ->groupBy('mois')
             ->orderBy('mois')
             ->pluck('total', 'mois');
@@ -152,21 +161,42 @@ class AnalytiqueController extends Controller
             $nbVentesData[] = (int) ($nbVentesParMois[$key] ?? 0);
         }
 
-        // ─── Produits en alerte stock ───
+        // ─── Produits en alerte stock (par magasin : alerte si bas dans un magasin quelconque) ───
         $produits = Produit::where('tenant_id', $tenant->id)->get();
-        $stockAlertes = [];
         $magasinIds = $tenant->magasins->pluck('id');
-        foreach ($produits as $produit) {
-            $mouvements = (int) StockMouvement::whereIn('magasin_id', $magasinIds)
-                ->where('produit_id', $produit->id)
+
+        $mouvementsParMagasin = collect();
+        if ($magasinIds->isNotEmpty()) {
+            $mouvementsParMagasin = StockMouvement::whereIn('magasin_id', $magasinIds)
+                ->select('produit_id', 'magasin_id')
                 ->selectRaw("SUM(CASE
                     WHEN type IN ('entree_arrivage','transfert_entree','ajustement_positif') THEN quantite
                     WHEN type IN ('sortie_vente','transfert_sortie','ajustement_negatif') THEN -quantite
                     ELSE 0 END) as total")
-                ->value('total') ?? 0;
-            $stockTotal = (int) $produit->stock + $mouvements;
-            if ($stockTotal <= $produit->seuil_alerte) {
-                $stockAlertes[] = ['nom' => $produit->nom, 'stock' => $stockTotal];
+                ->groupBy('produit_id', 'magasin_id')
+                ->get()
+                ->groupBy('produit_id');
+        }
+
+        $stockAlertes = [];
+        foreach ($produits as $produit) {
+            $seuil = (int) ($produit->seuil_alerte ?? 0);
+            $minStock = null;
+            $enAlerte = false;
+            foreach ($magasinIds as $mid) {
+                $ligne = optional($mouvementsParMagasin->get($produit->id))->firstWhere('magasin_id', $mid);
+                if (!$ligne) continue; // produit non stocké dans ce magasin : on ne compte pas 0
+                $s = (int) $ligne->total;
+                if ($minStock === null || $s < $minStock) $minStock = $s;
+                if ($s <= 5 || $s <= $seuil) $enAlerte = true;
+            }
+            if ($enAlerte) {
+                $stockAlertes[] = [
+                    'id'            => $produit->id,
+                    'nom'           => $produit->nom,
+                    'seuil_alerte'  => $produit->seuil_alerte,
+                    'stock'         => $minStock,
+                ];
             }
         }
 
@@ -176,7 +206,8 @@ class AnalytiqueController extends Controller
             'joursLabels', 'ventesJourData',
             'topProduits', 'statutLabels', 'statutData', 'statutColors',
             'ventesParVendeur', 'dettesData', 'nbVentesData',
-            'stockAlertes', 'loyerMensuel', 'annee', 'mois'
+            'stockAlertes', 'loyerMensuel', 'annee', 'mois',
+            'loyersCumules', 'dateDuJour'
         );
 
         // API / mobile → JSON

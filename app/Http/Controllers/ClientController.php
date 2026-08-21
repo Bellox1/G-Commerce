@@ -21,6 +21,30 @@ class ClientController extends Controller
         return view('clients.index', compact('clients'));
     }
 
+    public function show(Request $request, Client $client)
+    {
+        $this->authorizeModule('clients');
+        $this->authorizeTenant($client);
+
+        $client->load([
+            'dettes' => fn ($q) => $q->latest(),
+            'ventes' => fn ($q) => $q->latest()->limit(20),
+        ]);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'client' => $client,
+                    'dettes' => $client->dettes,
+                    'ventes' => $client->ventes,
+                ],
+            ]);
+        }
+
+        return view('clients.show', compact('client'));
+    }
+
     public function create()
     {
         $this->authorizeModule('clients');
@@ -39,11 +63,11 @@ class ClientController extends Controller
 
         $user = Auth::user();
 
-        Client::create(array_merge($request->all(), [
+        $client = Client::create(array_merge($request->all(), [
             'tenant_id' => $user->tenant_id,
         ]));
 
-        return $this->smartResponse('clients.index', 'Client créé avec succès.');
+        return $this->smartResponse('clients.index', 'Client créé avec succès.', ['client' => $client]);
     }
 
     public function edit(Client $client)

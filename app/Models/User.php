@@ -35,9 +35,23 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool { return $this->role === 'super_admin'; }
     public function isAdmin(): bool      { return $this->role === 'admin'; }
     public function isVendeur(): bool    { return $this->role === 'vendeur'; }
-    public function isLivreur(): bool    { return $this->role === 'livreur'; }
+    public function isControleur(): bool { return $this->role === 'controleur'; }
     public function isMagasinier(): bool { return $this->role === 'magasinier'; }
     public function isPrestataire(): bool { return $this->role === 'prestataire'; }
+    public function isSuperviseur(): bool { return $this->role === 'superviseur'; }
+
+    /**
+     * Accès complet type "admin". Le rôle admin est réservé au propriétaire de
+     * la société ; les autres bénéficient des mêmes fonctionnalités via
+     * le rôle "superviseur" (principal ou secondaire).
+     */
+    public function aAccesAdmin(): bool
+    {
+        return $this->isSuperAdmin()
+            || $this->isAdmin()
+            || $this->isSuperviseur()
+            || $this->hasRole('superviseur');
+    }
 
     /**
      * Vérifie si l'utilisateur a un rôle (principal ou secondaire)
@@ -54,7 +68,7 @@ class User extends Authenticatable
      */
     public function peutGererUtilisateurs(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin();
+        return $this->aAccesAdmin();
     }
 
     /**
@@ -62,54 +76,54 @@ class User extends Authenticatable
      */
     public function peutGererArrivages(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('magasinier');
+        return $this->aAccesAdmin() || $this->hasRole('magasinier');
     }
 
     // ─── Permissions par module ─────────────────────────
  
     public function peutGererProduits(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('magasinier') || $this->hasRole('vendeur');
+        return $this->aAccesAdmin() || $this->hasRole('magasinier') || $this->hasRole('vendeur');
     }
 
     public function peutModifierCatalogues(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('magasinier');
+        return $this->aAccesAdmin() || $this->hasRole('magasinier');
     }
  
     public function peutGererMagasins(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin();
+        return $this->aAccesAdmin();
     }
  
     public function peutGererVentes(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('vendeur');
+        return $this->aAccesAdmin() || $this->hasRole('vendeur');
     }
  
     public function peutGererClients(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('vendeur') || $this->hasRole('magasinier');
+        return $this->aAccesAdmin() || $this->hasRole('vendeur') || $this->hasRole('magasinier');
     }
  
     public function peutGererDettes(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('vendeur');
+        return $this->aAccesAdmin() || $this->hasRole('vendeur');
     }
  
     public function peutGererStock(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('magasinier') || $this->hasRole('vendeur');
+        return $this->aAccesAdmin() || $this->hasRole('magasinier') || $this->hasRole('vendeur');
     }
  
     public function peutGererTransferts(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('magasinier');
+        return $this->aAccesAdmin() || $this->hasRole('magasinier');
     }
 
     public function peutGererLivraisons(): bool
     {
-        return $this->isSuperAdmin() || $this->isAdmin() || $this->hasRole('livreur') || $this->hasRole('magasinier');
+        return $this->aAccesAdmin() || $this->hasRole('controleur') || $this->hasRole('magasinier') || $this->hasRole('livreur');
     }
 
     /**

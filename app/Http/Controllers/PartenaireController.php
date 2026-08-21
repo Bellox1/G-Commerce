@@ -4,12 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\DemandePrestataire;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PartenaireController extends Controller
 {
     public function index()
     {
-        return view('partenaires');
+        $rules = DB::table('commission_rules')->get()->keyBy('code');
+
+        $planCodes = ['essentiel', 'professionnel', 'entreprise'];
+
+        $calcData = $rules->filter(function ($rule) use ($planCodes) {
+            return in_array($rule->code, $planCodes);
+        })->map(function ($rule) {
+            return [
+                'direct' => (float) $rule->commission,
+                'b5'     => (float) $rule->prime_5,
+                'b10'    => (float) $rule->prime_10,
+                'b15'    => (float) $rule->prime_15,
+            ];
+        })->toArray();
+
+        return view('partenaires', compact('rules', 'calcData'));
     }
 
     public function submit(Request $request)
@@ -64,12 +80,13 @@ class PartenaireController extends Controller
             'entreprise'    => $request->input('entreprise'),
             'motivation'    => $isWizard ? $validated['q25'] : $request->input('motivation'),
             'questionnaire' => $questionnaire,
+            'password'      => $request->filled('password') ? \Illuminate\Support\Facades\Hash::make($request->password) : null,
             'statut'        => 'en_attente',
             'user_id'       => null,
         ]);
 
         $emails = array_filter([
-            'pilotrixcontact@gmail.com',
+            'pilotixcontact@gmail.com',
             config('admin.email'),
         ]);
 
@@ -78,7 +95,7 @@ class PartenaireController extends Controller
                 \Mail::raw($this->buildMailBody($partner), function ($message) use ($email, $partner) {
                     $message->to($email)
                         ->subject("Nouvelle candidature partenaire — {$partner->nom} {$partner->prenom}")
-                        ->from('pilotrixcontact@gmail.com', 'Pilotix');
+                        ->from('pilotixcontact@gmail.com', 'Pilotix');
                 });
             } catch (\Exception $e) {
                 \Log::warning("Email candidature échoué pour {$email}: " . $e->getMessage());

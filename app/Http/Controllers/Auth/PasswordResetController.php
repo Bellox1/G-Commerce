@@ -73,6 +73,14 @@ class PasswordResetController extends Controller
                     ");
             });
         } catch (\Exception $e) {
+            // Repli dev local : si l'e-mail ne part pas, on renvoie le code pour tester
+            if (app()->environment('local') && ($request->expectsJson() || $request->is('api/*'))) {
+                return response()->json([
+                    'success'   => true,
+                    'message'   => 'Code OTP généré (mode dev : e-mail non envoyé).',
+                    'dev_otp'   => $otp,
+                ]);
+            }
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'success' => false,
@@ -85,7 +93,7 @@ class PasswordResetController extends Controller
         if ($request->expectsJson() || $request->is('api/*')) {
             return response()->json([
                 'success' => true,
-                'message' => 'Un code OTP et un lien de réinitialisation vous ont été envoyés par email.'
+                'message' => 'Un code OTP vous a été envoyé par e-mail.',
             ]);
         }
 
@@ -95,10 +103,49 @@ class PasswordResetController extends Controller
 
     public function showResetPassword(Request $request)
     {
+        $email = $request->query('email', session('reset_email'));
+        $verified = (bool) session('reset_verified') && session('reset_email') === $email;
+
         return view('auth.reset-password', [
-            'email' => $request->query('email'),
-            'code' => $request->query('code'),
+            'email' => $email,
+            'code'  => $request->query('code', session('reset_code', '')),
+            'verified' => $verified,
         ]);
+    }
+
+    /**
+     * Étape 1 (web) : vérifie le code OTP avant de saisir le nouveau mot de passe.
+     */
+    public function verifyCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'code'  => 'required|numeric',
+        ], [
+            'email.required' => "L'adresse e-mail est requise.",
+            'email.exists'   => "Cette adresse e-mail n'est pas enregistrée.",
+            'code.required'  => 'Le code OTP est requis.',
+            'code.numeric'   => 'Le code OTP doit être numérique.',
+        ]);
+
+        $record = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+
+        if (!$record) {
+            return back()->withErrors(['code' => 'Aucune demande en cours pour cet email.'])->withInput();
+        }
+
+        if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return back()->withErrors(['code' => 'Le code OTP a expiré. Veuillez refaire une demande.'])->withInput();
+        }
+
+        if ($record->token != $request->code) {
+            return back()->withErrors(['code' => 'Code OTP incorrect.'])->withInput();
+        }
+
+        session(['reset_verified' => true, 'reset_email' => $request->email, 'reset_code' => $request->code]);
+
+        return redirect()->route('password.reset', ['email' => $request->email, 'verified' => 1]);
     }
 
     public function resetPassword(Request $request)
@@ -156,6 +203,7 @@ class PasswordResetController extends Controller
 
         // Supprimer le token
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        session()->forget(['reset_verified', 'reset_email', 'reset_code']);
 
         if ($request->expectsJson() || $request->is('api/*')) {
             return response()->json([

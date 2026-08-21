@@ -63,7 +63,7 @@
                                 <input type="number" name="produits[0][quantite]" class="form-control" min="1" placeholder="Ex: 100" required>
                             </div>
                             <div style="flex: 1.5;">
-                                <label class="form-label" style="font-size: .7rem;">Prix U. Origine (Naira ₦)</label>
+                                <label class="form-label prix-origine-label" style="font-size: .7rem;" data-base="Prix U. Origine">Prix U. Origine (₦)</label>
                                 <input type="number" name="produits[0][prix_unitaire_origine]" class="form-control" min="0" placeholder="Ex: 5000" required>
                             </div>
                             <div>
@@ -133,10 +133,22 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Taux Naira -> FCFA (ex: Taux marché)</label>
+                        <label class="form-label">Devise d'origine</label>
+                        <select name="devise_origine" id="devise-select" class="form-control">
+                            <option value="NGN">Naira (₦)</option>
+                            <option value="EUR">Euro (€)</option>
+                            <option value="USD">Dollar ($)</option>
+                            <option value="CNY">Yuan Chinois (¥)</option>
+                            <option value="AUTRE">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Taux <span id="devise-taux-sym">₦</span> -> FCFA (ex: Taux marché)</label>
                         <input type="number" name="taux_change_naira_cfa" id="taux-input" class="form-control" value="0.65" step="0.0001" min="0.0001" required>
                         <div id="taux-resultat" style="font-size: .8rem; color: var(--primary); font-weight: 600; margin-top: 4px;">1 000 ₦ = 650 FCFA</div>
                         <small style="color: var(--text-muted); font-size: .7rem; display: block; margin-top: 2px;">Exemple : Taux de 0.65 signifie que 1000 ₦ = 650 FCFA.</small>
+                        <div id="taux-note" style="font-size: .75rem; color: var(--primary); font-weight: 600; margin-top: 4px;"></div>
                     </div>
                 </div>
             </div>
@@ -378,14 +390,53 @@
         // ─── Calcul taux en direct ────────────────────────────────────
         const tauxInput = document.getElementById('taux-input');
         const tauxResultat = document.getElementById('taux-resultat');
+        const deviseSelect = document.getElementById('devise-select');
+        const DEVISE_SYM = { NGN: '₦', EUR: '€', USD: '$', CNY: '¥', AUTRE: '' };
+        function currentSym() { return DEVISE_SYM[deviseSelect.value] || '₦'; }
+        function updateDevise() {
+            const sym = currentSym();
+            const tauxSym = document.getElementById('devise-taux-sym');
+            if (tauxSym) tauxSym.textContent = sym;
+            document.querySelectorAll('.prix-origine-label').forEach(l => {
+                l.textContent = `${l.dataset.base} (${sym})`;
+            });
+            updateTaux();
+            fetchLiveRate();
+        }
+
+        function fetchLiveRate() {
+            const code = deviseSelect.value;
+            const note = document.getElementById('taux-note');
+            if (code === 'AUTRE') {
+                if (note) note.textContent = 'Devise personnalisée — saisissez le taux manuellement.';
+                return;
+            }
+            if (note) note.textContent = 'Chargement du taux de marché…';
+            fetch(`/api/taux-change?from=${encodeURIComponent(code)}`)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.rate) {
+                        tauxInput.value = d.rate;
+                        updateTaux();
+                        if (note) note.textContent = (d.message || 'Taux de marché en temps réel') + (d.updated_at ? ` (MAJ : ${d.updated_at})` : '');
+                    } else {
+                        if (note) note.textContent = d.message || 'Taux indisponible — saisissez-le manuellement.';
+                    }
+                })
+                .catch(() => {
+                    if (note) note.textContent = 'Taux indisponible (hors ligne) — saisissez-le manuellement.';
+                });
+        }
         function updateTaux() {
             const val = parseFloat(tauxInput.value) || 0;
+            const sym = currentSym();
             tauxResultat.textContent = val > 0
-                ? `1 000 ₦ = ${(1000 * val).toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 0})} FCFA`
+                ? `1 000 ${sym} = ${(1000 * val).toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 0})} FCFA`
                 : 'Entrez un taux pour voir la conversion';
         }
+        if (deviseSelect) deviseSelect.addEventListener('change', updateDevise);
         tauxInput.addEventListener('input', updateTaux);
-        updateTaux();
+        updateDevise();
 
         // ─── Autocomplete Produit ──────────────────────────────────────
         function initAutocomplete(input) {

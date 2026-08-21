@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('telephone')->nullable();
             // Rôle principal
-            $table->enum('role', ['super_admin', 'admin', 'vendeur', 'livreur', 'magasinier'])->default('vendeur');
-            // Rôles secondaires (ex: magasinier peut aussi être livreur)
+            $table->enum('role', ['super_admin', 'admin', 'vendeur', 'controleur', 'magasinier', 'prestataire'])->default('vendeur');
+            // Rôles secondaires (ex: magasinier peut aussi être controleur)
             $table->json('roles_secondaires')->nullable();
             $table->boolean('actif')->default(true);
             $table->timestamp('email_verified_at')->nullable();

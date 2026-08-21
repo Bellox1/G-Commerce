@@ -12,11 +12,14 @@ class DetteSociete extends Model
         'tenant_id', 'fournisseur_id', 'arrivage_id',
         'montant', 'montant_paye', 'description',
         'date_dette', 'statut',
+        'devise', 'taux_de_change', 'montant_origine',
     ];
 
     protected $casts = [
         'montant' => 'decimal:2',
         'montant_paye' => 'decimal:2',
+        'taux_de_change' => 'decimal:4',
+        'montant_origine' => 'decimal:2',
         'date_dette' => 'date',
     ];
 

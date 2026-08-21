@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pilotrix-v5';
+const CACHE_NAME = 'pilotix-v5';
 
 const PRECACHE_URLS = [
     '/manifest.json',

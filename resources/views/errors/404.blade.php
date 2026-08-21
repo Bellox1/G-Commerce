@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page introuvable — PILOTRIX</title>
+    <title>Page introuvable — pilotix</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
             --muted: #6b7280;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: #fff; color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
 
         nav {
             display: flex; align-items: center;
@@ -65,7 +65,7 @@
 <body>
     <nav>
         <a href="/" class="nav-logo">
-            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo">
+            <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo">
         </a>
     </nav>
 

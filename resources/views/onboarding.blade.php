@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PILOTRIX — Bienvenue</title>
+    <title>pilotix — Bienvenue</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#105e49">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="PILOTRIX">
+    <meta name="apple-mobile-web-app-title" content="pilotix">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <style>
         :root {
@@ -25,65 +25,81 @@
             --white: #ffffff;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: var(--primary-dark); }
+        html, body { height: 100%; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--primary-dark); }
 
         /* ─── Splash Container ─── */
-        .splash {
-            width: 100%; height: 100dvh; display: flex; flex-direction: column;
-            position: relative; overflow: hidden; background: linear-gradient(170deg, #0a3d2f 0%, #105e49 35%, #137a5c 70%, #167e65 100%);
+        .splash-container {
+            height: 100%; width: 100%; display: flex; flex-direction: column;
+            justify-content: space-between; position: relative;
         }
 
-        /* ─── Top Bar ─── */
+        /* Ambient Glows */
+        .glow-1 {
+            position: absolute; top: -120px; right: -100px; width: 320px; height: 320px;
+            border-radius: 50%; background: radial-gradient(circle, rgba(234,141,34,.25) 0%, rgba(234,141,34,0) 70%);
+            pointer-events: none;
+        }
+        .glow-2 {
+            position: absolute; bottom: -80px; left: -80px; width: 280px; height: 280px;
+            border-radius: 50%; background: radial-gradient(circle, rgba(22,126,101,.3) 0%, rgba(22,126,101,0) 70%);
+            pointer-events: none;
+        }
+
+        /* ─── Top Header ─── */
         .splash-top {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 20px; position: relative; z-index: 10;
+            padding: 24px 28px; display: flex; justify-content: space-between;
+            align-items: center; position: relative; z-index: 10;
         }
-        .splash-logo { height: 42px; border-radius: 10px; object-fit: contain; background: rgba(255,255,255,.12); padding: 3px; }
-        .splash-login-btn {
-            display: flex; align-items: center; gap: 6px;
-            background: rgba(255,255,255,.12); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,.15); color: #fff;
-            padding: 8px 16px; border-radius: 20px; font-size: .82rem;
-            font-weight: 600; cursor: pointer; text-decoration: none;
-            transition: all .2s; font-family: 'Inter', sans-serif;
+        .splash-logo { display: flex; align-items: center; gap: 10px; }
+        .splash-logo img { height: 38px; width: 38px; border-radius: 10px; object-fit: contain; }
+        .splash-logo span {
+            font-family: 'Space Grotesk', sans-serif; font-weight: 900;
+            font-size: 1.3rem; color: #fff; letter-spacing: -1px; text-transform: uppercase;
         }
-        .splash-login-btn:hover { background: rgba(255,255,255,.22); }
+        .badge-offline {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+            padding: 4px 10px; border-radius: 20px; font-size: .7rem;
+            color: rgba(255,255,255,.7); font-weight: 600;
+        }
+        .badge-offline i { color: #4ade80; font-size: .65rem; }
 
-        /* ─── Slides Container ─── */
+        /* ─── Slides Wrapper ─── */
         .slides-wrapper {
-            flex: 1; position: relative; overflow: hidden; touch-action: pan-y;
-        }
-        .slides-track {
-            display: flex; width: 100%; height: 100%;
-            transition: transform .45s cubic-bezier(.4,0,.2,1);
+            flex: 1; display: flex; transition: transform .4s cubic-bezier(.25,1,.5,1);
+            height: 100%;
         }
         .slide {
-            min-width: 100%; height: 100%; display: flex; flex-direction: column;
-            justify-content: center; padding: 20px 28px 0; position: relative;
+            min-width: 100%; width: 100%; padding: 0 28px;
+            display: flex; flex-direction: column; justify-content: center;
+            box-sizing: border-box; opacity: 0; transition: opacity .4s ease;
         }
+        .slide.active { opacity: 1; }
 
         /* ─── Slide Content ─── */
-        .slide-visual {
-            display: flex; align-items: flex-end; justify-content: flex-end;
-            margin-bottom: 24px; min-height: 200px; position: relative;
-        }
-        .slide-img {
-            width: 220px; height: 220px; border-radius: 28px; object-fit: contain;
-            filter: drop-shadow(0 20px 40px rgba(0,0,0,.3));
-            background: rgba(255,255,255,.08); padding: 12px;
-        }
-
-        .slide-icon-badge {
-            position: absolute; top: 10px; left: 10px;
-            width: 56px; height: 56px; border-radius: 16px;
+        .slide-icon-box {
+            width: 72px; height: 72px; border-radius: 22px;
+            background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,.05) 100%);
+            border: 1px solid rgba(255,255,255,.18);
             display: flex; align-items: center; justify-content: center;
+            margin-bottom: 24px; backdrop-filter: blur(10px);
+        }
+        .slide-icon-box i {
+            font-size: 1.8rem; color: var(--secondary);
+            text-shadow: 0 2px 10px rgba(234,141,34,.4);
+        }
+        .slide-icon-box.accent {
+            background: linear-gradient(135deg, var(--secondary) 0%, #f97316 100%);
+            border: none;
+        }
+        .slide-icon-box.accent i {
             font-size: 1.5rem; color: #fff;
             box-shadow: 0 8px 24px rgba(0,0,0,.2);
         }
 
         .slide-text { position: relative; z-index: 2; }
         .slide-title {
-            font-family: 'Montserrat', sans-serif; font-weight: 900;
+            font-family: 'Space Grotesk', sans-serif; font-weight: 900;
             font-size: 1.6rem; line-height: 1.2; color: #fff;
             margin-bottom: 10px; letter-spacing: -.5px;
         }
@@ -105,26 +121,9 @@
         }
         .pill i { color: var(--secondary); font-size: .75rem; }
 
-        /* ─── Progress Bar ─── */
-        .slide-progress {
-            display: flex; align-items: center; gap: 8px; margin-top: 14px;
-        }
-        .progress-bar-bg {
-            flex: 1; height: 4px; background: rgba(255,255,255,.1);
-            border-radius: 4px; overflow: hidden;
-        }
-        .progress-bar-fill {
-            height: 100%; background: var(--secondary); border-radius: 4px;
-            transition: width .4s ease;
-        }
-        .progress-text {
-            font-size: .7rem; color: rgba(255,255,255,.4);
-            font-weight: 600; white-space: nowrap;
-        }
-
         /* ─── Bottom Section ─── */
         .splash-bottom {
-            padding: 0 28px 32px; position: relative; z-index: 10;
+            padding: 28px; position: relative; z-index: 10;
         }
 
         /* ─── Dots ─── */
@@ -141,7 +140,7 @@
             flex: 0 0 auto; padding: 14px 20px; border-radius: 14px;
             background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
             color: rgba(255,255,255,.5); font-weight: 700; font-size: .9rem;
-            cursor: pointer; font-family: 'Montserrat', sans-serif;
+            cursor: pointer; font-family: 'Space Grotesk', sans-serif;
             transition: all .2s; display: flex; align-items: center; gap: 6px;
         }
         .btn-skip:hover { background: rgba(255,255,255,.15); color: #fff; }
@@ -149,7 +148,7 @@
             flex: 1; padding: 14px 24px; border-radius: 14px;
             background: var(--secondary); border: none; color: #fff;
             font-weight: 800; font-size: .95rem; cursor: pointer;
-            font-family: 'Montserrat', sans-serif; display: flex;
+            font-family: 'Space Grotesk', sans-serif; display: flex;
             align-items: center; justify-content: center; gap: 8px;
             transition: all .2s; box-shadow: 0 6px 20px rgba(234,141,34,.3);
         }
@@ -161,7 +160,7 @@
             flex: 1; padding: 14px 24px; border-radius: 14px;
             background: var(--white); border: none; color: var(--primary);
             font-weight: 800; font-size: .95rem; cursor: pointer;
-            font-family: 'Montserrat', sans-serif; display: flex;
+            font-family: 'Space Grotesk', sans-serif; display: flex;
             align-items: center; justify-content: center; gap: 8px;
             text-decoration: none; transition: all .2s;
             box-shadow: 0 6px 20px rgba(0,0,0,.15);
@@ -195,7 +194,7 @@
 
         {{-- Top Bar --}}
         <div class="splash-top">
-            <img src="{{ asset('Pilotix.jpeg') }}" alt="PILOTRIX" class="splash-logo">
+            <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="splash-logo">
             <a href="{{ route('login') }}" class="splash-login-btn">
                 <i class="bi bi-box-arrow-in-right"></i> Se connecter
             </a>
@@ -211,10 +210,10 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #167e65, #0d4d3c);">
                             <i class="bi bi-rocket-takeoff-fill"></i>
                         </div>
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="PILOTRIX" class="slide-img">
+                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
                     </div>
                     <div class="slide-text">
-                        <div class="slide-title">Bienvenue sur <span>PILOTRIX</span></div>
+                        <div class="slide-title">Bienvenue sur <span>pilotix</span></div>
                         <div class="slide-desc">La solution complète pour gérer votre activité commerciale en toute simplicité.</div>
                         <div class="slide-pills">
                             <span class="pill"><i class="bi bi-lightning-fill"></i> Rapide</span>
@@ -234,7 +233,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #16a34a, #0d8a3a);">
                             <i class="bi bi-graph-up-arrow"></i>
                         </div>
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="PILOTRIX" class="slide-img">
+                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Suivi <span>Temps Réel</span> des Ventes</div>
@@ -257,7 +256,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
                             <i class="bi bi-boxes"></i>
                         </div>
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="PILOTRIX" class="slide-img">
+                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Gestion <span>Multi-Dépôts</span> des Stocks</div>
@@ -280,7 +279,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, var(--secondary), #d97706);">
                             <i class="bi bi-truck"></i>
                         </div>
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="PILOTRIX" class="slide-img">
+                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Livraisons & <span>Arrivages</span></div>
@@ -303,7 +302,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #dc2626, #b91c1c);">
                             <i class="bi bi-wallet2"></i>
                         </div>
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="PILOTRIX" class="slide-img">
+                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Dettes & <span>Finances</span></div>
@@ -357,7 +356,7 @@
             dots.forEach(function(d, i) { d.classList.toggle('active', i === currentSlide); });
 
             if (currentSlide === totalSlides - 1) {
-                splashNav.innerHTML = '<a href="{{ route('login') }}" class="btn-connect"><i class="bi bi-box-arrow-in-right"></i> Se connecter à PILOTRIX</a>';
+                splashNav.innerHTML = '<a href="{{ route('login') }}" class="btn-connect"><i class="bi bi-box-arrow-in-right"></i> Se connecter à pilotix</a>';
             } else {
                 splashNav.innerHTML = '<button class="btn-skip" onclick="goToSlide(' + (totalSlides - 1) + ')">Passer</button><button class="btn-next" id="btnNext" onclick="nextSlide()">Suivant <i class="bi bi-arrow-right"></i></button>';
             }

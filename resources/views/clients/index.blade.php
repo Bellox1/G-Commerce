@@ -52,6 +52,9 @@
                     </td>
                     <td style="text-align: center;">
                         <div style="display: flex; gap: 6px; justify-content: center;">
+                            <a href="{{ route('clients.show', $c) }}" class="btn btn-primary btn-sm" style="padding: 4px 8px;">
+                                <i class="bi bi-eye"></i>
+                            </a>
                             <a href="{{ route('clients.edit', $c) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px;">
                                 <i class="bi bi-pencil"></i>
                             </a>

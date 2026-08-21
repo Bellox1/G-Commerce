@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Dettes Société')
-@section('page-title', 'Dettes que la société doit aux fournisseurs')
+@section('title', 'Nos dettes')
+@section('page-title', 'Nos dettes')
 
 @section('actions')
 <button onclick="document.getElementById('modalAjout').style.display='flex'" class="btn btn-primary">
@@ -34,9 +34,9 @@
 {{-- Filtres --}}
 <div class="card">
     <div class="card-header" style="flex-wrap:wrap; gap:12px;">
-        <h3 style="display:flex; align-items:center; gap:8px;">
-            <i class="bi bi-building"></i> Dettes de la société
-        </h3>
+            <h3 style="display:flex; align-items:center; gap:8px;">
+                <i class="bi bi-building"></i> Nos dettes
+            </h3>
         <form method="GET" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             <select name="statut" class="form-control" style="width:auto;">
                 <option value="" disabled {{ !request()->has('statut') ? 'selected' : '' }}>Tous les statuts</option>
@@ -71,6 +71,7 @@
                     <th>Arrivage</th>
                     <th>Description</th>
                     <th style="text-align:right;">Montant</th>
+                    <th style="text-align:right;">Devise d'origine</th>
                     <th style="text-align:right;">Payé</th>
                     <th style="text-align:right;">Reste</th>
                     <th style="text-align:center;">Statut</th>
@@ -81,7 +82,7 @@
                 @forelse($dettes as $d)
                 @php $reste = $d->montant - $d->montant_paye; @endphp
                 <tr>
-                    <td>{{ $d->date_dette->format('d/m/Y') }}</td>
+                    <td>{{ $d->date_dette->fr('d F Y') }}</td>
                     <td style="font-weight:600;">{{ $d->fournisseur?->nom ?? '—' }}</td>
                     <td>
                         @if($d->arrivage)
@@ -92,6 +93,16 @@
                     </td>
                     <td>{{ $d->description ?? '—' }}</td>
                     <td style="text-align:right;">{{ number_format($d->montant, 0, ',', ' ') }} F</td>
+                    <td style="text-align:right;">
+                        @if($d->montant_origine)
+                            {{ number_format($d->montant_origine, 0, ',', ' ') }} {{ $d->devise ?? '' }}
+                            @if($d->taux_de_change)
+                                <div style="font-size:.75rem; color:var(--text-muted);">Taux : {{ number_format($d->taux_de_change, 0, ',', ' ') }}</div>
+                            @endif
+                        @else
+                            <span style="color:var(--text-muted);">—</span>
+                        @endif
+                    </td>
                     <td style="text-align:right; color:var(--success);">{{ number_format($d->montant_paye, 0, ',', ' ') }} F</td>
                     <td style="text-align:right; font-weight:700; color:{{ $reste > 0 ? 'var(--danger)' : 'var(--success)' }};">
                         {{ number_format($reste, 0, ',', ' ') }} F
@@ -122,7 +133,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" style="text-align:center; color:var(--text-muted); padding:32px;">Aucune dette société enregistrée.</td>
+                    <td colspan="10" style="text-align:center; color:var(--text-muted); padding:32px;">Aucune dette société enregistrée.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -148,10 +159,10 @@
                 @csrf
                 <div class="form-group">
                     <label class="form-label">Fournisseur (optionnel)</label>
-                    <select name="fournisseur_id" id="modalFournisseur" class="form-control">
+                    <select name="fournisseur_id" id="modalFournisseur" class="form-control" onchange="changeFournisseurDette(this)">
                         <option value="">— Aucun —</option>
                         @foreach($fournisseurs as $f)
-                            <option value="{{ $f->id }}">{{ $f->nom }}</option>
+                            <option value="{{ $f->id }}" data-devise="{{ $f->devise ?? '' }}">{{ $f->nom }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -169,6 +180,19 @@
                 <div class="form-group">
                     <label class="form-label">Montant (FCFA) *</label>
                     <input type="number" name="montant" id="modalMontant" class="form-control" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Devise d'origine</label>
+                    <input type="text" name="devise" id="modalDevise" class="form-control" placeholder="Ex : EUR, USD, FCFA" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Taux de change (1 devise = X FCFA)</label>
+                    <input type="number" step="0.0001" name="taux_de_change" id="modalTaux" class="form-control" placeholder="Ex : 655.957" oninput="calcMontantFromOrigine()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Montant d'origine</label>
+                    <input type="number" step="0.01" name="montant_origine" id="modalOrigine" class="form-control" placeholder="Montant dans la devise d'origine" oninput="calcMontantFromOrigine()">
+                    <small style="color:var(--text-muted);">Si devise + taux + montant d'origine sont renseignés, le montant FCFA est calculé automatiquement.</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Description</label>
@@ -267,6 +291,21 @@ function openPaiement(id, reste) {
 }
 function numberFormat(n) {
     return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+function changeFournisseurDette(select) {
+    const option = select.options[select.selectedIndex];
+    const devise = option ? option.getAttribute('data-devise') : '';
+    const deviseInput = document.getElementById('modalDevise');
+    if (deviseInput && devise) deviseInput.value = devise;
+}
+
+function calcMontantFromOrigine() {
+    const taux = parseFloat(document.getElementById('modalTaux').value);
+    const origine = parseFloat(document.getElementById('modalOrigine').value);
+    if (taux && origine) {
+        document.getElementById('modalMontant').value = Math.round(taux * origine);
+    }
 }
 </script>
 @endpush

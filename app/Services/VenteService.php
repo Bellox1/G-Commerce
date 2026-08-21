@@ -33,10 +33,11 @@ class VenteService
                 $totalLigne = $prixVente * $l['quantite'];
                 $total += $totalLigne;
 
-                // Cartons réellement déduits du stock
-                $qteStock = ($unite === 'cartouche')
-                    ? (int) ceil($l['quantite'] / $cartoucheParCarton)
-                    : (int) $l['quantite'];
+                // Quantité réellement déduite du stock, en cartons et en cartouches isolées.
+                // On ne perd plus les cartouches : une vente en cartouches décrémente
+                // quantite_cartouche (et non des cartons entiers).
+                $qteCarton    = ($unite === 'cartouche') ? 0 : (int) $l['quantite'];
+                $qteCartouche = ($unite === 'cartouche') ? (int) $l['quantite'] : 0;
 
                 $prixConseille = ($unite === 'cartouche')
                     ? ($produit->prix_cartouche ?: (int) ceil(($produit->prix_vente_conseille / $cartoucheParCarton) / 100) * 100)
@@ -50,7 +51,8 @@ class VenteService
                     'cout_unitaire'  => $prixConseille,
                     'total_ligne'    => $totalLigne,
                     'unite'          => $unite,
-                    '_qte_stock'     => $qteStock,
+                    '_qte_carton'    => $qteCarton,
+                    '_qte_cartouche' => $qteCartouche,
                 ];
             }
 
@@ -69,25 +71,29 @@ class VenteService
             $vente = Vente::create($data);
 
             foreach ($lignesCalculees as $ligne) {
-                $qteStock = $ligne['_qte_stock'];
-                unset($ligne['_qte_stock']);
+                $qteCarton = $ligne['_qte_carton'];
+                $qteCartouche = $ligne['_qte_cartouche'];
+                unset($ligne['_qte_carton'], $ligne['_qte_cartouche']);
 
                 VenteLigne::create(array_merge($ligne, ['vente_id' => $vente->id]));
 
                 $noteExtra = $ligne['unite'] === 'cartouche' ? " ({$ligne['quantite']} cartouche(s))" : " ({$ligne['quantite']} carton(s))";
 
-                // Mouvement de stock : sortie en cartons
+                // Mouvement de stock : sortie (le signe est appliqué via le type).
+                // Les cartouches isolées sont enregistrées dans quantite_cartouche
+                // pour ne pas perdre le reste du carton ouvert.
                 StockMouvement::create([
-                    'tenant_id'      => $data['tenant_id'],
-                    'magasin_id'     => $data['magasin_id'],
-                    'produit_id'     => $ligne['produit_id'],
-                    'user_id'        => $data['user_id'],
-                    'type'           => 'sortie_vente',
-                    'quantite'       => $qteStock,
-                    'cout_unitaire'  => $ligne['cout_unitaire'],
-                    'reference_type' => Vente::class,
-                    'reference_id'   => $vente->id,
-                    'note'           => "Vente {$vente->reference}{$noteExtra}",
+                    'tenant_id'         => $data['tenant_id'],
+                    'magasin_id'        => $data['magasin_id'],
+                    'produit_id'        => $ligne['produit_id'],
+                    'user_id'           => $data['user_id'],
+                    'type'              => 'sortie_vente',
+                    'quantite'          => $qteCarton,
+                    'quantite_cartouche'=> $qteCartouche,
+                    'cout_unitaire'     => $ligne['cout_unitaire'],
+                    'reference_type'    => Vente::class,
+                    'reference_id'      => $vente->id,
+                    'note'              => "Vente {$vente->reference}{$noteExtra}",
                 ]);
             }
 

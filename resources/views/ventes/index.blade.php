@@ -4,30 +4,6 @@
 
 @section('content')
 
-{{-- Modal choisir client pour conversion dette --}}
-<div id="detteModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: #fff; border-radius: 12px; padding: 24px; max-width: 420px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-        <h4 style="margin: 0 0 4px;"><i class="bi bi-credit-card-2-back"></i> Convertir en dette</h4>
-        <p style="color: var(--text-muted); font-size: .85rem; margin-bottom: 16px;">Sélectionnez le client pour la facture <strong id="detteRef"></strong></p>
-        <form method="POST" action="" id="detteForm">
-            @csrf
-            <div class="form-group">
-                <label class="form-label">Client *</label>
-                <select name="client_id" id="detteClientSelect" class="form-control" required>
-                    <option value="">-- Choisir un client --</option>
-                    @foreach(App\Models\Client::where('tenant_id', auth()->user()->tenant_id)->get() as $c)
-                        <option value="{{ $c->id }}">{{ $c->nomComplet() }} ({{ $c->telephone }})</option>
-                    @endforeach
-                </select>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('detteModal').style.display='none'">Annuler</button>
-                <button type="submit" class="btn btn-warning"><i class="bi bi-credit-card-2-back"></i> Confirmer la dette</button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <div class="card">
     <div class="card-header">
         <h3 style="display:flex; align-items:center; gap:8px;">
@@ -38,6 +14,39 @@
             <i class="bi bi-plus-circle"></i> Nouvelle Vente
         </a>
     </div>
+
+    @php
+        $periodeActive = request('periode', 'aujourd_hui');
+        $periodeDefs = [
+            'avant_hier' => 'Avant-hier',
+            'hier' => 'Hier',
+            'aujourd_hui' => "Aujourd'hui",
+            'tous' => 'Tous',
+        ];
+    @endphp
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+        @foreach($periodeDefs as $p => $label)
+            <a href="{{ route('ventes.index', array_filter(['periode' => $p])) }}"
+               class="btn btn-sm {{ $periodeActive === $p ? 'btn-primary' : 'btn-secondary' }}">{{ $label }}</a>
+        @endforeach
+        <a href="{{ route('ventes.index', array_filter(['periode' => 'perso', 'date_debut' => $dateDebut, 'date_fin' => $dateFin])) }}"
+           class="btn btn-sm {{ $periodeActive === 'perso' ? 'btn-primary' : 'btn-secondary' }}">Personnaliser</a>
+    </div>
+
+    @if($periodeActive === 'perso')
+    <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px;">
+        <input type="hidden" name="periode" value="perso">
+        <div>
+            <label class="form-label" style="margin-bottom: 4px;">Du</label>
+            <input type="date" name="date_debut" class="form-control" value="{{ $dateDebut }}">
+        </div>
+        <div>
+            <label class="form-label" style="margin-bottom: 4px;">Au</label>
+            <input type="date" name="date_fin" class="form-control" value="{{ $dateFin }}">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+    </form>
+    @endif
 
     <div class="table-search-wrap">
         <div class="table-search-field">
@@ -70,7 +79,7 @@
                             {{ $v->reference }}
                         </a>
                     </td>
-                    <td>{{ $v->date_vente->format('d/m/Y H:i') }}</td>
+                    <td>{{ $v->date_vente->fr('d F Y H:i') }}</td>
                     <td>{{ $v->user?->name }}</td>
                     <td><span class="badge badge-gray">{{ $v->magasin?->nom }}</span></td>
                     <td>{{ $v->client?->nomComplet() ?? 'Vente Directe (Anonyme)' }}</td>
@@ -98,13 +107,6 @@
                             <a href="{{ route('ventes.edit', $v) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px;" title="Modifier">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            @if(!$v->dette && $v->statut_paiement === 'paye')
-                            <button type="button" class="btn btn-warning btn-sm" style="padding: 4px 8px;"
-                                onclick="convertirDette({{ $v->id }}, '{{ $v->reference }}')"
-                                title="Marquer comme dette">
-                                <i class="bi bi-credit-card-2-back"></i>
-                            </button>
-                            @endif
                         </div>
                     </td>
                 </tr>
@@ -124,18 +126,3 @@
     @endif
 </div>
 @endsection
-
-@push('scripts')
-<script>
-function convertirDette(id, ref, hasClient) {
-    const modal = document.getElementById('detteModal');
-    document.getElementById('detteRef').textContent = ref;
-    document.getElementById('detteForm').action = '/ventes/' + id + '/convertir-dette';
-    modal.style.display = 'flex';
-}
-// Fermer le modal en cliquant à l'extérieur
-document.getElementById('detteModal').addEventListener('click', function(e) {
-    if (e.target === this) this.style.display = 'none';
-});
-</script>
-@endpush

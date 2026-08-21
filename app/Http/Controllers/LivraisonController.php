@@ -14,33 +14,51 @@ class LivraisonController extends Controller
         $user = Auth::user();
         $tenant = $user->tenant;
 
+        // Période (par défaut : aujourd'hui)
+        $periode = $request->input('periode', 'aujourd_hui');
+        $dateDebut = $request->input('date_debut');
+        $dateFin = $request->input('date_fin');
+
+        $applyPeriode = function ($q) use ($periode, $dateDebut, $dateFin) {
+            if ($periode === 'tous') {
+                return;
+            }
+            if ($periode === 'perso') {
+                if ($dateDebut) {
+                    $q->whereDate('date_vente', '>=', $dateDebut);
+                }
+                if ($dateFin) {
+                    $q->whereDate('date_vente', '<=', $dateFin);
+                }
+                return;
+            }
+            $days = ['avant_hier' => 2, 'hier' => 1, 'aujourd_hui' => 0][$periode] ?? 0;
+            $q->whereDate('date_vente', now()->subDays($days)->toDateString());
+        };
+
         $query = Vente::where('tenant_id', $tenant->id)
             ->with(['client', 'user', 'magasin', 'livreur']);
 
-        // Filtre par statut (en_attente ou livre)
+        // Filtre par période (date)
+        $applyPeriode($query);
+
+        // Filtre par statut (n'impacte QUE la liste, pas les stats)
         if ($request->filled('statut')) {
             $query->where('statut_livraison', $request->statut);
         }
 
         $ventes = $query->latest('date_vente')->paginate(15);
 
-        // Stats pour le chiffre d'affaire
-        $baseQuery = Vente::where('tenant_id', $tenant->id);
-        if ($request->filled('statut')) {
-            $baseQuery->where('statut_livraison', $request->statut);
-        }
+        // Stats globales (filtrées par période, mais indépendantes du statut)
+        $allQuery = Vente::where('tenant_id', $tenant->id);
+        $applyPeriode($allQuery);
 
-        $totalMontant = (clone $baseQuery)->sum('montant_total');
-        $totalPaye    = (clone $baseQuery)->sum('montant_paye');
-        $nbLivraisons = (clone $baseQuery)->count();
+        $totalMontant = (clone $allQuery)->sum('montant_total');
+        $totalPaye    = (clone $allQuery)->sum('montant_paye');
+        $nbLivraisons = (clone $allQuery)->count();
 
-        $totalParStatut = (clone $baseQuery)
-            ->selectRaw("statut_livraison, SUM(montant_total) as total, COUNT(*) as nb")
-            ->groupBy('statut_livraison')
-            ->pluck('total', 'statut_livraison');
-
-        // Compteurs par statut (toujours sur la totalité du tenant, sans filtre)
-        $nbParStatutRaw = Vente::where('tenant_id', $tenant->id)
+        // Compteurs par statut (sur la période sélectionnée, sans filtre de statut)
+        $nbParStatutRaw = (clone $allQuery)
             ->selectRaw("statut_livraison, COUNT(*) as nb")
             ->groupBy('statut_livraison')
             ->get()
@@ -52,25 +70,29 @@ class LivraisonController extends Controller
             'probleme'   => $nbParStatutRaw['probleme'] ?? 0,
         ];
 
-        if (request()->expectsJson() || request()->is('api/*')) {
-            return response()->json(['success' => true, 'data' => $ventes, 'stats' => compact('totalMontant', 'totalPaye', 'nbLivraisons')]);
+        if (request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'data' => $ventes,
+                'stats' => compact('totalMontant', 'totalPaye', 'nbLivraisons', 'nbParStatut'),
+            ]);
         }
 
         return view('livraisons.index', compact(
-            'ventes', 'totalMontant', 'totalPaye', 'nbLivraisons', 'totalParStatut', 'nbParStatut'
+            'ventes', 'totalMontant', 'totalPaye', 'nbLivraisons', 'nbParStatut',
+            'periode', 'dateDebut', 'dateFin'
         ));
     }
 
-    public function show(Vente $vente)
+    public function show(Request $request, $id = null)
     {
         $this->authorizeModule('livraisons');
-        if ($vente->tenant_id !== Auth::user()->tenant_id) {
-            abort(403, 'Action non autorisée.');
-        }
 
+        $id = $id ?? $request->route('vente') ?? $request->route('livraison');
+        $vente = Vente::where('tenant_id', Auth::user()->tenant_id)->findOrFail($id);
         $vente->load(['client', 'user', 'magasin', 'lignes.produit', 'livreur']);
 
-        if (request()->expectsJson() || request()->is('api/*')) {
+        if (request()->is('api/*')) {
             return response()->json(['success' => true, 'data' => $vente]);
         }
 
@@ -89,6 +111,11 @@ class LivraisonController extends Controller
             'note_livraison' => 'nullable|string|max:1000',
         ]);
 
+        if ($request->statut_livraison === 'en_attente'
+            && in_array($vente->statut_livraison, ['livre', 'probleme'])) {
+            abort(422, 'Impossible de repasser une livraison déjà livrée ou en problème à « en attente ».');
+        }
+
         $vente->update([
             'statut_livraison' => $request->statut_livraison,
             'livreur_id' => Auth::id(),
@@ -96,6 +123,15 @@ class LivraisonController extends Controller
             'note_livraison' => $request->note_livraison,
         ]);
 
-        return $this->smartResponse('livraisons.index', 'Statut de livraison mis à jour avec succès.');
+        if (request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Statut de livraison mis à jour avec succès.',
+                'redirect' => route('livraisons.index'),
+            ]);
+        }
+
+        return redirect()->back()
+            ->with('success', 'Statut de livraison mis à jour avec succès.');
     }
 }

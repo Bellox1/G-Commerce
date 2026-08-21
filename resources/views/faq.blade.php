@@ -6,10 +6,10 @@
 <style>
     .faq-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 32px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .faq-tabs::-webkit-scrollbar { display: none; }
-    .faq-tab { flex-shrink: 0; padding: 10px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text-muted); display: flex; align-items: center; gap: 8px; transition: all 0.2s; white-space: nowrap; font-family: 'Inter', sans-serif; }
+    .faq-tab { flex-shrink: 0; padding: 10px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text-muted); display: flex; flex-direction: row; align-items: center; gap: 8px; transition: all 0.2s; white-space: nowrap; font-family: 'Inter', sans-serif; }
     .faq-tab:hover { border-color: var(--primary); color: var(--primary); }
     .faq-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .faq-tab i { font-size: 1.1rem; }
+    .faq-tab i { font-size: 1.1rem; display: inline-flex; align-items: center; line-height: 1; }
     .faq-panel { display: none; }
     .faq-panel.active { display: block; }
     .faq-section { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-card); margin-bottom: 16px; overflow: hidden; }
@@ -43,22 +43,23 @@
 @section('content')
 
 <div class="faq-tabs" id="faqTabs">
-    <button class="faq-tab active" data-tab="dashboard"><i class="bi bi-speedometer2"></i> Tableau de bord</button>
-    <button class="faq-tab" data-tab="produits"><i class="bi bi-box2"></i> Produits</button>
-    <button class="faq-tab" data-tab="arrivages"><i class="bi bi-truck"></i> Arrivages</button>
-    <button class="faq-tab" data-tab="ventes"><i class="bi bi-cart"></i> Ventes</button>
-    <button class="faq-tab" data-tab="livraisons"><i class="bi bi-truck-flatbed"></i> Livraisons</button>
+    <button class="faq-tab active" data-tab="dashboard"><i class="bi bi-grid"></i> Accueil</button>
+    <button class="faq-tab" data-tab="produits"><i class="bi bi-box"></i> Produits</button>
+    <button class="faq-tab" data-tab="arrivages"><i class="bi bi-cart3"></i> Arrivages</button>
+    <button class="faq-tab" data-tab="ventes"><i class="bi bi-cart3"></i> Ventes</button>
+    <button class="faq-tab" data-tab="livraisons"><i class="bi bi-bicycle"></i> Livraisons</button>
     <button class="faq-tab" data-tab="clients"><i class="bi bi-people"></i> Clients</button>
-    <button class="faq-tab" data-tab="dettes"><i class="bi bi-credit-card-2-back"></i> Dettes</button>
+    <button class="faq-tab" data-tab="dettes"><i class="bi bi-wallet"></i> Dettes</button>
     <button class="faq-tab" data-tab="mouvements"><i class="bi bi-arrow-left-right"></i> Mouvements</button>
-    <button class="faq-tab" data-tab="stock"><i class="bi bi-boxes"></i> Stock</button>
+    <button class="faq-tab" data-tab="stock"><i class="bi bi-layers"></i> Stock</button>
     <button class="faq-tab" data-tab="depots"><i class="bi bi-shop"></i> Dépôts</button>
-    <button class="faq-tab" data-tab="employes"><i class="bi bi-person-badge"></i> Employés</button>
+    <button class="faq-tab" data-tab="employes"><i class="bi bi-people"></i> Personnel</button>
+    <button class="faq-tab" data-tab="abonnement"><i class="bi bi-star"></i> Abonnement</button>
 </div>
 
 {{-- ═══════════ TABLEAU DE BORD ═══════════ --}}
 <div class="faq-panel active" id="panel-dashboard">
-    <div class="faq-title-section">Tableau de bord</div>
+    <div class="faq-title-section">Accueil</div>
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
@@ -117,7 +118,7 @@
             <div class="step"><div class="step-num">1</div><div class="step-text">Dans la section <strong>"Dépenses du jour"</strong> du tableau de bord, cliquez sur le bouton <strong>"Nouvelle dépense"</strong>.</div></div>
             <div class="step"><div class="step-num">2</div><div class="step-text">Entrez le <strong>montant</strong> de la dépense.</div></div>
             <div class="step"><div class="step-num">3</div><div class="step-text">Ajoutez une <strong>description</strong> (optionnel mais recommandé) : ex "Achat cartons", "Facture électricité", "Pain pour le personnel".</div></div>
-            <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Message vocal (optionnel)</strong> : appuyez sur le bouton <strong>micro</strong> pour enregistrer un message audio décrivant la dépense. Utile si vous êtes pressé ou si vous préférez parler plutôt que taper.</div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Message vocal</strong> : fonctionnalité <em>bientôt disponible</em>. En attendant, utilisez le champ <strong>description</strong> pour saisir votre note.</div></div>
             <div class="step"><div class="step-num">5</div><div class="step-text">Validez. La dépense apparaît immédiatement dans la liste, et les statistiques (CA Net, Dépenses du jour) se mettent à jour.</div></div>
         </div>
     </div>
@@ -433,7 +434,7 @@
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
-            C'est le <strong>centre de suivi</strong> de toutes les livraisons en cours. Chaque vente qui nécessite une livraison apparaît ici avec son statut, le client à livrer, l'adresse et le livreur assigné. Vous pouvez suivre l'avancement en temps réel.
+            C'est le <strong>centre de suivi</strong> de toutes les livraisons en cours. C'est le <strong>contrôleur</strong> qui contrôle les livraisons : chaque vente nécessitant une livraison apparaît ici avec son statut, le client à livrer, l'adresse et le contrôleur assigné. Vous pouvez suivre l'avancement en temps réel.
         </div>
     </div>
 
@@ -445,10 +446,10 @@
         <div class="faq-answer">
             <ol>
                 <li><strong>Vente créée</strong> avec statut livraison "En attente" → elle apparaît dans la liste des livraisons</li>
-                <li><strong>Assignation</strong> : le DG ou le responsable sélectionne un livreur pour prendre en charge</li>
-                <li><strong>En cours</strong> : le livreur est en route, il peut appeler le client en un clic</li>
+                <li><strong>Assignation</strong> : le DG ou le responsable sélectionne un contrôleur pour prendre en charge</li>
+                <li><strong>En cours</strong> : le contrôleur est en route, il peut appeler le client en un clic</li>
                 <li><strong>Livré</strong> : le client a réceptionné le colis → la livraison est terminée</li>
-                <li><strong>Problème</strong> : le livreur signale un souci (client absent, adresse erronée...)</li>
+                <li><strong>Problème</strong> : le contrôleur signale un souci (client absent, adresse erronée...)</li>
             </ol>
         </div>
     </div>
@@ -460,34 +461,34 @@
         </div>
         <div class="faq-answer">
             <ul>
-                <li><span class="badge badge-gray">En attente</span> : la livraison n'a pas encore été prise en charge par un livreur. C'est le statut par défaut.</li>
-                <li><span class="badge badge-warning">En cours</span> : le livreur a accepté la livraison et est en route vers le client.</li>
+                <li><span class="badge badge-gray">En attente</span> : la livraison n'a pas encore été prise en charge par un contrôleur. C'est le statut par défaut.</li>
+                <li><span class="badge badge-warning">En cours</span> : le contrôleur a accepté la livraison et est en route vers le client.</li>
                 <li><span class="badge badge-success">Livré</span> : le client a bien reçu sa commande. La livraison est terminée avec succès.</li>
-                <li><span class="badge badge-danger">Problème signalé</span> : le livreur a rencontré un souci (client absent, mauvaise adresse, colis endommagé...). Une description de l'incident est enregistrée.</li>
+                <li><span class="badge badge-danger">Problème signalé</span> : le contrôleur a rencontré un souci (client absent, mauvaise adresse, colis endommagé...). Une description de l'incident est enregistrée.</li>
             </ul>
         </div>
     </div>
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>Comment assigner un livreur ?</span>
+            <span>Comment assigner un contrôleur ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
             <div class="step"><div class="step-num">1</div><div class="step-text">Dans la liste des livraisons, repérez la livraison "En attente".</div></div>
             <div class="step"><div class="step-num">2</div><div class="step-text">Cliquez dessus pour voir le détail.</div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-text">Sélectionnez un employé avec le rôle <strong>"Livreur"</strong> dans la liste déroulante.</div></div>
-            <div class="step"><div class="step-num">4</div><div class="step-text">Le livreur verra la commande apparaître dans son interface et pourra commencer la livraison.</div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-text">Sélectionnez un employé avec le rôle <strong>"Contrôleur"</strong> dans la liste déroulante.</div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-text">Le contrôleur verra la commande apparaître dans son interface et pourra commencer la livraison.</div></div>
         </div>
     </div>
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>Que fait le livreur concrètement ?</span>
+            <span>Que fait le contrôleur concrètement ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
-            Depuis son interface (accessible sur mobile), le livreur peut :
+            Depuis son interface (accessible sur mobile), le contrôleur peut :
             <ul>
                 <li>Voir la liste de ses livraisons du jour avec les adresses et contacts clients</li>
                 <li><strong>Appeler le client</strong> en un clic pour confirmer la livraison</li>
@@ -904,11 +905,11 @@
 
 {{-- ═══════════ EMPLOYÉS ═══════════ --}}
 <div class="faq-panel" id="panel-employes">
-    <div class="faq-title-section">Employés</div>
+    <div class="faq-title-section">Personnel</div>
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>À quoi sert l'onglet Employés ?</span>
+            <span>À quoi sert l'onglet Personnel ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
@@ -918,19 +919,19 @@
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>Comment ajouter un nouvel employé ?</span>
+            <span>Comment ajouter un nouveau membre ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
-            <div class="step"><div class="step-num">1</div><div class="step-text">Allez dans <strong>Employés</strong> puis cliquez sur <strong>"Nouvel employé"</strong>.</div></div>
+            <div class="step"><div class="step-num">1</div><div class="step-text">Allez dans <strong>Personnel</strong> puis cliquez sur <strong>"Nouveau membre"</strong>.</div></div>
             <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Nom</strong> : le nom complet de l'employé (ex : "Amadou Diallo").</div></div>
             <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Email</strong> : l'adresse email qui servira d'identifiant de connexion. Chaque email doit être unique.</div></div>
             <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Mot de passe</strong> : definez un mot de passe sécurisé. L'employé pourra le changer plus tard depuis son profil.</div></div>
             <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Rôle principal</strong> : sélectionnez le rôle principal de l'employé :
                 <ul>
-                    <li><strong>Vendeur</strong> : accès aux ventes et clients</li>
+                    <li><strong>Vendeur (Caissier)</strong> : accès aux ventes et clients</li>
                     <li><strong>Magasinier</strong> : accès au stock, arrivages et transferts</li>
-                    <li><strong>Livreur</strong> : accès aux livraisons assignées</li>
+                    <li><strong>Contrôleur</strong> : accès aux livraisons assignées</li>
                 </ul>
             </div></div>
             <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Rôles secondaires</strong> (optionnel) : un employé peut cumuler plusieurs rôles. Par exemple, un magasinier peut aussi avoir le rôle de vendeur s'il fait à la fois les stocks et les ventes. Cochez les rôles secondaires souhaités.</div></div>
@@ -944,8 +945,9 @@
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
-            <strong>Vendeur :</strong>
+            <strong>Vendeur (Caissier) :</strong>
             <ul>
+                <li>C'est le <strong>caissier</strong> de l'entreprise : il enregistre les ventes en caisse</li>
                 <li>Peut créer des ventes et des factures</li>
                 <li>Peut gérer les clients (ajout, modification)</li>
                 <li>Peut voir ses <strong>propres</strong> ventes et son chiffre d'affaires</li>
@@ -960,7 +962,7 @@
                 <li>Peut consulter l'historique des mouvements</li>
                 <li>Ne voit PAS les ventes ni les dettes clients</li>
             </ul>
-            <strong>Livreur :</strong>
+            <strong>Contrôleur :</strong>
             <ul>
                 <li>Peut voir les livraisons qui lui sont assignées</li>
                 <li>Peut valider une livraison ou signaler un problème</li>
@@ -984,8 +986,8 @@
             <strong>Exemple concret :</strong>
             <ul>
                 <li>Un magasinier qui fait aussi les ventes → rôle principal : <strong>Magasinier</strong>, rôle secondaire : <strong>Vendeur</strong></li>
-                <li>Un vendeur qui aide aussi aux livraisons → rôle principal : <strong>Vendeur</strong>, rôle secondaire : <strong>Livreur</strong></li>
-                <li>Un livreur qui peut aussi gérer les stocks → rôle principal : <strong>Livreur</strong>, rôle secondaire : <strong>Magasinier</strong></li>
+                <li>Un vendeur qui aide aussi aux livraisons → rôle principal : <strong>Vendeur</strong>, rôle secondaire : <strong>Contrôleur</strong></li>
+                <li>Un contrôleur qui peut aussi gérer les stocks → rôle principal : <strong>Contrôleur</strong>, rôle secondaire : <strong>Magasinier</strong></li>
             </ul>
             <div class="faq-tip"><i class="bi bi-lightbulb"></i> <div>Lors de la création ou modification d'un employé, vous choisissez le rôle principal dans la liste déroulante, puis vous cochez les rôles secondaires souhaités.</div></div>
         </div>
@@ -993,7 +995,7 @@
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>Qui peut créer des employés ?</span>
+            <span>Qui peut créer des membres du personnel ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
@@ -1017,7 +1019,7 @@
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>Comment modifier un employé ?</span>
+            <span>Comment modifier un membre ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
@@ -1029,14 +1031,82 @@
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>Comment supprimer un employé ?</span>
+            <span>Comment supprimer un membre ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
             <div class="step"><div class="step-num">1</div><div class="step-text">Cliquez sur l'icône <strong>Supprimer</strong> (corbeille) à côté de l'employé.</div></div>
             <div class="step"><div class="step-num">2</div><div class="step-text">Confirmez la suppression.</div></div>
             <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Effet :</strong> l'employé ne pourra plus se connecter. Cependant, son <strong>historique de ventes est conservé</strong> pour garder une trace complète.</div></div>
-            <div class="faq-warn"><i class="bi bi-exclamation-triangle"></i> <div>La suppression est <strong>irréversible</strong>. Si vous voulez juste empêcher l'accès temporairement, modifiez plutôt son mot de passe.</div></div>
+            <div class="faq-warn"><i class="bi bi-exclamation-triangle"></i> <div>La suppression est <strong>irréversible</strong>. Si vous voulez juste empêcher l'accès temporairement, <strong>désactivez le compte</strong> (bouton "Désactiver" dans la liste du personnel) plutôt que de le supprimer. L'employé ne pourra plus se connecter, mais son historique sera conservé.</div></div>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════ ABONNEMENT ═══════════ --}}
+<div class="faq-panel" id="panel-abonnement">
+    <div class="faq-title-section">Abonnement</div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Quelle est mon offre actuelle et quand expire-t-elle ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Rendez-vous dans <strong>« Mon offre »</strong> (étoile en haut à droite de l'application ou dans le menu web). Vous y voyez le nom de l'offre souscrite, son prix, sa date d'expiration et le nombre de jours restants.
+            <div class="faq-info"><i class="bi bi-info-circle"></i> <div>Vous recevez aussi des <strong>notifications automatiques</strong> 7 jours, 3 jours et 1 jour avant l'expiration, ainsi qu'à la date d'expiration.</div></div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Comment renouveler mon abonnement ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Contactez notre équipe via la page <strong>« Mon offre »</strong> (boutons Appel, WhatsApp ou E-mail). Nous convenons du règlement (comptant ou en <strong>3 tranches</strong>) puis nous prolongeons votre accès.
+            <div class="faq-tip"><i class="bi bi-lightbulb"></i> <div>Astuce : renouvelez avant l'expiration pour éviter toute coupure de service.</div></div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Que se passe-t-il quand mon abonnement expire ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            À l'expiration, un <strong>bandeau d'alerte</strong> s'affiche et certaines fonctionnalités peuvent être suspendues selon votre offre (ex. : importations/arrivages, multi-magasins, statistiques avancées, multi-utilisateurs). Vos <strong>données restent intactes</strong> : dès le renouvellement, tout redevient accessible.
+            <div class="faq-warn"><i class="bi bi-exclamation-triangle"></i> <div>Seule l'offre <strong>Locale</strong> est à vie (sans expiration).</div></div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Puis-je changer d'offre (monter en gamme) ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Oui. Vous pouvez passer d'<strong>Essentiel</strong> à <strong>Professionnel</strong> ou <strong>Entreprise</strong> à tout moment. Contactez-nous depuis la page « Mon offre » et nous ajustons votre licence (le complément est calculé au prorata de la période restante).
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Proposez-vous un paiement en plusieurs fois ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Oui, le règlement peut se faire en <strong>3 tranches</strong> (ex. : 3 × 25 000 FCFA pour l'offre Professionnel, frais de dossier inclus). Le détail vous est communiqué lors du renouvellement.
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Mon abonnement inclut-il les mises à jour ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Oui. Toutes les mises à jour de l'application (web et mobile), la <strong>sync hors-connexion</strong> et le support sont inclus dans votre abonnement annuel, quel que soit le niveau d'offre.
         </div>
     </div>
 </div>
@@ -1050,6 +1120,14 @@ document.querySelectorAll('.faq-tab').forEach(function(tab) {
         document.getElementById('panel-' + this.dataset.tab).classList.add('active');
     });
 });
+
+// Activation de l'onglet via ancre (ex: /faq#abonnement depuis la page offre)
+(function() {
+    var hash = (window.location.hash || '').replace('#', '');
+    if (!hash) return;
+    var target = document.querySelector('.faq-tab[data-tab="' + hash + '"]');
+    if (target) target.click();
+})();
 
 function toggleFaq(el) {
     var answer = el.nextElementSibling;

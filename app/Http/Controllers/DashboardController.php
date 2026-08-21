@@ -23,8 +23,22 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user   = Auth::user();
-        if ($user->isSuperAdmin()) {
-            return redirect()->route('tenants.index');
+
+        // API / mobile → retourner JSON au lieu d'une redirection HTTP
+        if ($request->expectsJson() || $request->is('api/*')) {
+            if ($user->isSuperAdmin()) {
+                return response()->json(['success' => false, 'role' => 'super_admin', 'message' => 'Tableau de bord super admin non disponible via API.'], 403);
+            }
+            if ($user->role === 'prestataire') {
+                return response()->json(['success' => false, 'role' => 'prestataire', 'message' => 'Tableau de bord prestataire non disponible via API.'], 403);
+            }
+        } else {
+            if ($user->isSuperAdmin()) {
+                return redirect()->route('tenants.index');
+            }
+            if ($user->role === 'prestataire') {
+                return redirect()->route('prestataire.dashboard');
+            }
         }
 
         $tenant = $user->tenant;
@@ -34,16 +48,70 @@ class DashboardController extends Controller
             $date = today()->format('Y-m-d');
         }
 
-        // Ventes du jour filtré
+        // ─── Période (Jour / Semaine / Mois / Année) ───
+        $periode = $request->periode ?: 'jour';
+        if (!in_array($periode, ['jour', 'semaine', 'mois', 'annee'])) {
+            $periode = 'jour';
+        }
+        $base = \Carbon\Carbon::parse($date);
+        switch ($periode) {
+            case 'semaine':
+                $start = $base->copy()->startOfWeek(\Carbon\Carbon::MONDAY);
+                $end   = $base->copy()->endOfWeek(\Carbon\Carbon::SUNDAY);
+                $periodeLabel = "Semaine du " . $start->fr('d F') . " au " . $end->fr('d F Y');
+                break;
+            case 'mois':
+                $start = $base->copy()->startOfMonth();
+                $end   = $base->copy()->endOfMonth();
+                $periodeLabel = "Mois de " . $base->fr('F Y');
+                break;
+            case 'annee':
+                $start = $base->copy()->startOfYear();
+                $end   = $base->copy()->endOfYear();
+                $periodeLabel = "Année " . $base->year;
+                break;
+            case 'jour':
+            default:
+                $start = $base->copy()->startOfDay();
+                $end   = $base->copy()->endOfDay();
+                $periodeLabel = $base->isToday() ? "Aujourd'hui" : "Le " . $base->fr('d F Y');
+                $periode = 'jour';
+                break;
+        }
+
+        // Agrégats de la période sélectionnée
+        $encaissePeriode = (float) Vente::where('tenant_id', $tenant->id)
+            ->whereBetween('date_vente', [$start, $end])
+            ->sum('montant_paye');
+        $caPeriode = (float) Vente::where('tenant_id', $tenant->id)
+            ->whereBetween('date_vente', [$start, $end])
+            ->sum('montant_total');
+        $depensePeriode = (float) DepenseJournaliere::where('tenant_id', $tenant->id)
+            ->whereBetween('date_depense', [$start, $end])
+            ->sum('montant');
+        $creancesPeriode = max(0, $caPeriode - $encaissePeriode);
+
+        // Encaissements du jour (argent réellement reçu sur les ventes)
         $ventesJour = Vente::where('tenant_id', $tenant->id)
             ->whereDate('date_vente', $date)
             ->sum('montant_paye');
 
-        // Ventes du mois (filtré par la date sélectionnée)
+        // Chiffre d'affaires du jour (total des ventes réalisées, payées ou non)
+        $caJour = Vente::where('tenant_id', $tenant->id)
+            ->whereDate('date_vente', $date)
+            ->sum('montant_total');
+
+        // Encaissements du mois (filtré par la date sélectionnée)
         $ventesMois = Vente::where('tenant_id', $tenant->id)
             ->whereMonth('date_vente', \Carbon\Carbon::parse($date)->month)
             ->whereYear('date_vente', \Carbon\Carbon::parse($date)->year)
             ->sum('montant_paye');
+
+        // Chiffre d'affaires du mois (total des ventes réalisées)
+        $caMois = Vente::where('tenant_id', $tenant->id)
+            ->whereMonth('date_vente', \Carbon\Carbon::parse($date)->month)
+            ->whereYear('date_vente', \Carbon\Carbon::parse($date)->year)
+            ->sum('montant_total');
 
         // Dépenses du jour
         $depenseJour = DepenseJournaliere::where('tenant_id', $tenant->id)
@@ -65,18 +133,18 @@ class DashboardController extends Controller
             ->whereNotNull('salaire')
             ->sum('salaire');
 
-        // Chiffre d'affaire net (encaissements - dépenses)
-        $caJour = $ventesJour - $depenseJour;
-        $caMois = $ventesMois - $depenseMois;
+        // Créances = ventes réalisées mais non encore encaissées
+        $creancesJour = max(0, (float) $caJour - (float) $ventesJour);
+        $creancesMois = max(0, (float) $caMois - (float) $ventesMois);
 
-        // Revenu net mensuel (ventes encaissées - dépenses - loyers - salaires)
-        $revenuNetMois = $caMois - $totalLoyerMois - $totalSalairesMois;
+        // Résultat provisoire du mois = CA − dépenses − charges fixes mensuelles (loyers + salaires)
+        $revenuNetMois = (float) $caMois - (float) $depenseMois - $totalLoyerMois - $totalSalairesMois;
 
-        // Statistiques par personne (ventes du jour)
+        // Statistiques par personne (CA du jour, ventes réalisées)
         $statsParPersonne = \DB::table('ventes')
             ->where('tenant_id', $tenant->id)
             ->whereDate('date_vente', $date)
-            ->selectRaw('user_id, SUM(montant_paye) as total_ventes')
+            ->selectRaw('user_id, SUM(montant_total) as total_ca')
             ->groupBy('user_id')
             ->get()
             ->map(function ($item) use ($tenant) {
@@ -99,6 +167,8 @@ class DashboardController extends Controller
             ->whereIn('statut', ['en_cours', 'partiel', 'en_retard'])
             ->sum('montant_restant');
 
+        $isSqlite = \DB::connection()->getDriverName() === 'sqlite';
+
         // Dettes en retard (non filtré) — avec détails
         $dettesEnRetardQuery = Dette::where('tenant_id', $tenant->id)
             ->where(function ($q) {
@@ -112,28 +182,41 @@ class DashboardController extends Controller
         $dettesEnRetard = (clone $dettesEnRetardQuery)->count();
         $dettesEnRetardListe = (clone $dettesEnRetardQuery)
             ->with(['client', 'vente'])
-            ->orderByRaw('date_echeance ASC NULLS LAST')
+            ->orderByRaw($isSqlite ? 'date_echeance IS NULL ASC, date_echeance ASC' : 'ISNULL(date_echeance) ASC, date_echeance ASC')
             ->limit(10)
             ->get();
 
-        // Produits sous seuil d'alerte (non filtré)
+        // Produits sous seuil d'alerte (par magasin : alerte si bas dans un magasin quelconque)
         $produits = Produit::where('tenant_id', $tenant->id)->get();
-        $stockAlertes = [];
         $magasinIds = $tenant->magasins->pluck('id');
 
-        foreach ($produits as $produit) {
-            $mouvements = (int) StockMouvement::whereIn('magasin_id', $magasinIds)
-                ->where('produit_id', $produit->id)
+        $mouvementsParMagasin = collect();
+        if ($magasinIds->isNotEmpty()) {
+            $mouvementsParMagasin = StockMouvement::whereIn('magasin_id', $magasinIds)
+                ->select('produit_id', 'magasin_id')
                 ->selectRaw("SUM(CASE
                     WHEN type IN ('entree_arrivage','transfert_entree','ajustement_positif') THEN quantite
                     WHEN type IN ('sortie_vente','transfert_sortie','ajustement_negatif') THEN -quantite
                     ELSE 0 END) as total")
-                ->value('total') ?? 0;
+                ->groupBy('produit_id', 'magasin_id')
+                ->get()
+                ->groupBy('produit_id');
+        }
 
-            $stockTotal = (int) $produit->stock + $mouvements;
-
-            if ($stockTotal <= $produit->seuil_alerte) {
-                $stockAlertes[] = ['produit' => $produit, 'stock' => $stockTotal];
+        $stockAlertes = [];
+        foreach ($produits as $produit) {
+            $seuil = (int) ($produit->seuil_alerte ?? 0);
+            $minStock = null;
+            $enAlerte = false;
+            foreach ($magasinIds as $mid) {
+                $ligne = optional($mouvementsParMagasin->get($produit->id))->firstWhere('magasin_id', $mid);
+                if (!$ligne) continue; // produit non stocké dans ce magasin : on ne compte pas 0
+                $s = (int) $ligne->total;
+                if ($minStock === null || $s < $minStock) $minStock = $s;
+                if ($s <= 5 || $s <= $seuil) $enAlerte = true;
+            }
+            if ($enAlerte) {
+                $stockAlertes[] = ['produit' => $produit, 'stock' => $minStock];
             }
         }
 
@@ -159,8 +242,8 @@ class DashboardController extends Controller
 
         // Collaborateurs de la société (pour le statut de connexion)
         $employes = User::where('tenant_id', $tenant->id)
-            ->where('id', '!=', $user->id) // On exclut l'utilisateur connecté actuel si on veut, ou on le garde. Gardons-les tous pour que l'admin puisse s'y voir aussi.
-            ->orderByRaw('last_seen DESC NULLS LAST')
+            ->where('id', '!=', $user->id)
+            ->orderByRaw($isSqlite ? 'last_seen IS NULL ASC, last_seen DESC' : 'ISNULL(last_seen) ASC, last_seen DESC')
             ->get();
 
         // Dépenses du jour (liste)
@@ -197,30 +280,52 @@ class DashboardController extends Controller
                     'produit' => $p,
                     'stock'   => $stockParProduit[$p->id] ?? 0,
                 ])
-                ->filter(fn($s) => $s['stock'] <= ($s['produit']->seuil_alerte ?? 0))
+                ->filter(fn($s) => $s['stock'] <= 5 || $s['stock'] <= (int) ($s['produit']->seuil_alerte ?? 0))
                 ->sortBy('stock')
                 ->take(10);
         }
 
-        return view('dashboard', compact(
+        // Stock total par produit (pour le Stimulateur de CA)
+        $stockParProduit = $this->stock->getStockTotalParProduit();
+        $stockCartouchesParProduit = $this->stock->getStockTotalCartouchesParProduit();
+
+        $data = compact(
             'ventesJour','ventesMois','nbVentesJour',
-            'depenseJour','depenseMois','caJour','caMois','statsParPersonne',
+            'depenseJour','depenseMois','caJour','caMois','creancesJour','creancesMois','statsParPersonne',
             'depensesDuJour',
             'dettePaiementsJour',
             'totalDettes','dettesEnRetard','dettesEnRetardListe',
             'totalDettesSociete',
-            'stockAlertes','dernieresVentes','topProduits','tenant','date',
+            'stockAlertes','dernieresVentes','topProduits','date',
             'employes',
             'totalLoyerMois','revenuNetMois','totalSalairesMois',
             'nbLivraisonsEnAttente','livraisonsDuJour',
-            'stockApercu','magasinPrincipal'
-        ));
+            'stockApercu','magasinPrincipal',
+            'produits','stockParProduit','stockCartouchesParProduit',
+            'periode','periodeLabel','encaissePeriode','caPeriode','depensePeriode','creancesPeriode'
+        );
+
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
+        }
+
+        return view('dashboard', array_merge($data, compact('tenant')));
     }
 
     public function storeDepense(Request $request)
     {
         $user = Auth::user();
         $tenant = $user->tenant;
+
+        if (!$tenant) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Aucune société associée à ce compte.'], 403);
+            }
+            return back()->with('error', 'Aucune société associée.');
+        }
 
         $request->validate([
             'montant'      => 'required|numeric|min:1',

@@ -59,7 +59,7 @@
                     $retard = $d->estEnRetard();
                 @endphp
                 <tr style="{{ $retard ? 'background: #fff5f5;' : '' }}">
-                    <td>{{ $d->created_at->format('d/m/Y') }}</td>
+                    <td>{{ $d->created_at->fr('d F Y') }}</td>
                     <td style="font-weight: 600;">{{ $d->client?->nomComplet() }}</td>
                     <td>
                         <a href="{{ route('ventes.show', $d->vente_id) }}" style="color: var(--primary); text-decoration: none; font-weight: 500;">
@@ -74,7 +74,7 @@
                     <td>
                         @if($d->date_echeance)
                             <span style="{{ $retard ? 'color: var(--danger); font-weight: 700;' : '' }}">
-                                {{ $d->date_echeance->format('d/m/Y') }}
+                                {{ $d->date_echeance->fr('d F Y') }}
                             </span>
                         @else
                             <i style="color: #94a3b8;">Non définie</i>

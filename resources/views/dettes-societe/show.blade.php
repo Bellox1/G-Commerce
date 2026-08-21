@@ -68,7 +68,7 @@
                 </span>
                 <h2 style="font-size:1.3rem; font-weight:700; margin-top:8px;">Dette société #{{ $dette->id }}</h2>
                 <p style="font-size:.85rem; color:var(--text-muted); margin-top:4px;">
-                    Créée le {{ $dette->date_dette->format('d/m/Y') }}
+                    Créée le {{ $dette->date_dette->fr('d F Y') }}
                 </p>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
@@ -102,6 +102,17 @@
                         <strong>Description :</strong> {{ $dette->description }}
                     </div>
                     @endif
+                    @if($dette->taux_de_change || $dette->montant_origine)
+                    <div style="margin-top:8px; font-size:.85rem;">
+                        <strong style="color:var(--primary);">Valeur d'origine :</strong>
+                        @if($dette->montant_origine)
+                            {{ number_format($dette->montant_origine, 0, ',', ' ') }} {{ $dette->devise ?? '' }}
+                        @endif
+                        @if($dette->taux_de_change)
+                            <span style="color:var(--text-muted);"> · Taux : {{ number_format($dette->taux_de_change, 0, ',', ' ') }} FCFA</span>
+                        @endif
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -126,7 +137,7 @@
                     <tbody>
                         @foreach($dette->paiements as $p)
                         <tr>
-                            <td>{{ $p->date_paiement->format('d/m/Y') }}</td>
+                            <td>{{ $p->date_paiement->fr('d F Y') }}</td>
                             <td style="text-align:right; font-weight:700; color:var(--success);">+{{ number_format($p->montant, 0, ',', ' ') }} F</td>
                             <td><span class="badge badge-gray">{{ $p->mode_paiement }}</span></td>
                             <td>{{ $p->notes ?? '—' }}</td>

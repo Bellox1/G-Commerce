@@ -9,7 +9,7 @@ class TransfertProduit extends Model
     protected $table = 'transfert_produits';
 
     protected $fillable = [
-        'transfert_id', 'produit_id', 'quantite',
+        'transfert_id', 'produit_id', 'quantite', 'quantite_recue',
     ];
 
     public function transfert() { return $this->belongsTo(Transfert::class); }

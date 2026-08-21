@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PILOTRIX — Logiciel de Gestion Commerciale Multi-Magasins</title>
-    <meta name="description" content="PILOTRIX : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel.">
-    <meta name="keywords" content="logiciel gestion, gestion stock, ventes en ligne, clients, livraisons, arrivages, dettes, multi-magasins, pilotrix, application gestion">
+    <title>pilotix — Logiciel de Gestion Commerciale Multi-Magasins</title>
+    <meta name="description" content="pilotix : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel.">
+    <meta name="keywords" content="logiciel gestion, gestion stock, ventes en ligne, clients, livraisons, arrivages, dettes, multi-magasins, pilotix, application gestion">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="PILOTRIX — Logiciel de Gestion Commerciale Multi-Magasins">
+    <meta property="og:title" content="pilotix — Logiciel de Gestion Commerciale Multi-Magasins">
     <meta property="og:description" content="Gérez vos ventes, stocks, clients, livraisons et dettes en temps réel. Solution complète pour commerçants.">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="PILOTRIX">
+    <meta property="og:site_name" content="pilotix">
     <meta name="description" content="Pilotix est une solution SaaS de gestion commerciale multi-tenant pour les PME africaines : ventes, stock, livraisons, dettes, arrivages et plus.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
@@ -26,17 +26,22 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
 
         /* ─── TOP BANNER ─── */
         .top-banner {
             background: var(--primary); color: #fff;
             display: flex; align-items: center; justify-content: center; gap: 16px;
             padding: 8px 5%; font-size: 0.82rem; font-weight: 500;
+            white-space: nowrap; overflow: hidden; flex-wrap: nowrap;
         }
-        .top-banner a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .top-banner a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
         .top-banner a:hover { opacity: .85; }
         .top-banner span { opacity: .3; }
+        @media (max-width: 576px) {
+            .top-banner { font-size: 0.72rem; gap: 8px; padding: 6px 10px; overflow-x: auto; justify-content: flex-start; }
+            .top-banner a { font-size: 0.72rem; gap: 4px; }
+        }
 
         /* ─── NAV ─── */
         nav {
@@ -152,7 +157,7 @@
         }
         .hero-inner { width: 100%; display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 1; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(234,141,34,.15); border: 1px solid rgba(234,141,34,.4); color: var(--secondary); padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
-        .hero-title { font-family: 'Montserrat', sans-serif; font-size: 3rem; font-weight: 900; color: #fff; line-height: 1.45; letter-spacing: -2px; margin-bottom: 24px; }
+        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 900; color: #fff; line-height: 1.45; letter-spacing: -2px; margin-bottom: 24px; }
         .arc-underline {
             position: relative;
             display: inline-block;
@@ -174,7 +179,7 @@
         .btn-hero-sec { display: inline-flex; align-items: center; gap: 10px; border: 2px solid rgba(255,255,255,.3); color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all .3s; }
         .btn-hero-sec:hover { border-color: #fff; background: rgba(255,255,255,.1); }
         .hero-stats { display: flex; gap: 36px; margin-top: 50px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,.12); }
-        .hero-stat .stat-val { font-family: 'Montserrat', sans-serif; font-size: 2rem; font-weight: 900; color: var(--secondary); }
+        .hero-stat .stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 900; color: var(--secondary); }
         .hero-stat .stat-lbl { font-size: 0.8rem; color: rgba(255,255,255,.6); margin-top: 2px; }
 
         /* Hero visual mock */
@@ -187,7 +192,7 @@
         .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
         .mock-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
         .mock-stat { background: rgba(255,255,255,.08); border-radius: 12px; padding: 16px; }
-        .mock-stat .ms-val { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.4rem; color: #fff; }
+        .mock-stat .ms-val { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.4rem; color: #fff; }
         .mock-stat .ms-lbl { font-size: 0.72rem; color: rgba(255,255,255,.5); margin-top: 3px; }
         .mock-stat .ms-trend { font-size: 0.72rem; color: #4ade80; margin-top: 4px; font-weight: 700; }
         .mock-bar-row { display: flex; flex-direction: column; gap: 10px; }
@@ -381,7 +386,7 @@
         
         .features-header { text-align: center; margin-bottom: 80px; position: relative; z-index: 2; }
         .section-label { display: inline-block; color: var(--primary); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; background: rgba(16, 94, 73, 0.1); padding: 6px 16px; border-radius: 50px; }
-        .section-title { font-family: 'Montserrat', sans-serif; font-size: 2.8rem; font-weight: 900; color: var(--text); letter-spacing: -1px; margin-bottom: 20px; }
+        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 2.8rem; font-weight: 900; color: var(--text); letter-spacing: -1px; margin-bottom: 20px; }
         .section-sub { font-size: 1.1rem; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.6; }
 
         /* Arcs de couleurs géants pro en background */
@@ -512,7 +517,7 @@
             color: var(--secondary);
         }
         .feat-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 900;
             font-size: 2.3rem;
             line-height: 1.2;
@@ -579,104 +584,74 @@
         }
         }
 
-        /* ─── ROLES ACCORDION ─── */
-        .roles { padding: 60px 5% 120px; background: #fbfcfd; position: relative; }
+        /* ─── ROLES GRID (ORGANISATION DES ACCÈS) ─── */
+        .roles { padding: 80px 5% 120px; background: #fbfcfd; position: relative; }
         .roles-inner { max-width: 1200px; margin: 0 auto; }
-        .roles-accordion { margin-top: 50px; display: flex; flex-direction: column; gap: 10px; }
-
-        .role-accordion-item {
+        .roles-grid {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 28px;
+        }
+        @media (max-width: 991px) {
+            .roles-grid { grid-template-columns: 1fr; gap: 20px; }
+        }
+        .role-card {
             background: #ffffff;
             border: 1px solid rgba(0,0,0,0.06);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: box-shadow 0.3s;
+            border-radius: 20px;
+            padding: 32px 28px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
-        .role-accordion-item:hover {
-            box-shadow: 0 4px 16px rgba(16,94,73,0.06);
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 40px rgba(16,94,73,0.1);
+            border-color: rgba(16,94,73,0.2);
         }
-        .role-accordion-item.active {
-            box-shadow: 0 8px 24px rgba(16,94,73,0.1);
-            border-color: rgba(16,94,73,0.15);
-        }
-        .role-accordion-header {
+        .role-card-header {
             display: flex;
             align-items: center;
             gap: 16px;
-            width: 100%;
-            padding: 18px 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 1rem;
-            text-align: left;
-            color: var(--text);
-            transition: background 0.2s;
+            margin-bottom: 20px;
         }
-        .role-accordion-header:hover { background: rgba(16,94,73,0.03); }
-        .role-accordion-icon {
-            width: 28px; height: 28px;
-            background: rgba(16,94,73,0.07);
-            color: var(--primary);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
+        .role-icon-box {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem;
             flex-shrink: 0;
-            transition: all 0.3s;
         }
-        .role-accordion-item.active .role-accordion-icon {
-            background: var(--primary);
-            color: #fff;
-        }
-        .role-accordion-header h4 {
-            font-family: 'Montserrat', sans-serif;
+        .role-card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
             font-weight: 800;
-            font-size: 1.1rem;
             color: var(--text);
-            flex: 1;
+            line-height: 1.2;
         }
-        .role-accordion-chevron {
-            color: var(--muted);
-            font-size: 1.1rem;
-            transition: transform 0.3s ease;
-            flex-shrink: 0;
+        .role-badge-pill {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            margin-top: 4px;
         }
-        .role-accordion-item.active .role-accordion-chevron {
-            transform: rotate(180deg);
-            color: var(--primary);
+        .role-features-list {
+            list-style: none; padding: 0; margin: 0;
+            display: flex; flex-direction: column; gap: 12px;
         }
-        .role-accordion-body {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease, padding 0.4s ease;
+        .role-features-list li {
+            display: flex; align-items: flex-start; gap: 10px;
+            font-size: 0.9rem; color: #475569; line-height: 1.5;
         }
-        .role-accordion-item.active .role-accordion-body {
-            max-height: 600px;
-        }
-        .role-accordion-content {
-            padding: 0 24px 24px 68px;
-            font-size: 0.95rem;
-            color: var(--muted);
-            line-height: 1.8;
-        }
-        .role-accordion-content ul {
-            list-style: none;
-            padding: 0; margin: 0;
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .role-accordion-content ul li {
-            position: relative;
-            padding-left: 20px;
-        }
-        .role-accordion-content ul li::before {
-            content: '';
-            position: absolute; left: 0; top: 11px;
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--primary);
-            opacity: 0.3;
+        .role-features-list li i {
+            font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;
         }
         .role-accordion-content ul li strong {
             color: var(--text);
@@ -685,19 +660,21 @@
 
         /* ─── CTA ─── */
         .cta { padding: 100px 5%; background: url('https://i.pinimg.com/736x/6a/cd/1b/6acd1b1405369a5b0457877eed1dc42d.jpg') center/cover no-repeat; text-align: center; position: relative; overflow: hidden; }
-        .cta h2 { font-family: 'Montserrat', sans-serif; font-size: 2.8rem; font-weight: 900; color: #fff; letter-spacing: -1px; margin-bottom: 16px; }
+        .cta h2 { font-family: 'Space Grotesk', sans-serif; font-size: 2.8rem; font-weight: 900; color: #fff; letter-spacing: -1px; margin-bottom: 16px; }
         .cta p { font-size: 1.15rem; color: rgba(255,255,255,.75); max-width: 520px; margin: 0 auto 40px; line-height: 1.7; }
         .cta-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 60px; text-align: left; }
         .cta-info { flex: 1; }
-        .cta-form-box { flex: 1; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 32px; backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        .cta-form-box h3 { color: #fff; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .cta-form-box { flex: 1; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 24px; padding: 36px; box-shadow: 0 20px 50px rgba(0,0,0,0.12); width: 100%; max-width: 520px; }
+        .cta-form-box h3 { color: var(--primary); font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.5rem; margin-bottom: 24px; text-align: center; }
         .cta-form-box .form-group { margin-bottom: 20px; text-align: left; }
-        .cta-form-box .form-label { color: rgba(255, 255, 255, 0.9); font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; display: block; }
-        .cta-form-box .form-control { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 12px 16px; border-radius: 10px; font-size: 0.95rem; width: 100%; transition: all 0.3s; }
-        .cta-form-box .form-control:focus { outline: none; border-color: var(--secondary); background: rgba(255, 255, 255, 0.18); box-shadow: 0 0 0 4px rgba(234, 141, 34, 0.15); }
-        .cta-form-box .form-control::placeholder { color: rgba(255, 255, 255, 0.4); }
-        .cta-form-box select.form-control option { background: #1f2937; color: #fff; padding: 8px; }
-        .btn-cta-submit { background: var(--secondary); color: #fff; border: none; padding: 14px 28px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.3s; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 10px 20px rgba(234, 141, 34, 0.2); }
+        .cta-form-box .form-label { color: var(--text); font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cta-form-box .form-control { background: #f8fafc; border: 1.5px solid #e2e8f0; color: var(--text); padding: 13px 16px; border-radius: 12px; font-size: 0.95rem; width: 100%; transition: all 0.25s ease; font-family: inherit; }
+        .cta-form-box .form-control:focus { outline: none; border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 4px rgba(16, 94, 73, 0.12); }
+        .cta-form-box .form-control::placeholder { color: #94a3b8; }
+        .cta-form-box select.form-control { color: var(--text); background: #f8fafc; cursor: pointer; }
+        .cta-form-box select.form-control option { background: #ffffff; color: var(--text); padding: 10px; }
+        .btn-cta-submit { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; border: none; padding: 15px 28px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px rgba(16, 94, 73, 0.25); }
+        .btn-cta-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 94, 73, 0.35); }
         .btn-cta-submit:hover { background: #f97316; transform: translateY(-2px); box-shadow: 0 15px 30px rgba(234, 141, 34, 0.3); }
         @media (max-width: 991px) {
             .cta-container { flex-direction: column; text-align: left; gap: 40px; }
@@ -713,7 +690,7 @@
         footer { background: #0f1923; color: #fff; padding: 60px 5% 28px; }
         .footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 48px; }
         .footer-brand { flex: 1; min-width: 200px; }
-        .footer-brand .logo-name { font-family: 'Montserrat', sans-serif; font-weight: 900; font-size: 1.6rem; letter-spacing: -1px; text-transform: uppercase; color: #fff; }
+        .footer-brand .logo-name { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 1.6rem; letter-spacing: -1px; text-transform: uppercase; color: #fff; }
         .footer-brand p { margin-top: 12px; color: #6b7280; font-size: 0.9rem; line-height: 1.7; max-width: 280px; }
         .footer-links { min-width: 140px; }
         .footer-links h5 { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-bottom: 16px; }
@@ -891,17 +868,16 @@
     <div class="top-banner">
         <a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a>
         <span>|</span>
-        <a href="mailto:pilotrixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a>
+        <a href="mailto:pilotixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a>
     </div>
 
     <!-- Nav -->
     <nav>
         <a href="/" class="nav-logo">
-            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo">
+            <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo">
         </a>
         <div class="nav-links-pub">
             <a href="#fonctionnalites">Fonctionnalités</a>
-            <a href="#roles">Rôles & Accès</a>
             <a href="#offres">Tarif</a>
             <a href="{{ route('partenaires') }}"><i class="bi bi-people"></i> Partenariat</a>
             <a href="{{ route('download') }}"><i class="bi bi-download"></i> Télécharger</a>
@@ -920,7 +896,6 @@
     <!-- Menu Mobile (Tiroir) -->
     <div class="mobile-menu" id="mobileMenu">
         <a href="#fonctionnalites" onclick="closeMenu()"><i class="bi bi-grid-1x2"></i> Fonctionnalités</a>
-        <a href="#roles" onclick="closeMenu()"><i class="bi bi-people"></i> Rôles & Accès</a>
         <a href="#offres" onclick="closeMenu()"><i class="bi bi-tag"></i> Tarif</a>
         <a href="{{ route('partenaires') }}" onclick="closeMenu()"><i class="bi bi-people"></i> Partenariat</a>
         <a href="{{ route('download') }}" onclick="closeMenu()"><i class="bi bi-download"></i> Télécharger</a>
@@ -960,7 +935,7 @@
                 <div class="phone-frame">
                     <div class="phone-notch"></div>
                     <div class="phone-screen" style="position:relative;">
-                        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="width:100%; height:auto; object-fit:contain;">
+                        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="width:100%; height:auto; object-fit:contain;">
                         <p style="position:absolute; bottom:20px; left:0; right:0; text-align:center; color:#000; font-size:0.85rem; font-weight:700; letter-spacing:1px;">Pilotez. Controlez. Progressez.</p>
                     </div>
                 </div>
@@ -1024,8 +999,8 @@
         <div class="feat-row reveal">
             <div class="feat-col-text">
                 <span class="feat-badge"><i class="bi bi-truck"></i> Expédition</span>
-                <h3 class="feat-title">Suivi de livraison et interface livreur</h3>
-                <p class="feat-desc">Pilotez vos flux d'expéditions depuis votre console centrale. Vos agents livreurs accèdent à une interface épurée sur le terrain pour repérer les commandes à livrer, appeler le client en un clic et mettre à jour le statut.</p>
+                <h3 class="feat-title">Suivi de livraison et interface contrôleur</h3>
+                <p class="feat-desc">Pilotez vos flux d'expéditions depuis votre console centrale. Vos agents contrôleurs accèdent à une interface épurée sur le terrain pour repérer les commandes à livrer, appeler le client en un clic et mettre à jour le statut.</p>
                 <div class="bullet-list">
                     <div class="bullet-item"><i class="bi bi-check2"></i> Bons de livraison détaillés avec contenu exact et contacts.</div>
                     <div class="bullet-item"><i class="bi bi-check2"></i> Statut en temps réel : livré, en cours, ou problème signalé.</div>
@@ -1097,140 +1072,85 @@
             <p class="section-sub" style="font-size:1.1rem; color:var(--muted); max-width:600px; margin:0 auto; line-height:1.6;">Deux options simples. Zéro engagement.</p>
         </div>
 
-        <div style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap; max-width:1100px; margin:0 auto;" class="reveal">
-            <!-- Offre Locale -->
-            <div style="flex:1; min-width:320px; max-width:450px; background:#fff; border-radius:24px; padding:48px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.03); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
-                <h3 style="font-family:'Montserrat',sans-serif; font-size:1.8rem; font-weight:900; color:var(--text); margin-bottom:6px;">Version Locale</h3>
+        <div style="display:flex; justify-content:center; gap:28px; flex-wrap:wrap; max-width:1200px; margin:0 auto;" class="reveal">
+            <!-- Offre Essentiel -->
+            <div style="flex:1; min-width:300px; max-width:380px; background:#fff; border-radius:24px; padding:36px 30px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.03); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
+                <div style="display:inline-block; background:rgba(16,94,73,0.08); color:var(--primary); font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:4px 12px; border-radius:50px; width:fit-content; margin-bottom:12px;">1 Poste</div>
+                <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:var(--text); margin-bottom:6px;">Essentiel</h3>
+                <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Idéal pour démarrer la gestion d'une boutique unique.</p>
                 
-                <div style="margin-bottom:24px;">
-                    <div style="font-family:'Montserrat', sans-serif; font-size:2.5rem; font-weight:900; color:var(--text); letter-spacing:-1px;">79 900 <span style="font-size:1rem; font-weight:700; color:var(--muted);">FCFA</span></div>
-                    <div style="font-size:0.85rem; font-weight:700; color:var(--primary); margin-top:4px;">Paiement unique, licence à vie</div>
+                <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">30 000 <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
+                    <div style="font-size:0.82rem; font-weight:700; color:var(--primary); margin-top:6px; display:flex; align-items:center; gap:5px;"><i class="bi bi-credit-card-2-front"></i> Paiement en 3x possible</div>
                 </div>
 
-                <ul style="list-style:none; padding:0; margin:0 0 30px; display:flex; flex-direction:column; gap:12px; border-top:1px solid #f1f5f9; padding-top:24px; flex-grow:1;">
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion complète des stocks, ventes, achats & fournisseurs</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Suivi des créances clients & dettes fournisseurs</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion multi-utilisateurs avec droits d'accès</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Rapports & statistiques de vente en temps réel</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion des catégories, dépôts & transferts</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Impression de reçus, factures & états de stock</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-x-circle" style="color:#ef4444; font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Accessible uniquement depuis un seul ordinateur</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-x-circle" style="color:#ef4444; font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Pas de synchronisation de données à distance</span></li>
+                <ul style="list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex-grow:1;">
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">1 Poste de travail</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Gestion des produits & stocks</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Ventes en gros & détail + Factures</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Dépenses, clients & inventaires</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Mode Hors-Connexion & Sync auto</span></li>
                 </ul>
 
-                <a href="#contact" style="display:block; text-align:center; padding:16px; background:rgba(16,94,73,0.06); color:var(--primary); border-radius:12px; font-weight:800; font-size:1.05rem; text-decoration:none; transition:all .2s;">Souscrire maintenant</a>
+                <a href="#contact" style="display:block; text-align:center; padding:14px; background:rgba(16,94,73,0.08); color:var(--primary); border-radius:12px; font-weight:800; font-size:0.95rem; text-decoration:none; transition:all .2s;">Choisir l'offre Essentiel</a>
             </div>
 
-            <!-- Offre Cloud -->
-            <div style="flex:1; min-width:320px; max-width:450px; background:#fff; border-radius:24px; padding:48px; border:2px solid var(--secondary); box-shadow:0 15px 40px rgba(234,141,34,0.1); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
-                <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg, var(--secondary), #f59e0b); color:#fff; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:2px; padding:8px 0; text-align:center; border-radius:22px 22px 0 0;">Le plus populaire</div>
+            <!-- Offre Professionnel -->
+            <div style="flex:1; min-width:300px; max-width:380px; background:#fff; border-radius:24px; padding:36px 30px; border:2px solid var(--secondary); box-shadow:0 15px 40px rgba(234,141,34,0.12); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
+                <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg, var(--secondary), #f59e0b); color:#fff; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:2px; padding:6px 0; text-align:center; border-radius:22px 22px 0 0;">Le choix recommandé</div>
                 
-                <h3 style="font-family:'Montserrat',sans-serif; font-size:1.8rem; font-weight:900; color:var(--text); margin-bottom:6px; margin-top:10px;">Version Cloud Sync</h3>
+                <div style="display:inline-block; background:rgba(234,141,34,0.12); color:var(--secondary); font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:4px 12px; border-radius:50px; width:fit-content; margin-bottom:12px; margin-top:12px;">Multi-postes & Importation</div>
+                <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:var(--text); margin-bottom:6px;">Professionnel</h3>
+                <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Pour grossistes, importateurs et multi-magasins.</p>
                 
-                <div style="margin-bottom:24px;">
-                    <div style="font-family:'Montserrat', sans-serif; font-size:2.5rem; font-weight:900; color:var(--text); letter-spacing:-1px;">3 500 <span style="font-size:1rem; font-weight:700; color:var(--muted);">FCFA / mois</span></div>
-                    <div style="font-size:0.85rem; font-weight:700; color:var(--secondary); margin-top:4px;">Jusqu'à -30% sur l'engagement</div>
+                <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">75 000 <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
+                    <div style="font-size:0.82rem; font-weight:700; color:var(--secondary); margin-top:6px; display:flex; align-items:center; gap:5px;"><i class="bi bi-credit-card-2-front"></i> Paiement en 3x possible</div>
                 </div>
 
-                <ul style="list-style:none; padding:0; margin:0 0 30px; display:flex; flex-direction:column; gap:12px; border-top:1px solid #f1f5f9; padding-top:24px; flex-grow:1;">
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion complète des stocks, ventes, achats & fournisseurs</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Suivi des créances clients & dettes fournisseurs</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion multi-utilisateurs avec droits d'accès</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Rapports & statistiques de vente en temps réel</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Gestion des catégories, dépôts & transferts</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Impression de reçus, factures & états de stock</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Accessible partout (PC, Mobile, Tablette)</span></li>
-                    <li style="display:flex; align-items:center; gap:10px;"><i class="bi bi-check2" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.93rem; color:#475569;">Synchronisation des données à distance</span></li>
+                <ul style="list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex-grow:1;">
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;"><strong>Plusieurs postes</strong> & utilisateurs</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;"><strong>Gestion des Importations</strong> & arrivages</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Calculs des <strong>coûts de revient & marges</strong></span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;"><strong>Multi-magasins</strong> & dépôts</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Mode Hors-Connexion & Sync auto</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Statistiques avancées & suivi d'activité</span></li>
                 </ul>
 
-                <a href="#contact" style="display:block; text-align:center; padding:16px; background:var(--secondary); color:#fff; border-radius:12px; font-weight:800; font-size:1.05rem; text-decoration:none; transition:all .2s; box-shadow:0 8px 20px rgba(234,141,34,0.3);">Souscrire maintenant</a>
+                <a href="#contact" style="display:block; text-align:center; padding:14px; background:var(--secondary); color:#fff; border-radius:12px; font-weight:800; font-size:0.95rem; text-decoration:none; transition:all .2s; box-shadow:0 8px 20px rgba(234,141,34,0.3);">Choisir l'offre Professionnel</a>
+            </div>
+
+            <!-- Offre Entreprise -->
+            <div style="flex:1; min-width:300px; max-width:380px; background:#fff; border-radius:24px; padding:36px 30px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.03); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
+                <div style="display:inline-block; background:rgba(15,23,42,0.06); color:#0f172a; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:4px 12px; border-radius:50px; width:fit-content; margin-bottom:12px;">Licence À Vie & Sur-Mesure</div>
+                <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:var(--text); margin-bottom:6px;">Entreprise</h3>
+                <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Pour les structures souhaitant une infrastructure dédiée.</p>
+                
+                <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
+                    <div style="font-size:0.85rem; font-weight:700; color:var(--muted);">À partir de</div>
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">250 000 <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA</span></div>
+                    <div style="font-size:0.82rem; font-weight:700; color:var(--primary); margin-top:6px;">Licence à vie (Domaine client après 1 an)</div>
+                </div>
+
+                <ul style="list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex-grow:1;">
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Installation & configuration personnalisées</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Toutes les fonctionnalités incluses</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Domaine & hébergement dédiés du client</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Base de données 100% isolée & dédiée</span></li>
+                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Support prioritaire & formation sur site</span></li>
+                </ul>
+
+                <a href="#contact" style="display:block; text-align:center; padding:14px; background:rgba(15,23,42,0.06); color:#0f172a; border-radius:12px; font-weight:800; font-size:0.95rem; text-decoration:none; transition:all .2s;">Demander un devis Entreprise</a>
             </div>
         </div>
     </section>
 
-    <!-- Roles -->
-    <section id="roles" class="roles">
-        <div class="roles-inner">
-            <div style="text-align:center;" class="reveal">
-                <div class="section-label reveal reveal-delay-1">Organisation des accès</div>
-                <h2 class="section-title reveal reveal-delay-2">Organisez l'accès de chaque collaborateur</h2>
-                <p class="section-sub reveal reveal-delay-3" style="margin:0 auto; max-width:650px;">Vous pouvez séparer les droits d'accès de votre équipe : qui voit les ventes, qui gère le stock, qui livre. Chaque collaborateur accède uniquement à ce qui le concerne, sans confusion.</p>
-            </div>
-            
-            <div class="roles-accordion">
-                <div class="role-accordion-item active reveal reveal-delay-1" onclick="toggleRole(this)">
-                    <button class="role-accordion-header">
-                        <span class="role-accordion-icon"><i class="bi bi-person-badge-fill"></i></span>
-                        <h4>DG de la société</h4>
-                        <span class="role-accordion-chevron"><i class="bi bi-chevron-down"></i></span>
-                    </button>
-                    <div class="role-accordion-body">
-                        <div class="role-accordion-content">
-                            <ul>
-                                <li><strong>Pilotez</strong> votre entreprise avec une vue consolidée : chiffre d'affaires, marges, tendances et rentabilité par dépôt</li>
-                                <li><strong>Déléguez</strong> en toute confiance grâce aux permissions granulaires — chaque employé n'accède qu'à son périmètre</li>
-                                <li><strong>Décidez</strong> en temps réel avec des rapports précis : stocks, ventes, dettes, dépenses du jour et du mois</li>
-                                <li><strong>Maîtrisez</strong> votre catalogue et votre politique tarifaire avec une vision stratégique</li>
-                                <li><strong>Supervisez</strong> l'ensemble des opérations sensibles : validation des transactions et suivi des créances clients</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="role-accordion-item reveal reveal-delay-2" onclick="toggleRole(this)">
-                    <button class="role-accordion-header">
-                        <span class="role-accordion-icon"><i class="bi bi-cart-check-fill"></i></span>
-                        <h4>Vendeur</h4>
-                        <span class="role-accordion-chevron"><i class="bi bi-chevron-down"></i></span>
-                    </button>
-                    <div class="role-accordion-body">
-                        <div class="role-accordion-content">
-                            <ul>
-                                <li><strong>Concentrez-vous</strong> sur vos clients : encaissez, facturez et rendez service sans vous perdre dans la paperasse</li>
-                                <li><strong>Fidélisez</strong> votre clientèle grâce au crédit client intégré et au suivi des versements</li>
-                                <li><strong>Gagnez</strong> du temps : sélection rapide des produits, calcul automatique du total et de la monnaie</li>
-                                <li><strong>Suivez</strong> votre propre performance : historique de vos ventes, objectifs et évolution jour par jour</li>
-                                <li><strong>Rassurez</strong> vos clients avec des factures et reçus professionnels imprimables</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="role-accordion-item reveal reveal-delay-3" onclick="toggleRole(this)">
-                    <button class="role-accordion-header">
-                        <span class="role-accordion-icon"><i class="bi bi-box-seam-fill"></i></span>
-                        <h4>Magasinier</h4>
-                        <span class="role-accordion-chevron"><i class="bi bi-chevron-down"></i></span>
-                    </button>
-                    <div class="role-accordion-body">
-                        <div class="role-accordion-content">
-                            <ul>
-                                <li><strong>Garantissez</strong> la disponibilité des produits grâce aux alertes de stock bas et au réapprovisionnement automatique</li>
-                                <li><strong>Maîtrisez</strong> les entrées et sorties : à chaque mouvement son historique pour une traçabilité sans faille</li>
-                                <li><strong>Organisez</strong> vos stocks entre plusieurs dépôts avec les transferts inter-magasins en un clic</li>
-                                <li><strong>Anticipez</strong> les ruptures avec des inventaires physiques et des ajustements précis</li>
-                                <li><strong>Collaborez</strong> efficacement : peut aussi assister la livraison en cas d'urgence terrain</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="role-accordion-item reveal reveal-delay-4" onclick="toggleRole(this)">
-                    <button class="role-accordion-header">
-                        <span class="role-accordion-icon"><i class="bi bi-truck-front-fill"></i></span>
-                        <h4>Livreur</h4>
-                        <span class="role-accordion-chevron"><i class="bi bi-chevron-down"></i></span>
-                    </button>
-                    <div class="role-accordion-body">
-                        <div class="role-accordion-content">
-                            <ul>
-                                <li><strong>Optimisez</strong> votre tournée : repérez les livraisons du jour groupées par zone avec les coordonnées complètes</li>
-                                <li><strong>Gagnez</strong> un temps précieux : validez une livraison en un clic depuis votre mobile</li>
-                                <li><strong>Communiquez</strong> directement avec le client depuis l'application pour confirmer les rendez-vous</li>
-                                <li><strong>Signalez</strong> les incidents en temps réel : client absent, adresse erronée, colis endommagé</li>
-                                <li><strong>Suivez</strong> votre historique de tournées et votre productivité jour par jour</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Bannière Chaîne Commerciale Connectée -->
+    <section style="background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 56px 5%; text-align: center;">
+        <div style="max-width: 820px; margin: 0 auto;" class="reveal">
+            <span style="display:inline-block; background:rgba(16,94,73,0.08); color:var(--primary); font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:6px 18px; border-radius:50px; margin-bottom:14px;">Une chaîne commerciale 100% connectée</span>
+            <h2 style="font-family:'Space Grotesk', sans-serif; font-size:2rem; font-weight:800; color:var(--text); margin-bottom:12px;">Une vision fluide de l'arrivée en stock à la livraison</h2>
+            <p style="font-size:1.05rem; color:var(--muted); line-height:1.7; margin:0 auto;">De l'arrivée du stock en magasin jusqu'à la livraison finale et la validation du DG, chaque collaborateur dispose d'un espace de travail taillé sur-mesure interconnecté aux autres.</p>
         </div>
     </section>
 
@@ -1292,30 +1212,30 @@
                         <input type="text" name="secteurs_activite" id="secteurs_activite" class="form-control" placeholder="Ex: Import/Export, Distribution, Vente au détail" required>
                     </div>
 
-                    <div class="form-row-contact">
-                        <div class="form-group" style="flex:1;">
-                            <label class="form-label" for="type_souscription">Type de souscription *</label>
-                            <select name="type_souscription" id="type_souscription" class="form-control" required onchange="updateDuree()">
-                                <option value="cloud">Cloud Sync (3 500 FCFA/mois)</option>
-                                <option value="local">Locale (79 900 FCFA)</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="flex:1;">
-                            <label class="form-label" for="duree">Durée</label>
-                            <select name="duree" id="duree" class="form-control" onchange="updateDuree()">
-                                <option value="vie" id="opt-vie">À vie</option>
-                                <option value="1" id="opt-1" selected>1 mois</option>
-                                <option value="3" id="opt-3">3 mois</option>
-                                <option value="6" id="opt-6">6 mois</option>
-                                <option value="12" id="opt-12">1 an</option>
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label" for="type_souscription">Offre de souscription souhaitée *</label>
+                        <select name="type_souscription" id="type_souscription" class="form-control" required onchange="updateOffreDisplay()">
+                            <option value="essentiel">Offre Essentiel (30 000 FCFA / an — 1 Poste)</option>
+                            <option value="professionnel" selected>Offre Professionnel (75 000 FCFA / an — Multi-Postes)</option>
+                            <option value="entreprise">Offre Entreprise (À partir de 250 000 FCFA — Sur-Mesure)</option>
+                        </select>
                     </div>
 
-                    <div id="price-display" style="display:flex; align-items:center; gap:10px; padding:12px 16px; background:rgba(255,255,255,0.1); border-radius:10px; margin-bottom:16px;">
-                        <span style="font-weight:800; font-size:1.3rem; color:#fff;" id="price-total">3 500 FCFA</span>
-                        <span style="font-size:0.8rem; color:rgba(255,255,255,0.5); font-weight:600;" id="price-period">/mois</span>
-                        <span id="price-eco" style="display:none; font-size:0.75rem; font-weight:700; color:#4ade80; background:rgba(74,222,128,0.15); padding:2px 10px; border-radius:8px; margin-left:auto;"></span>
+                    <div id="price-display" style="display:flex; align-items:center; gap:10px; padding:14px 18px; background:#f4f7f6; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:12px;">
+                        <span style="font-weight:800; font-size:1.4rem; color:var(--primary);" id="price-total">75 000 FCFA</span>
+                        <span style="font-size:0.85rem; color:#64748b; font-weight:600;" id="price-period">/ an</span>
+                        <span id="price-eco" style="font-size:0.75rem; font-weight:700; color:#16a34a; background:#dcfce7; border:1px solid #bbf7d0; padding:4px 10px; border-radius:8px; margin-left:auto;">Paiement 3x disponible</span>
+                    </div>
+
+                    <!-- Option paiement 3x -->
+                    <div id="paiement3x-wrap" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:14px 16px; margin-bottom:20px;">
+                        <label style="display:flex; align-items:flex-start; gap:12px; cursor:pointer; user-select:none;">
+                            <input type="checkbox" name="paiement_3x" id="paiement_3x" value="1" onchange="updateOffreDisplay()" style="width:18px; height:18px; margin-top:2px; accent-color:var(--primary); cursor:pointer; flex-shrink:0;">
+                            <span style="font-size:0.9rem; font-weight:600; color:#1f2937;">
+                                Paiement en 3 tranches
+                                <br><span id="paiement3x-detail" style="font-size:0.82rem; color:#16a34a; font-weight:700;">3 × 27 500 FCFA <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(frais de dossier inclus)</span></span>
+                            </span>
+                        </label>
                     </div>
 
                     <button type="submit" class="btn-cta-submit">
@@ -1331,7 +1251,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div style="margin-bottom:10px;">
-                    <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+                    <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
                 </div>
                 <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
             </div>
@@ -1358,8 +1278,7 @@
                 <h5 style="color: #374151;">Contact</h5>
                 <ul>
                     <li><a href="tel:+2290146862536" style="color: #374151;"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                    <li><a href="mailto:pilotrixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
-                    <li><a href="mailto:pilotrixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
+                    <li><a href="mailto:pilotixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
                     <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-people"></i> Partenariat</a></li>
                 </ul>
             </div>
@@ -1436,65 +1355,43 @@
     window.addEventListener('scroll', setActiveLink);
     setActiveLink();
 
-    function updateDuree() {
+    function updateOffreDisplay() {
         var type = document.getElementById('type_souscription').value;
-        var duree = document.getElementById('duree').value;
-        var optVie = document.getElementById('opt-vie');
-        var opt1 = document.getElementById('opt-1');
-        var opt3 = document.getElementById('opt-3');
-        var opt6 = document.getElementById('opt-6');
-        var opt12 = document.getElementById('opt-12');
-        var sel = document.getElementById('duree');
+        var is3x = document.getElementById('paiement_3x').checked;
         var priceTotal = document.getElementById('price-total');
         var pricePeriod = document.getElementById('price-period');
         var priceEco = document.getElementById('price-eco');
+        var wrap3x = document.getElementById('paiement3x-wrap');
+        var detail3x = document.getElementById('paiement3x-detail');
 
-        if (type === 'local') {
-            optVie.style.display = '';
-            opt1.style.display = 'none'; opt3.style.display = 'none';
-            opt6.style.display = 'none'; opt12.style.display = 'none';
-            sel.value = 'vie';
-            priceTotal.textContent = '79 900 FCFA';
-            pricePeriod.textContent = 'Paiement unique';
-            priceEco.style.display = 'none';
+        if (type === 'essentiel') {
+            priceTotal.textContent = '30 000 FCFA';
+            pricePeriod.textContent = '/ an';
+            priceEco.style.display = 'inline-block';
+            priceEco.textContent = is3x ? '3 × 11 000 FCFA' : 'Paiement 3x disponible';
+            wrap3x.style.display = '';
+            // 30 000 / 3 = 10 000 + 1 000 frais = 11 000
+            detail3x.innerHTML = '3 &times; 11 000 FCFA <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(soit 33 000 FCFA — frais de dossier inclus)</span>';
+        } else if (type === 'entreprise') {
+            priceTotal.textContent = '250 000 FCFA';
+            pricePeriod.textContent = 'à partir de';
+            priceEco.style.display = 'inline-block';
+            priceEco.textContent = 'Licence à vie / Devis sur-mesure';
+            wrap3x.style.display = 'none';
+            document.getElementById('paiement_3x').checked = false;
         } else {
-            optVie.style.display = 'none';
-            opt1.style.display = ''; opt3.style.display = '';
-            opt6.style.display = ''; opt12.style.display = '';
-            if (sel.value === 'vie') sel.value = '1';
-            updateCloudPrice();
+            // Professionnel
+            priceTotal.textContent = '75 000 FCFA';
+            pricePeriod.textContent = '/ an';
+            priceEco.style.display = 'inline-block';
+            priceEco.textContent = is3x ? '3 × 27 500 FCFA' : 'Paiement 3x disponible';
+            wrap3x.style.display = '';
+            // 75 000 / 3 = 25 000 + 2 500 frais = 27 500
+            detail3x.innerHTML = '3 &times; 27 500 FCFA <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(soit 82 500 FCFA — frais de dossier inclus)</span>';
         }
     }
 
-    function updateCloudPrice() {
-        var duree = document.getElementById('duree').value;
-        var priceTotal = document.getElementById('price-total');
-        var pricePeriod = document.getElementById('price-period');
-        var priceEco = document.getElementById('price-eco');
-        var tarif = 3500;
-        var prix, label, economie, taux;
-
-        if (duree === '1') {
-            prix = tarif; label = '/mois';
-            priceEco.style.display = 'none';
-        } else if (duree === '3') {
-            prix = 9000; label = 'pour 3 mois';
-            economie = (tarif * 3) - prix; taux = Math.round((economie / (tarif * 3)) * 100);
-            priceEco.style.display = ''; priceEco.textContent = '-' + economie.toLocaleString() + ' FCFA (' + taux + '%)';
-        } else if (duree === '6') {
-            prix = 16800; label = 'pour 6 mois';
-            economie = (tarif * 6) - prix; taux = Math.round((economie / (tarif * 6)) * 100);
-            priceEco.style.display = ''; priceEco.textContent = '-' + economie.toLocaleString() + ' FCFA (' + taux + '%)';
-        } else if (duree === '12') {
-            prix = 30000; label = 'pour 1 an';
-            economie = (tarif * 12) - prix; taux = Math.round((economie / (tarif * 12)) * 100);
-            priceEco.style.display = ''; priceEco.textContent = '-' + economie.toLocaleString() + ' FCFA (' + taux + '%)';
-        }
-        priceTotal.textContent = prix.toLocaleString() + ' FCFA';
-        pricePeriod.textContent = label;
-    }
-
-    updateDuree();
+    updateOffreDisplay();
 </script>
 <script>
 // ─── PWA Install ───

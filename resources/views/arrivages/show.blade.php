@@ -3,6 +3,12 @@
 @section('page-title', 'Arrivage : ' . $arrivage->reference)
 
 @section('content')
+@php
+    $deviseMap = ['NGN' => '₦', 'EUR' => '€', 'USD' => '$', 'CNY' => '¥', 'XOF' => 'FCFA', 'AUTRE' => ''];
+    $deviseSym = $deviseMap[$arrivage->devise_origine] ?? '₦';
+    $deviseLabel = $deviseMap[$arrivage->devise_origine] ?? '₦';
+    $deviseLabel = $deviseLabel ?: 'Orig';
+@endphp
 <div style="display: flex; flex-direction: column; gap: 20px;">
     
     {{-- Entête & Statut --}}
@@ -14,7 +20,7 @@
                 </span>
                 <h2 style="font-size: 1.4rem; font-weight: 700;">Arrivage {{ $arrivage->reference }}</h2>
                 <div style="font-size: .8rem; color: var(--text-muted); margin-top: 4px;">
-                    <i class="bi bi-calendar"></i> Créé le {{ $arrivage->created_at->format('d/m/Y à H:i') }} par <strong>{{ $arrivage->user?->name }}</strong>
+                    <i class="bi bi-calendar"></i> Créé le {{ $arrivage->created_at->fr('d F Y à H:i') }} par <strong>{{ $arrivage->user?->name }}</strong>
                 </div>
             </div>
             
@@ -50,6 +56,8 @@
                 <div class="card-body" style="padding: 0;">
                     @php
                         $fournisseurs = $arrivage->produits->pluck('fournisseur.nom')->filter()->unique()->values();
+                        $nbArticles = $arrivage->produits->count();
+                        $qteTotale = $arrivage->produits->sum('quantite');
                     @endphp
                     <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
                         <span style="font-weight: 500; font-size: .85rem;">Fournisseur(s) :</span>
@@ -66,8 +74,16 @@
                         <span style="font-weight: 600; font-size: .85rem; color: var(--primary);">{{ $arrivage->magasin?->nom }}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
-                        <span style="font-weight: 500; font-size: .85rem;">Taux Naira -> FCFA :</span>
-                        <span style="font-weight: 600; font-size: .85rem;">1 ₦ = {{ number_format($arrivage->taux_change, 4, ',', ' ') }} FCFA</span>
+                        <span style="font-weight: 500; font-size: .85rem;">Taux {{ $deviseLabel }} -> FCFA :</span>
+                        <span style="font-weight: 600; font-size: .85rem;">1 {{ $deviseSym }} = {{ number_format($arrivage->taux_change, 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
+                        <span style="font-weight: 500; font-size: .85rem;">Nombre d'articles :</span>
+                        <span style="font-weight: 600; font-size: .85rem;">{{ $nbArticles }} produit(s)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 12px 16px;">
+                        <span style="font-weight: 500; font-size: .85rem;">Quantité totale :</span>
+                        <span style="font-weight: 600; font-size: .85rem;">{{ number_format($qteTotale, 0, ',', ' ') }} unité(s)</span>
                     </div>
                 </div>
             </div>
@@ -84,7 +100,7 @@
                                 <th class="wrap-text">Produit</th>
                                 <th>Fournisseur</th>
                                 <th style="text-align: right;">Quantité</th>
-                                <th style="text-align: right;">Prix Achat (₦)</th>
+                                <th style="text-align: right;">Prix Achat ({{ $deviseLabel }})</th>
                                 <th style="text-align: right;">Achat (FCFA)</th>
                                 <th style="text-align: right;">Frais prorata (FCFA)</th>
                                 <th style="text-align: right;">Coût Revient U. (CFA)</th>
@@ -96,8 +112,8 @@
                             <tr>
                                 <td class="wrap-text" style="font-weight: 600;">{{ $ligne->produit?->nom }}</td>
                                 <td style="font-size: .8rem;">{{ $ligne->fournisseur?->nom ?? '—' }}</td>
-                                <td style="text-align: right;">{{ $ligne->quantite }} Carton</td>
-                                <td style="text-align: right;">{{ number_format($ligne->prix_unitaire_origine, 0, ',', ' ') }} ₦</td>
+                                <td style="text-align: right;">{{ $ligne->quantite }} {{ $ligne->quantite > 1 ? 'Cartons' : 'Carton' }}</td>
+                                <td style="text-align: right;">{{ number_format($ligne->prix_unitaire_origine, 0, ',', ' ') }} {{ $deviseSym }}</td>
                                 <td style="text-align: right;">
                                     {{ number_format($ligne->prix_unitaire_origine * $arrivage->taux_change, 0, ',', ' ') }} FCFA
                                 </td>
@@ -108,12 +124,17 @@
                                     {{ number_format($ligne->cout_unitaire_reel, 0, ',', ' ') }} FCFA
                                 </td>
                                 <td style="text-align: right;">
-                                    <form method="POST" action="{{ route('arrivages.produit.prix-suggere', $ligne) }}" style="display: flex; gap: 4px; align-items: center; justify-content: flex-end;">
+                                    @php $ancienPrixLigne = $ligne->produit?->prix_vente_conseille ?? 0; @endphp
+                                    <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:2px;">Ancien : {{ number_format($ancienPrixLigne, 0, ',', ' ') }} FCFA</div>
+                                    <form method="POST" action="{{ route('arrivages.produit.prix-suggere', $ligne) }}" data-api="true" style="display: flex; gap: 4px; align-items: center; justify-content: flex-end;">
                                         @csrf
                                         @method('PUT')
-                                        <input type="number" name="prix_vente_suggere" value="{{ $ligne->prix_vente_suggere }}" min="0" style="width: 100px; text-align: right; font-weight: 700; color: var(--primary); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: .85rem;">
+                                        <input type="number" name="prix_vente_suggere" value="{{ $ligne->prix_vente_suggere }}" data-suggere="{{ $ligne->prix_vente_suggere }}" min="0" class="prix-vente-suggere" style="width: 100px; text-align: right; font-weight: 700; color: var(--primary); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: .85rem;">
                                         <button type="submit" style="background: none; border: none; color: var(--primary); cursor: pointer; padding: 2px;" title="Enregistrer"><i class="bi bi-check-circle-fill"></i></button>
                                     </form>
+                                    <label style="display: flex; align-items: center; gap: 4px; font-size: .68rem; cursor: pointer; margin-top: 4px; justify-content: flex-end;">
+                                        <input type="checkbox" class="conserver-prix" data-ancien="{{ $ancienPrixLigne }}"> Conserver actuel
+                                    </label>
                                 </td>
                             </tr>
                             @endforeach
@@ -172,8 +193,8 @@
                 </div>
                 <div class="card-body" style="padding: 0;">
                     <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
-                        <span style="font-size: .85rem;">Valeur marchandise (Naira) :</span>
-                        <span style="font-weight: 650; font-size: .85rem;">{{ number_format($arrivage->total_valeur_origine, 0, ',', ' ') }} ₦</span>
+                        <span style="font-size: .85rem;">Valeur marchandise ({{ $deviseLabel }}) :</span>
+                        <span style="font-weight: 650; font-size: .85rem;">{{ number_format($arrivage->total_valeur_origine, 0, ',', ' ') }} {{ $deviseSym }}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border);">
                         <span style="font-size: .85rem;">Valeur marchandise (CFA) :</span>
@@ -215,4 +236,24 @@
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.conserver-prix').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            const input = this.closest('td').querySelector('.prix-vente-suggere');
+            if (!input) return;
+            if (this.checked) {
+                input.value = this.dataset.ancien;
+                input.readOnly = true;
+                input.style.background = '#F1F5F9';
+            } else {
+                input.value = this.dataset.suggere;
+                input.readOnly = false;
+                input.style.background = '';
+            }
+        });
+    });
+</script>
+@endpush
 @endsection

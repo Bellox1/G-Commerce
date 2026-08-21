@@ -28,7 +28,7 @@ class PartnerCommissionSystemTest extends TestCase
         ]);
 
         // 2. Submit partner application (acting as the applicant)
-        $submitResponse = $this->post('/devenir-prestataire', [
+        $submitResponse = $this->post('/partenaires/candidature', [
             'nom' => 'Bello',
             'prenom' => 'Matinou',
             'email' => 'partner@example.com',
@@ -58,13 +58,13 @@ class PartnerCommissionSystemTest extends TestCase
         $this->assertTrue(Hash::check('SecurePass123!', $partnerUser->password));
 
         // 4. Log in as partner and check initial dashboard (empty metrics)
-        $partnerDashboardResponse = $this->actingAs($partnerUser)->get('/dashboard');
+        $partnerDashboardResponse = $this->actingAs($partnerUser)->get('/prestataire/dashboard');
         $partnerDashboardResponse->assertStatus(200);
-        $partnerDashboardResponse->assertSee('Tableau de bord Partenaire');
+        $partnerDashboardResponse->assertSee('Mon Business');
         $partnerDashboardResponse->assertSee('0'); // 0 created companies, 0 commission, etc.
 
         // 5. Partner creates a client company (tenant)
-        $createTenantResponse = $this->actingAs($partnerUser)->post('/tenants', [
+        $createTenantResponse = $this->actingAs($partnerUser)->post('/prestataire/societes', [
             'nom' => 'Client Company A',
             'marque' => 'CCA',
             'activite' => 'Retail',
@@ -80,7 +80,7 @@ class PartnerCommissionSystemTest extends TestCase
             'admin_password_confirmation' => 'Password123!',
         ]);
 
-        $createTenantResponse->assertRedirect('/tenants');
+        $createTenantResponse->assertRedirect('/prestataire/mes-societes');
 
         // Check database for created Tenant with correct partner association
         $tenant = Tenant::where('email', 'clienta@example.com')->first();
@@ -95,7 +95,7 @@ class PartnerCommissionSystemTest extends TestCase
         $this->assertEquals('en_attente', $commission->statut);
 
         // 6. Partner dashboard check (updated metrics with pending commission)
-        $partnerDashboardResponse = $this->actingAs($partnerUser)->get('/dashboard');
+        $partnerDashboardResponse = $this->actingAs($partnerUser)->get('/prestataire/dashboard');
         $partnerDashboardResponse->assertStatus(200);
         $partnerDashboardResponse->assertSee('Client Company A');
         $partnerDashboardResponse->assertSee('3 995 F');
@@ -112,7 +112,7 @@ class PartnerCommissionSystemTest extends TestCase
         $this->assertEquals('reglee', $commission->fresh()->statut);
 
         // 8. Partner dashboard check (updated metrics with paid commission and history)
-        $partnerDashboardResponse = $this->actingAs($partnerUser)->get('/dashboard');
+        $partnerDashboardResponse = $this->actingAs($partnerUser)->get('/prestataire/dashboard');
         $partnerDashboardResponse->assertStatus(200);
         $partnerDashboardResponse->assertSee('Client Company A');
         $partnerDashboardResponse->assertSee('Réglé le');

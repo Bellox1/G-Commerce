@@ -12,12 +12,13 @@ class Tenant extends Model
     protected $fillable = [
         'nom', 'marque', 'activite', 'pays', 'ville',
         'telephone', 'email', 'logo', 'actif', 'proprietaire_id',
-        'partenaire_id', 'offre_code', 'offre_expires_at',
+        'partenaire_id', 'offre_code', 'offre_expires_at', 'alertes_envoyees',
     ];
 
     protected $casts = [
         'actif' => 'boolean',
         'offre_expires_at' => 'datetime',
+        'alertes_envoyees' => 'array',
     ];
 
     public function proprietaire()   { return $this->belongsTo(User::class, 'proprietaire_id'); }
@@ -50,5 +51,66 @@ class Tenant extends Model
     public function isOffreExpiree(): bool
     {
         return !$this->isOffreActive();
+    }
+
+    public const PLAN_ESSENTIEL   = 'essentiel';
+    public const PLAN_PRO         = 'professionnel';
+    public const PLAN_ENTREPRISE  = 'entreprise';
+    public const PLAN_LOCALE       = 'locale';
+
+    /**
+     * Niveau de l'offre : 1 = Essentiel, 2 = Professionnel, 3 = Entreprise / Locale (à vie)
+     */
+    public function planLevel(): int
+    {
+        return match ($this->offre_code) {
+            self::PLAN_PRO          => 2,
+            self::PLAN_ENTREPRISE,
+            self::PLAN_LOCALE       => 3,
+            default                 => 1, // essentiel et inconnu
+        };
+    }
+
+    /**
+     * Capacités par offre (cf. page tarifs).
+     * Essentiel : produits/stocks, ventes, dépenses, clients, inventaires, hors-connexion.
+     * Professionnel+ : importations/arrivages, multi-magasins, stats avancées, multi-utilisateurs, coûts/marges.
+     */
+    public function hasCapability(string $capability): bool
+    {
+        $level = $this->planLevel();
+
+        return match ($capability) {
+            'import', 'multi_magasin', 'advanced_stats', 'multi_user', 'cost_margin' => $level >= 2,
+            default                                                                  => true,
+        };
+    }
+
+    /**
+     * Limite de dépôts/magasins (null = illimité).
+     */
+    public function maxMagasins(): ?int
+    {
+        return $this->planLevel() >= 2 ? null : 1;
+    }
+
+    /**
+     * Limite d'utilisateurs totaux (null = illimité).
+     */
+    public function maxUsers(): ?int
+    {
+        return $this->planLevel() >= 2 ? null : 1;
+    }
+
+    public function magasinLimitReached(): bool
+    {
+        $max = $this->maxMagasins();
+        return $max !== null && $this->magasins()->count() >= $max;
+    }
+
+    public function userLimitReached(): bool
+    {
+        $max = $this->maxUsers();
+        return $max !== null && $this->users()->count() >= $max;
     }
 }

@@ -61,11 +61,18 @@ class DetteController extends Controller
 
         $request->validate([
             'montant' => 'required|numeric|min:1|max:' . $dette->montant_restant,
+            'mode_paiement' => 'nullable|in:especes,mobile_money,cheque',
+            'note' => 'nullable|string|max:1000',
         ]);
 
         $user = Auth::user();
 
-        $dette->enregistrerPaiement($request->montant, 'especes', $user->id);
+        $dette->enregistrerPaiement(
+            $request->montant,
+            $request->input('mode_paiement', 'especes'),
+            $user->id,
+            $request->input('note')
+        );
 
         return $this->smartResponse(route('dettes.show', $dette), 'Versement de ' . number_format($request->montant, 0, ',', ' ') . ' FCFA enregistré avec succès.');
     }
@@ -80,22 +87,25 @@ class DetteController extends Controller
         $option = $request->input('echeance_option');
         $custom = $request->input('date_echeance_custom');
 
-        if ($option === 'custom' && $custom) {
-            $dette->date_echeance = $custom;
-        } elseif ($option) {
-            $map = [
-                'today'          => 0,
-                'tomorrow'       => 1,
-                'after_tomorrow' => 2,
-                '6_days'         => 6,
-                '2_weeks'        => 14,
-                '1_month'        => 30,
-            ];
-            if (isset($map[$option])) {
-                $dette->date_echeance = now()->addDays($map[$option]);
+        $map = [
+            'today'          => 0,
+            'tomorrow'       => 1,
+            'after_tomorrow' => 2,
+            '6_days'         => 6,
+            '2_weeks'        => 14,
+            '1_month'        => 30,
+        ];
+
+        if ($option === 'custom') {
+            if (empty($custom)) {
+                return $this->echeanceAbort($dette, 'Veuillez choisir une date personnalisée.');
             }
+            $dette->date_echeance = $custom;
+        } elseif (isset($map[$option])) {
+            $dette->date_echeance = now()->addDays($map[$option]);
         } else {
-            $dette->date_echeance = null;
+            // Aucune option valide sélectionnée : on ne modifie pas la date
+            return $this->echeanceAbort($dette, 'Veuillez sélectionner une option d\'échéance.');
         }
 
         // Mettre à jour le statut
@@ -119,5 +129,14 @@ class DetteController extends Controller
         if ($dette->tenant_id !== Auth::user()->tenant_id) {
             abort(403, 'Action non autorisée.');
         }
+    }
+
+    private function echeanceAbort(Dette $dette, string $message)
+    {
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => false, 'message' => $message], 422);
+        }
+
+        return redirect()->route('dettes.show', $dette)->with('error', $message);
     }
 }

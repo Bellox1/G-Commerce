@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepenseController;
 use App\Http\Controllers\ArrivageController;
 use App\Http\Controllers\VenteController;
 use App\Http\Controllers\LivraisonController;
@@ -21,7 +22,10 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\PartenaireController;
+use App\Http\Controllers\OffreController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\TresorerieController;
 use App\Http\Controllers\Admin\DemandeController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +38,7 @@ Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPassw
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetCode'])->name('password.email');
 
 Route::get('/reset-password', [PasswordResetController::class, 'showResetPassword'])->name('password.reset');
+Route::post('/verify-reset-code', [PasswordResetController::class, 'verifyCode'])->name('password.verify');
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 
 // Page d'accueil publique
@@ -97,24 +102,32 @@ Route::middleware('auth')->group(function () {
 
         // Produits
         Route::resource('produits', ProduitController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
+        Route::get('produits/{produit}/stocks', [ProduitController::class, 'stockEdit'])->name('produits.stocks.edit');
+        Route::put('produits/{produit}/stocks', [ProduitController::class, 'stockUpdate'])->name('produits.stocks.update');
 
         // Magasins
         Route::get('magasins', [MagasinController::class, 'index'])->name('magasins.index');
         Route::post('magasins', [MagasinController::class, 'store'])->name('magasins.store');
         Route::put('magasins/{magasin}', [MagasinController::class, 'update'])->name('magasins.update');
 
-        // Arrivages
-        Route::resource('arrivages', ArrivageController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
-        Route::post('arrivages/{arrivage}/valider', [ArrivageController::class, 'valider'])->name('arrivages.valider');
-        Route::put('arrivages/produit/{arrivageProduit}/prix-suggere', [ArrivageController::class, 'updatePrixSuggere'])->name('arrivages.produit.prix-suggere');
+        // Arrivages (Importation — Offre Professionnel+)
+        Route::middleware('plan:import')->group(function () {
+            Route::resource('arrivages', ArrivageController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
+            Route::post('arrivages/{arrivage}/valider', [ArrivageController::class, 'valider'])->name('arrivages.valider');
+            Route::put('arrivages/produit/{arrivageProduit}/prix-suggere', [ArrivageController::class, 'updatePrixSuggere'])->name('arrivages.produit.prix-suggere');
+        });
 
         // Stock
         Route::get('stock',            [StockController::class, 'index'])->name('stock.index');
         Route::get('stock/mouvements', [StockController::class, 'mouvements'])->name('stock.mouvements');
         Route::post('stock/ajuster', [StockController::class, 'ajuster'])->name('stock.ajuster');
 
-        // Transferts
-        Route::resource('transferts', TransfertController::class)->only(['index', 'create', 'show', 'store']);
+        // Transferts (Multi-magasins — Offre Professionnel+)
+        Route::resource('transferts', TransfertController::class)->only(['index', 'create', 'show', 'edit', 'update']);
+        Route::middleware('plan:multi_magasin')->group(function () {
+            Route::post('transferts', [TransfertController::class, 'store']);
+            Route::post('transferts/{transfert}/reception', [TransfertController::class, 'receptionner'])->name('transferts.reception');
+        });
 
         // Ventes
         Route::resource('ventes', VenteController::class)->only(['index', 'create', 'show', 'edit', 'store', 'update', 'destroy']);
@@ -142,14 +155,33 @@ Route::middleware('auth')->group(function () {
         Route::post('dettes-societe/{dette}/payer', [DetteSocieteController::class, 'enregistrerPaiement'])->name('dettes-societe.payer');
         Route::delete('dettes-societe/{dette}', [DetteSocieteController::class, 'destroy'])->name('dettes-societe.destroy');
 
-        // Analytique / Analyse avancée (GET uniquement)
-        Route::get('analytique', [AnalytiqueController::class, 'index'])->name('analytique');
+        // Trésorerie (Caisse — mouvements entrées / sorties / CA du jour)
+        Route::get('tresoreries', [TresorerieController::class, 'index'])->name('tresoreries.index');
+        Route::post('tresoreries', [TresorerieController::class, 'store'])->name('tresoreries.store');
+        Route::delete('tresoreries/{tresorerie}', [TresorerieController::class, 'destroy'])->name('tresoreries.destroy');
+
+        // Analytique / Analyse avancée (GET uniquement — Offre Professionnel+)
+        Route::middleware('plan:advanced_stats')->group(function () {
+            Route::get('analytique', [AnalytiqueController::class, 'index'])->name('analytique');
+        });
 
         // Employés
         Route::resource('employes', EmployeController::class)->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
+        Route::post('employes/{employe}/toggle-active', [EmployeController::class, 'toggleActive'])->name('employes.toggle-active');
 
         // Dépense du dashboard
         Route::post('/dashboard/depense', [DashboardController::class, 'storeDepense'])->name('dashboard.depense.store');
+    });
+
+    // Offre & Notifications (accessibles même si l'offre est expirée)
+    Route::middleware('ensure_tenant')->group(function () {
+        Route::get('/offre', [OffreController::class, 'show'])->name('offre');
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+        Route::post('/notifications/mark-all', [NotificationController::class, 'markAllRead'])->name('notifications.markAll');
+
+        // Dépenses (liste complète + suppression)
+        Route::get('/depenses', [DepenseController::class, 'index'])->name('depenses.index');
+        Route::delete('/depenses/{depense}', [DepenseController::class, 'destroy'])->name('depenses.destroy');
     });
 
     // Profil (accessible à tous les utilisateurs authifiés, y compris super_admin)

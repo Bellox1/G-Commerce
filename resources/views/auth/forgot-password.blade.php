@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mot de passe oublié — PILOTRIX</title>
+    <title>Mot de passe oublié — pilotix</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
@@ -20,7 +20,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -63,7 +63,7 @@
             max-width: 480px; 
         }
         .brand-name {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 900;
             font-size: 2.2rem;
             color: var(--primary);
@@ -78,7 +78,7 @@
             border: 1px solid var(--border);
         }
         .login-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 800;
             font-size: 1.4rem;
             margin-bottom: 8px;
@@ -171,7 +171,7 @@
 <body>
 
     <a href="{{ url('/') }}" class="login-logo-link">
-        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" class="login-logo-img">
+        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo" class="login-logo-img">
     </a>
 
     <div class="login-container">

@@ -17,13 +17,22 @@ class EnsureTenantMiddleware
     {
         $user = Auth::user();
 
-        if ($user && $user->isSuperAdmin()) {
+        if ($user && $user->isSuperAdmin() && !$user->tenant) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['message' => 'Accès réservé au super administrateur.'], 403);
+            }
             return redirect()->route('tenants.index');
         }
 
         if ($user && !$user->tenant) {
             if ($user->hasRole('prestataire')) {
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    return response()->json(['message' => 'Compte prestataire non associé à une société.'], 403);
+                }
                 return redirect()->route('prestataire.dashboard');
+            }
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['message' => 'Votre compte n\'est associé à aucune société. Contactez l\'administrateur.'], 403);
             }
             Auth::logout();
             return redirect()->route('login')->withErrors(['email' => 'Votre compte n\'est associé à aucune société. Contactez l\'administrateur.']);

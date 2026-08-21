@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Modifier l\'Employé')
-@section('page-title', 'Modifier l\'Employé')
+@section('title', 'Modifier le membre du personnel')
+@section('page-title', 'Modifier le membre du personnel')
 
 @section('content')
 <div class="card">
@@ -45,7 +45,7 @@
                 <div class="form-group">
                     <label class="form-label">Rôle <span style="color:var(--danger);">*</span></label>
                     <select name="role" class="form-control" required>
-                        <option value="admin" @selected(old('role', $employe->role) === 'admin')>Admin</option>
+                        <option value="superviseur" @selected(old('role', $employe->role) === 'superviseur')>Superviseur</option>
                         <option value="vendeur" @selected(old('role', $employe->role) === 'vendeur')>Vendeur</option>
                         <option value="livreur" @selected(old('role', $employe->role) === 'livreur')>Livreur</option>
                         <option value="magasinier" @selected(old('role', $employe->role) === 'magasinier')>Magasinier</option>
@@ -56,10 +56,10 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" style="margin-bottom: 8px;">Rôles secondaires</label>
-                    <small style="color:var(--text-muted); font-size:.75rem; display:block; margin-bottom:8px;">L'employé peut cumuler plusieurs rôles (ex: magasinier qui peut aussi vendre).</small>
+                    <small style="color:var(--text-muted); font-size:.75rem; display:block; margin-bottom:8px;">Le membre du personnel peut cumuler plusieurs rôles (ex: magasinier qui peut aussi vendre).</small>
                     <div style="display:flex; gap:20px; flex-wrap:wrap;" id="rolesSecondaires">
                         @php
-                            $rolesDisponibles = ['vendeur', 'livreur', 'magasinier'];
+                            $rolesDisponibles = ['superviseur', 'vendeur', 'livreur', 'magasinier'];
                             $secondaires = old('roles_secondaires', $employe->roles_secondaires ?? []);
                         @endphp
                         @foreach($rolesDisponibles as $r)
@@ -83,7 +83,7 @@
                 var secCheckboxes = document.querySelectorAll('#rolesSecondaires .checkbox-group');
                 function filterSecondaires() {
                     var selected = roleSelect.value;
-                    if (selected === 'admin') {
+                    if (selected === 'superviseur') {
                         secContainer.style.display = 'none';
                         secCheckboxes.forEach(function(group) {
                             group.querySelector('input').checked = false;

@@ -19,19 +19,73 @@ class VenteController extends Controller
         private StockService $stockService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $tenant = Auth::user()->tenant;
-        $ventes = Vente::where('tenant_id', $tenant->id)
-            ->with(['client', 'user', 'magasin', 'dette'])
-            ->latest()
-            ->paginate(15);
+        $user = Auth::user();
+        $tenant = $user->tenant;
 
-        if (request()->expectsJson() || request()->is('api/*')) {
-            return response()->json(['success' => true, 'data' => $ventes]);
+        // Période (par défaut : aujourd'hui)
+        $periode = $request->input('periode', 'aujourd_hui');
+        $dateDebut = $request->input('date_debut');
+        $dateFin = $request->input('date_fin');
+
+        $applyPeriode = function ($q) use ($periode, $dateDebut, $dateFin) {
+            if ($periode === 'tous') {
+                return;
+            }
+            if ($periode === 'perso') {
+                if ($dateDebut) {
+                    $q->whereDate('date_vente', '>=', $dateDebut);
+                }
+                if ($dateFin) {
+                    $q->whereDate('date_vente', '<=', $dateFin);
+                }
+                return;
+            }
+            $days = ['avant_hier' => 2, 'hier' => 1, 'aujourd_hui' => 0][$periode] ?? 0;
+            $q->whereDate('date_vente', now()->subDays($days)->toDateString());
+        };
+
+        $query = Vente::where('tenant_id', $tenant->id)
+            ->with(['client', 'user', 'magasin', 'dette']);
+
+        $applyPeriode($query);
+
+        $search = $request->input('search');
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('reference', 'like', "%{$search}%")
+                  ->orWhereHas('client', function ($c) use ($search) {
+                      $c->where('nom', 'like', "%{$search}%")
+                        ->orWhere('prenom', 'like', "%{$search}%");
+                  });
+            });
         }
 
-        return view('ventes.index', compact('ventes'));
+        $statut = $request->input('statut_paiement');
+        if ($statut && $statut !== 'tous') {
+            $query->where('statut_paiement', $statut);
+        }
+
+        $perPage = $request->input('per_page', 15);
+        $ventes = $query->latest('date_vente')->paginate($perPage);
+
+        // Stats sur la période sélectionnée (indépendantes du filtre statut côté client)
+        $allQuery = Vente::where('tenant_id', $tenant->id);
+        $applyPeriode($allQuery);
+        $totalMontant = (clone $allQuery)->sum('montant_total');
+        $totalPaye = (clone $allQuery)->sum('montant_paye');
+        $nbVentes = (clone $allQuery)->count();
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'data' => $ventes,
+                'stats' => compact('totalMontant', 'totalPaye', 'nbVentes'),
+            ]);
+        }
+
+        return view('ventes.index', compact('ventes', 'periode', 'dateDebut', 'dateFin'));
     }
 
     public function create()
@@ -85,7 +139,7 @@ class VenteController extends Controller
             ];
         })->values();
 
-        return view('ventes.create', compact('clients', 'clientsJson', 'produits', 'produitsJson', 'selectedMagasin'));
+        return view('ventes.create', compact('clients', 'clientsJson', 'produits', 'produitsJson', 'selectedMagasin', 'magasins'));
     }
 
     public function store(Request $request)
@@ -117,7 +171,11 @@ class VenteController extends Controller
             if (!isset($request->ventes[$i])) continue;
             $vData = $request->ventes[$i];
 
-            $montantPaye = (float) ($vData['montant_paye'] ?? 0);
+            $estAnonyme = empty($vData['client_id']);
+            $aCredit = !$estAnonyme && (bool) ($vData['a_credit'] ?? false);
+
+            $montantRemis = $vData['montant_remis'] ?? null;
+            $montantRemis = ($montantRemis !== null && $montantRemis !== '') ? (float) $montantRemis : null;
 
             $lignesPourService = [];
             $totalLignes = 0;
@@ -136,18 +194,31 @@ class VenteController extends Controller
                         ->with('error', "La quantité doit être supérieure à zéro pour {$produit->nom}.");
                 }
 
-                // Vérifier les stocks globalement
-                $stock = $this->stockService->getStock($magasinId, $l['produit_id']);
-                $cartoucheParCarton = max(1, (int) ($produit->cartouche_par_carton ?? 1));
-                $cartonsNecessaires = $qteCarton + (int) ceil($qteCartouche / $cartoucheParCarton);
-
-                if ($stock < $cartonsNecessaires) {
+                // Un produit non déclaré "a_cartouche" ne peut pas être vendu en cartouches.
+                if (!$produit->a_cartouche && $qteCartouche > 0) {
+                    $msg = "Le produit « {$produit->nom} » n'est pas configuré pour la vente en cartouches.";
                     if (request()->expectsJson() || request()->is('api/*')) {
-                        return response()->json(['success' => false, 'message' => "Stock insuffisant pour {$produit->nom} (demandé: {$cartonsNecessaires} ctn, dispo: {$stock} ctn)."], 400);
+                        return response()->json(['success' => false, 'message' => $msg], 400);
                     }
                     return redirect()->back()
                         ->withInput()
-                        ->with('error', "Stock insuffisant pour {$produit->nom} (demandé: {$cartonsNecessaires} ctn, dispo: {$stock} ctn).");
+                        ->with('error', $msg);
+                }
+
+                // Vérifier les stocks globalement (en cartouches pour gérer les cartouches isolées)
+                $cartoucheParCarton = max(1, (int) ($produit->cartouche_par_carton ?? 1));
+                $detail = $this->stockService->getStockDetail($magasinId, $l['produit_id']);
+                $dispoCartouches = $detail['cartons'] * $cartoucheParCarton + $detail['cartouches'];
+                $needCartouches = $qteCarton * $cartoucheParCarton + $qteCartouche;
+
+                if ($dispoCartouches < $needCartouches) {
+                    $msg = "Stock insuffisant pour {$produit->nom} (demandé: {$needCartouches} cartouche(s), dispo: {$dispoCartouches} cartouche(s)).";
+                    if (request()->expectsJson() || request()->is('api/*')) {
+                        return response()->json(['success' => false, 'message' => $msg], 400);
+                    }
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $msg);
                 }
 
                 // Si carton
@@ -177,20 +248,23 @@ class VenteController extends Controller
                 }
             }
 
-            // Not "À crédit" = automatically fully paid
-            if (!($vData['a_credit'] ?? false)) {
-                $montantPaye = $totalLignes;
-                $montantRemis = $vData['montant_remis'] ?? null;
-                $montantRemis = $montantRemis !== null && $montantRemis !== '' ? (float) $montantRemis : null;
-                $du = $montantRemis && $montantRemis > $totalLignes ? $montantRemis - $totalLignes : null;
-                if (!$du) $montantRemis = null;
-            } elseif ($montantPaye > $totalLignes) {
-                if (request()->expectsJson() || request()->is('api/*')) {
-                    return response()->json(['success' => false, 'message' => 'Le montant payé ne peut pas dépasser le total de la commande.'], 400);
+            // Montant payé dérivé du montant remis et du total.
+            // Pas à crédit (ou anonyme) : le remis doit couvrir le total.
+            if (!$aCredit) {
+                if ($montantRemis === null || $montantRemis < $totalLignes) {
+                    $msg = 'Le montant remis doit couvrir le total de la commande.';
+                    if (request()->expectsJson() || request()->is('api/*')) {
+                        return response()->json(['success' => false, 'message' => $msg], 400);
+                    }
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', $msg);
                 }
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Le montant payé ne peut pas dépasser le total de la commande.');
+                $montantPaye = $totalLignes;
+                $du = $montantRemis - $totalLignes; // monnaie à rendre
+            } else {
+                $montantPaye = $montantRemis !== null ? min($montantRemis, $totalLignes) : 0;
+                $du = $montantRemis !== null && $montantRemis > $totalLignes ? $montantRemis - $totalLignes : null;
             }
 
             // Vérifier la limite de crédit du client (non bloquant)
@@ -280,6 +354,7 @@ class VenteController extends Controller
 
         $tenant = Auth::user()->tenant;
         $clients = Client::where('tenant_id', $tenant->id)->get();
+        $magasins = $tenant->magasins;
 
         // Produits avec stock pour l'autocomplete
         $selectedMagasin = $vente->magasin;
@@ -297,7 +372,7 @@ class VenteController extends Controller
             }
         }
 
-        return view('ventes.edit', compact('vente', 'clients', 'produitsJson'));
+        return view('ventes.edit', compact('vente', 'clients', 'magasins', 'produitsJson'));
     }
 
     public function update(Request $request, Vente $vente)
@@ -307,13 +382,37 @@ class VenteController extends Controller
 
         $request->validate([
             'client_id'      => 'nullable|exists:clients,id',
+            'magasin_id'     => 'nullable|exists:magasins,id',
             'montant_paye'   => 'nullable|numeric|min:0',
             'montant_remis'  => 'nullable|numeric|min:0',
             'new_lignes'            => 'nullable|array',
             'new_lignes.*.produit_id' => 'required_with:new_lignes|exists:produits,id',
             'new_lignes.*.quantite'   => 'required_with:new_lignes|integer|min:1',
             'new_lignes.*.prix_vente' => 'required_with:new_lignes|numeric|min:0',
+            'new_lignes.*.unite'      => 'nullable|in:carton,cartouche',
+            'lignes_supprimees'       => 'nullable|array',
+            'lignes_supprimees.*'     => 'integer|exists:vente_lignes,id',
         ]);
+
+        // Supprimer les lignes retirées (restituer le stock)
+        if ($request->lignes_supprimees) {
+            $aSupprimer = $vente->lignes()->whereIn('id', $request->lignes_supprimees)->get();
+            foreach ($aSupprimer as $ligne) {
+                StockMouvement::create([
+                    'tenant_id'      => $vente->tenant_id,
+                    'magasin_id'     => $vente->magasin_id,
+                    'produit_id'     => $ligne->produit_id,
+                    'user_id'        => Auth::id(),
+                    'type'           => 'entree_ajustement',
+                    'quantite'       => (int) $ligne->quantite,
+                    'cout_unitaire'  => (float) $ligne->prix_vente,
+                    'reference_type' => Vente::class,
+                    'reference_id'   => $vente->id,
+                    'note'           => "Suppression ligne modification vente {$vente->reference}",
+                ]);
+            }
+            $vente->lignes()->whereIn('id', $request->lignes_supprimees)->delete();
+        }
 
         // Mettre à jour les lignes existantes modifiées
         if ($request->lignes_existantes) {
@@ -350,9 +449,13 @@ class VenteController extends Controller
         if ($request->new_lignes) {
             $magasinId = $vente->magasin_id;
             foreach ($request->new_lignes as $l) {
+                $produit = Produit::find($l['produit_id']);
+                $cartoucheParCarton = max(1, (int) ($produit->cartouche_par_carton ?? 1));
+                $qteCartonsNecessaires = ($l['unite'] ?? 'carton') === 'cartouche'
+                    ? (int) ceil((int) $l['quantite'] / $cartoucheParCarton)
+                    : (int) $l['quantite'];
                 $stock = $this->stockService->getStock($magasinId, $l['produit_id']);
-                if ($stock < $l['quantite']) {
-                    $produit = Produit::find($l['produit_id']);
+                if ($stock < $qteCartonsNecessaires) {
                     if (request()->expectsJson() || request()->is('api/*')) {
                         return response()->json(['success' => false, 'message' => "Stock insuffisant pour {$produit->nom}."], 400);
                     }
@@ -365,6 +468,7 @@ class VenteController extends Controller
                 $ligne = $vente->lignes()->create([
                     'produit_id'     => $l['produit_id'],
                     'quantite'       => $l['quantite'],
+                    'unite'          => $l['unite'] ?? 'carton',
                     'prix_conseille' => Produit::find($l['produit_id'])->prix_vente_conseille,
                     'prix_vente'     => (float) $l['prix_vente'],
                     'cout_unitaire'  => (float) $l['prix_vente'],
@@ -377,7 +481,7 @@ class VenteController extends Controller
                     'produit_id'     => $l['produit_id'],
                     'user_id'        => Auth::id(),
                     'type'           => 'sortie_vente',
-                    'quantite'       => $l['quantite'],
+                    'quantite'       => $qteCartonsNecessaires,
                     'cout_unitaire'  => (float) $l['prix_vente'],
                     'reference_type' => Vente::class,
                     'reference_id'   => $vente->id,
@@ -387,24 +491,25 @@ class VenteController extends Controller
         }
 
         $nouveauTotal = $montantTotal + $totalAjoute;
-        $montantPaye = (float) ($request->montant_paye ?? 0);
-        // Anonymous client = automatically fully paid
+        $montantRemis = $request->montant_remis ?? null;
+        $montantRemis = ($montantRemis !== null && $montantRemis !== '') ? (float) $montantRemis : null;
+
+        // Montant payé dérivé du montant remis et du total.
         if (!$request->client_id) {
+            // Client anonyme = toujours entièrement payé (pas de crédit)
             $montantPaye = $nouveauTotal;
+            $du = $montantRemis !== null ? max(0, $montantRemis - $nouveauTotal) : 0;
             $montantReste = 0;
             $statut = 'paye';
         } else {
-            if ($montantPaye > $nouveauTotal) $montantPaye = $nouveauTotal;
+            $aCredit = $request->boolean('a_credit');
+            $montantPaye = $montantRemis !== null ? min($montantRemis, $nouveauTotal) : 0;
+            $du = $montantRemis !== null && $montantRemis > $nouveauTotal ? $montantRemis - $nouveauTotal : null;
             $montantReste = max(0, $nouveauTotal - $montantPaye);
             $statut = $montantReste <= 0 ? 'paye' : ($montantPaye > 0 ? 'partiel' : 'impaye');
         }
 
-        $montantRemis = $request->montant_remis ?? null;
-        $montantRemis = $montantRemis !== null && $montantRemis !== '' ? (float) $montantRemis : null;
-        $du = $montantRemis && $montantRemis > $nouveauTotal ? $montantRemis - $nouveauTotal : null;
-        if (!$du) $montantRemis = null;
-
-        $vente->update([
+        $venteUpdate = [
             'client_id'      => $request->client_id,
             'montant_total'  => $nouveauTotal,
             'montant_paye'   => $montantPaye,
@@ -412,7 +517,11 @@ class VenteController extends Controller
             'montant_remis'  => $montantRemis,
             'du'             => $du,
             'statut_paiement'=> $statut,
-        ]);
+        ];
+        if ($request->has('magasin_id') && $request->magasin_id) {
+            $venteUpdate['magasin_id'] = $request->magasin_id;
+        }
+        $vente->update($venteUpdate);
 
         // Mettre à jour ou créer la dette si nécessaire
         if ($montantReste > 0) {
@@ -438,45 +547,6 @@ class VenteController extends Controller
         }
 
         return $this->smartResponse(route('ventes.show', $vente), 'Vente mise à jour.');
-    }
-
-    public function convertirDette(Request $request, Vente $vente)
-    {
-        $this->authorizeModule('ventes');
-        $this->authorizeTenant($vente);
-
-        $request->validate([
-            'client_id' => 'nullable|exists:clients,id',
-        ]);
-
-        if ($vente->dette) {
-            if (request()->expectsJson() || request()->is('api/*')) {
-                return response()->json(['success' => false, 'message' => 'Cette vente est déjà liée à une dette.'], 400);
-            }
-            return redirect()->back()->with('error', 'Cette vente est déjà liée à une dette.');
-        }
-
-        $montantDu = $vente->montant_reste > 0 ? $vente->montant_reste : $vente->montant_total;
-
-        $vente->update([
-            'montant_paye'    => $vente->montant_total - $montantDu,
-            'montant_reste'   => $montantDu,
-            'statut_paiement' => $montantDu >= $vente->montant_total ? 'impaye' : 'partiel',
-            'client_id'       => $request->client_id ?: $vente->client_id,
-        ]);
-
-        Dette::create([
-            'tenant_id'       => $vente->tenant_id,
-            'client_id'       => $request->client_id ?: null,
-            'vente_id'        => $vente->id,
-            'montant_initial' => $montantDu,
-            'montant_paye'    => 0,
-            'montant_restant' => $montantDu,
-            'statut'          => 'en_cours',
-            'notes'           => $request->client_id ? null : 'Client anonyme',
-        ]);
-
-        return $this->smartResponse(route('ventes.show', $vente), 'Vente convertie en dette avec succès.');
     }
 
     private function authorizeTenant(Vente $vente)

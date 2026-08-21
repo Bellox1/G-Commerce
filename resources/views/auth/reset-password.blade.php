@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réinitialiser le mot de passe — PILOTRIX</title>
+    <title>Réinitialiser le mot de passe — pilotix</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
@@ -20,7 +20,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -60,7 +60,7 @@
             max-width: 480px; 
         }
         .brand-name {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 900;
             font-size: 2.2rem;
             color: var(--primary);
@@ -75,7 +75,7 @@
             border: 1px solid var(--border);
         }
         .login-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 800;
             font-size: 1.4rem;
             margin-bottom: 8px;
@@ -201,13 +201,12 @@
 <body>
 
     <a href="{{ url('/') }}" class="login-logo-link">
-        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" class="login-logo-img">
+        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo" class="login-logo-img">
     </a>
 
     <div class="login-container">
         <div class="login-card">
             <h2 class="login-title">Réinitialiser le mot de passe</h2>
-            <p class="login-subtitle">Renseignez le code OTP reçu par e-mail et votre nouveau mot de passe.</p>
 
             @if($errors->any())
                 <div class="alert">
@@ -223,43 +222,58 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('password.update') }}">
-                @csrf
-                
-                <div class="form-group">
-                    <label class="form-label">Adresse e-mail</label>
-                    <input type="email" name="email" class="form-control" value="{{ old('email', $email) }}" placeholder="votreemail@Pilotix.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Code OTP de validation</label>
-                    <input type="text" name="code" class="form-control" value="{{ old('code', $code) }}" placeholder="Ex: 582910" required maxlength="6" style="letter-spacing: 2px; font-weight: 700; font-size: 1.1rem; text-align: center;">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Nouveau mot de passe</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required style="padding-right: 48px;">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password', 'toggleIcon1')">
-                            <i id="toggleIcon1" class="bi bi-eye"></i>
-                        </button>
+            {{-- Étape 1 : vérification du code OTP --}}
+            @if(!$verified)
+                <p class="login-subtitle">Saisissez le code OTP reçu par e-mail pour cet e-mail, puis validez.</p>
+                <form method="POST" action="{{ route('password.verify') }}">
+                    @csrf
+                    <div class="form-group">
+                        <label class="form-label">Adresse e-mail</label>
+                        <input type="email" name="email" class="form-control" value="{{ old('email', $email) }}" placeholder="votreemail@Pilotix.com" required>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label">Confirmer le nouveau mot de passe</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="••••••••" required style="padding-right: 48px;">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password_confirmation', 'toggleIcon2')">
-                            <i id="toggleIcon2" class="bi bi-eye"></i>
-                        </button>
+                    <div class="form-group">
+                        <label class="form-label">Code OTP de validation</label>
+                        <input type="text" name="code" class="form-control" value="{{ old('code') }}" placeholder="Ex: 582910" required maxlength="6" inputmode="numeric" style="letter-spacing: 2px; font-weight: 700; font-size: 1.1rem; text-align: center;">
                     </div>
-                </div>
 
-                <button type="submit" class="btn-submit">
-                    <i class="bi bi-check-circle-fill"></i> Enregistrer le nouveau mot de passe
-                </button>
-            </form>
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-shield-check"></i> Vérifier le code
+                    </button>
+                </form>
+            @else
+                {{-- Étape 2 : nouveau mot de passe --}}
+                <p class="login-subtitle">Code vérifié pour <strong>{{ $email }}</strong>. Définissez votre nouveau mot de passe.</p>
+                <form method="POST" action="{{ route('password.update') }}">
+                    @csrf
+                    <input type="hidden" name="email" value="{{ $email }}">
+                    <input type="hidden" name="code" value="{{ $code }}">
+
+                    <div class="form-group">
+                        <label class="form-label">Nouveau mot de passe</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required style="padding-right: 48px;">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password', 'toggleIcon1')">
+                                <i id="toggleIcon1" class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirmer le nouveau mot de passe</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="••••••••" required style="padding-right: 48px;">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password_confirmation', 'toggleIcon2')">
+                                <i id="toggleIcon2" class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-check-circle-fill"></i> Enregistrer le nouveau mot de passe
+                    </button>
+                </form>
+            @endif
         </div>
 
         <div class="back-link">

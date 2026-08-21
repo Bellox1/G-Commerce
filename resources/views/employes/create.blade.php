@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', 'Nouvel Employé')
-@section('page-title', 'Nouvel Employé')
+@section('title', 'Nouveau membre du personnel')
+@section('page-title', 'Nouveau membre du personnel')
 
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h3><i class="bi bi-plus-circle"></i> Ajouter un employé</h3>
+        <h3><i class="bi bi-plus-circle"></i> Ajouter un membre du personnel</h3>
         <a href="{{ route('employes.index') }}" class="btn btn-secondary btn-sm">
             <i class="bi bi-arrow-left"></i> Retour
         </a>
@@ -45,8 +45,8 @@
                     <label class="form-label">Rôle <span style="color:var(--danger);">*</span></label>
                     <select name="role" class="form-control" required>
                         <option value="">Sélectionner un rôle</option>
-                        <option value="admin" @selected(old('role') === 'admin')>Admin</option>
-                        <option value="vendeur" @selected(old('role') === 'vendeur')>Vendeur</option>
+                        <option value="superviseur" @selected(old('role') === 'superviseur')>Superviseur</option>
+                        <option value="vendeur" @selected(old('role', 'vendeur') === 'vendeur')>Vendeur</option>
                         <option value="livreur" @selected(old('role') === 'livreur')>Livreur</option>
                         <option value="magasinier" @selected(old('role') === 'magasinier')>Magasinier</option>
                     </select>
@@ -56,9 +56,9 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label" style="margin-bottom: 8px;">Rôles secondaires</label>
-                    <small style="color:var(--text-muted); font-size:.75rem; display:block; margin-bottom:8px;">L'employé peut cumuler plusieurs rôles (ex: magasinier qui peut aussi vendre).</small>
+                    <small style="color:var(--text-muted); font-size:.75rem; display:block; margin-bottom:8px;">Le membre du personnel peut cumuler plusieurs rôles (ex: magasinier qui peut aussi vendre).</small>
                     <div style="display:flex; gap:20px; flex-wrap:wrap;" id="rolesSecondaires">
-                        @php $rolesDisponibles = ['vendeur', 'livreur', 'magasinier']; @endphp
+                            @php $rolesDisponibles = ['superviseur', 'vendeur', 'livreur', 'magasinier']; @endphp
                         @foreach($rolesDisponibles as $r)
                         <div class="checkbox-group" data-role="{{ $r }}">
                             <label class="checkbox-label">
@@ -80,7 +80,7 @@
                 var secCheckboxes = document.querySelectorAll('#rolesSecondaires .checkbox-group');
                 function filterSecondaires() {
                     var selected = roleSelect.value;
-                    if (selected === 'admin') {
+                    if (selected === 'superviseur') {
                         secContainer.style.display = 'none';
                         secCheckboxes.forEach(function(group) {
                             group.querySelector('input').checked = false;

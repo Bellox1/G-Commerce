@@ -21,9 +21,6 @@
                     </span>
                 @endif
                 <div>
-                    <span class="badge {{ $produit->actif ? 'badge-success' : 'badge-danger' }}" style="margin-bottom: 4px;">
-                        {{ $produit->actif ? 'Actif' : 'Inactif' }}
-                    </span>
                     <h2 style="font-size: 1.4rem; font-weight: 700; margin: 0;">{{ $produit->nom }}</h2>
                     <div style="font-size: .8rem; color: var(--text-muted); margin-top: 4px;">
                         Réf: PRD-{{ $produit->id }}
@@ -111,8 +108,11 @@
 
             {{-- Stock par magasin --}}
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                     <h3><i class="bi bi-boxes"></i> Stock par Magasin</h3>
+                    <a href="{{ route('produits.stocks.edit', $produit) }}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-pencil"></i> Gérer les stocks
+                    </a>
                 </div>
                 <div class="card-body" style="padding: 0;">
                     @forelse($magasins as $m)
@@ -126,6 +126,12 @@
                     @empty
                     <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: .85rem;">Aucun magasin</div>
                     @endforelse
+                    @if($magasins->isNotEmpty())
+                    <div style="display: flex; justify-content: space-between; padding: 12px 16px; background: var(--bg-light); font-weight: 700;">
+                        <span style="font-size: .85rem;">Total centralisé</span>
+                        <span>{{ $produit->stockGlobal() }} Carton</span>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -149,6 +155,20 @@
                         ];
                         $cfg = $typeConfig[$mvt->type] ?? ['label'=>ucfirst($mvt->type), 'icon'=>'bi-arrow-repeat', 'badge'=>'badge-gray'];
                         $isEntree = $mvt->signe() > 0;
+
+                        $refLibelle = match ($mvt->type) {
+                            'sortie_vente'     => 'Vente',
+                            'entree_arrivage'  => 'Arrivage',
+                            'transfert_entree' => 'Transfert entrée',
+                            'transfert_sortie' => 'Transfert sortie',
+                            default            => null,
+                        };
+                        $refText = $mvt->reference?->reference
+                            ? ($refLibelle ? $refLibelle.' '.$mvt->reference->reference : $mvt->reference->reference)
+                            : ($mvt->note ?: $cfg['label']);
+                        $desc = ($mvt->magasin?->nom ?? '');
+                        if ($refText) $desc .= ' · '.$refText;
+                        $desc .= ' ('.$mvt->quantite.' Carton'.($mvt->quantite > 1 ? 's' : '').')';
                     @endphp
                     <div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: .8rem;">
                         <div style="width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.9rem;"
@@ -158,15 +178,14 @@
                         <div style="flex: 1; min-width:0;">
                             <div style="font-weight: 600;">{{ $cfg['label'] }}</div>
                             <div style="color: var(--text-muted); font-size: .75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                {{ $mvt->magasin?->nom }}
-                                @if($mvt->note) · {{ $mvt->note }} @endif
+                                {{ $desc }}
                             </div>
                         </div>
                         <div style="text-align:right; flex-shrink:0;">
                             <div style="font-weight:700; font-size:.9rem; color:{{ $isEntree ? 'var(--success)' : 'var(--danger)' }};">
                                 {{ $isEntree ? '+' : '-' }}{{ $mvt->quantite }}
                             </div>
-                            <div style="color: var(--text-muted); font-size: .72rem;">{{ $mvt->date_mouvement?->format('d/m/Y') }}</div>
+                            <div style="color: var(--text-muted); font-size: .72rem;">{{ $mvt->date_mouvement?->fr('d F Y') }}</div>
                         </div>
                     </div>
                     @empty

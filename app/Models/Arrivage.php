@@ -75,7 +75,9 @@ class Arrivage extends Model
                 $coutTotal            = $ligne->valeur_fcfa + $ligne->part_frais;
                 $ligne->cout_total_reel   = $coutTotal;
                 $ligne->cout_unitaire_reel = $ligne->quantite > 0 ? $coutTotal / $ligne->quantite : 0;
-                $ligne->prix_vente_suggere = Produit::arrondir($ligne->cout_unitaire_reel);
+                if (empty($ligne->prix_vente_suggere)) {
+                    $ligne->prix_vente_suggere = Produit::arrondir($ligne->cout_unitaire_reel);
+                }
                 $ligne->save();
             }
         }

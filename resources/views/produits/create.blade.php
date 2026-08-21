@@ -27,21 +27,23 @@
                 </div>
             </div>
 
-            <div class="form-row form-row-2">
-                <div class="form-group">
-                    <label class="form-label">Magasin de départ <span style="color:var(--danger);">*</span></label>
-<select name="magasin_id" class="form-control" required>
-    @foreach($magasins as $m)
-        <option value="{{ $m->id }}" {{ $loop->first ? 'selected' : '' }}>{{ $m->nom }}</option>
-    @endforeach
-</select>
-                    <small style="color:var(--text-muted); font-size:.75rem;">Le stock initial sera enregistré dans ce magasin.</small>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Stock initial</label>
-                    <input type="number" name="stock_initial" id="stockInitial" class="form-control" value="0" min="0">
-                    <small style="color:var(--text-muted); font-size:.75rem;">Quantité de départ dans ce magasin.</small>
+            <div class="form-group">
+                <label class="form-label">Stock initial par magasin</label>
+                <small style="color:var(--text-muted); font-size:.75rem; display:block; margin-bottom:8px;">Renseignez la quantité de départ dans chaque magasin (laissez 0 si le produit n'y est pas en stock). Le stock total est centralisé.</small>
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px;">
+                    @foreach($magasins as $m)
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <span style="font-size:.75rem; font-weight:600; color:var(--text-muted);">{{ $m->nom }}</span>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <input type="number" name="stocks[{{ $m->id }}]" class="form-control stock-input" value="0" min="0" style="width:90px;" data-magasin="{{ $m->id }}">
+                                <span style="font-size:.75rem; color:var(--text-muted);">ctn</span>
+                                <span class="cartouche-stock-field" style="display:none; align-items:center; gap:4px;">
+                                    <input type="number" name="stocks_cartouches[{{ $m->id }}]" class="form-control" value="0" min="0" style="width:70px;">
+                                    <span style="font-size:.75rem; color:var(--text-muted);">ctr</span>
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 
@@ -165,6 +167,9 @@ document.querySelector('[name="image"]').addEventListener('change', function() {
 
 document.getElementById('hasCartouche').addEventListener('change', function() {
     document.getElementById('cartoucheFields').style.display = this.checked ? 'grid' : 'none';
+    document.querySelectorAll('.cartouche-stock-field').forEach(function(el) {
+        el.style.display = this.checked ? 'inline-flex' : 'none';
+    }, this);
 });
 
 function calcPrixCartouche() {
@@ -181,10 +186,15 @@ document.querySelector('[name="prix_vente_conseille"]').addEventListener('input'
 document.getElementById('cartoucheParCarton').addEventListener('input', calcPrixCartouche);
 
 const seuilInput = document.getElementById('seuilAlerte');
-const stockInput = document.getElementById('stockInitial');
-stockInput.addEventListener('input', function() {
-    const s = parseInt(this.value) || 0;
-    seuilInput.value = Math.ceil(s / 4);
+function totalStockInitial() {
+    let total = 0;
+    document.querySelectorAll('.stock-input').forEach(i => { total += parseInt(i.value) || 0; });
+    return total;
+}
+document.querySelectorAll('.stock-input').forEach(i => {
+    i.addEventListener('input', function() {
+        seuilInput.value = Math.ceil(totalStockInitial() / 4);
+    });
 });
 seuilInput.addEventListener('focus', function() {
     this.select();

@@ -90,7 +90,7 @@
             <div>
                 <div style="font-weight:700; font-size:0.95rem; color:#1f2937;">{{ $s->nom }}</div>
                 <div style="font-size:0.8rem; color:#6b7280;">
-                    Offre : {{ $s->offre_code }} — Expirée le {{ $s->offre_expires_at ? $s->offre_expires_at->format('d/m/Y') : 'N/A' }}
+                    Offre : {{ $s->offre_code }} — Expirée le {{ $s->offre_expires_at ? $s->offre_expires_at->fr('d F Y') : 'N/A' }}
                     @if($s->partenaire) — Partenaire : {{ $s->partenaire->name }} @endif
                 </div>
             </div>

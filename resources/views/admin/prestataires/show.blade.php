@@ -28,7 +28,7 @@
             <strong>Entreprise :</strong> {{ $demande->entreprise ?? '—' }}
         </div>
         <div>
-            <strong>Date :</strong> {{ $demande->created_at->format('d/m/Y à H:i') }}
+            <strong>Date :</strong> {{ $demande->created_at->fr('d F Y à H:i') }}
         </div>
         <div>
             <strong>Statut :</strong>

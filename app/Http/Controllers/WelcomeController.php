@@ -28,14 +28,14 @@ class WelcomeController extends Controller
             'telephone'          => 'required|string|max:50',
             'secteurs_activite'  => 'required|string|max:255',
             'email'              => 'required|email|max:255',
-            'type_souscription'  => 'required|in:local,cloud',
-            'duree'              => 'required|string',
+            'type_souscription'  => 'required|string|in:essentiel,professionnel,entreprise,local,cloud',
+            'paiement_3x'        => 'nullable',
         ]);
 
         $superAdmins = User::where('role', 'super_admin')->get();
         $recipientEmails = $superAdmins->pluck('email')->toArray();
 
-        $adminEmail = config('mail.from.address', 'pilotrixcontact@gmail.com');
+        $adminEmail = config('mail.from.address', 'pilotixcontact@gmail.com');
         $recipientEmails = array_unique(array_merge([$adminEmail], $recipientEmails));
 
         $societe = e($data['nom_societe']);
@@ -44,13 +44,22 @@ class WelcomeController extends Controller
         $telephone = e($data['telephone']);
         $secteursActivite = e($data['secteurs_activite']);
         $emailContact = e($data['email']);
-        $typeSouscription = $data['type_souscription'] === 'cloud' ? 'Cloud Sync (3 500 FCFA/mois)' : 'Locale (79 900 FCFA)';
-        $duree = $data['type_souscription'] === 'local' ? 'Licence à vie' : ($data['duree'] . ' mois');
+        
+        $typeMap = [
+            'essentiel'    => 'Offre Essentiel (30 000 FCFA / an)',
+            'professionnel' => 'Offre Professionnel (75 000 FCFA / an)',
+            'entreprise'   => 'Offre Entreprise (250 000 FCFA — Sur-Mesure)',
+            'cloud'        => 'Cloud Sync (3 500 FCFA/mois)',
+            'local'        => 'Locale (79 900 FCFA)'
+        ];
+        $typeSouscription = $typeMap[$data['type_souscription']] ?? $data['type_souscription'];
+        $is3x = $request->has('paiement_3x');
+        $modePaiement = $is3x ? 'Oui (Paiement échelonné en 3 tranches)' : 'Comptant / Intégral';
 
         $subject = "Nouvelle demande de création de société — Pilotix";
 
         try {
-            Mail::send([], [], function ($message) use ($recipientEmails, $subject, $societe, $localisation, $ville, $telephone, $secteursActivite, $emailContact, $typeSouscription, $duree) {
+            Mail::send([], [], function ($message) use ($recipientEmails, $subject, $societe, $localisation, $ville, $telephone, $secteursActivite, $emailContact, $typeSouscription, $modePaiement) {
                 $message->to($recipientEmails)
                     ->subject($subject)
                     ->html("
@@ -90,12 +99,12 @@ class WelcomeController extends Controller
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$emailContact}</td>
                                 </tr>
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Type souscription</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Offre souscrite</td>
                                     <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937; font-weight: 600;\">{$typeSouscription}</td>
                                 </tr>
                                 <tr>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Durée</td>
-                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #1f2937;\">{$duree}</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #6b7280; width: 140px; font-weight: 600;\">Paiement 3x</td>
+                                    <td style=\"padding: 10px 12px; border-bottom: 1px solid #f3f4f6; color: #105e49; font-weight: 700;\">{$modePaiement}</td>
                                 </tr>
                             </table>
                             <div style=\"text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f3f4f6;\">

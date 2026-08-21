@@ -1,0 +1,153 @@
+import React, { useState } from 'react';
+import {
+    View, Text, StyleSheet, ScrollView, TouchableOpacity,
+    TextInput, ActivityIndicator, Alert, StatusBar
+} from 'react-native';
+import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
+import { Picker } from '@react-native-picker/picker';
+import { DrawerActions } from '@react-navigation/native';
+import Colors from '../../theme/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import client from '../../api/client';
+import { Header } from '../../components/ui';
+
+const PAYS = [
+    { code: 'BJ', label: 'Bénin (BJ)' },
+    { code: 'NG', label: 'Nigeria (NG)' },
+    { code: 'TG', label: 'Togo (TG)' },
+    { code: 'CI', label: 'Côte d\'Ivoire (CI)' },
+    { code: 'GH', label: 'Ghana (GH)' },
+];
+
+const CreateTenantScreen = ({ navigation }) => {
+    const [nom, setNom] = useState('');
+    const [marque, setMarque] = useState('');
+    const [activite, setActivite] = useState('');
+    const [pays, setPays] = useState('BJ');
+    const [ville, setVille] = useState('');
+    const [telephone, setTelephone] = useState('');
+    const [email, setEmail] = useState('');
+    const [offreCode, setOffreCode] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmit = async () => {
+        if (!nom) {
+            Alert.alert('Erreur', 'Le nom de la société est obligatoire.');
+            return;
+        }
+        if (!offreCode) {
+            Alert.alert('Erreur', 'Le code d\'offre / plan est obligatoire.');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const payload = {
+                nom,
+                marque,
+                activite,
+                pays,
+                ville,
+                telephone,
+                email,
+                offre_code: offreCode,
+                actif: true,
+            };
+
+            await client.post('/tenants', payload);
+            Alert.alert('Succès', 'Société créée avec succès.');
+            navigation.goBack();
+        } catch (e) {
+            const msg = e.response?.data?.message || 'Erreur lors de la création de la société';
+            Alert.alert('Erreur', msg);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <View style={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+
+            <Header
+                title="Nouvelle Société"
+                onMenu={() => navigation.dispatch(DrawerActions.openDrawer())} onBack={() => navigation.goBack()}
+            />
+
+            <KeyboardAwareScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
+
+                <View style={styles.cardSection}>
+                    <Text style={styles.cardTitle}>Informations Société</Text>
+
+                    <Text style={styles.fieldLabel}>Raison Sociale / Nom *</Text>
+                    <TextInput style={styles.input} value={nom} onChangeText={setNom} placeholder="Ex : SAÏMOUS" />
+
+                    <View style={styles.row2}>
+                        <View style={styles.col}>
+                            <Text style={styles.fieldLabel}>Marque Commerciale</Text>
+                            <TextInput style={styles.input} value={marque} onChangeText={setMarque} placeholder="Ex : RICCI" />
+                        </View>
+                        <View style={styles.col}>
+                            <Text style={styles.fieldLabel}>Activité principale</Text>
+                            <TextInput style={styles.input} value={activite} onChangeText={setActivite} placeholder="Ex : Import / Export" />
+                        </View>
+                    </View>
+
+                    <Text style={styles.fieldLabel}>Pays *</Text>
+                    <View style={styles.pickerWrap}>
+                        <Picker selectedValue={pays} onValueChange={setPays} style={styles.picker}>
+                            {PAYS.map((p) => (
+                                <Picker.Item key={p.code} label={p.label} value={p.code} />
+                            ))}
+                        </Picker>
+                    </View>
+
+                    <Text style={styles.fieldLabel}>Ville</Text>
+                    <TextInput style={styles.input} value={ville} onChangeText={setVille} placeholder="Ex : Cotonou" />
+
+                    <View style={styles.row2}>
+                        <View style={styles.col}>
+                            <Text style={styles.fieldLabel}>Téléphone</Text>
+                            <TextInput style={styles.input} keyboardType="phone-pad" value={telephone} onChangeText={setTelephone} placeholder="Ex : +229 97 00 00 00" />
+                        </View>
+                        <View style={styles.col}>
+                            <Text style={styles.fieldLabel}>Email société</Text>
+                            <TextInput style={styles.input} keyboardType="email-address" value={email} onChangeText={setEmail} placeholder="Ex : contact@societe.com" />
+                        </View>
+                    </View>
+
+                    <Text style={styles.fieldLabel}>Type d'offre / Plan *</Text>
+                    <TextInput style={styles.input} value={offreCode} onChangeText={setOffreCode} placeholder="Ex : offre_standard" autoCapitalize="none" />
+                </View>
+
+                <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={submitting}>
+                    {submitting ? (
+                        <ActivityIndicator color="#FFF" />
+                    ) : (
+                        <Text style={styles.submitBtnText}>Créer la Société</Text>
+                    )}
+                </TouchableOpacity>
+
+            </KeyboardAwareScrollView>
+
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: Colors.background },
+    scrollContent: { padding: 16, paddingBottom: 40 },
+    cardSection: { backgroundColor: Colors.surface, borderRadius: 14, padding: 16, borderWidth: 1, borderColor: Colors.border, marginBottom: 16 },
+    cardTitle: { fontSize: 14, fontFamily: 'Poppins_700Bold', color: Colors.primary, marginBottom: 12 },
+    fieldLabel: { fontSize: 12, fontFamily: 'Poppins_500Medium', color: Colors.textLight, marginTop: 10, marginBottom: 4 },
+    input: { borderWidth: 1, borderColor: Colors.border, borderRadius: 8, padding: 10, fontSize: 14, fontFamily: 'Poppins_400Regular', color: Colors.text, backgroundColor: Colors.background },
+    row2: { flexDirection: 'row', gap: 10 },
+    col: { flex: 1 },
+    pickerWrap: { borderWidth: 1, borderColor: Colors.border, borderRadius: 8, backgroundColor: Colors.background, overflow: 'hidden' },
+    picker: { height: 50, color: Colors.text },
+    submitBtn: { backgroundColor: Colors.primary, paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
+    submitBtnText: { color: '#FFF', fontSize: 15, fontFamily: 'Poppins_700Bold' },
+});
+
+export default CreateTenantScreen;

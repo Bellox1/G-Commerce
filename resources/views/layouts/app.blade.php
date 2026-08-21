@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>@yield('title', 'Tableau de bord') — PILOTRIX</title>
-    <meta name="description" content="@yield('meta_description', 'PILOTRIX — Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.')">
-    <meta name="keywords" content="gestion stock, ventes, clients, livraisons, dettes, multi-magasins, applicaition gestion, pilotrix">
+    <title>@yield('title', 'Tableau de bord') — pilotix</title>
+    <meta name="description" content="@yield('meta_description', 'pilotix — Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.')">
+    <meta name="keywords" content="gestion stock, ventes, clients, livraisons, dettes, multi-magasins, applicaition gestion, pilotix">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="@yield('title', 'Tableau de bord') — PILOTRIX">
+    <meta property="og:title" content="@yield('title', 'Tableau de bord') — pilotix">
     <meta property="og:description" content="Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="PILOTRIX">
+    <meta property="og:site_name" content="pilotix">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -24,7 +24,7 @@
     <meta name="theme-color" content="#105e49">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="PILOTRIX">
+    <meta name="apple-mobile-web-app-title" content="pilotix">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
@@ -50,7 +50,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         html, body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -61,7 +61,7 @@
         }
 
         /* ─── Typography & Utilities ─── */
-        h1, h2, h3 { color: var(--text); margin-bottom: 16px; font-weight: 700; }
+        h1, h2, h3, h4, h5, h6 { color: var(--text); margin-bottom: 16px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
         a { color: var(--primary); text-decoration: none; }
         a.text-danger { color: var(--danger); }
         .text-muted { color: var(--text-muted); font-size: 0.85rem; }
@@ -107,7 +107,7 @@
         }
 
         .header-brand .logo-text {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             color: var(--primary);
             font-weight: 900;
             font-size: 1.6rem;
@@ -207,7 +207,7 @@
             .nav-dropdown-menu { position: static; box-shadow: none; border: none; background: var(--bg); margin-top: 4px; }
         }
 
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; }
         .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:hover { background: var(--primary-light); }
         .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
@@ -218,7 +218,7 @@
 
         /* Generic table fix for new layout */
         .table-wrap { overflow-x: auto; background: var(--bg-card); border-radius: var(--radius-card); border: 1px solid var(--border); margin-bottom: 24px; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; }
         th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
         th { background: #f9fafb; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
         tr:hover td { background: #f8fafc; }
@@ -377,12 +377,21 @@
     <!-- Top Header -->
     <header class="app-header">
         <a href="{{ url('/') }}" class="header-brand" id="headerBrand">
-            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+            <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
         </a>
 
         <div class="header-user">
             <a href="{{ route('download') }}" title="Télécharger l'app" id="downloadLink" style="display:flex; align-items:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; justify-content:center; flex-shrink:0;">
                 <i class="bi bi-download" style="font-size:1.2rem;"></i>
+            </a>
+            <a href="{{ route('offre') }}" title="Mon offre" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; flex-shrink:0;">
+                <i class="bi bi-star" style="font-size:1.2rem;"></i>
+            </a>
+            <a href="{{ route('notifications') }}" title="Notifications" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-muted); background:#f1f5f9; width:40px; height:40px; border-radius:10px; flex-shrink:0; position:relative;">
+                <i class="bi bi-bell" style="font-size:1.2rem;"></i>
+                @if(Auth::user()->unreadNotifications()->count() > 0)
+                    <span style="position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; border-radius:9px; background:var(--danger); color:#fff; font-size:0.7rem; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 4px;">{{ Auth::user()->unreadNotifications()->count() }}</span>
+                @endif
             </a>
             <a href="{{ route('profile') }}" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
                 <i class="bi bi-person-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
@@ -429,7 +438,7 @@
                     <i class="bi bi-box2"></i> Produits
                 </a>
                 @endif
-                @if(Auth::user()->peutGererArrivages())
+                @if(Auth::user()->peutGererArrivages() && (Auth::user()->hasRole('super_admin') || Auth::user()->tenant?->hasCapability('import')))
                 <a href="{{ route('arrivages.index') }}" class="nav-link {{ request()->routeIs('arrivages.*') ? 'active' : '' }}">
                     <i class="bi bi-truck"></i> Arrivages
                 </a>
@@ -454,6 +463,11 @@
                     <i class="bi bi-credit-card-2-back"></i> Dettes
                 </a>
                 @endif
+                @if(Auth::user()->peutGererDettes())
+                <a href="{{ route('tresoreries.index') }}" class="nav-link {{ request()->routeIs('tresoreries.*') ? 'active' : '' }}" style="{{ !request()->routeIs('tresoreries.*') ? 'color: var(--primary);' : '' }}">
+                    <i class="bi bi-cash-stack"></i> Trésorerie
+                </a>
+                @endif
                 @if(Auth::user()->peutGererTransferts())
                 <a href="{{ route('transferts.index') }}" class="nav-link {{ request()->routeIs('transferts.*') ? 'active' : '' }}">
                     <i class="bi bi-arrow-left-right"></i> Transferts
@@ -473,7 +487,7 @@
                     <div class="nav-dropdown-menu">
                         @if(Auth::user()->peutGererDettes())
                         <a href="{{ route('dettes-societe.index') }}" class="nav-link {{ request()->routeIs('dettes-societe.*') ? 'active' : '' }}" style="{{ !request()->routeIs('dettes-societe.*') ? 'color: var(--danger);' : '' }}">
-                            <i class="bi bi-building"></i> Dettes Société
+                            <i class="bi bi-building"></i> Nos dettes
                         </a>
                         @endif
                         @if(Auth::user()->peutGererStock())
@@ -486,9 +500,9 @@
                             <i class="bi bi-shop"></i> Dépôts
                         </a>
                         @endif
-                        @if(Auth::user()->peutGererUtilisateurs())
+                        @if(Auth::user()->peutGererUtilisateurs() && (Auth::user()->hasRole('super_admin') || Auth::user()->tenant?->hasCapability('multi_user')))
                         <a href="{{ route('employes.index') }}" class="nav-link {{ request()->routeIs('employes.*') ? 'active' : '' }}">
-                            <i class="bi bi-person-badge"></i> Employés
+                            <i class="bi bi-person-badge"></i> Personnel
                         </a>
                         @endif
                         <a href="{{ route('faq') }}" class="nav-link {{ request()->routeIs('faq') ? 'active' : '' }}">
@@ -1337,7 +1351,7 @@ document.addEventListener('DOMContentLoaded', function() {
         installBanner = document.createElement('div');
         installBanner.id = 'pwa-install-banner';
         installBanner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#105e49;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:10000;font-size:.85rem;box-shadow:0 -4px 20px rgba(0,0,0,.15);flex-wrap:wrap;';
-        installBanner.innerHTML = '<span style="flex:1;min-width:200px;">📲 Installer <strong>PILOTRIX</strong> sur votre écran d\'accueil</span>' +
+        installBanner.innerHTML = '<span style="flex:1;min-width:200px;">📲 Installer <strong>pilotix</strong> sur votre écran d\'accueil</span>' +
             '<button id="pwa-install-btn" style="background:#fff;color:#105e49;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;">Installer</button>' +
             '<button id="pwa-dismiss-btn" style="background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;">Plus tard</button>';
         document.body.appendChild(installBanner);

@@ -69,7 +69,12 @@ class TenantController extends Controller
         $rules = CommissionRule::all();
 
         if (request()->expectsJson() || request()->is('api/*')) {
-            return response()->json(['success' => true, 'data' => $tenants]);
+            $payload = ['success' => true, 'data' => $tenants];
+            if ($user->isSuperAdmin()) {
+                $payload['stats'] = $stats;
+                $payload['societesExpirees'] = $societesExpirees;
+            }
+            return response()->json($payload);
         }
 
         return view('tenants.index', compact('tenants', 'stats', 'societesExpirees', 'rules'));
@@ -194,10 +199,15 @@ class TenantController extends Controller
         return $this->smartResponse('tenants.index', 'Société et son administrateur créés avec succès et commission générée !');
     }
 
-    public function show(Tenant $tenant)
+    public function show(Tenant $tenant, Request $request)
     {
         $this->authorizeModule('tenants');
         $tenant->load(['magasins', 'users']);
+
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $tenant]);
+        }
+
         return view('tenants.show', compact('tenant'));
     }
 
@@ -243,6 +253,15 @@ class TenantController extends Controller
             'nom' => 'required|string|max:255',
             'adresse' => 'nullable|string|max:255',
         ]);
+
+        if ($tenant->magasinLimitReached()) {
+            $max = $tenant->maxMagasins();
+            $msg = "L'offre de ce tenant limite le nombre de dépôts/magasins à {$max}. Passez à une offre supérieure (Professionnel+) pour en ajouter.";
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $msg], 403);
+            }
+            return back()->with('error', $msg);
+        }
 
         Magasin::create([
             'tenant_id' => $tenant->id,

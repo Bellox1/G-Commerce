@@ -78,7 +78,7 @@
         <!-- Utilisateurs -->
         <div class="card">
             <div class="card-header">
-                <h3><i class="bi bi-people-fill"></i> Employés & Rôles</h3>
+                <h3><i class="bi bi-people-fill"></i> Personnel & Rôles</h3>
             </div>
             <div class="table-wrap" style="margin-bottom: 0;">
                 <table>
@@ -102,8 +102,8 @@
                                     <span class="badge badge-success">Administrateur</span>
                                 @elseif($u->role === 'vendeur')
                                     <span class="badge badge-warning">Vendeur</span>
-                                @elseif($u->role === 'livreur')
-                                    <span class="badge badge-success" style="background:#dbeafe; color:#1d4ed8;">Livreur</span>
+                                @elseif($u->role === 'controleur')
+                                    <span class="badge badge-success" style="background:#dbeafe; color:#1d4ed8;">Contrôleur</span>
                                 @elseif($u->role === 'magasinier')
                                     <span class="badge badge-warning" style="background:#ffedd5; color:#c2410c;">Magasinier</span>
                                 @else

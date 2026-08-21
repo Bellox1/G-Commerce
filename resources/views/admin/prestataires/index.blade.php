@@ -38,7 +38,7 @@
                 <tbody>
                     @foreach($demandes as $d)
                     <tr>
-                        <td>{{ $d->created_at->format('d/m/Y') }}</td>
+                        <td>{{ $d->created_at->fr('d F Y') }}</td>
                         <td class="fw-bold"><a href="{{ route('admin.prestataires.show', $d->id) }}" style="color:var(--primary); text-decoration:none;">{{ $d->nom }} {{ $d->prenom }}</a></td>
                         <td>{{ $d->email }}</td>
                         <td>{{ $d->telephone }}</td>

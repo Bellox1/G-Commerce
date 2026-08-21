@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conditions d'utilisation — PILOTRIX</title>
-    <meta name="description" content="Conditions d'utilisation de l'application PILOTRIX. Consultez les règles et conditions d'usage.">
+    <title>Conditions d'utilisation — pilotix</title>
+    <meta name="description" content="Conditions d'utilisation de l'application pilotix. Consultez les règles et conditions d'usage.">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
     <style>
         :root { --primary: #105e49; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --bg: #f8fafc; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
         nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; padding: 0 5%; min-height: 64px; background: #fff; border-bottom: 1px solid var(--border); justify-content: space-between; }
         .nav-logo { display: flex; align-items: center; text-decoration: none; }
         .nav-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
@@ -47,7 +47,7 @@
 
 <nav>
     <a href="/" class="nav-logo">
-        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix">
+        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix">
     </a>
     <div class="nav-links">
         <a href="/">Accueil</a>
@@ -57,7 +57,7 @@
 
 <div class="page-header">
     <h1>Conditions d'utilisation</h1>
-    <p class="date">En vigueur depuis le {{ date('d/m/Y') }}</p>
+    <p class="date">En vigueur depuis le {{ now()->fr('d F Y') }}</p>
 </div>
 
 <div class="page-body">
@@ -120,7 +120,7 @@
     <h2>Besoin d'aide ?</h2>
     <p>Pour toute question, écrivez-nous :</p>
     <ul>
-        <li>Email : <a href="mailto:pilotrixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotrixcontact@gmail.com</a></li>
+        <li>Email : <a href="mailto:pilotixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotixcontact@gmail.com</a></li>
         <li>Téléphone : <a href="tel:+2290146862536" style="color:var(--primary); font-weight:600;">+229 01 46 86 25 36</a></li>
     </ul>
 
@@ -130,7 +130,7 @@
     <div class="footer-top">
         <div class="footer-brand">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
+                <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
             </div>
             <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
@@ -147,7 +147,7 @@
             <h5>Contact</h5>
             <ul>
                 <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                <li><a href="mailto:pilotrixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotrixcontact@gmail.com</a></li>
+                <li><a href="mailto:pilotixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
             </ul>
         </div>
     </div>

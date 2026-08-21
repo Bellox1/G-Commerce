@@ -25,12 +25,13 @@ class Dette extends Model
     /**
      * Enregistre un paiement partiel et met à jour le statut automatiquement
      */
-    public function enregistrerPaiement(float $montant, string $mode = 'especes', ?int $userId = null): DettePaiement
+    public function enregistrerPaiement(float $montant, string $mode = 'especes', ?int $userId = null, ?string $note = null): DettePaiement
     {
         $paiement = $this->paiements()->create([
             'user_id'       => $userId,
             'montant'       => $montant,
             'mode_paiement' => $mode,
+            'notes'         => $note,
         ]);
 
         $this->montant_paye    += $montant;

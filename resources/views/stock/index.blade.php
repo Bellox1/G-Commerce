@@ -35,8 +35,6 @@
                     <tr>
                         <th>Référence</th>
                         <th>Désignation</th>
-                        <th class="th-prix">Prix Conseillé</th>
-                        <th class="th-prix">Prix Marché</th>
                         <th style="text-align: right;">En Stock</th>
                     </tr>
                 </thead>
@@ -48,8 +46,6 @@
                     <tr>
                         <td class="td-ref">PRD-{{ $p->id }}</td>
                         <td style="font-weight: 600;">{{ $p->nom }}</td>
-                        <td class="prix-cell">{{ number_format($p->prix_vente_conseille, 0, ',', ' ') }} FCFA</td>
-                        <td class="prix-cell">{{ number_format($p->prix_marche, 0, ',', ' ') }} FCFA</td>
                         <td style="text-align: right; font-weight: 700;">
                             <span class="badge {{ $stockVal <= $p->seuil_alerte ? 'badge-danger' : 'badge-success' }}">
                                 {{ $stockVal }} Carton
@@ -58,7 +54,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 32px;">Aucun produit dans le catalogue</td>
+                        <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 32px;">Aucun produit dans le catalogue</td>
                     </tr>
                     @endforelse
                 </tbody>

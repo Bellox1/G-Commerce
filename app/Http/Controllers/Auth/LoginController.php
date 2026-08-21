@@ -22,6 +22,17 @@ class LoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::user();
+
+            if (!$user->actif) {
+                Auth::logout();
+                $message = 'Votre compte a été désactivé. Contactez l\'administrateur.';
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    return response()->json(['success' => false, 'message' => $message], 403);
+                }
+                return back()->withErrors(['email' => $message])->onlyInput('email');
+            }
+
             if ($request->expectsJson() || $request->is('api/*')) {
                 $user = Auth::user();
                 $token = $user->createToken('auth_token')->plainTextToken;
@@ -30,7 +41,18 @@ class LoginController extends Controller
                     'message'      => 'Connexion réussie.',
                     'access_token' => $token,
                     'token_type'   => 'Bearer',
-                    'user'         => $user
+                    'user'         => $user,
+                    'tenant'       => $user->tenant ? [
+                        'offre_code'    => $user->tenant->offre_code,
+                        'plan_level'    => $user->tenant->planLevel(),
+                        'capabilities' => [
+                            'import'         => $user->tenant->hasCapability('import'),
+                            'multi_magasin' => $user->tenant->hasCapability('multi_magasin'),
+                            'advanced_stats' => $user->tenant->hasCapability('advanced_stats'),
+                            'multi_user'     => $user->tenant->hasCapability('multi_user'),
+                            'cost_margin'    => $user->tenant->hasCapability('cost_margin'),
+                        ],
+                    ] : null,
                 ]);
             }
 

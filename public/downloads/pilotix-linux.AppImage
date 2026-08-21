@@ -1,0 +1,23 @@
+#!/bin/bash
+# Launcher PILOTIX Desktop pour Linux
+
+# URL par défaut dynamiquement lue ou configurable via APP_URL / argument
+TARGET_URL="${1:-${APP_URL:-https://pilotix.alwaysdata.net}}"
+
+echo "Lancement de PILOTIX Desktop sur : $TARGET_URL ..."
+
+if command -v electron &> /dev/null; then
+    electron --app="$TARGET_URL" --name="PILOTIX" &
+elif command -v google-chrome &> /dev/null; then
+    google-chrome --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/pilotix-desktop" &
+elif command -v chromium-browser &> /dev/null; then
+    chromium-browser --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/pilotix-desktop" &
+elif command -v chromium &> /dev/null; then
+    chromium --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/pilotix-desktop" &
+elif command -v firefox &> /dev/null; then
+    firefox --new-window "$TARGET_URL" &
+elif command -v xdg-open &> /dev/null; then
+    xdg-open "$TARGET_URL" &
+else
+    echo "Veuillez ouvrir votre navigateur à l'adresse : $TARGET_URL"
+fi

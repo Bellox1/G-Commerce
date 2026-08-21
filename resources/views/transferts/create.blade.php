@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Nouveau Transfert')
-@section('page-title', 'Effectuer un Transfert')
+@section('title', isset($transfert) ? 'Modifier le Transfert' : 'Nouveau Transfert')
+@section('page-title', isset($transfert) ? 'Modifier le Transfert ' . $transfert->reference : 'Effectuer un Transfert')
 
 @push('styles')
 <style>
@@ -16,8 +16,9 @@
 @endpush
 
 @section('content')
-<form method="POST" action="{{ route('transferts.store') }}" id="transfertForm">
+<form method="POST" action="{{ isset($transfert) ? route('transferts.update', $transfert) : route('transferts.store') }}" id="transfertForm">
     @csrf
+    @if(isset($transfert)) @method('PUT') @endif
 
     <div class="card">
         <div class="card-header">
@@ -28,9 +29,9 @@
                 <div class="form-group">
                     <label class="form-label">Magasin Source <span style="color:var(--danger);">*</span></label>
                     <select name="magasin_source_id" id="magasinSource" class="form-control" required>
-                        <option value="" disabled selected>Choisir le magasin source...</option>
+                        <option value="" disabled {{ !isset($transfert) ? 'selected' : '' }}>Choisir le magasin source...</option>
                         @foreach($magasins as $m)
-                            <option value="{{ $m->id }}" {{ old('magasin_source_id') == $m->id ? 'selected' : '' }}>{{ $m->nom }}</option>
+                            <option value="{{ $m->id }}" {{ (isset($transfert) && $transfert->magasin_source_id == $m->id) || old('magasin_source_id') == $m->id ? 'selected' : '' }}>{{ $m->nom }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -38,9 +39,9 @@
                 <div class="form-group">
                     <label class="form-label">Magasin Destination <span style="color:var(--danger);">*</span></label>
                     <select name="magasin_destination_id" class="form-control" required>
-                        <option value="" disabled selected>Choisir le magasin destination...</option>
+                        <option value="" disabled {{ !isset($transfert) ? 'selected' : '' }}>Choisir le magasin destination...</option>
                         @foreach($magasins as $m)
-                            <option value="{{ $m->id }}" {{ old('magasin_destination_id') == $m->id ? 'selected' : '' }}>{{ $m->nom }}</option>
+                            <option value="{{ $m->id }}" {{ (isset($transfert) && $transfert->magasin_destination_id == $m->id) || old('magasin_destination_id') == $m->id ? 'selected' : '' }}>{{ $m->nom }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -48,7 +49,7 @@
 
             <div class="form-group">
                 <label class="form-label">Notes (optionnel)</label>
-                <textarea name="notes" class="form-control" rows="2" placeholder="Motif ou commentaire...">{{ old('notes') }}</textarea>
+                <textarea name="notes" class="form-control" rows="2" placeholder="Motif ou commentaire...">{{ old('notes', isset($transfert) ? $transfert->notes : '') }}</textarea>
             </div>
         </div>
     </div>
@@ -66,9 +67,9 @@
             </button>
 
             <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:20px;">
-                <i class="bi bi-send"></i> Effectuer le Transfert
+                <i class="bi bi-send"></i> {{ isset($transfert) ? 'Enregistrer les modifications' : 'Effectuer le Transfert' }}
             </button>
-            <a href="{{ route('transferts.index') }}" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-top:8px;">
+            <a href="{{ isset($transfert) ? route('transferts.show', $transfert) : route('transferts.index') }}" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-top:8px;">
                 Annuler
             </a>
         </div>
@@ -265,6 +266,19 @@
                 ajouterLigne();
             }
         });
+
+        @if(isset($transfert))
+        const editLines = @json($transfert->produits->map(function($tp){ return ['produit_id'=>$tp->produit_id, 'nom'=>$tp->produit->nom, 'quantite'=>$tp->quantite]; })->values());
+        if (getSourceId()) {
+            editLines.forEach(function(l) { ajouterLigne(l); });
+        }
+        const destSelectEl = document.querySelector('select[name="magasin_destination_id"]');
+        if (destSelectEl) destSelectEl.value = "{{ $transfert->magasin_destination_id }}";
+        @else
+        if (getSourceId()) {
+            ajouterLigne();
+        }
+        @endif
 
         document.getElementById('transfertForm').addEventListener('submit', function(e) {
             const lignes = container.querySelectorAll('.ligne-row');

@@ -15,6 +15,8 @@ class EmployeController extends Controller
         $tenant = Auth::user()->tenant;
         $employes = User::where('tenant_id', $tenant->id)
             ->where('id', '!=', $tenant->proprietaire_id)
+            ->where('role', '!=', 'super_admin')
+            ->where('role', '!=', 'admin')
             ->get();
 
         if (request()->expectsJson() || request()->is('api/*')) {
@@ -31,14 +33,24 @@ class EmployeController extends Controller
 
     public function store(Request $request)
     {
+        $tenant = Auth::user()->tenant;
+        if ($tenant->userLimitReached()) {
+            $max = $tenant->maxUsers();
+            $msg = "Votre offre limite le nombre d'utilisateurs à {$max}. Passez à une offre supérieure (Professionnel+) pour ajouter des employés.";
+            if ($request->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $msg], 403);
+            }
+            return back()->with('error', $msg);
+        }
+
         $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|max:255',
             'telephone' => 'nullable|string|max:30',
-            'role'      => 'required|in:admin,vendeur,livreur,magasinier',
+            'role'      => 'required|in:superviseur,vendeur,controleur,magasinier',
             'roles_secondaires' => 'nullable|array',
-            'roles_secondaires.*' => 'in:vendeur,livreur,magasinier',
-            'password'  => 'required|string|min:6|confirmed',
+            'roles_secondaires.*' => 'in:superviseur,vendeur,controleur,magasinier',
+            'password'  => 'required|string|min:6',
             'salaire'   => 'nullable|numeric|min:0',
         ]);
 
@@ -102,9 +114,9 @@ class EmployeController extends Controller
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|max:255',
             'telephone' => 'nullable|string|max:30',
-            'role'      => 'required|in:admin,vendeur,livreur,magasinier',
+            'role'      => 'required|in:superviseur,vendeur,controleur,magasinier',
             'roles_secondaires' => 'nullable|array',
-            'roles_secondaires.*' => 'in:vendeur,livreur,magasinier',
+            'roles_secondaires.*' => 'in:superviseur,vendeur,controleur,magasinier',
             'actif'     => 'nullable|boolean',
             'salaire'   => 'nullable|numeric|min:0',
         ]);
@@ -132,6 +144,23 @@ class EmployeController extends Controller
         $employe->update($data);
 
         return $this->smartResponse('employes.index', 'Employé mis à jour.');
+    }
+
+    public function toggleActive(User $employe)
+    {
+        $this->authorizeTenant($employe);
+
+        if ($employe->id === Auth::id()) {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Vous ne pouvez pas désactiver votre propre compte.'], 400);
+            }
+            return redirect()->route('employes.index')->with('error', 'Vous ne pouvez pas désactiver votre propre compte.');
+        }
+
+        $employe->update(['actif' => !$employe->actif]);
+
+        $message = $employe->actif ? 'Compte réactivé.' : 'Compte désactivé.';
+        return $this->smartResponse('employes.index', $message);
     }
 
     public function destroy(User $employe)

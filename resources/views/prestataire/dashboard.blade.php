@@ -64,7 +64,7 @@
             <div>
                 <div style="font-weight:700; font-size:0.95rem; color:#1f2937;">{{ $s->nom }}</div>
                 <div style="font-size:0.8rem; color:#6b7280;">
-                    Offre : {{ $s->offre_code }} — Expirée le {{ $s->offre_expires_at ? $s->offre_expires_at->format('d/m/Y') : 'N/A' }}
+                    Offre : {{ $s->offre_code }} — Expirée le {{ $s->offre_expires_at ? $s->offre_expires_at->fr('d F Y') : 'N/A' }}
                 </div>
             </div>
             <form action="{{ route('prestataire.tenants.renew', $s) }}" method="POST" style="display:flex; gap:8px; align-items:center;">
@@ -125,7 +125,7 @@
                         <tbody>
                             @foreach($societes as $s)
                             <tr>
-                                <td>{{ $s->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $s->created_at->fr('d F Y') }}</td>
                                 <td class="fw-bold">
                                     {{ $s->nom }}
                                     @if($s->marque)
@@ -185,7 +185,7 @@
                                 {{ $h->tenant ? $h->tenant->nom : 'Société Supprimée' }}
                             </div>
                             <div class="text-muted" style="font-size:0.75rem;">
-                                Réglé le {{ $h->updated_at->format('d/m/Y') }}
+                                Réglé le {{ $h->updated_at->fr('d F Y') }}
                             </div>
                         </div>
                         <div style="font-weight:700; color:var(--success); font-size:0.9rem;">
@@ -230,7 +230,7 @@
                 <tbody>
                     @foreach($commissions as $c)
                     <tr>
-                        <td>{{ $c->created_at->format('d/m/Y') }}</td>
+                        <td>{{ $c->created_at->fr('d F Y') }}</td>
                         <td>{{ $c->tenant->nom ?? '—' }}</td>
                         <td class="fw-bold">{{ number_format($c->montant, 0, ',', ' ') }} F</td>
                         <td>

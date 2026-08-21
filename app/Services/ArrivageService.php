@@ -34,6 +34,7 @@ class ArrivageService
                     'fournisseur_id'       => $p['fournisseur_id'] ?? null,
                     'quantite'             => $p['quantite'],
                     'prix_unitaire_origine'=> $p['prix_unitaire_origine'],
+                    'prix_vente_suggere'   => $p['prix_vente_suggere'] ?? null,
                     'total_origine'        => $totalOrigine,
                 ]);
             }

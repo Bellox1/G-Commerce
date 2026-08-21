@@ -25,6 +25,17 @@ class MagasinController extends Controller
     public function store(Request $request)
     {
         $this->authorizeModule('magasins');
+
+        $tenant = Auth::user()->tenant;
+        if ($tenant->magasinLimitReached()) {
+            $max = $tenant->maxMagasins();
+            $msg = "Votre offre limite le nombre de dépôts/magasins à {$max}. Passez à une offre supérieure (Professionnel+) pour en ajouter.";
+            if ($request->wantsJson() || $request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $msg], 403);
+            }
+            return back()->with('error', $msg);
+        }
+
         $validated = $request->validate([
             'nom'       => 'required|string|max:255|unique:magasins,nom,NULL,id,tenant_id,' . Auth::user()->tenant_id,
             'adresse'   => 'nullable|string|max:255',

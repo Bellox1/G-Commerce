@@ -16,21 +16,48 @@ class ProduitController extends Controller
     {
         $this->authorizeModule('produits');
         $tenant = Auth::user()->tenant;
-        $produits = Produit::where('tenant_id', $tenant->id)->get();
-        $magasins = Magasin::where('tenant_id', $tenant->id)->get();
 
-        $selectedMagasinId = $request->get('magasin_id', $magasins->first()?->id);
+        $query = Produit::where('tenant_id', $tenant->id);
+
+        if ($request->filled('q')) {
+            $q = $request->get('q');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nom', 'like', "%{$q}%")
+                    ->orWhere('code', 'like', "%{$q}%");
+            });
+        }
+
+        $perPage = (int) $request->get('per_page', 10);
+        $perPage = $perPage > 0 ? min($perPage, 100) : 10;
+
+        $sort = $request->get('sort', 'az');
+        $direction = $sort === 'za' ? 'desc' : 'asc';
+        // On renvoie tous les produits (cohérent avec le mobile qui charge tout le catalogue)
+        $produits = $query->orderBy('nom', $direction)->get();
+
+        $magasins = Magasin::where('tenant_id', $tenant->id)->get();
+        $selectedMagasinId = $request->get('magasin_id', 'all');
 
         $stockParProduit = [];
-        if ($selectedMagasinId) {
+        $stockCartouchesParProduit = [];
+        if ($selectedMagasinId && $selectedMagasinId !== 'all') {
             $stockParProduit = $this->stockService->getStockMagasin($selectedMagasinId);
+            $stockCartouchesParProduit = $this->stockService->getStockMagasinCartouches($selectedMagasinId);
+        } else {
+            $stockParProduit = $this->stockService->getStockTotalParProduit();
+            $stockCartouchesParProduit = $this->stockService->getStockTotalCartouchesParProduit();
         }
 
         if (request()->expectsJson() || request()->is('api/*')) {
-            return response()->json(['success' => true, 'data' => $produits, 'stock' => $stockParProduit]);
+            return response()->json([
+                'success'       => true,
+                'data'          => $produits,
+                'stock'         => $stockParProduit,
+                'stock_cartouches' => $stockCartouchesParProduit,
+            ]);
         }
 
-        return view('produits.index', compact('produits', 'magasins', 'selectedMagasinId', 'stockParProduit'));
+        return view('produits.index', compact('produits', 'magasins', 'selectedMagasinId', 'stockParProduit', 'stockCartouchesParProduit'));
     }
 
     public function show(Produit $produit)
@@ -40,21 +67,57 @@ class ProduitController extends Controller
         $magasins = Magasin::where('tenant_id', $tenant->id)->get();
 
         $stockParMagasin = [];
+        $stockCartouchesParMagasin = [];
         foreach ($magasins as $m) {
-            $stockParMagasin[$m->id] = $this->stockService->getStock($m->id, $produit->id);
+            $detail = $this->stockService->getStockDetail($m->id, $produit->id);
+            $stockParMagasin[$m->id] = $detail['cartons'];
+            $stockCartouchesParMagasin[$m->id] = $detail['cartouches'];
+        }
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            // Les mouvements sont chargés à part, paginés (voir mouvements()).
+            return response()->json([
+                'success'                    => true,
+                'produit'                    => $produit,
+                'magasins'                   => $magasins,
+                'stockParMagasin'            => $stockParMagasin,
+                'stockCartouchesParMagasin'  => $stockCartouchesParMagasin,
+            ]);
         }
 
         $mouvements = $produit->mouvements()
-            ->with(['magasin', 'user'])
+            ->with(['magasin', 'user', 'reference'])
             ->latest('date_mouvement')
             ->take(50)
             ->get();
 
-        if (request()->expectsJson() || request()->is('api/*')) {
-            return response()->json(['success' => true, 'data' => $produit, 'stock_par_magasin' => $stockParMagasin, 'mouvements' => $mouvements]);
-        }
-
         return view('produits.show', compact('produit', 'magasins', 'stockParMagasin', 'mouvements'));
+    }
+
+    /**
+     * Mouvements d'un produit, paginés (lots de 10) pour le mobile.
+     */
+    public function mouvements(Produit $produit, Request $request)
+    {
+        $this->authorizeTenant($produit);
+        $perPage = (int) $request->get('per_page', 10);
+        $page = (int) $request->get('page', 1);
+
+        $paginator = $produit->mouvements()
+            ->with(['magasin', 'user', 'reference'])
+            ->latest('date_mouvement')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $paginator->items(),
+            'meta'    => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+        ]);
     }
 
     public function create()
@@ -88,8 +151,12 @@ class ProduitController extends Controller
             'seuil_alerte' => 'required|integer|min:0',
             'prix_vente_conseille' => 'nullable|integer|min:0',
             'prix_marche' => 'nullable|integer|min:0',
-            'magasin_id' => 'required|exists:magasins,id',
-            'stock_initial' => 'integer|min:0',
+            'magasin_id' => 'nullable|exists:magasins,id',
+            'stock_initial' => 'nullable|integer|min:0',
+            'stocks' => 'nullable|array',
+            'stocks.*' => 'integer|min:0',
+            'stocks_cartouches' => 'nullable|array',
+            'stocks_cartouches.*' => 'integer|min:0',
             'a_cartouche' => 'boolean',
             'cartouche_par_carton' => 'nullable|required_if:a_cartouche,1|integer|min:1',
             'prix_cartouche' => 'nullable|numeric|min:0',
@@ -121,17 +188,36 @@ class ProduitController extends Controller
             'prix_cartouche'      => $prixCartouche,
         ]);
 
-        // Créer le stock initial dans le magasin choisi
-        if ($request->stock_initial > 0) {
-            $this->stockService->ajuster(
-                $tenant->id,
-                $request->magasin_id,
-                $produit->id,
-                $request->stock_initial,
-                $user->id,
-                'Stock initial'
-            );
+        // Créer le stock initial par magasin (découplé d'un magasin unique)
+        $stocks = $request->input('stocks', []);
+        if (empty($stocks) && $request->filled('magasin_id') && $request->stock_initial > 0) {
+            $stocks = [$request->magasin_id => $request->stock_initial];
         }
+        $isCartouche = $request->boolean('a_cartouche');
+        $cpc = $isCartouche ? max(1, (int) ($request->cartouche_par_carton ?? 1)) : 1;
+        $stocksCartouches = $request->input('stocks_cartouches', []);
+        foreach ($stocks as $magasinId => $qte) {
+            $qte = (int) $qte;
+            // Les cartouches isolées ne concernent que les produits a_cartouche,
+            // et ne doivent jamais atteindre un carton complet (< cpc).
+            $qteCartouches = 0;
+            if ($isCartouche) {
+                $raw = (int) ($stocksCartouches[$magasinId] ?? 0);
+                $qteCartouches = max(0, min($raw, $cpc - 1));
+            }
+            if ($qte > 0 || $qteCartouches > 0 || $this->stockService->getStock($magasinId, $produit->id) > 0) {
+                $this->stockService->ajuster(
+                    $tenant->id,
+                    $magasinId,
+                    $produit->id,
+                    $qte,
+                    $user->id,
+                    'Stock initial',
+                    $qteCartouches
+                );
+            }
+        }
+        $produit->syncStock();
 
         return $this->smartResponse('produits.index', 'Produit créé avec succès.');
     }
@@ -140,7 +226,71 @@ class ProduitController extends Controller
     {
         $this->authorizeModule('catalogues');
         $this->authorizeTenant($produit);
-        return view('produits.edit', compact('produit'));
+        $magasins = Magasin::where('tenant_id', Auth::user()->tenant_id)->get();
+        $stockParMagasin = [];
+        $stockCartouchesParMagasin = [];
+        foreach ($magasins as $m) {
+            $detail = $this->stockService->getStockDetail($m->id, $produit->id);
+            $stockParMagasin[$m->id] = $detail['cartons'];
+            $stockCartouchesParMagasin[$m->id] = $detail['cartouches'];
+        }
+        return view('produits.edit', compact('produit', 'magasins', 'stockParMagasin', 'stockCartouchesParMagasin'));
+    }
+
+    /**
+     * Vue dédiée de gestion des stocks par magasin
+     */
+    public function stockEdit(Produit $produit)
+    {
+        $this->authorizeModule('catalogues');
+        $this->authorizeTenant($produit);
+        $magasins = Magasin::where('tenant_id', Auth::user()->tenant_id)->get();
+        $stockParMagasin = [];
+        $stockCartouchesParMagasin = [];
+        foreach ($magasins as $m) {
+            $detail = $this->stockService->getStockDetail($m->id, $produit->id);
+            $stockParMagasin[$m->id] = $detail['cartons'];
+            $stockCartouchesParMagasin[$m->id] = $detail['cartouches'];
+        }
+        return view('produits.stocks', compact('produit', 'magasins', 'stockParMagasin', 'stockCartouchesParMagasin'));
+    }
+
+    public function stockUpdate(Request $request, Produit $produit)
+    {
+        $this->authorizeModule('catalogues');
+        $this->authorizeTenant($produit);
+        $request->validate([
+            'stocks'              => 'nullable|array',
+            'stocks.*'            => 'integer|min:0',
+            'stocks_cartouches'   => 'nullable|array',
+            'stocks_cartouches.*' => 'integer|min:0',
+        ]);
+
+        $isCartouche = $produit->a_cartouche;
+        $cpc = $isCartouche ? max(1, (int) ($produit->cartouche_par_carton ?? 1)) : 1;
+        $stocksCartouches = $request->input('stocks_cartouches', []);
+        foreach ($request->input('stocks', []) as $magasinId => $qte) {
+            $qte = (int) $qte;
+            $qteCartouches = 0;
+            if ($isCartouche) {
+                $raw = (int) ($stocksCartouches[$magasinId] ?? 0);
+                $qteCartouches = max(0, min($raw, $cpc - 1));
+            }
+            if ($qte > 0 || $qteCartouches > 0 || $this->stockService->getStock($magasinId, $produit->id) > 0) {
+                $this->stockService->ajuster(
+                    $produit->tenant_id,
+                    $magasinId,
+                    $produit->id,
+                    $qte,
+                    Auth::id(),
+                    'Ajustement stock manuel',
+                    $qteCartouches
+                );
+            }
+        }
+        $produit->syncStock();
+
+        return $this->smartResponse('produits.show', 'Stocks par magasin mis à jour avec succès.');
     }
 
     public function update(Request $request, Produit $produit)
@@ -167,13 +317,17 @@ class ProduitController extends Controller
             'seuil_alerte' => 'required|integer|min:0',
             'prix_vente_conseille' => 'nullable|integer|min:0',
             'prix_marche' => 'nullable|integer|min:0',
-            'stock' => 'required|integer|min:0',
+            'stock' => 'nullable|integer|min:0',
+            'stocks' => 'nullable|array',
+            'stocks.*' => 'integer|min:0',
+            'stocks_cartouches' => 'nullable|array',
+            'stocks_cartouches.*' => 'integer|min:0',
             'a_cartouche' => 'boolean',
             'cartouche_par_carton' => 'nullable|required_if:a_cartouche,1|integer|min:1',
             'prix_cartouche' => 'nullable|numeric|min:0',
         ]);
 
-        $data = $request->except('image');
+        $data = $request->except(['image', 'stock', 'stocks', 'stocks_cartouches']);
         $data['a_cartouche'] = $request->boolean('a_cartouche');
 
         if ($request->hasFile('image')) {
@@ -195,6 +349,31 @@ class ProduitController extends Controller
         }
 
         $produit->update($data);
+
+        // Mise à jour du stock par magasin (ajustement inventaire)
+        $isCartouche = $request->boolean('a_cartouche');
+        $cpc = $isCartouche ? max(1, (int) ($request->cartouche_par_carton ?? 1)) : 1;
+        $stocksCartouches = $request->input('stocks_cartouches', []);
+        foreach ($request->input('stocks', []) as $magasinId => $qte) {
+            $qte = (int) $qte;
+            $qteCartouches = 0;
+            if ($isCartouche) {
+                $raw = (int) ($stocksCartouches[$magasinId] ?? 0);
+                $qteCartouches = max(0, min($raw, $cpc - 1));
+            }
+            if ($qte > 0 || $qteCartouches > 0 || $this->stockService->getStock($magasinId, $produit->id) > 0) {
+                $this->stockService->ajuster(
+                    $produit->tenant_id,
+                    $magasinId,
+                    $produit->id,
+                    $qte,
+                    Auth::id(),
+                    'Ajustement stock (édition produit)',
+                    $qteCartouches
+                );
+            }
+        }
+        $produit->syncStock();
 
         return $this->smartResponse('produits.index', 'Produit mis à jour avec succès.');
     }

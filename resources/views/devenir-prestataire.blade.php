@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devenir Partenaire — PILOTRIX</title>
-    <meta name="description" content="Rejoignez le réseau de partenaires PILOTRIX. Proposez la gestion commerciale à vos clients.">
+    <title>Devenir Partenaire — pilotix</title>
+    <meta name="description" content="Rejoignez le réseau de partenaires pilotix. Proposez la gestion commerciale à vos clients.">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
@@ -20,7 +21,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
 
         /* ─── NAV (copié tel quel de welcome) ─── */
         nav {
@@ -51,7 +52,7 @@
         .sub-hero-inner { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; }
         .sub-hero .back-link { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.6); font-weight: 600; font-size: 0.85rem; text-decoration: none; margin-bottom: 16px; transition: color .2s; }
         .sub-hero .back-link:hover { color: #fff; }
-        .sub-hero h1 { font-family: 'Montserrat', sans-serif; font-size: 2.4rem; font-weight: 900; color: #fff; line-height: 1.3; letter-spacing: -1.5px; margin-bottom: 14px; }
+        .sub-hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 900; color: #fff; line-height: 1.3; letter-spacing: -1.5px; margin-bottom: 14px; }
         .sub-hero p { font-size: 1.05rem; color: rgba(255,255,255,0.75); line-height: 1.6; }
 
         /* ─── CONTENT ─── */
@@ -62,7 +63,7 @@
             background: #fff; border-radius: 16px; padding: 40px;
             border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 10px 30px rgba(0,0,0,0.03);
         }
-        .form-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
+        .form-card h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
         .form-card .sub-text { color: var(--muted); font-size: 0.92rem; margin-bottom: 28px; line-height: 1.5; }
         .fg { margin-bottom: 14px; }
         .fg label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 5px; color: var(--text); }
@@ -102,7 +103,7 @@
     <!-- Nav -->
     <nav>
         <a href="/" class="nav-logo">
-            <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo">
+            <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo">
         </a>
         <div class="nav-links-pub">
             <a href="/">Accueil</a>

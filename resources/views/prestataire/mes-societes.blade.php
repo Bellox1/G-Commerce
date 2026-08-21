@@ -45,7 +45,7 @@
                         <td>{{ $t->telephone ?? '—' }}</td>
                         <td>{{ $t->magasins_count }}</td>
                         <td>{{ $t->users_count }}</td>
-                        <td>{{ $t->created_at->format('d/m/Y') }}</td>
+                        <td>{{ $t->created_at->fr('d F Y') }}</td>
                         <td>
                             <a href="{{ route('prestataire.tenants.edit', $t) }}" class="btn btn-sm" style="background:var(--primary); color:#fff; padding:5px 12px; border-radius:6px; text-decoration:none; font-size:0.82rem;">
                                 <i class="bi bi-pencil"></i> Modifier

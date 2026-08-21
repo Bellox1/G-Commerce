@@ -48,7 +48,7 @@
                 </span>
                 <h2 style="font-size: 1.4rem; font-weight: 700;">Créance de {{ $dette->client?->nomComplet() }}</h2>
                 <p style="font-size: .8rem; color: var(--text-muted); margin-top: 4px;">
-                    Générée le {{ $dette->created_at->format('d/m/Y') }} lors de la facture 
+                    Générée le {{ $dette->created_at->fr('d F Y') }} lors de la facture 
                     <a href="{{ route('ventes.show', $dette->vente_id) }}" style="color: var(--primary); font-weight: 600; text-decoration: none;">
                         {{ $dette->vente?->reference }}
                     </a>
@@ -68,6 +68,13 @@
                         <div style="font-size: 1.2rem; font-weight: 770; color: var(--danger);">{{ number_format($dette->montant_restant, 0, ',', ' ') }} F</div>
                     </div>
                 </div>
+
+                @if($dette->notes)
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+                    <div style="font-size: .75rem; color: var(--text-muted); margin-bottom: 4px;">Note</div>
+                    <div style="font-size: .9rem; color: var(--text); white-space: pre-wrap;">{{ $dette->notes }}</div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -79,7 +86,7 @@
                         <div style="font-size:.75rem; color:var(--text-muted);">Date d'échéance</div>
                         <div style="font-size:1.1rem; font-weight:700; margin-top:2px;">
                             @if($dette->date_echeance)
-                                {{ $dette->date_echeance->format('d/m/Y') }}
+                                {{ $dette->date_echeance->fr('d F Y') }}
                                 @if($dette->estEnRetard())
                                     <span class="badge badge-danger">En retard</span>
                                 @elseif($dette->date_echeance->isToday())
@@ -117,7 +124,10 @@
             <div class="card-header">
                 <h3><i class="bi bi-clock-history"></i> Historique des Versements</h3>
             </div>
-            <div class="table-wrap">
+                <div class="table-wrap">
+                @php
+                    $modeLabels = ['especes' => 'Espèces', 'mobile_money' => 'Mobile Money', 'cheque' => 'Chèque'];
+                @endphp
                 <table>
                     <thead>
                         <tr>
@@ -130,12 +140,15 @@
                     <tbody>
                         @forelse($dette->paiements as $p)
                         <tr>
-                            <td>{{ $p->created_at->format('d/m/Y H:i:s') }}</td>
+                            <td>{{ $p->created_at->fr('d F Y H:i:s') }}</td>
                             <td style="text-align: right; font-weight: 700; color: var(--success);">
                                 +{{ number_format($p->montant, 0, ',', ' ') }} FCFA
                             </td>
                             <td>
-                                <span class="badge badge-gray"><i class="bi bi-cash"></i> Espèces</span>
+                                <span class="badge badge-gray"><i class="bi bi-cash"></i> {{ $modeLabels[$p->mode_paiement] ?? ucfirst($p->mode_paiement ?? 'especes') }}</span>
+                                @if($p->notes)
+                                    <div style="font-size: .75rem; color: var(--text-muted); margin-top: 3px;">{{ $p->notes }}</div>
+                                @endif
                             </td>
                             <td>{{ $p->user?->name ?: 'Système' }}</td>
                         </tr>
@@ -165,9 +178,23 @@
                     
                     <div class="form-group">
                         <label class="form-label">Montant à encaisser (CFA)</label>
-                        <input type="number" name="montant" class="form-control" style="font-size: 1.15rem; font-weight: bold; color: var(--success);" 
+                        <input type="number" name="montant" class="form-control" style="font-size: 1.15rem; font-weight: bold; color: var(--success);"
                                min="1" max="{{ $dette->montant_restant }}" value="{{ $dette->montant_restant }}" required>
                         <small style="color: var(--text-muted); display: block; margin-top: 4px;">Le montant maximum est de {{ number_format($dette->montant_restant, 0, ',', ' ') }} FCFA.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mode de paiement</label>
+                        <select name="mode_paiement" class="form-control">
+                            <option value="especes">Espèces</option>
+                            <option value="mobile_money">Mobile Money</option>
+                            <option value="cheque">Chèque</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Note (optionnel)</label>
+                        <input type="text" name="note" class="form-control" placeholder="Remarque...">
                     </div>
 
                     <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center; margin-top: 10px;">

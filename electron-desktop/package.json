@@ -1,0 +1,45 @@
+{
+  "name": "pilotix-desktop",
+  "version": "1.0.0",
+  "description": "PILOTIX Application Desktop pour Windows, macOS et Linux",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:linux": "electron-builder --linux AppImage",
+    "build:win": "electron-builder --win nsis",
+    "build:mac": "electron-builder --mac dmg"
+  },
+  "keywords": [
+    "pilotix",
+    "electron",
+    "desktop",
+    "gestion-commerciale"
+  ],
+  "author": "PILOTIX",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0"
+  },
+  "build": {
+    "appId": "com.pilotix.desktop",
+    "productName": "PILOTIX",
+    "directories": {
+      "output": "../public/downloads"
+    },
+    "files": [
+      "main.js",
+      "icon.png"
+    ],
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    }
+  }
+}

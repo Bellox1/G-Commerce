@@ -96,7 +96,7 @@
                         <tbody>
                             @foreach($societes as $s)
                             <tr>
-                                <td>{{ $s->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $s->created_at->fr('d F Y') }}</td>
                                 <td class="fw-bold">
                                     {{ $s->nom }}
                                     @if($s->marque)
@@ -147,7 +147,7 @@
                                 {{ $h->tenant ? $h->tenant->nom : 'Société Supprimée' }}
                             </div>
                             <div class="text-muted" style="font-size:0.75rem;">
-                                Réglé le {{ $h->updated_at->format('d/m/Y') }}
+                                Réglé le {{ $h->updated_at->fr('d F Y') }}
                             </div>
                         </div>
                         <div style="font-weight:700; color:var(--success); font-size:0.9rem;">

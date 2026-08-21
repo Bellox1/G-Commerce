@@ -1,0 +1,74 @@
+{
+  "expo": {
+    "name": "Pilotix",
+    "slug": "pilotix",
+    "scheme": "pilotix",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FFFFFF",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pilotix.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.pilotix.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO"
+      ],
+      "navigationBar": {
+        "visible": "transparent"
+      },
+      "statusBar": {
+        "translucent": true
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker",
+      "expo-font",
+      "expo-asset",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "pilotix a besoin d'accéder à votre caméra pour prendre des photos de produits."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "pilotix accède à votre galerie pour ajouter des photos de produits.",
+          "cameraPermission": "pilotix a besoin de la caméra pour photographier vos produits.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a68455bb-25ec-44d4-b75e-517b170f0636"
+      }
+    }
+  }
+}

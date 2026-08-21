@@ -63,7 +63,7 @@
             <tbody>
                 @forelse($mouvements as $m)
                 <tr>
-                    <td>{{ $m->date_mouvement->format('d/m/Y H:i:s') }}</td>
+                    <td>{{ $m->date_mouvement->fr('d F Y H:i:s') }}</td>
                     <td>{{ $m->magasin?->nom }}</td>
                     <td style="font-weight: 500;">{{ $m->produit?->nom }}</td>
                     <td>

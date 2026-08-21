@@ -11,6 +11,7 @@ use App\Services\ArrivageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class ArrivageController extends Controller
 {
@@ -20,7 +21,7 @@ class ArrivageController extends Controller
     {
         $tenant = Auth::user()->tenant;
         $arrivages = Arrivage::where('tenant_id', $tenant->id)
-            ->with(['fournisseur', 'magasin', 'user', 'produits'])
+            ->with(['fournisseur', 'magasin', 'user', 'produits.fournisseur', 'produits.produit'])
             ->orderByDesc('id')
             ->paginate(15);
 
@@ -71,10 +72,12 @@ class ArrivageController extends Controller
             'frais_douane_cfa'      => 'required|numeric|min:0',
             'frais_manutention_cfa' => 'required|numeric|min:0',
             'autres_frais_cfa'      => 'required|numeric|min:0',
+            'devise_origine'        => 'nullable|string|in:NGN,EUR,USD,CNY,XOF,AUTRE',
             'produits'              => 'required|array|min:1',
             'produits.*.produit_id' => 'required|exists:produits,id',
             'produits.*.quantite'   => 'required|integer|min:1',
             'produits.*.prix_unitaire_origine' => 'required|numeric|min:0',
+            'produits.*.prix_vente_suggere' => 'nullable|numeric|min:0',
             'produits.*.fournisseur_id' => 'nullable|exists:fournisseurs,id',
         ]);
 
@@ -82,6 +85,7 @@ class ArrivageController extends Controller
 
         $data['magasin_id']       = $request->input('magasin_id');
         $data['fournisseur_id']   = $request->input('fournisseur_id');
+        $data['devise_origine']   = $request->input('devise_origine', 'NGN');
         $data['taux_change']      = $request->input('taux_change_naira_cfa');
         $data['frais_transport']   = $request->input('frais_transport_cfa', 0);
         $data['frais_douane']      = $request->input('frais_douane_cfa', 0);
@@ -156,15 +160,18 @@ class ArrivageController extends Controller
             'frais_douane_cfa'      => 'required|numeric|min:0',
             'frais_manutention_cfa' => 'required|numeric|min:0',
             'autres_frais_cfa'      => 'required|numeric|min:0',
+            'devise_origine'        => 'nullable|string|in:NGN,EUR,USD,CNY,XOF,AUTRE',
             'produits'              => 'required|array|min:1',
             'produits.*.produit_id' => 'required|exists:produits,id',
             'produits.*.quantite'   => 'required|integer|min:1',
             'produits.*.prix_unitaire_origine' => 'required|numeric|min:0',
+            'produits.*.prix_vente_suggere' => 'nullable|numeric|min:0',
             'produits.*.fournisseur_id' => 'nullable|exists:fournisseurs,id',
         ]);
 
         $data['magasin_id']       = $request->input('magasin_id');
         $data['fournisseur_id']   = $request->input('fournisseur_id');
+        $data['devise_origine']   = $request->input('devise_origine', 'NGN');
         $data['taux_change']      = $request->input('taux_change_naira_cfa');
         $data['frais_transport']   = $request->input('frais_transport_cfa', 0);
         $data['frais_douane']      = $request->input('frais_douane_cfa', 0);
@@ -182,6 +189,7 @@ class ArrivageController extends Controller
                     'fournisseur_id'       => $p['fournisseur_id'] ?? null,
                     'quantite'             => $p['quantite'],
                     'prix_unitaire_origine'=> $p['prix_unitaire_origine'],
+                    'prix_vente_suggere'   => $p['prix_vente_suggere'] ?? null,
                     'total_origine'        => $totalOrigine,
                 ]);
             }
@@ -249,6 +257,65 @@ class ArrivageController extends Controller
     {
         if ($arrivage->tenant_id !== Auth::user()->tenant_id) {
             abort(403, 'Action non autorisée sur cet arrivage.');
+        }
+    }
+
+    /**
+     * Taux de change en temps réel (devise d'origine -> FCFA/XOF).
+     * Source : open.er-api.com (taux de marché). Modifiable ensuite par l'utilisateur.
+     */
+    public function tauxLive(Request $request)
+    {
+        $from = strtoupper((string) $request->query('from', 'NGN'));
+        $allowed = ['NGN', 'EUR', 'USD', 'CNY', 'XOF'];
+
+        if (!in_array($from, $allowed, true)) {
+            return response()->json([
+                'from'        => $from,
+                'to'          => 'XOF',
+                'rate'        => null,
+                'editable'    => true,
+                'auto'        => false,
+                'message'     => 'Devise sans taux automatique, saisissez-le manuellement.',
+            ]);
+        }
+
+        try {
+            $resp = Http::timeout(6)->get("https://open.er-api.com/v6/latest/{$from}");
+            $data = $resp->json();
+
+            $rate = $data['rates']['XOF'] ?? null;
+
+            if ($rate === null) {
+                return response()->json([
+                    'from'     => $from,
+                    'to'       => 'XOF',
+                    'rate'     => null,
+                    'editable' => true,
+                    'auto'     => false,
+                    'message'  => 'Taux indisponible, saisissez-le manuellement.',
+                ]);
+            }
+
+            return response()->json([
+                'from'        => $from,
+                'to'          => 'XOF',
+                'rate'        => (float) $rate,
+                'editable'    => true,
+                'auto'        => true,
+                'updated_at'  => $data['time_last_update_utc'] ?? null,
+                'source'      => 'open.er-api.com',
+                'message'     => 'Taux de marché en temps réel (modifiable).',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'from'     => $from,
+                'to'       => 'XOF',
+                'rate'     => null,
+                'editable' => true,
+                'auto'     => false,
+                'message'  => 'Taux indisponible (hors ligne), saisissez-le manuellement.',
+            ]);
         }
     }
 }

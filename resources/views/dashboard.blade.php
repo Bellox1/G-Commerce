@@ -20,20 +20,45 @@
 @endpush
 
 @section('actions')
-<div style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap; white-space:nowrap;">
+<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; white-space:nowrap;">
 <form method="GET" action="{{ route('dashboard') }}" class="dash-date-form" style="display:flex; align-items:center; gap:8px;">
-    <label style="font-size:.85rem; font-weight:600; color:var(--text); white-space:nowrap;">Date :</label>
-    <input type="date" name="date" value="{{ $date }}" onchange="this.form.submit()" style="padding:5px 10px; border:1px solid var(--border); border-radius:6px; font-size:.85rem; max-width:150px;">
-    @if($date !== today()->format('Y-m-d'))
-        <a href="{{ route('dashboard') }}" style="font-size:.8rem; color:var(--primary); text-decoration:none; white-space:nowrap;">Réinitialiser</a>
+    <label style="font-size:.85rem; font-weight:600; color:var(--text); white-space:nowrap;">Période :</label>
+    <select name="periode" onchange="this.form.submit()" style="padding:5px 10px; border:1px solid var(--border); border-radius:6px; font-size:.85rem;">
+        <option value="jour" {{ $periode==='jour' ? 'selected' : '' }}>Jour</option>
+        <option value="semaine" {{ $periode==='semaine' ? 'selected' : '' }}>Semaine</option>
+        <option value="mois" {{ $periode==='mois' ? 'selected' : '' }}>Mois</option>
+        <option value="annee" {{ $periode==='annee' ? 'selected' : '' }}>Année</option>
+    </select>
+    <input type="date" name="date" id="dashDate" value="{{ $date }}" onchange="this.form.submit()" style="padding:5px 10px; border:1px solid var(--border); border-radius:6px; font-size:.85rem; max-width:150px;">
+    <button type="button" onclick="shiftDash(-1)" title="Précédent" style="border:1px solid var(--border); background:#fff; border-radius:6px; padding:5px 8px; cursor:pointer; color:var(--primary);"><i class="bi bi-chevron-left"></i></button>
+    <button type="button" onclick="shiftDash(1)" title="Suivant" style="border:1px solid var(--border); background:#fff; border-radius:6px; padding:5px 8px; cursor:pointer; color:var(--primary);"><i class="bi bi-chevron-right"></i></button>
+    @if($date !== today()->format('Y-m-d') || $periode !== 'jour')
+        <a href="{{ route('dashboard') }}" style="font-size:.8rem; color:var(--primary); text-decoration:none; white-space:nowrap;">Aujourd'hui</a>
     @endif
 </form>
-@if(in_array(auth()->user()->role, ['super_admin', 'admin']))
+@if(auth()->user()->aAccesAdmin())
     <a href="{{ route('analytique') }}" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; font-size:.85rem; white-space:nowrap;">
         <i class="bi bi-bar-chart-line"></i> Analyse avancée
     </a>
 @endif
 </div>
+<script>
+function shiftDash(delta){
+    const sel = document.querySelector('select[name=periode]');
+    const periode = sel ? sel.value : 'jour';
+    const inp = document.getElementById('dashDate');
+    if(!inp) return;
+    let d = new Date(inp.value);
+    if(isNaN(d.getTime())) d = new Date();
+    if(periode==='jour') d.setDate(d.getDate()+delta);
+    else if(periode==='semaine') d.setDate(d.getDate()+delta*7);
+    else if(periode==='mois') d.setMonth(d.getMonth()+delta);
+    else if(periode==='annee') d.setFullYear(d.getFullYear()+delta);
+    const pad=n=>String(n).padStart(2,'0');
+    inp.value = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+    inp.form.submit();
+}
+</script>
 @endsection
 
 @section('content')
@@ -45,7 +70,7 @@
     $nomOffre = $tenant->offre_code ? (\App\Models\CommissionRule::where('code', $tenant->offre_code)->value('nom') ?? $tenant->offre_code) : 'Aucune';
 @endphp
 <div style="display:flex; align-items:center; gap:10px; padding:10px 0; margin-bottom:16px; font-size:.85rem; border-bottom:1px solid var(--border);">
-    <span style="font-weight:800; font-size:1.1rem; color:var(--text); font-family:'Montserrat',sans-serif;">{{ $tenant->nom }}.</span>
+    <span style="font-weight:800; font-size:1.1rem; color:var(--text); font-family:'Space Grotesk',sans-serif;">{{ $tenant->nom }}.</span>
     <span style="display:inline-flex; align-items:center; gap:6px; color:var(--text-muted);">
         @if($offreActive)
             <span style="width:8px; height:8px; border-radius:50%; background:var(--success); animation:pulse-dot 1.5s infinite; flex-shrink:0;"></span>
@@ -55,51 +80,49 @@
             Offre expirée
         @endif
     </span>
-    </span>
 </div>
 
-{{-- ─── Stats ─── --}}
-@if(in_array(auth()->user()->role, ['super_admin', 'admin']))
+{{-- ─── Stats de période (visibles par tous les rôles, comme sur mobile) ─── --}}
 <div class="stats-grid">
-    <div class="stat-card" style="box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1); border-color: rgba(22, 163, 74, 0.2);">
-        <div class="stat-icon green" style="background: #dcfce7; color: #16a34a;"><i class="bi bi-graph-up-arrow"></i></div>
-        <div>
-            <div class="stat-val" style="color:var(--success); font-size: 1.6rem;">{{ $revenuNetMois == 0 ? 'Pas de revenu' : number_format($revenuNetMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl" style="font-weight: 700; color: #166534;">Revenu net du mois (FCFA)</div>
-        </div>
-    </div>
     <div class="stat-card">
         <div class="stat-icon blue"><i class="bi bi-currency-exchange"></i></div>
         <div>
-            <div class="stat-val">{{ $ventesJour == 0 ? "Pas d'encaissé" : number_format($ventesJour, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Encaissé le {{ \Carbon\Carbon::parse($date)->format('d/m') }} (FCFA)</div>
+            <div class="stat-val">{{ number_format($encaissePeriode, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Encaissé · {{ $periodeLabel }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
         <div>
-            <div class="stat-val">{{ $caJour == 0 ? 'Pas de C.A.' : number_format($caJour, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">C.A. du {{ \Carbon\Carbon::parse($date)->format('d/m') }} (FCFA)</div>
+            <div class="stat-val">{{ number_format($caPeriode, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">C.A. · {{ $periodeLabel }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-receipt"></i></div>
         <div>
-            <div class="stat-val" style="color:var(--danger);">{{ $depenseJour == 0 ? 'Pas de dépense' : '- ' . number_format($depenseJour, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Dépenses du {{ \Carbon\Carbon::parse($date)->format('d/m') }} (FCFA)</div>
+            <div class="stat-val" style="color:var(--danger);">- {{ number_format($depensePeriode, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Dépenses · {{ $periodeLabel }} (FCFA)</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
+        <div>
+            <div class="stat-val" style="color:var(--warning);">{{ number_format($creancesPeriode, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Créances · {{ $periodeLabel }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-cash-stack"></i></div>
         <div>
-            <div class="stat-val">{{ $dettePaiementsJour == 0 ? 'Pas de dettes' : number_format($dettePaiementsJour, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Dettes encaissées le {{ \Carbon\Carbon::parse($date)->format('d/m') }}</div>
+            <div class="stat-val">{{ number_format($dettePaiementsJour, 0, ',', ' ') }}</div>
+            <div class="stat-lbl">Dettes encaissées le {{ \Carbon\Carbon::parse($date)->fr('d F') }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-credit-card-2-back"></i></div>
         <div>
-            <div class="stat-val">{{ $totalDettes == 0 ? '0' : number_format($totalDettes, 0, ',', ' ') }}</div>
+            <div class="stat-val">{{ number_format($totalDettes, 0, ',', ' ') }}</div>
             <div class="stat-lbl">Mes dettes clients (FCFA)
                 @if($dettesEnRetard > 0)
                     <span class="badge badge-danger" style="margin-left:4px;">{{ $dettesEnRetard }} en retard</span>
@@ -110,7 +133,7 @@
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-building"></i></div>
         <div>
-            <div class="stat-val" style="color:var(--danger);">{{ $totalDettesSociete == 0 ? '0' : '- ' . number_format($totalDettesSociete, 0, ',', ' ') }}</div>
+            <div class="stat-val" style="color:var(--danger);">- {{ number_format($totalDettesSociete, 0, ',', ' ') }}</div>
             <div class="stat-lbl">Mes dettes société (FCFA)
                 <a href="{{ route('dettes-societe.index') }}" style="font-size:.7rem; color:var(--primary);">Voir</a>
             </div>
@@ -118,27 +141,13 @@
     </div>
 </div>
 
-@else
-    @if(count($stockAlertes) > 0)
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
-            <div>
-                <div class="stat-val">{{ count($stockAlertes) }}</div>
-                <div class="stat-lbl">Produits en alerte stock</div>
-            </div>
-        </div>
-    </div>
-    @endif
-@endif
-
 {{-- ─── Grille principale ─── --}}
 <div class="page-grid page-grid-3">
 
     {{-- Dernières ventes --}}
     <div class="card">
         <div class="card-header">
-            <h3><i class="bi bi-receipt"></i> Ventes du {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</h3>
+            <h3><i class="bi bi-receipt"></i> Ventes du {{ \Carbon\Carbon::parse($date)->fr('d F Y') }} ({{ $nbVentesJour }})</h3>
             <a href="{{ route('ventes.create') }}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus"></i> Nouvelle vente
             </a>
@@ -160,7 +169,7 @@
                             <a href="{{ route('ventes.show', $v) }}" style="color:var(--primary); font-weight:500; text-decoration:none;">
                                 {{ $v->reference }}
                             </a>
-                            <div class="ref-date" style="font-size:.7rem; color:var(--text-muted);">{{ $v->date_vente->format('d/m H:i') }}</div>
+                            <div class="ref-date" style="font-size:.7rem; color:var(--text-muted);">{{ $v->date_vente->fr('d F Y H:i') }}</div>
                         </td>
                         <td>@if($v->client){{ $v->client->nomComplet() }}@else<i style="color:#94a3b8">Anonyme</i>@endif</td>
                         <td style="font-weight:600;">{{ number_format($v->montant_total, 0, ',', ' ') }}</td>
@@ -205,7 +214,7 @@
                     <div style="flex:1; min-width:0;">
                         <span style="font-size:.85rem; font-weight:600;">{{ $dette->client?->nomComplet() ?: 'Anonyme' }}</span>
                         <div style="font-size:.7rem; color:var(--text-muted);">
-                            Échéance : {{ $dette->date_echeance?->format('d/m/Y') ?: 'N/A' }}
+                            Échéance : {{ $dette->date_echeance?->fr('d F Y') ?: 'N/A' }}
                             @if($dette->vente)
                                 · {{ $dette->vente->reference }}
                             @endif
@@ -252,26 +261,6 @@
         </div>
         @endif
 
-        {{-- Stock critique --}}
-        @if($magasinPrincipal && $stockApercu->isNotEmpty())
-        <div class="card">
-            <div class="card-header">
-                <h3 style="color:var(--danger);"><i class="bi bi-exclamation-triangle"></i> Stock critique</h3>
-                <span style="font-size:.75rem; color:var(--text-muted);">{{ $magasinPrincipal->nom }}</span>
-            </div>
-            <div class="card-body" style="padding:0; max-height: 280px; overflow-y: auto;">
-                @foreach($stockApercu as $s)
-                <a href="{{ route('produits.show', $s['produit']) }}" style="display:flex; align-items:center; justify-content:space-between; padding:8px 16px; border-bottom:1px solid var(--border); text-decoration:none; color:inherit; transition:background .15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
-                    <span style="font-size:.8rem;">{{ $s['produit']->nom }}</span>
-                    <span class="badge badge-danger">
-                        {{ $s['stock'] }} Carton
-                    </span>
-                </a>
-                @endforeach
-            </div>
-        </div>
-        @endif
-
         {{-- Top produits --}}
         <div class="card">
             <div class="card-header">
@@ -294,126 +283,24 @@
                 @endforelse
             </div>
         </div>
-
-        {{-- Collaborateurs & Activité --}}
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="bi bi-people"></i> Activité des employés</h3>
-            </div>
-            <div class="card-body" style="padding:0; max-height: 250px; overflow-y: auto;">
-                @forelse($employes as $emp)
-                    @php
-                        $isOnline = false;
-                        if ($emp->last_seen) {
-                            $isOnline = \Carbon\Carbon::parse($emp->last_seen)->diffInMinutes(now()) < 5;
-                        }
-                    @endphp
-                    <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border);">
-                        {{-- Indicateur de statut en ligne/hors ligne --}}
-                        <div style="position:relative;">
-                            <div style="width:36px; height:36px; background:#e2e8f0; color:#475569; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem;">
-                                {{ strtoupper(substr($emp->name, 0, 2)) }}
-                            </div>
-                            <span style="position:absolute; bottom:-1px; right:-1px; width:11px; height:11px; border-radius:50%; border:2px solid #fff;
-                                         background: {{ $isOnline ? '#22c55e' : '#94a3b8' }};"></span>
-                        </div>
-                        <div style="flex:1; min-width:0;">
-                            <div style="font-size:.85rem; font-weight:600; color:var(--text); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; margin-bottom: 2px;">
-                                {{ $emp->name }}
-                            </div>
-                            <div style="font-size:.72rem; color:var(--text-muted); text-transform:capitalize;">
-                                {{ $emp->role }}
-                            </div>
-                        </div>
-                        <div style="text-align:right; font-size:.75rem; color:var(--text-muted);">
-                            @if($isOnline)
-                                <span style="color:#22c55e; font-weight:650;">En ligne</span>
-                            @elseif($emp->last_seen)
-                                {{ \Carbon\Carbon::parse($emp->last_seen)->diffForHumans() }}
-                            @else
-                                <span style="color:#94a3b8; font-style:italic;">Jamais connecté</span>
-                            @endif
-                        </div>
-                    </div>
-                @empty
-                    <div style="padding:24px; text-align:center; color:var(--text-muted); font-size:.85rem;">
-                        Aucun autre employé enregistré
-                    </div>
-                @endforelse
-            </div>
-        </div>
     </div>
 </div>
 
-<div class="stats-grid" style="margin-bottom: 16px;">
-    <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
-        <div>
-            <div class="stat-val">{{ $ventesMois == 0 ? 'Pas de ventes' : number_format($ventesMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Ventes du mois (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-cash-stack"></i></div>
-        <div>
-            <div class="stat-val" style="color:var(--danger);">{{ $depenseMois == 0 ? 'Pas de dépenses' : '- ' . number_format($depenseMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Dépenses du mois (FCFA)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon blue"><i class="bi bi-bar-chart"></i></div>
-        <div>
-            <div class="stat-val">{{ $caMois == 0 ? 'Pas de C.A.' : number_format($caMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">C.A. du mois (FCFA)</div>
-        </div>
-    </div>
+{{-- ─── Stimulateur CA + Trésorerie (comme sur mobile) ─── --}}
+<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:20px 0;">
+    <button type="button" onclick="openSim()" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:8px;">
+        <i class="bi bi-calculator"></i> Stimulateur CA
+    </button>
+    <a href="{{ route('tresoreries.index') }}" class="btn btn-dark" style="display:inline-flex; align-items:center; gap:8px; background:#111; color:#fff;">
+        <i class="bi bi-cash"></i> Trésorerie
+    </a>
 </div>
 
-<div class="stats-grid" style="margin-bottom: 24px;">
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-receipt"></i></div>
-        <div>
-            <div class="stat-val">{{ $nbVentesJour == 0 ? 'Pas de ventes' : $nbVentesJour }}</div>
-            <div class="stat-lbl">Ventes du {{ \Carbon\Carbon::parse($date)->format('d/m') }}</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-building"></i></div>
-        <div>
-            <div class="stat-val" style="color:var(--danger);">{{ $totalLoyerMois == 0 ? 'Pas de loyers' : '- ' . number_format($totalLoyerMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Loyers des dépôts (FCFA/mois)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon red"><i class="bi bi-people"></i></div>
-        <div>
-            <div class="stat-val" style="color:var(--danger);">{{ $totalSalairesMois == 0 ? 'Pas de salaires' : '- ' . number_format($totalSalairesMois, 0, ',', ' ') }}</div>
-            <div class="stat-lbl">Salaires employés (FCFA/mois)</div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-truck"></i></div>
-        <div>
-            <div class="stat-val">{{ $nbLivraisonsEnAttente == 0 ? 'Pas de livraisons' : $nbLivraisonsEnAttente }}</div>
-            <div class="stat-lbl">Livraisons en attente
-                <a href="{{ route('livraisons.index', ['statut' => 'en_attente']) }}" style="font-size:.7rem; color:var(--primary); text-decoration:none; margin-left:4px;">Gérer</a>
-            </div>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
-        <div>
-            <div class="stat-val">{{ $livraisonsDuJour == 0 ? 'Aucun produit livré aujourd\'hui' : $livraisonsDuJour }}</div>
-            <div class="stat-lbl">Produits livrés aujourd'hui</div>
-        </div>
-    </div>
-</div>
-
-{{-- Stats par personne --}}
+{{-- Ventes par vendeur --}}
 @if(count($statsParPersonne) > 0)
 <div class="card" style="margin-bottom: 24px;">
     <div class="card-header">
-        <h3><i class="bi bi-people"></i> Ventes par vendeur le {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</h3>
+        <h3><i class="bi bi-people"></i> Ventes par vendeur le {{ \Carbon\Carbon::parse($date)->fr('d F Y') }}</h3>
     </div>
     <div class="table-wrap">
         <table>
@@ -427,7 +314,7 @@
                 @foreach($statsParPersonne as $stat)
                 <tr>
                     <td style="font-weight: 600;">{{ $stat->user?->name ?? 'N/A' }}</td>
-                    <td style="text-align: right;">{{ number_format($stat->total_ventes, 0, ',', ' ') }}</td>
+                    <td style="text-align: right;">{{ number_format($stat->total_ca, 0, ',', ' ') }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -436,7 +323,8 @@
 </div>
 @endif
 
-{{-- Formulaire dépense du jour --}}
+
+{{-- Dépenses du jour --}}
 <div class="card" style="margin-bottom: 24px;">
     <div class="card-header">
         <h3><i class="bi bi-cash"></i> Enregistrer une dépense</h3>
@@ -445,26 +333,21 @@
         <form method="POST" action="{{ route('dashboard.depense.store') }}" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
             @csrf
             <input type="hidden" name="date" value="{{ $date }}">
-            <input type="hidden" name="audio_base64" id="depense-audio-base64" value="">
             <div style="flex: 1; min-width: 150px;">
                 <label class="form-label" style="font-size: .8rem;">Montant (FCFA) *</label>
                 <input type="number" name="montant" class="form-control" min="1" required placeholder="0">
             </div>
             <div style="flex: 2; min-width: 200px;" id="desc-group">
                 <label class="form-label" style="font-size: .8rem;">Description</label>
-                <div style="display: flex; gap: 4px; align-items: center;">
-                    <input type="text" name="description" id="depense-desc" class="form-control" placeholder="Ex: Eau, transport, réparation..." maxlength="255" style="flex: 1;">
-                    <button type="button" id="mic-btn" class="btn btn-outline-secondary" title="Enregistrer un vocal" style="padding: 6px 10px; flex-shrink:0;">
-                        <i class="bi bi-mic"></i>
-                    </button>
-                </div>
+                <input type="text" name="description" id="depense-desc" class="form-control" placeholder="Ex: Eau, transport, réparation..." maxlength="255">
             </div>
             <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Ajouter</button>
         </form>
 
         <div style="margin-top: 16px;">
-            <h4 style="font-size: .9rem; font-weight: 600; margin-bottom: 8px; color: #475569;">
-                <i class="bi bi-list-ul"></i> Dépenses du {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
+            <h4 style="font-size: .9rem; font-weight: 600; margin-bottom: 8px; color: #475569; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="bi bi-list-ul"></i> Dépenses du {{ \Carbon\Carbon::parse($date)->fr('d F Y') }}</span>
+                <a href="{{ route('depenses.index') }}" style="font-size: .72rem; color: var(--primary); text-decoration: none;">Voir tout <i class="bi bi-arrow-right"></i></a>
             </h4>
             <div class="table-wrap">
                 <table>
@@ -480,16 +363,7 @@
                         @forelse($depensesDuJour as $d)
                         <tr>
                             <td>
-                                @if($d->audio_path)
-                                <div style="display:flex;align-items:center;gap:6px;">
-                                    <span>{{ $d->description ?: '-' }}</span>
-                                    <audio controls style="height:32px;width:140px;">
-                                        <source src="{{ asset('storage/' . $d->audio_path) }}" type="audio/webm">
-                                    </audio>
-                                </div>
-                                @else
-                                    {{ $d->description ?: '-' }}
-                                @endif
+                            {{ $d->description ?: '-' }}
                             </td>
                             <td style="text-align: right; font-weight: 600; color: #dc2626;">-{{ number_format($d->montant, 0, ',', ' ') }}</td>
                             <td>{{ $d->user?->name ?? 'N/A' }}</td>
@@ -516,173 +390,137 @@
     </div>
 </div>
 
-<script>
-(function() {
-    const micBtn = document.getElementById('mic-btn');
-    const descInput = document.getElementById('depense-desc');
-    const descGroup = document.getElementById('desc-group');
-    const audioBase64Input = document.getElementById('depense-audio-base64');
-    const form = micBtn?.closest('form');
-    if (!micBtn || !descInput || !audioBase64Input || !form) return;
+{{-- ─── Stimulateur de Chiffre d'Affaires (réutilisé depuis la vue produits) ─── --}}
+<div id="simModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.45); z-index:1050; align-items:flex-start; justify-content:center; padding:24px; overflow:auto;">
+    <div style="background:#fff; border-radius:14px; width:100%; max-width:640px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,.25);">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--border);">
+            <div>
+                <h3 style="margin:0; font-size:1.05rem;"><i class="bi bi-graph-up"></i> Stimulateur de CA</h3>
+                <small style="color:var(--text-muted);">Les produits sans stock sont ignorés. Total = Σ (stock × prix).</small>
+            </div>
+            <button type="button" onclick="closeSim()" style="background:none; border:none; font-size:1.5rem; line-height:1; cursor:pointer; color:var(--text-muted);">&times;</button>
+        </div>
 
-    const diag = document.createElement('div');
-    diag.style.cssText = 'font-size:.7rem;color:#64748b;margin-top:2px;';
-    micBtn.closest('div').after(diag);
+        <div style="display:flex; gap:8px; padding:10px 18px; border-bottom:1px solid var(--border);">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="simRetirerTout()">Tout retirer</button>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="simAjouterTout()">Tout ajouter</button>
+        </div>
 
-    function log(msg) { diag.textContent = msg; }
+        <div id="simList" style="flex:1; overflow:auto; padding:6px 18px;">
+            @php $hasSim = false; @endphp
+            @foreach($produits as $p)
+                @php
+                    $s  = $stockParProduit[$p->id] ?? 0;
+                    $sc = $stockCartouchesParProduit[$p->id] ?? 0;
+                @endphp
+                @if($s > 0 || $sc > 0)
+                    @php $hasSim = true; @endphp
+                    <div class="sim-row" data-id="{{ $p->id }}" data-stock="{{ $s }}" data-cartouches="{{ $sc }}" data-prix="{{ (int) $p->prix_vente_conseille }}" data-acartouche="{{ $p->a_cartouche ? 1 : 0 }}" data-prixcartouche="{{ (int) $p->prix_cartouche_effectif }}">
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:600;">{{ $p->nom }}</div>
+                            <div style="font-size:.8rem; color:var(--text-muted);">
+                                {{ $s }} carton(s) × {{ (int) $p->prix_vente_conseille }} F
+                                @if($p->a_cartouche && $sc > 0) • {{ $sc }} cartouche(s) × {{ (int) $p->prix_cartouche_effectif }} F @endif
+                            </div>
+                        </div>
+                        <div class="sim-line" style="font-weight:700; min-width:120px; text-align:right;"></div>
+                        <button type="button" class="btn btn-sm btn-danger" style="margin-left:10px;" onclick="simToggle(this)">Retirer</button>
+                    </div>
+                @endif
+            @endforeach
+            @if(!$hasSim)
+                <div id="simEmpty" style="text-align:center; color:var(--text-muted); padding:40px;">Aucun produit en stock.</div>
+            @endif
+        </div>
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        micBtn.disabled = true; micBtn.style.opacity = '.4';
-        log('Micro non supporté par le navigateur');
-        return;
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-top:1px solid var(--border); background:#f8fafc;">
+            <span style="font-weight:600; color:var(--text-muted);">Chiffre d'affaires estimé</span>
+            <span id="simTotal" style="font-size:1.2rem; font-weight:800; color:var(--primary);">0 F</span>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<style>
+    .sim-row {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
     }
+    .sim-row.excluded { opacity: 0.45; }
+</style>
+<script>
+function openSim() { document.getElementById('simModal').style.display = 'flex'; simRefresh(); }
+function closeSim() { document.getElementById('simModal').style.display = 'none'; }
+function formatFCFA(n) { return new Intl.NumberFormat('fr-FR').format(Math.round(n)) + ' F'; }
 
-    let mr = null, chunks = [], stream = null, busy = false, sec = 0, timer = null;
+function simLineVal(row) {
+    const stock = +row.dataset.stock;
+    const cart  = +row.dataset.cartouches;
+    const prix  = +row.dataset.prix;
+    const ac    = +row.dataset.acartouche;
+    const pc    = +row.dataset.prixcartouche;
+    let v = stock * prix;
+    if (ac) v += cart * pc;
+    return v;
+}
 
-    micBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        if (mr) {
-            if (mr.state === 'recording') {
-                mr.stop();
-                log('Arrêt…');
-                return;
-            }
-            if (mr.state === 'paused') {
-                log('Reprise…');
-                mr.resume();
-                micBtn.className = 'btn btn-danger';
-                micBtn.innerHTML = '<i class="bi bi-stop-fill"></i>';
-                micBtn.title = 'Arrêter';
-                return;
-            }
-        }
-
-        log('Demande micro…');
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(function(s) {
-            log('Micro OK');
-            stream = s;
-            mr = new MediaRecorder(s);
-            chunks = [];
-            sec = 0;
-
-            if (descGroup) descGroup.style.display = 'none';
-            micBtn.className = 'btn btn-danger';
-            micBtn.innerHTML = '<i class="bi bi-stop-fill"></i>';
-            micBtn.title = 'Arrêter';
-
-            let ind = document.getElementById('mic-indicator');
-            if (!ind) {
-                ind = document.createElement('div');
-                ind.id = 'mic-indicator';
-                micBtn.closest('div').after(ind);
-            }
-            ind.style.cssText = 'font-size:.75rem;color:#dc2626;font-weight:600;margin-top:4px;display:flex;align-items:center;gap:4px;';
-            ind.innerHTML = '<span style="display:inline-block;width:8px;height:8px;background:#dc2626;border-radius:50%;animation:mic-pulse 1s infinite;"></span> <span id="mic-timer">0s</span>';
-
-            timer = setInterval(function() {
-                sec++;
-                const el = document.getElementById('mic-timer');
-                if (el) el.textContent = sec + 's';
-            }, 1000);
-
-            mr.ondataavailable = function(e) {
-                if (e.data.size > 0) chunks.push(e.data);
-                log('Données: ' + chunks.length + ' blocs');
-            };
-
-            mr.onstop = function() {
-                log('Traitement…');
-                if (timer) { clearInterval(timer); timer = null; }
-                const oldInd = document.getElementById('mic-indicator');
-
-                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-                mr = null;
-
-                if (descGroup) descGroup.style.display = '';
-                micBtn.className = 'btn btn-outline-secondary';
-                micBtn.innerHTML = '<i class="bi bi-mic"></i>';
-                micBtn.title = 'Enregistrer';
-
-                if (chunks.length === 0) {
-                    oldInd?.remove();
-                    log('Aucune donnée audio');
-                    return;
-                }
-
-                const blob = new Blob(chunks, { type: 'audio/webm' });
-                log((blob.size/1024).toFixed(0) + ' Ko');
-
-                const url = URL.createObjectURL(blob);
-                const audio = document.createElement('audio');
-                audio.controls = true;
-                audio.src = url;
-                audio.style.cssText = 'width:100%;margin-top:4px;';
-                if (oldInd) oldInd.replaceWith(audio);
-
-                busy = true;
-                const r = new FileReader();
-                r.onloadend = function() {
-                    audioBase64Input.value = r.result;
-                    busy = false;
-                    log('Prêt à envoyer');
-                };
-                r.readAsDataURL(blob);
-            };
-
-            mr.onerror = function(e) {
-                log('Erreur: ' + (e.error || 'inconnue'));
-                document.getElementById('mic-indicator')?.remove();
-                if (timer) { clearInterval(timer); timer = null; }
-                if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-                mr = null;
-                if (descGroup) descGroup.style.display = '';
-                micBtn.className = 'btn btn-outline-secondary';
-                micBtn.innerHTML = '<i class="bi bi-mic"></i>';
-            };
-
-            try {
-                mr.start(1000);
-                log('Enregistrement…');
-            } catch(e) {
-                log('Erreur démarrage: ' + e.message);
-            }
-        }).catch(function(err) {
-            log(err.message);
-            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                alert('Veuillez autoriser le microphone dans les paramètres du navigateur.');
-            }
-        });
-    });
-
-    form.addEventListener('submit', function(e) {
-        if (busy) {
-            e.preventDefault();
-            const btn = form.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Audio…';
-            const wait = setInterval(function() {
-                if (!busy) {
-                    clearInterval(wait);
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-plus-circle"></i> Ajouter';
-                    form.submit();
-                }
-            }, 100);
+function simRefresh() {
+    let total = 0;
+    const rows = document.querySelectorAll('#simList .sim-row');
+    rows.forEach(row => {
+        const lineEl = row.querySelector('.sim-line');
+        if (row.classList.contains('excluded')) {
+            lineEl.textContent = '—';
             return;
         }
-        if (mr && (mr.state === 'recording' || mr.state === 'paused')) {
-            e.preventDefault();
-            mr.stop();
-            const check = setInterval(function() {
-                if (!mr) { clearInterval(check); form.submit(); }
-            }, 50);
-        }
+        const v = simLineVal(row);
+        total += v;
+        lineEl.textContent = formatFCFA(v);
     });
-})();
+    const t = document.getElementById('simTotal');
+    if (t) t.textContent = formatFCFA(total);
+}
+
+function simToggle(btn) {
+    const row = btn.closest('.sim-row');
+    if (row.classList.contains('excluded')) {
+        row.classList.remove('excluded');
+        btn.textContent = 'Retirer';
+        btn.classList.add('btn-danger');
+        btn.classList.remove('btn-secondary');
+    } else {
+        row.classList.add('excluded');
+        btn.textContent = 'Ajouter';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-secondary');
+    }
+    simRefresh();
+}
+
+function simRetirerTout() {
+    document.querySelectorAll('#simList .sim-row').forEach(r => {
+        r.classList.add('excluded');
+        const b = r.querySelector('button');
+        b.textContent = 'Ajouter';
+        b.classList.remove('btn-danger');
+        b.classList.add('btn-secondary');
+    });
+    simRefresh();
+}
+
+function simAjouterTout() {
+    document.querySelectorAll('#simList .sim-row').forEach(r => {
+        r.classList.remove('excluded');
+        const b = r.querySelector('button');
+        b.textContent = 'Retirer';
+        b.classList.add('btn-danger');
+        b.classList.remove('btn-secondary');
+    });
+    simRefresh();
+}
 </script>
-<style>
-@keyframes mic-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
-</style>
+@endpush
 
 @endsection

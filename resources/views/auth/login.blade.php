@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion — PILOTRIX</title>
+    <title>Connexion — pilotix</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
@@ -20,7 +20,7 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -73,7 +73,7 @@
             font-size: 2rem;
         }
         .brand-name {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 900;
             font-size: 2.2rem;
             color: var(--primary);
@@ -94,7 +94,7 @@
             border: 1px solid var(--border);
         }
         .login-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-weight: 800;
             font-size: 1.4rem;
             margin-bottom: 8px;
@@ -244,17 +244,15 @@
 </head>
 <body>
 
-    <!-- Logo Top Left -->
-    <a href="{{ url('/') }}" class="login-logo-link">
-        <img src="{{ asset('Pilotix.jpeg') }}" alt="Pilotix Logo" class="login-logo-img">
-    </a>
-
     <div class="login-container">
 
         <!-- Formulaire -->
         <div class="login-card">
-            <h2 class="login-title">Connexion</h2>
-            <p class="login-subtitle">Renseignez vos accès pour accéder à la plateforme.</p>
+            <div style="text-align: center; margin-bottom: 24px;">
+                <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="height: 70px; width: auto; object-fit: contain; margin-bottom: 12px;">
+                <h2 class="login-title" style="font-family: 'Space Grotesk', sans-serif;">Connexion à votre Espace</h2>
+                <p class="login-subtitle">Pilotez votre réseau commercial, stocks et dettes.</p>
+            </div>
 
             @if($errors->any())
                 <div class="alert">

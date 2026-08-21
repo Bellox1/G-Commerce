@@ -10,10 +10,34 @@ class ProfileController extends Controller
 {
     public function show()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('tenant', 'magasin');
 
         if (request()->expectsJson() || request()->is('api/*')) {
-            return response()->json(['success' => true, 'data' => $user]);
+
+            // Indiquer à l'app mobile quelle section afficher selon le rôle
+            $redirectTo = match(true) {
+                $user->isSuperAdmin()  => 'tenants',
+                $user->isPrestataire() => 'prestataire',
+                default                => 'dashboard',
+            };
+
+            return response()->json([
+                'success'     => true,
+                'data'        => $user,
+                'redirect_to' => $redirectTo,
+                'tenant'      => $user->tenant ? [
+                    'offre_code'    => $user->tenant->offre_code,
+                    'plan_level'    => $user->tenant->planLevel(),
+                    'offre_active'  => $user->tenant->isOffreActive(),
+                    'capabilities' => [
+                        'import'         => $user->tenant->hasCapability('import'),
+                        'multi_magasin' => $user->tenant->hasCapability('multi_magasin'),
+                        'advanced_stats' => $user->tenant->hasCapability('advanced_stats'),
+                        'multi_user'     => $user->tenant->hasCapability('multi_user'),
+                        'cost_margin'    => $user->tenant->hasCapability('cost_margin'),
+                    ],
+                ] : null,
+            ]);
         }
 
         return view('profile', compact('user'));
@@ -54,8 +78,18 @@ class ProfileController extends Controller
             'delete_password' => 'required|current_password',
         ]);
 
-        Auth::logout();
+        $isApi = $request->expectsJson() || $request->is('api/*');
+
+        if ($isApi) {
+            $user->tokens()->delete();
+        } else {
+            Auth::logout();
+        }
         $user->delete();
+
+        if ($isApi) {
+            return response()->json(['success' => true, 'message' => 'Compte supprimé.']);
+        }
 
         return $this->smartResponse('/', 'Compte supprimé.');
     }

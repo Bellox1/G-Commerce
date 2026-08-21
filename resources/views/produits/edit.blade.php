@@ -35,10 +35,24 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Stock (tous magasins)</label>
-                    <input type="text" class="form-control" value="Géré via les mouvements" readonly style="background:#f5f5f5;">
+                    <label class="form-label">Stock par magasin</label>
+                    <small style="color:var(--text-muted); font-size:.75rem; display:block; margin-bottom:8px;">Quantité actuelle dans chaque magasin (ajustement automatique à la sauvegarde). Le stock total est centralisé.</small>
+                    <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px;">
+                        @foreach($magasins as $m)
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <span style="font-size:.75rem; font-weight:600; color:var(--text-muted);">{{ $m->nom }}</span>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <input type="number" name="stocks[{{ $m->id }}]" class="form-control" value="{{ $stockParMagasin[$m->id] ?? 0 }}" min="0" style="width:90px;">
+                                    <span style="font-size:.75rem; color:var(--text-muted);">ctn</span>
+                                    <span class="cartouche-stock-field" style="display:{{ $produit->a_cartouche ? 'inline-flex' : 'none' }}; align-items:center; gap:4px;">
+                                        <input type="number" name="stocks_cartouches[{{ $m->id }}]" class="form-control" value="{{ $stockCartouchesParMagasin[$m->id] ?? 0 }}" min="0" style="width:70px;">
+                                        <span style="font-size:.75rem; color:var(--text-muted);">ctr</span>
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-                <input type="hidden" name="stock" value="0">
             </div>
 
             <div class="form-group" style="margin-top: 8px;">
@@ -59,7 +73,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Prix cartouche (FCFA)</label>
-                    <input type="number" name="prix_cartouche" id="prixCartouche" class="form-control" value="{{ $produit->prix_cartouche }}" min="0">
+                    <input type="number" name="prix_cartouche" id="prixCartouche" class="form-control" value="{{ $produit->prix_cartouche ? intval($produit->prix_cartouche) : '' }}" min="0" step="1">
                     <small style="color: var(--text-muted); font-size: .75rem;">Laissez vide pour calcul automatique</small>
                 </div>
             </div>
@@ -155,6 +169,9 @@ document.querySelector('[name="image"]').addEventListener('change', function() {
 
 document.getElementById('hasCartouche').addEventListener('change', function() {
     document.getElementById('cartoucheFields').style.display = this.checked ? 'grid' : 'none';
+    document.querySelectorAll('.cartouche-stock-field').forEach(function(el) {
+        el.style.display = this.checked ? 'inline-flex' : 'none';
+    }, this);
 });
 
 function calcPrixCartouche() {

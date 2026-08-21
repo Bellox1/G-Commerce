@@ -21,7 +21,8 @@ class StockController extends Controller
         $this->authorizeModule('stock');
         $tenant = Auth::user()->tenant;
         $magasins = $tenant->magasins;
-        $produits = Produit::where('tenant_id', $tenant->id)->where('actif', true)->get();
+        $produits = Produit::where('tenant_id', $tenant->id)->where('actif', true)
+            ->select('id', 'nom', 'code', 'seuil_alerte')->get();
 
         $selectedMagasinId = $request->get('magasin_id', $magasins->first()?->id);
         
@@ -31,7 +32,13 @@ class StockController extends Controller
         }
 
         if (request()->expectsJson() || request()->is('api/*')) {
-            return response()->json(['success' => true, 'data' => $stockParProduit, 'magasin_id' => $selectedMagasinId]);
+            return response()->json([
+                'success' => true, 
+                'stock' => $stockParProduit, 
+                'magasin_id' => $selectedMagasinId,
+                'magasins' => $magasins,
+                'produits' => $produits
+            ]);
         }
 
         return view('stock.index', compact('magasins', 'produits', 'selectedMagasinId', 'stockParProduit'));
@@ -46,7 +53,11 @@ class StockController extends Controller
         $tenant = Auth::user()->tenant;
         
         $query = StockMouvement::where('tenant_id', $tenant->id)
-            ->with(['magasin', 'produit', 'user'])
+            ->with([
+                'magasin',
+                'produit' => fn($q) => $q->select('id', 'nom', 'code'),
+                'user' => fn($q) => $q->select('id', 'name'),
+            ])
             ->latest('date_mouvement');
 
         if ($request->filled('magasin_id')) {
@@ -59,9 +70,9 @@ class StockController extends Controller
             $query->where('type', $request->type);
         }
 
-        $mouvements = $query->paginate(20);
+        $mouvements = $query->paginate($request->input('per_page', 10));
         $magasins = $tenant->magasins;
-        $produits = Produit::where('tenant_id', $tenant->id)->get();
+        $produits = Produit::where('tenant_id', $tenant->id)->select('id', 'nom')->get();
 
         if (request()->expectsJson() || request()->is('api/*')) {
             return response()->json(['success' => true, 'data' => $mouvements]);

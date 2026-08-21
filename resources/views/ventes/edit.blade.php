@@ -40,7 +40,22 @@
 @endpush
 
 @section('content')
-<div class="card">
+<form method="POST" action="{{ route('ventes.update', $vente) }}" id="editForm">
+    @csrf
+    @method('PUT')
+
+    <div class="form-group" style="margin-bottom: 16px; max-width: 360px;">
+        <label class="form-label">Magasin / Boutique <span style="color:#dc2626;">*</span></label>
+        <select name="magasin_id" class="form-control">
+            @foreach($magasins as $m)
+                <option value="{{ $m->id }}" {{ $vente->magasin_id == $m->id ? 'selected' : '' }}>
+                    {{ $m->nom }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="card">
     <div class="card-header">
         <h3><i class="bi bi-pencil"></i> Modifier la vente</h3>
         <a href="{{ route('ventes.show', $vente) }}" class="btn btn-secondary btn-sm">
@@ -48,10 +63,6 @@
         </a>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ route('ventes.update', $vente) }}" id="editForm">
-            @csrf
-            @method('PUT')
-
             <div class="edit-grid" style="display: grid; gap: 16px; grid-template-columns: 1fr 1fr;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label">Client</label>
@@ -65,11 +76,7 @@
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label">Montant payé (FCFA)</label>
-                    <input type="number" name="montant_paye" id="montant_paye" class="form-control" value="{{ (int) $vente->montant_paye }}" min="0">
-                    <span class="input-error-msg paye-error"><i class="bi bi-exclamation-circle"></i> <span class="paye-error-text"></span></span>
-                </div>
+                <input type="hidden" name="montant_paye" id="montant_paye" value="{{ (int) $vente->montant_paye }}">
             </div>
 
             <div class="edit-grid" style="display: grid; gap: 16px; grid-template-columns: 1fr 1fr; margin-top: 12px;">
@@ -171,16 +178,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         // Nouvelles lignes
         total += addedLines.reduce((sum, l) => sum + l.quantite * l.prix_vente, 0);
-        const paye = parseFloat(document.getElementById('montant_paye').value) || 0;
+
+        const payeInput = document.getElementById('montant_paye');
+        const remisInput = document.querySelector('[name="montant_remis"]');
+        const remisRaw = remisInput?.value;
+        const remis = (remisRaw !== undefined && remisRaw !== '' && !isNaN(parseFloat(remisRaw))) ? parseFloat(remisRaw) : null;
+
+        let paye, du = 0;
+        if (remis === null) {
+            // Aucun montant remis saisi : on conserve le montant payé existant
+            paye = parseFloat(payeInput?.value) || 0;
+        } else {
+            paye = Math.min(remis, total);
+            du = remis > total ? remis - total : 0;
+        }
         const reste = Math.max(0, total - paye);
+
+        if (payeInput) payeInput.value = Math.round(paye);
         document.getElementById('resteAffichage').textContent = reste.toLocaleString('fr-FR') + ' FCFA';
-        // Du client
+
+        // Du client = monnaie à rendre
         const duDisplay = document.getElementById('duAffichage');
         if (duDisplay) {
-            const remisInput = document.querySelector('[name="montant_remis"]');
-            const remis = parseFloat(remisInput?.value) || 0;
-            if (remis > total) {
-                const du = remis - total;
+            if (du > 0) {
                 duDisplay.textContent = du.toLocaleString('fr-FR') + ' FCFA';
                 duDisplay.classList.remove('zero');
             } else {
@@ -188,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 duDisplay.classList.add('zero');
             }
         }
-        return { total, paye, reste };
+        return { total, paye, reste, du };
     }
 
     // Recalc on existing line changes
@@ -337,23 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ── Validation montant payé ──
-    document.getElementById('montant_paye').addEventListener('input', function() {
-        const { total, paye, reste } = recalcReste();
-        const errSpan = document.querySelector('.paye-error');
-        const errText = document.querySelector('.paye-error-text');
-        if (paye > total) {
-            this.classList.add('paye-over');
-            if (errSpan && errText) {
-                errText.textContent = 'Max: ' + total.toLocaleString('fr-FR') + ' FCFA';
-                errSpan.classList.add('show');
-            }
-        } else {
-            this.classList.remove('paye-over');
-            if (errSpan) errSpan.classList.remove('show');
-        }
-    });
-
+    // ── Recalcul sur saisie du montant remis ──
     document.querySelector('[name="montant_remis"]')?.addEventListener('input', recalcReste);
 
     recalcReste();
@@ -361,10 +365,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Submit validation ──
     document.getElementById('editForm').addEventListener('submit', function(e) {
         const clientId = document.querySelector('select[name="client_id"]').value;
-        const paye = parseFloat(document.getElementById('montant_paye').value) || 0;
-        if (!clientId && paye > 0) {
+        const { total, paye, du } = recalcReste();
+        const remisInput = document.querySelector('[name="montant_remis"]');
+        const remisRaw = remisInput?.value;
+        const remis = (remisRaw !== undefined && remisRaw !== '' && !isNaN(parseFloat(remisRaw))) ? parseFloat(remisRaw) : null;
+
+        // Client anonyme = pas de crédit : le montant remis doit couvrir le total
+        if (!clientId && (remis === null || remis < total)) {
             e.preventDefault();
-            alert('Un client doit être sélectionné si un montant payé est saisi, ou laissez le client anonyme pour un paiement intégral automatique.');
+            alert('Vente anonyme : le montant remis doit couvrir le total (' + total.toLocaleString('fr-FR') + ' FCFA).');
             return;
         }
     });

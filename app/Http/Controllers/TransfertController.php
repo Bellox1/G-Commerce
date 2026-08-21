@@ -29,6 +29,43 @@ class TransfertController extends Controller
         return view('transferts.index', compact('transferts'));
     }
 
+    /**
+     * Données de formulaire pour la création (magasins + produits avec stock par magasin).
+     * Permet au mobile de filtrer les produits disponibles selon le magasin source choisi.
+     */
+    public function form()
+    {
+        $this->authorizeModule('transferts');
+        $tenant = Auth::user()->tenant;
+
+        $magasins = Magasin::where('tenant_id', $tenant->id)->orderBy('nom')->get(['id', 'nom']);
+        $produits = Produit::where('tenant_id', $tenant->id)
+            ->where('actif', true)
+            ->orderBy('nom')
+            ->get(['id', 'nom', 'unite']);
+
+        $produitsData = $produits->map(function ($produit) use ($magasins) {
+            $stocks = [];
+            foreach ($magasins as $magasin) {
+                $stocks[$magasin->id] = $this->stockService->getStock($magasin->id, $produit->id);
+            }
+            return [
+                'id'     => $produit->id,
+                'nom'    => $produit->nom,
+                'unite'  => $produit->unite,
+                'stocks' => $stocks,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'magasins' => $magasins,
+                'produits' => $produitsData,
+            ],
+        ]);
+    }
+
     public function create()
     {
         $this->authorizeModule('transferts');
@@ -110,6 +147,136 @@ class TransfertController extends Controller
         }
 
         return view('transferts.show', compact('transfert'));
+    }
+
+    public function receptionner(Request $request, Transfert $transfert)
+    {
+        $this->authorizeModule('transferts');
+        $this->authorizeTenant($transfert);
+
+        if ($transfert->statut !== 'en_transit') {
+            $msg = 'Seuls les transferts en transit peuvent être réceptionnés.';
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $msg], 400);
+            }
+            return redirect()->route('transferts.show', $transfert)->with('error', $msg);
+        }
+
+        // Quantités réellement reçues (corrige les écarts de comptage)
+        $quantitesRecues = [];
+        if ($request->has('produits') && is_array($request->produits)) {
+            foreach ($request->produits as $p) {
+                if (isset($p['produit_id'])) {
+                    $quantitesRecues[$p['produit_id']] = (int) ($p['quantite_recue'] ?? $p['quantite'] ?? 0);
+                }
+            }
+        }
+
+        try {
+            $this->stockService->receptionner($transfert, $quantitesRecues);
+        } catch (\Exception $e) {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+            }
+            return redirect()->route('transferts.show', $transfert)->with('error', $e->getMessage());
+        }
+
+        return $this->smartResponse(route('transferts.show', $transfert), "Transfert {$transfert->reference} réceptionné avec succès.");
+    }
+
+    public function edit(Transfert $transfert)
+    {
+        $this->authorizeModule('transferts');
+        $this->authorizeTenant($transfert);
+
+        if ($transfert->statut !== 'en_transit') {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Seuls les transferts en transit peuvent être modifiés.'], 400);
+            }
+            return redirect()->route('transferts.show', $transfert)->with('error', 'Seuls les transferts en transit peuvent être modifiés.');
+        }
+
+        $tenant = Auth::user()->tenant;
+        $magasins = Magasin::where('tenant_id', $tenant->id)->get();
+        $produits = Produit::where('tenant_id', $tenant->id)->where('actif', true)->get();
+
+        $stockParMagasin = [];
+        foreach ($magasins as $m) {
+            $stockParMagasin[$m->id] = $this->stockService->getStockMagasin($m->id);
+        }
+
+        $produitsJson = $produits->map(function ($p) use ($stockParMagasin, $magasins) {
+            $stocks = [];
+            foreach ($magasins as $m) {
+                $stocks[$m->id] = $stockParMagasin[$m->id][$p->id] ?? 0;
+            }
+            return [
+                'id'    => $p->id,
+                'nom'   => $p->nom,
+                'stockParMagasin' => $stocks,
+            ];
+        })->values();
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'transfert'   => $transfert->load('produits.produit'),
+                    'magasins'    => $magasins,
+                    'produits'    => $produits,
+                    'produitsJson' => $produitsJson,
+                ],
+            ]);
+        }
+
+        return view('transferts.create', compact('magasins', 'produits', 'produitsJson', 'transfert'));
+    }
+
+    public function update(Request $request, Transfert $transfert)
+    {
+        $this->authorizeModule('transferts');
+        $this->authorizeTenant($transfert);
+
+        if ($transfert->statut !== 'en_transit') {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => 'Seuls les transferts en transit peuvent être modifiés.'], 400);
+            }
+            return redirect()->route('transferts.show', $transfert)->with('error', 'Seuls les transferts en transit peuvent être modifiés.');
+        }
+
+        $request->validate([
+            'magasin_source_id'      => 'required|exists:magasins,id',
+            'magasin_destination_id' => 'required|exists:magasins,id|different:magasin_source_id',
+            'produits'               => 'required|array|min:1',
+            'produits.*.produit_id'  => 'required|exists:produits,id',
+            'produits.*.quantite'    => 'required|integer|min:1',
+            'notes'                  => 'nullable|string|max:500',
+        ], [
+            'magasin_destination_id.different' => 'Le magasin de destination doit être différent du magasin source.',
+        ]);
+
+        // Vérifier les stocks (en tenant compte du retour des anciennes lignes)
+        $oldLines = $transfert->produits;
+        foreach ($request->produits as $p) {
+            $oldQty = $oldLines->where('produit_id', $p['produit_id'])->sum('quantite');
+            $stockDispo = $this->stockService->getStock($request->magasin_source_id, $p['produit_id']) + $oldQty;
+            if ($stockDispo < $p['quantite']) {
+                $produit = Produit::find($p['produit_id']);
+                $msg = "Stock insuffisant pour {$produit->nom} dans le magasin source (Disponible: {$stockDispo}).";
+                if (request()->expectsJson() || request()->is('api/*')) {
+                    return response()->json(['success' => false, 'message' => $msg], 400);
+                }
+                return redirect()->back()->withInput()->with('error', $msg);
+            }
+        }
+
+        $this->stockService->mettreAjour($transfert, $request->produits, [
+            'magasin_source_id'      => $request->magasin_source_id,
+            'magasin_destination_id' => $request->magasin_destination_id,
+            'notes'                  => $request->notes,
+        ]);
+
+        return $this->smartResponse(route('transferts.show', $transfert), "Transfert {$transfert->reference} mis à jour avec succès.");
     }
 
     private function authorizeTenant(Transfert $transfert)

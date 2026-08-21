@@ -37,7 +37,7 @@
                 <tbody>
                     @foreach($commissions as $c)
                     <tr>
-                        <td>{{ $c->created_at->format('d/m/Y') }}</td>
+                        <td>{{ $c->created_at->fr('d F Y') }}</td>
                         <td>
                             @if($c->partenaire)
                                 <span class="fw-bold">{{ $c->partenaire->name }}</span><br>

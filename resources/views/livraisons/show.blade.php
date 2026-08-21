@@ -80,13 +80,13 @@
 
             @if($vente->date_livraison)
             <div style="margin-bottom: 10px; font-family: 'Inter', sans-serif; font-size: 0.9rem;">
-                <strong>Date livraison :</strong> {{ $vente->date_livraison->format('d/m/Y \à H\hi') }}
+                <strong>Date livraison :</strong> {{ $vente->date_livraison->fr('d F Y \à H\hi') }}
             </div>
             @endif
 
             @if($vente->livreur)
             <div style="margin-bottom: 10px; font-family: 'Inter', sans-serif; font-size: 0.9rem;">
-                <strong>Livreur assigné :</strong> {{ $vente->livreur->name }}
+                <strong>Contrôleur assigné :</strong> {{ $vente->livreur->name }}
             </div>
             @endif
 
@@ -108,10 +108,15 @@
                 <div class="form-group">
                     <label class="form-label">Nouveau Statut</label>
                     <select name="statut_livraison" class="form-control" required>
-                        <option value="en_attente" {{ $vente->statut_livraison === 'en_attente' ? 'selected' : '' }}>En attente de livraison</option>
+                        <option value="en_attente" {{ $vente->statut_livraison === 'en_attente' ? 'selected' : '' }} @if(in_array($vente->statut_livraison, ['livre', 'probleme'])) disabled @endif>En attente de livraison</option>
                         <option value="livre" {{ $vente->statut_livraison === 'livre' ? 'selected' : '' }}>Livré</option>
                         <option value="probleme" {{ $vente->statut_livraison === 'probleme' ? 'selected' : '' }}>Problème (erreur de quantité, retour, etc.)</option>
                     </select>
+                    @if(in_array($vente->statut_livraison, ['livre', 'probleme']))
+                    <small style="color: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 0.8rem; margin-top: 6px; display: block;">
+                        Une livraison livrée ou en problème ne peut plus revenir à « En attente ».
+                    </small>
+                    @endif
                 </div>
 
                 <div class="form-group">
@@ -129,9 +134,13 @@
         <div class="card">
             <h3 style="margin-bottom: 12px;"><i class="bi bi-person-fill"></i> Client</h3>
             <p style="font-weight: 700; margin-bottom: 4px;">{{ $vente->client?->nomComplet() ?? 'Vente Directe (Anonyme)' }}</p>
-            @if($vente->client?->telephone)
-            <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-muted);">
+            @if(!Auth::user()->isControleur() && $vente->client?->telephone)
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">
                 <i class="bi bi-telephone-fill"></i> <a href="tel:{{ $vente->client->telephone }}">{{ $vente->client->telephone }}</a>
+                <a href="https://wa.me/{{ preg_replace('/\D/', '', $vente->client->telephone) }}" target="_blank"
+                   style="margin-left: 12px; color: #25D366; text-decoration: none; font-weight: 600;">
+                    <i class="bi bi-whatsapp"></i> WhatsApp
+                </a>
             </p>
             @endif
 

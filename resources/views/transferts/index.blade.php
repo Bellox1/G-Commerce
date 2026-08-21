@@ -44,7 +44,7 @@
                             {{ $t->reference }}
                         </a>
                     </td>
-                    <td>{{ $t->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{ $t->created_at->fr('d F Y H:i') }}</td>
                     <td>
                         @if($t->produits && $t->produits->count())
                             @foreach($t->produits as $tp)
@@ -59,10 +59,12 @@
                     <td>{{ $t->magasinSource?->nom }}</td>
                     <td>{{ $t->magasinDestination?->nom }}</td>
                     <td style="text-align: center;">
-                        @if($t->statut === 'livre')
-                            <span class="badge badge-success"><i class="bi bi-check-lg"></i> Livré</span>
-                        @else
+                        @if($t->statut === 'receptionne' || $t->statut === 'livre')
+                            <span class="badge badge-success"><i class="bi bi-check-lg"></i> {{ $t->statut === 'livre' ? 'Livré' : 'Réceptionné' }}</span>
+                        @elseif($t->statut === 'en_transit')
                             <span class="badge badge-warning"><i class="bi bi-clock"></i> En transit</span>
+                        @else
+                            <span class="badge badge-gray"><i class="bi bi-clock"></i> En attente</span>
                         @endif
                     </td>
                     <td style="text-align: center;">
