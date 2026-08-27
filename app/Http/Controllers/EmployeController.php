@@ -93,7 +93,7 @@ class EmployeController extends Controller
             'telephone'    => $request->telephone,
             'salaire'      => $request->salaire,
             'role'         => $request->role,
-            'roles_secondaires' => $request->roles_secondaires ?? [],
+            'roles_secondaires' => $request->role === 'superviseur' ? [] : ($request->roles_secondaires ?? []),
             'password'     => Hash::make($request->password),
         ]);
 
@@ -102,24 +102,36 @@ class EmployeController extends Controller
 
     public function edit(User $employe)
     {
+        $this->authorizeModule('employes');
         $this->authorizeTenant($employe);
+
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json(['success' => true, 'data' => $employe]);
+        }
+
         return view('employes.edit', compact('employe'));
     }
 
     public function update(Request $request, User $employe)
     {
+        $this->authorizeModule('employes');
         $this->authorizeTenant($employe);
 
         $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255',
-            'telephone' => 'nullable|string|max:30',
+            'email'     => 'required|email|max:255|unique:users,email,' . $employe->id,
+            'telephone' => 'nullable|string|max:50',
+            'salaire'   => 'nullable|numeric|min:0',
             'role'      => 'required|in:superviseur,vendeur,controleur,magasinier',
             'roles_secondaires' => 'nullable|array',
             'roles_secondaires.*' => 'in:superviseur,vendeur,controleur,magasinier',
-            'actif'     => 'nullable|boolean',
-            'salaire'   => 'nullable|numeric|min:0',
         ]);
+
+        $data = $request->only(['name', 'email', 'telephone', 'role']);
+        if ($request->filled('salaire')) {
+            $data['salaire'] = $request->salaire;
+        }
+        $data['roles_secondaires'] = $request->role === 'superviseur' ? [] : ($request->roles_secondaires ?? []);
 
         if ($request->email !== $employe->email) {
             $conflict = User::withoutGlobalScopes()->where('email', $request->email)->where('id', '!=', $employe->id)->first();

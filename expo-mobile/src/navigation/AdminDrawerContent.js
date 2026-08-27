@@ -64,7 +64,7 @@ const AdminDrawerContent = (props) => {
                         style={styles.logo}
                         resizeMode="contain"
                     />
-                    <Text style={styles.brand}>pilotix</Text>
+                    <Text style={styles.brand}>PILOTIX</Text>
                 </View>
                 <View style={styles.profileRow}>
                     <View style={[styles.avatar, { backgroundColor: Colors.accent }]}>

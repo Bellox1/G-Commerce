@@ -8,7 +8,9 @@ import client from '../api/client';
 
 const formatMoney = (val) => {
     if (val === null || val === undefined || val === '') return '0 F';
-    return Math.round(Number(val)).toLocaleString('fr-FR') + ' F';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' F';
 };
 
 const StimulateurCA = () => {

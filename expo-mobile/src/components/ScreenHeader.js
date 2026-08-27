@@ -1,13 +1,17 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
 
 const ScreenHeader = ({ title, subtitle, navigation, onBack }) => {
     const nav = navigation || useNavigation();
+    const insets = useSafeAreaInsets();
+    const paddingTop = Math.max(insets.top + 8, StatusBar.currentHeight ? StatusBar.currentHeight + 8 : 44);
+
     return (
-        <View style={styles.bar}>
+        <View style={[styles.bar, { paddingTop }]}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
             <TouchableOpacity
                 style={styles.backBtn}
@@ -30,8 +34,7 @@ const styles = {
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
         paddingHorizontal: 12,
-        paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 8 : 24,
-        paddingBottom: 10,
+        paddingBottom: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#F1F5F9',
     },

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    ActivityIndicator, Alert, StatusBar, Modal, TextInput
+    ActivityIndicator, Alert, StatusBar, Modal, TextInput,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -131,72 +132,54 @@ const ShowVenteScreen = ({ navigation, route }) => {
         }
     };
 
+    const [masquerSociete, setMasquerSociete] = useState(false);
+    const [masquerVendeur, setMasquerVendeur] = useState(false);
+
     const handlePrint = async () => {
         if (!vente || printingRef.current) return;
         printingRef.current = true;
         setPrinting(true);
-        const lines = (vente.lignes || []).map((l) => `
-            <tr>
+
+        try {
+            const lines = (vente.lignes || []).map((l) => `<tr>
                 <td>${escapeHtml(l.produit?.nom || 'Article')}</td>
                 <td style="text-align:right">${Math.round(Number(l.prix_vente || l.prix_unitaire || 0)).toLocaleString()}</td>
                 <td style="text-align:right">${l.quantite} ${uniteAbbrev(l.unite)}</td>
                 <td style="text-align:right">${Math.round(Number(l.total_ligne || (l.prix_unitaire * l.quantite) || 0)).toLocaleString()}</td>
             </tr>`).join('');
-        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-            @page { size: 80mm auto; margin: 0; }
-            * { box-sizing: border-box; }
-            html, body { width: 80mm; }
-            body{font-family:sans-serif;font-size:12px;width:80mm;margin:0;padding:6px 8px;color:#000;}
-            h2{text-align:center;margin:2px 0;font-size:15px;}
-            .sub{text-align:center;font-size:11px;margin-bottom:6px;}
-            .row{display:flex;justify-content:space-between;font-size:11px;margin:2px 0;gap:6px;}
-            table{width:100%;border-collapse:collapse;margin-top:8px;table-layout:fixed;}
-            th,td{padding:3px 4px;border-bottom:1px solid #999;font-size:11px;overflow-wrap:anywhere;word-break:break-word;}
-            .total{font-weight:bold;margin-top:8px;border-top:2px solid #000;padding-top:6px;}
-        </style></head><body>
-            <h2>${escapeHtml(companyName)}</h2>
-            <div class="sub">${escapeHtml(vente.magasin?.nom || 'Magasin Principal')}</div>
-            <div class="row"><span>FACTURE</span><span>${escapeHtml(vente.reference)}</span></div>
-            <div class="row"><span>${escapeHtml(formatInvoiceDate(vente.date_vente))}</span></div>
-            <div class="row"><span>Client:</span><span>${escapeHtml(vente.client?.nom ? vente.client.nom + ' ' + (vente.client.prenom || '') : 'Anonyme')}</span></div>
-            <table><thead><tr><th style="width:42%">Article</th><th style="width:20%">Prix</th><th style="width:18%">Qté</th><th style="width:20%">Total</th></tr></thead><tbody>${lines}</tbody></table>
-            <div class="row"><span>Total</span><span>${formatMoney(vente.montant_total)}</span></div>
-            <div class="row"><span>Payé</span><span>${formatMoney(vente.montant_paye)}</span></div>
-            ${vente.montant_remis ? `<div class="row"><span>Montant remis</span><span>${formatMoney(vente.montant_remis)}</span></div>` : ''}
-            ${vente.montant_reste > 0 ? `<div class="row"><span>Reste</span><span>${formatMoney(vente.montant_reste)}</span></div>` : ''}
-            ${vente.montant_remis && vente.montant_remis > vente.montant_total ? `<div class="row"><span>Monnaie à rendre</span><span>${formatMoney(vente.montant_remis - vente.montant_total)}</span></div>` : ''}
-            <div class="row total"><span>NET À PAYER</span><span>${formatMoney(vente.montant_total)}</span></div>
-            <div class="sub" style="margin-top:10px;">Merci pour votre achat</div>
-        </body></html>`;
-        const attemptPrint = async (attempt) => {
-            try {
-                await Print.printAsync({ html });
-            } catch (e) {
-                if (attempt > 0 && /already in progress/i.test(e?.message || '')) {
-                    await new Promise((r) => setTimeout(r, 700));
-                    return attemptPrint(attempt - 1);
-                }
-                throw e;
-            }
-        };
-        try {
-            if (typeof Print.printAsync !== 'function') {
-                throw new Error('Module expo-print indisponible');
-            }
-            await attemptPrint(1);
+            const companyHeaderHtml = masquerSociete ? '' : `<h2>${escapeHtml(companyName)}</h2>`;
+            const vendeurRowHtml = (masquerVendeur || !vente.user?.name) ? '' : `<div class="row"><span>Vendeur:</span><span>${escapeHtml(vente.user.name)}</span></div>`;
+            const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+                @page{size:80mm auto;margin:0}*{box-sizing:border-box}html,body{width:80mm}
+                body{font-family:sans-serif;font-size:12px;width:80mm;margin:0;padding:6px 8px;color:#000}
+                h2{text-align:center;margin:2px 0;font-size:15px}
+                .sub{text-align:center;font-size:11px;margin-bottom:6px}
+                .row{display:flex;justify-content:space-between;font-size:11px;margin:2px 0;gap:6px}
+                table{width:100%;border-collapse:collapse;margin-top:8px;table-layout:fixed}
+                th,td{padding:3px 4px;border-bottom:1px solid #999;font-size:11px;overflow-wrap:anywhere;word-break:break-word}
+                .total{font-weight:bold;margin-top:8px;border-top:2px solid #000;padding-top:6px}
+            </style></head><body>
+                ${companyHeaderHtml}
+                <div class="sub">${escapeHtml(vente.magasin?.nom || '')}</div>
+                <div class="row"><span>FACTURE</span><span>${escapeHtml(vente.reference)}</span></div>
+                <div class="row"><span>${escapeHtml(formatInvoiceDate(vente.date_vente))}</span></div>
+                <div class="row"><span>Client:</span><span>${escapeHtml(vente.client?.nom ? vente.client.nom + ' ' + (vente.client.prenom || '') : 'Anonyme')}</span></div>
+                ${vendeurRowHtml}
+                <table><thead><tr><th style="width:42%">Article</th><th style="width:20%">Prix</th><th style="width:18%">Qté</th><th style="width:20%">Total</th></tr></thead><tbody>${lines}</tbody></table>
+                <div class="row"><span>Total</span><span>${formatMoney(vente.montant_total)}</span></div>
+                <div class="row"><span>Payé</span><span>${formatMoney(vente.montant_paye)}</span></div>
+                ${vente.montant_remis ? `<div class="row"><span>Montant remis</span><span>${formatMoney(vente.montant_remis)}</span></div>` : ''}
+                ${vente.montant_reste > 0 ? `<div class="row"><span>Reste</span><span>${formatMoney(vente.montant_reste)}</span></div>` : ''}
+                ${vente.montant_remis && vente.montant_remis > vente.montant_total ? `<div class="row"><span>Monnaie à rendre</span><span>${formatMoney(vente.montant_remis - vente.montant_total)}</span></div>` : ''}
+                <div class="row total"><span>NET À PAYER</span><span>${formatMoney(vente.montant_total)}</span></div>
+                <div class="sub" style="margin-top:10px;">Merci pour votre achat</div>
+            </body></html>`;
+
+            await Print.printAsync({ html });
         } catch (e) {
-            console.error('Print error:', e);
-            try {
-                const fileUri = FileSystem.documentDirectory + `facture_${vente.reference}.html`;
-                await FileSystem.writeAsStringAsync(fileUri, html, { encoding: FileSystem.EncodingType.UTF8 });
-                if (await Sharing.isAvailableAsync()) {
-                    await Sharing.shareAsync(fileUri);
-                    return;
-                }
-            } catch (e2) {
-                console.error('Share fallback error:', e2);
-            }
-            Alert.alert('Erreur d\'impression', e?.message || 'Impression impossible.');
+            const msg = (e?.message || '').toLowerCase();
+            if (msg.includes('cancel') || msg.includes('did not complete')) return;
+            Alert.alert('Impression impossible', e?.message || 'Une erreur est survenue.');
         } finally {
             printingRef.current = false;
             setPrinting(false);
@@ -246,6 +229,39 @@ const ShowVenteScreen = ({ navigation, route }) => {
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+
+                {/* Options rapides masquage impression */}
+                <View style={styles.maskChipsRow}>
+                    <TouchableOpacity
+                        style={[styles.maskChip, masquerSociete && styles.maskChipActive]}
+                        onPress={() => setMasquerSociete(!masquerSociete)}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons
+                            name={masquerSociete ? "checkbox" : "square-outline"}
+                            size={16}
+                            color={masquerSociete ? Colors.primary : Colors.textLight}
+                        />
+                        <Text style={[styles.maskChipText, masquerSociete && styles.maskChipTextActive]}>
+                            Masquer société
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.maskChip, masquerVendeur && styles.maskChipActive]}
+                        onPress={() => setMasquerVendeur(!masquerVendeur)}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons
+                            name={masquerVendeur ? "checkbox" : "square-outline"}
+                            size={16}
+                            color={masquerVendeur ? Colors.primary : Colors.textLight}
+                        />
+                        <Text style={[styles.maskChipText, masquerVendeur && styles.maskChipTextActive]}>
+                            Masquer vendeur
+                        </Text>
+                    </TouchableOpacity>
+                </View>
 
                 {/* Carte facture */}
                 <View style={styles.invoiceCard}>
@@ -386,6 +402,7 @@ const ShowVenteScreen = ({ navigation, route }) => {
 
             {/* Modal paiement dette */}
             <Modal visible={showPayModal} transparent animationType="slide" onRequestClose={() => setShowPayModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
@@ -408,10 +425,13 @@ const ShowVenteScreen = ({ navigation, route }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
 
             {/* Modal statut livraison */}
             <Modal visible={showLivModal} transparent animationType="slide" onRequestClose={() => setShowLivModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
@@ -451,12 +471,43 @@ const ShowVenteScreen = ({ navigation, route }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    maskChipsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginBottom: 12,
+    },
+    maskChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: 20,
+        backgroundColor: '#F1F5F9',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    maskChipActive: {
+        backgroundColor: '#EFF6FF',
+        borderColor: Colors.primary,
+    },
+    maskChipText: {
+        fontSize: 12,
+        fontFamily: 'PlusJakartaSans_600SemiBold',
+        color: Colors.textLight,
+    },
+    maskChipTextActive: {
+        color: Colors.primary,
+        fontFamily: 'PlusJakartaSans_700Bold',
+    },
     container: { flex: 1, backgroundColor: '#FFFFFF' },
     topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
     backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F1F5F9', justifyContent: 'center', alignItems: 'center' },

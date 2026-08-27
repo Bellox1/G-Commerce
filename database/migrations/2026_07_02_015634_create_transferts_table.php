@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('livreur_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('reference')->unique(); // TRF-2026-001
             $table->integer('quantite');
-            $table->enum('statut', ['en_attente', 'en_transit', 'livre', 'annule'])->default('en_attente');
+            $table->string('statut', 50)->default('en_transit');
             $table->timestamp('date_transfert')->useCurrent();
             $table->timestamp('date_livraison')->nullable();
             $table->text('notes')->nullable();

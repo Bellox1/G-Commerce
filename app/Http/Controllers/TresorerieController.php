@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tresorerie;
+use App\Models\DetteSociete;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -61,6 +62,9 @@ class TresorerieController extends Controller
 
         $data['tenant_id'] = $tenant->id;
         $data['user_id'] = Auth::id();
+        if (empty($data['libelle'])) {
+            $data['libelle'] = ($data['sens'] === 'sortie' || $data['sens'] === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté";
+        }
         $data['mode_paiement'] = $data['mode_paiement'] ?: 'Espèces';
 
         $item = Tresorerie::create($data);

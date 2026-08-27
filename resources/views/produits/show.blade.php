@@ -10,8 +10,8 @@
             <div style="display: flex; align-items: center; gap: 16px;">
                 @if($produit->image)
                     @php $imgSrc = str_starts_with($produit->image, 'http') ? $produit->image : asset('storage/' . $produit->image); @endphp
-                    <img src="{{ $imgSrc }}" alt="{{ $produit->nom }}"
-                         style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <img src="{{ $imgSrc }}" alt="{{ $produit->nom }}" onclick="openImageModal('{{ $imgSrc }}')"
+                         style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); cursor: pointer;" title="Cliquer pour agrandir" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
                     <span style="display:none; width:64px; height:64px; border-radius:8px; background:#f1f5f9; align-items:center; justify-content:center; color:#94a3b8; font-size:1.5rem;">
                         <i class="bi bi-image"></i>
                     </span>
@@ -45,11 +45,16 @@
         <div style="display: flex; flex-direction: column; gap: 20px;">
             {{-- Image --}}
             <div class="card">
-                <div class="card-body" style="padding: 16px; display: flex; justify-content: center;">
+                <div class="card-body" style="padding: 16px; display: flex; justify-content: center; position: relative;">
                     @if($produit->image)
                         @php $imgSrc = str_starts_with($produit->image, 'http') ? $produit->image : asset('storage/' . $produit->image); @endphp
-                        <img src="{{ $imgSrc }}" alt="{{ $produit->nom }}"
-                             style="max-width: 100%; max-height: 300px; border-radius: 8px; object-fit: contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                        <div style="position: relative; cursor: pointer; display: inline-block;" onclick="openImageModal('{{ $imgSrc }}')" title="Cliquer pour agrandir en grand écran">
+                            <img src="{{ $imgSrc }}" alt="{{ $produit->nom }}"
+                                 style="max-width: 100%; max-height: 300px; border-radius: 8px; object-fit: contain; display: block;" onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='inline-flex';">
+                            <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(15,23,42,0.7); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px;">
+                                <i class="bi bi-arrows-angle-expand"></i> Agrandir
+                            </div>
+                        </div>
                         <span style="display:none; width:200px; height:200px; border-radius:8px; background:#f1f5f9; align-items:center; justify-content:center; color:#94a3b8; font-size:3rem;">
                             <i class="bi bi-image"></i>
                         </span>
@@ -192,10 +197,30 @@
                     <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: .85rem;">
                         Aucun mouvement enregistré.
                     </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
+</div>
+
+{{-- Modal d'agrandissement d'image --}}
+<div id="imageModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.85); z-index:99999; justify-content:center; align-items:center; backdrop-filter:blur(4px);" onclick="closeImageModal()">
+    <div style="position:relative; max-width:92vw; max-height:92vh; display:flex; flex-direction:column; align-items:center;" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeImageModal()" style="position:absolute; top:-40px; right:0; background:rgba(255,255,255,0.2); border:none; color:#fff; width:36px; height:36px; border-radius:50%; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <img id="imageModalSrc" src="" alt="Agrandissement" style="max-width:90vw; max-height:85vh; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.6); object-fit:contain; background:#fff;">
     </div>
 </div>
+
+<script>
+function openImageModal(src) {
+    const modal = document.getElementById('imageModal');
+    const img = document.getElementById('imageModalSrc');
+    img.src = src;
+    modal.style.display = 'flex';
+}
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeImageModal();
+});
+</script>
 @endsection

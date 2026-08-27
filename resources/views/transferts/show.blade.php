@@ -71,8 +71,11 @@
             </div>
 
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
                     <h3><i class="bi bi-box"></i> Produits transférés</h3>
+                    <span class="badge badge-primary" style="font-size:.85rem; padding:6px 12px; background:var(--primary); color:#fff; border-radius:20px;">
+                        Total: {{ number_format($transfert->produits->sum('quantite') ?: ($transfert->quantite ?? 0), 0, ',', ' ') }} unité(s)
+                    </span>
                 </div>
                 <div class="card-body" style="padding: 0;">
                     @if($transfert->produits && $transfert->produits->count())
@@ -99,6 +102,13 @@
                                         </tr>
                                         @endforeach
                                     </tbody>
+                                    <tfoot>
+                                        <tr style="font-weight:700; background:rgba(0,0,0,0.02);">
+                                            <td style="padding:10px 4px;">TOTAL TRANSFÉRÉ</td>
+                                            <td style="padding:10px 4px; text-align:right;">{{ number_format($transfert->produits->sum('quantite'), 0, ',', ' ') }}</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                             <div style="padding: 12px 16px;">
@@ -122,10 +132,17 @@
                                     <tr>
                                         <td style="padding:8px 4px; border-bottom:1px solid var(--border); font-weight:500;">{{ $tp->produit?->nom }}</td>
                                         <td style="padding:8px 4px; border-bottom:1px solid var(--border); text-align:right; font-weight:600;">{{ $tp->quantite }}</td>
-                                        <td style="padding:8px 4px; border-bottom:1px solid var(--border); text-align:right; font-weight:600; color: $tp->quantite_recue !== null && $tp->quantite_recue != $tp->quantite ? 'var(--warning)' : 'var(--success)';">{{ $tp->quantite_recue ?? $tp->quantite }}</td>
+                                        <td style="padding:8px 4px; border-bottom:1px solid var(--border); text-align:right; font-weight:600; color: {{ $tp->quantite_recue !== null && $tp->quantite_recue != $tp->quantite ? 'var(--warning)' : 'var(--success)' }};">{{ $tp->quantite_recue ?? $tp->quantite }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <tr style="font-weight:700; background:rgba(0,0,0,0.02);">
+                                        <td style="padding:10px 4px;">TOTAL</td>
+                                        <td style="padding:10px 4px; text-align:right;">{{ number_format($transfert->produits->sum('quantite'), 0, ',', ' ') }}</td>
+                                        <td style="padding:10px 4px; text-align:right; color:var(--success);">{{ number_format($transfert->produits->sum('quantite_recue') ?: $transfert->produits->sum('quantite'), 0, ',', ' ') }}</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                         @endif

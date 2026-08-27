@@ -31,6 +31,20 @@
     </div>
 </div>
 
+{{-- Totaux par devise --}}
+@if($dettesParDevise->isNotEmpty())
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px; margin-bottom:20px;">
+    @foreach($dettesParDevise as $devise => $total)
+    <div class="card">
+        <div style="padding:16px;">
+            <div style="font-size:.75rem; color:var(--text-muted);">Dettes en {{ $devise }}</div>
+            <div style="font-size:1.3rem; font-weight:800; color:var(--danger);">{{ number_format($total, 0, ',', ' ') }} {{ $devise }}</div>
+        </div>
+    </div>
+    @endforeach
+</div>
+@endif
+
 {{-- Filtres --}}
 <div class="card">
     <div class="card-header" style="flex-wrap:wrap; gap:12px;">
@@ -200,7 +214,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Date *</label>
-                    <input type="date" name="date_dette" class="form-control" value="{{ date('Y-m-d') }}" required>
+                    <input type="date" name="date_dette" class="form-control" value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:12px;">
                     <i class="bi bi-check-circle"></i> Enregistrer

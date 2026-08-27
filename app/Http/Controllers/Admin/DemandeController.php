@@ -97,11 +97,11 @@ class DemandeController extends Controller
                 "Bonjour {$demande->prenom},\n\n" .
                 "Votre demande de partenariat a été approuvée !\n\n" .
                 $credentials .
-                "Bienvenue dans l'équipe Pilotix !",
+                "Bienvenue dans l'équipe PILOTIX !",
                 function ($mail) use ($demande) {
                     $mail->to($demande->email)
-                        ->subject('Vous êtes maintenant partenaire Pilotix !')
-                        ->from('pilotixcontact@gmail.com', 'Pilotix');
+                        ->subject('Vous êtes maintenant partenaire PILOTIX !')
+                        ->from('pilotixcontact@gmail.com', 'PILOTIX');
                 }
             );
         } catch (\Exception $e) {}
@@ -131,13 +131,13 @@ class DemandeController extends Controller
         try {
             Mail::raw(
                 "Bonjour {$demande->prenom},\n\n" .
-                "Nous avons bien étudié votre demande de partenariat pour Pilotix.\n" .
+                "Nous avons bien étudié votre demande de partenariat pour PILOTIX.\n" .
                 "Malheureusement, nous ne pouvons pas y donner une suite favorable pour le moment.\n\n" .
-                "Cordialement,\nL'équipe Pilotix",
+                "Cordialement,\nL'équipe PILOTIX",
                 function ($mail) use ($demande) {
                     $mail->to($demande->email)
-                        ->subject('Votre demande de partenariat Pilotix')
-                        ->from('pilotixcontact@gmail.com', 'Pilotix');
+                        ->subject('Votre demande de partenariat PILOTIX')
+                        ->from('pilotixcontact@gmail.com', 'PILOTIX');
                 }
             );
         } catch (\Exception $e) {}

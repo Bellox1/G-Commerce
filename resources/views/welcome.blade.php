@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pilotix — Logiciel de Gestion Commerciale Multi-Magasins</title>
-    <meta name="description" content="pilotix : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel.">
-    <meta name="keywords" content="logiciel gestion, gestion stock, ventes en ligne, clients, livraisons, arrivages, dettes, multi-magasins, pilotix, application gestion">
+    <title>PILOTIX — Logiciel de Gestion Commerciale Multi-Magasins</title>
+    <meta name="description" content="PILOTIX : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel.">
+    <meta name="keywords" content="logiciel gestion, gestion stock, ventes en ligne, clients, livraisons, arrivages, dettes, multi-magasins, PILOTIX, application gestion">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="pilotix — Logiciel de Gestion Commerciale Multi-Magasins">
+    <meta property="og:title" content="PILOTIX — Logiciel de Gestion Commerciale Multi-Magasins">
     <meta property="og:description" content="Gérez vos ventes, stocks, clients, livraisons et dettes en temps réel. Solution complète pour commerçants.">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="pilotix">
-    <meta name="description" content="Pilotix est une solution SaaS de gestion commerciale multi-tenant pour les PME africaines : ventes, stock, livraisons, dettes, arrivages et plus.">
+    <meta property="og:site_name" content="PILOTIX">
+    <meta name="description" content="PILOTIX est une solution SaaS de gestion commerciale multi-tenant pour les PME africaines : ventes, stock, livraisons, dettes, arrivages et plus.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -874,7 +874,7 @@
     <!-- Nav -->
     <nav>
         <a href="/" class="nav-logo">
-            <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo">
+            <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo">
         </a>
         <div class="nav-links-pub">
             <a href="#fonctionnalites">Fonctionnalités</a>
@@ -935,7 +935,7 @@
                 <div class="phone-frame">
                     <div class="phone-notch"></div>
                     <div class="phone-screen" style="position:relative;">
-                        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="width:100%; height:auto; object-fit:contain;">
+                        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="width:100%; height:auto; object-fit:contain;">
                         <p style="position:absolute; bottom:20px; left:0; right:0; text-align:center; color:#000; font-size:0.85rem; font-weight:700; letter-spacing:1px;">Pilotez. Controlez. Progressez.</p>
                     </div>
                 </div>
@@ -951,7 +951,7 @@
         <div class="decor-arc decor-arc-2"></div>
 
         <div class="features-header reveal">
-            <div class="section-label reveal reveal-delay-1">Ce qu'Pilotix fait pour vous</div>
+            <div class="section-label reveal reveal-delay-1">Ce qu'PILOTIX fait pour vous</div>
             <h2 class="section-title reveal reveal-delay-2">Un outil complet, pensé pour le <span class="arc-underline" style="color: var(--primary);">Marché local et Magasins<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span></h2>
             <p class="section-sub reveal reveal-delay-3">Découvrez comment chaque module structure et sécurise vos processus commerciaux quotidiens.</p>
         </div>
@@ -961,7 +961,7 @@
             <div class="feat-col-text">
                 <span class="feat-badge"><i class="bi bi-box-seam"></i> Logistique</span>
                 <h3 class="feat-title">Suivi des stocks en temps réel par dépôt</h3>
-                <p class="feat-desc">Ne soyez plus jamais pris au dépourvu. Suivez l’état de vos produits de façon globale et par point de stockage physique. Pilotix calcule automatiquement les niveaux critiques pour vous alerter en cas de stock bas.</p>
+                <p class="feat-desc">Ne soyez plus jamais pris au dépourvu. Suivez l’état de vos produits de façon globale et par point de stockage physique. PILOTIX calcule automatiquement les niveaux critiques pour vous alerter en cas de stock bas.</p>
                 <div class="bullet-list">
                     <div class="bullet-item"><i class="bi bi-check2"></i> Multi-dépôts : gestion indépendante par magasin physique.</div>
                     <div class="bullet-item"><i class="bi bi-check2"></i> Seuils d'alerte : notification dynamique avant rupture.</div>
@@ -1043,20 +1043,20 @@
             <div class="devices-showcase reveal">
                 <div class="device pc-frame">
                     <div class="pc-screen">
-                        <img src="{{ asset('pc.png') }}" alt="Pilotix sur PC">
+                        <img src="{{ asset('pc.png') }}" alt="PILOTIX sur PC">
                     </div>
                     <div class="pc-stand"></div>
                 </div>
                 <div class="device tablet-frame-lg">
                     <div class="tablet-camera"></div>
                     <div class="tablet-screen-lg">
-                        <img src="{{ asset('tablette.jpeg') }}" alt="Pilotix sur Tablette">
+                        <img src="{{ asset('tablette.jpeg') }}" alt="PILOTIX sur Tablette">
                     </div>
                 </div>
                 <div class="device phone-frame-sm">
                     <div class="phone-notch-sm"></div>
                     <div class="phone-screen-sm">
-                        <img src="{{ asset('telephone.jpeg') }}" alt="Pilotix sur Téléphone">
+                        <img src="{{ asset('telephone.jpeg') }}" alt="PILOTIX sur Téléphone">
                     </div>
                 </div>
             </div>
@@ -1080,7 +1080,7 @@
                 <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Idéal pour démarrer la gestion d'une boutique unique.</p>
                 
                 <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
-                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">30 000 <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">{{ number_format($rules['essentiel']->prix ?? 0, 0, ' ', ' ') }} <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
                     <div style="font-size:0.82rem; font-weight:700; color:var(--primary); margin-top:6px; display:flex; align-items:center; gap:5px;"><i class="bi bi-credit-card-2-front"></i> Paiement en 3x possible</div>
                 </div>
 
@@ -1104,7 +1104,7 @@
                 <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Pour grossistes, importateurs et multi-magasins.</p>
                 
                 <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
-                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">75 000 <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">{{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
                     <div style="font-size:0.82rem; font-weight:700; color:var(--secondary); margin-top:6px; display:flex; align-items:center; gap:5px;"><i class="bi bi-credit-card-2-front"></i> Paiement en 3x possible</div>
                 </div>
 
@@ -1128,7 +1128,7 @@
                 
                 <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
                     <div style="font-size:0.85rem; font-weight:700; color:var(--muted);">À partir de</div>
-                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">250 000 <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA</span></div>
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">{{ number_format($rules['entreprise']->prix ?? 0, 0, ' ', ' ') }} <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA</span></div>
                     <div style="font-size:0.82rem; font-weight:700; color:var(--primary); margin-top:6px;">Licence à vie (Domaine client après 1 an)</div>
                 </div>
 
@@ -1215,14 +1215,14 @@
                     <div class="form-group">
                         <label class="form-label" for="type_souscription">Offre de souscription souhaitée *</label>
                         <select name="type_souscription" id="type_souscription" class="form-control" required onchange="updateOffreDisplay()">
-                            <option value="essentiel">Offre Essentiel (30 000 FCFA / an — 1 Poste)</option>
-                            <option value="professionnel" selected>Offre Professionnel (75 000 FCFA / an — Multi-Postes)</option>
-                            <option value="entreprise">Offre Entreprise (À partir de 250 000 FCFA — Sur-Mesure)</option>
+                            <option value="essentiel">Offre Essentiel ({{ number_format($rules['essentiel']->prix ?? 0, 0, ' ', ' ') }} FCFA / an — 1 Poste)</option>
+                            <option value="professionnel" selected>Offre Professionnel ({{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} FCFA / an — Multi-Postes)</option>
+                            <option value="entreprise">Offre Entreprise (À partir de {{ number_format($rules['entreprise']->prix ?? 0, 0, ' ', ' ') }} FCFA — Sur-Mesure)</option>
                         </select>
                     </div>
 
                     <div id="price-display" style="display:flex; align-items:center; gap:10px; padding:14px 18px; background:#f4f7f6; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:12px;">
-                        <span style="font-weight:800; font-size:1.4rem; color:var(--primary);" id="price-total">75 000 FCFA</span>
+                        <span style="font-weight:800; font-size:1.4rem; color:var(--primary);" id="price-total">{{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} FCFA</span>
                         <span style="font-size:0.85rem; color:#64748b; font-weight:600;" id="price-period">/ an</span>
                         <span id="price-eco" style="font-size:0.75rem; font-weight:700; color:#16a34a; background:#dcfce7; border:1px solid #bbf7d0; padding:4px 10px; border-radius:8px; margin-left:auto;">Paiement 3x disponible</span>
                     </div>
@@ -1251,7 +1251,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div style="margin-bottom:10px;">
-                    <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+                    <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
                 </div>
                 <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
             </div>
@@ -1284,7 +1284,7 @@
             </div>
         </div>
         <div class="footer-bottom" style="border-top: 1px solid #e5e7eb; color: #6b7280;">
-            <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-Dépôt ou Magasin</span>
+            <span>&copy; {{ date('Y') }} PILOTIX — Gestion commerciale multi-Dépôt ou Magasin</span>
             <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
         </div>
     </footer>
@@ -1355,6 +1355,14 @@
     window.addEventListener('scroll', setActiveLink);
     setActiveLink();
 
+    var OFFRE_PRIX = {
+        essentiel:     {{ $rules['essentiel']?->prix ?? 0 }},
+        professionnel: {{ $rules['professionnel']?->prix ?? 0 }},
+        entreprise:    {{ $rules['entreprise']?->prix ?? 0 }}
+    };
+
+    function formatFcfa(n) { return new Intl.NumberFormat('fr-FR').format(Math.round(n)) + ' FCFA'; }
+
     function updateOffreDisplay() {
         var type = document.getElementById('type_souscription').value;
         var is3x = document.getElementById('paiement_3x').checked;
@@ -1364,30 +1372,23 @@
         var wrap3x = document.getElementById('paiement3x-wrap');
         var detail3x = document.getElementById('paiement3x-detail');
 
-        if (type === 'essentiel') {
-            priceTotal.textContent = '30 000 FCFA';
+        var prix = OFFRE_PRIX[type] || 0;
+        var mensualite = Math.round(prix / 3);
+
+        if (type === 'essentiel' || type === 'professionnel') {
+            priceTotal.textContent = formatFcfa(prix);
             pricePeriod.textContent = '/ an';
             priceEco.style.display = 'inline-block';
-            priceEco.textContent = is3x ? '3 × 11 000 FCFA' : 'Paiement 3x disponible';
+            priceEco.textContent = is3x ? '3 × ' + formatFcfa(mensualite) : 'Paiement 3x disponible';
             wrap3x.style.display = '';
-            // 30 000 / 3 = 10 000 + 1 000 frais = 11 000
-            detail3x.innerHTML = '3 &times; 11 000 FCFA <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(soit 33 000 FCFA — frais de dossier inclus)</span>';
+            detail3x.innerHTML = '3 &times; ' + formatFcfa(mensualite) + ' <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(soit ' + formatFcfa(prix) + ' — frais de dossier inclus)</span>';
         } else if (type === 'entreprise') {
-            priceTotal.textContent = '250 000 FCFA';
+            priceTotal.textContent = formatFcfa(prix);
             pricePeriod.textContent = 'à partir de';
             priceEco.style.display = 'inline-block';
             priceEco.textContent = 'Licence à vie / Devis sur-mesure';
             wrap3x.style.display = 'none';
             document.getElementById('paiement_3x').checked = false;
-        } else {
-            // Professionnel
-            priceTotal.textContent = '75 000 FCFA';
-            pricePeriod.textContent = '/ an';
-            priceEco.style.display = 'inline-block';
-            priceEco.textContent = is3x ? '3 × 27 500 FCFA' : 'Paiement 3x disponible';
-            wrap3x.style.display = '';
-            // 75 000 / 3 = 25 000 + 2 500 frais = 27 500
-            detail3x.innerHTML = '3 &times; 27 500 FCFA <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(soit 82 500 FCFA — frais de dossier inclus)</span>';
         }
     }
 

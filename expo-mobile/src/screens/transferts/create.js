@@ -30,14 +30,34 @@ const CreateTransfertScreen = ({ navigation }) => {
         try {
             const res = await client.get('/transferts/form');
             const data = res.data?.data || {};
-            const magList = data.magasins || [];
+            let magList = data.magasins || [];
+
+            // Fallback : si /transferts/form retourne des magasins vides, on les charge directement
+            if (magList.length === 0) {
+                try {
+                    const mRes = await client.get('/magasins');
+                    magList = mRes.data?.data || mRes.data || [];
+                    if (!Array.isArray(magList)) magList = [];
+                } catch (_) {}
+            }
+
             setMagasins(magList);
             if (magList.length > 0) setSource(magList[0].id);
             if (magList.length > 1) setDestination(magList[1].id);
             setProduits(data.produits || []);
         } catch (e) {
             console.error('Error fetching form data for transfert:', e);
-            Alert.alert('Erreur', 'Impossible de charger les données.');
+            // Fallback total : essayer /magasins directement
+            try {
+                const mRes = await client.get('/magasins');
+                const magList = Array.isArray(mRes.data?.data) ? mRes.data.data :
+                                Array.isArray(mRes.data) ? mRes.data : [];
+                setMagasins(magList);
+                if (magList.length > 0) setSource(magList[0].id);
+                if (magList.length > 1) setDestination(magList[1].id);
+            } catch (_) {
+                Alert.alert('Erreur', 'Impossible de charger les dépôts. Vérifiez votre connexion.');
+            }
         } finally {
             setLoadingData(false);
         }
@@ -45,21 +65,45 @@ const CreateTransfertScreen = ({ navigation }) => {
 
     const normalizeText = (s) => (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 
+    const handleSelectSource = (id) => {
+        setSource(id);
+        if (destination === id) {
+            const other = magasins.find(m => m.id !== id);
+            if (other) setDestination(other.id);
+        }
+        setLines(prev => prev.map(l => {
+            const p = produits.find(px => px.id === l.produit_id);
+            const newSt = p ? (p.stocks?.[id] ?? 0) : l.stock;
+            return { ...l, stock: newSt };
+        }));
+    };
+
+    const handleSelectDestination = (id) => {
+        if (source === id) {
+            Alert.alert('Attention', 'Le dépôt destination doit être différent du dépôt source.');
+            return;
+        }
+        setDestination(id);
+    };
+
     const sourceStock = useCallback((p) => (source ? (p.stocks?.[source] ?? 0) : 0), [source]);
 
     const filteredProduits = produits.filter(p => {
-        const matchesSearch = !search || normalizeText(p.nom).includes(normalizeText(search));
-        const hasStock = source ? sourceStock(p) > 0 : true;
-        return matchesSearch && hasStock;
+        return !search || normalizeText(p.nom).includes(normalizeText(search));
     });
 
     const lineProduitIds = lines.map(l => l.produit_id);
 
     const addLine = (p) => {
         if (lineProduitIds.includes(p.id)) return;
+        const st = sourceStock(p);
+        if (st <= 0) {
+            Alert.alert('Stock épuisé', `Le produit "${p.nom}" n'a aucun stock dans le dépôt source sélectionné.`);
+            return;
+        }
         setLines(prev => [
             ...prev,
-            { key: `${p.id}_${Date.now()}`, produit_id: p.id, nom: p.nom, stock: sourceStock(p), quantite: 1 }
+            { key: `${p.id}_${Date.now()}`, produit_id: p.id, nom: p.nom, stock: st, quantite: 1 }
         ]);
     };
 
@@ -133,33 +177,51 @@ const CreateTransfertScreen = ({ navigation }) => {
                 {/* 1. Magasin Source */}
                 <View style={styles.cardSection}>
                     <Text style={styles.cardTitle}>1. Dépôt de Départ (Source)</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-                        {magasins.map(m => (
-                            <TouchableOpacity
-                                key={m.id}
-                                style={[styles.chip, source === m.id && styles.chipActive]}
-                                onPress={() => setSource(m.id)}
-                            >
-                                <Text style={[styles.chipText, source === m.id && styles.chipTextActive]}>{m.nom}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    <View style={{ gap: 8 }}>
+                        {magasins.map(m => {
+                            const isSelected = source === m.id;
+                            return (
+                                <TouchableOpacity
+                                    key={m.id}
+                                    style={[styles.magasinCardItem, isSelected && styles.magasinCardItemActive]}
+                                    onPress={() => handleSelectSource(m.id)}
+                                    activeOpacity={0.7}
+                                >
+                                    <Ionicons name={isSelected ? "radio-button-on" : "radio-button-off"} size={20} color={isSelected ? Colors.primary : Colors.textLight} />
+                                    <Ionicons name="storefront-outline" size={18} color={isSelected ? Colors.primary : Colors.textLight} style={{ marginLeft: 6 }} />
+                                    <Text style={[styles.magasinCardName, isSelected && styles.magasinCardNameActive]}>{m.nom}</Text>
+                                    {isSelected && <Text style={{ fontSize: 11, color: Colors.primary, fontFamily: 'Poppins_600SemiBold' }}>Sélectionné</Text>}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
                 </View>
 
                 {/* 2. Magasin Destination */}
                 <View style={styles.cardSection}>
                     <Text style={styles.cardTitle}>2. Dépôt d'Arrivée (Destination)</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-                        {magasins.map(m => (
-                            <TouchableOpacity
-                                key={m.id}
-                                style={[styles.chip, destination === m.id && styles.chipActive]}
-                                onPress={() => setDestination(m.id)}
-                            >
-                                <Text style={[styles.chipText, destination === m.id && styles.chipTextActive]}>{m.nom}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    <View style={{ gap: 8 }}>
+                        {magasins.map(m => {
+                            const isSource = source === m.id;
+                            const isSelected = destination === m.id;
+                            return (
+                                <TouchableOpacity
+                                    key={m.id}
+                                    style={[styles.magasinCardItem, isSelected && styles.magasinCardItemActive, isSource && { opacity: 0.45, backgroundColor: '#F1F5F9' }]}
+                                    onPress={() => handleSelectDestination(m.id)}
+                                    disabled={isSource}
+                                    activeOpacity={0.7}
+                                >
+                                    <Ionicons name={isSelected ? "radio-button-on" : "radio-button-off"} size={20} color={isSelected ? Colors.primary : Colors.textLight} />
+                                    <Ionicons name="storefront-outline" size={18} color={isSelected ? Colors.primary : Colors.textLight} style={{ marginLeft: 6 }} />
+                                    <Text style={[styles.magasinCardName, isSelected && styles.magasinCardNameActive]}>
+                                        {m.nom} {isSource ? '(Dépôt source)' : ''}
+                                    </Text>
+                                    {isSelected && <Text style={{ fontSize: 11, color: Colors.primary, fontFamily: 'Poppins_600SemiBold' }}>Sélectionné</Text>}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
                 </View>
 
                 {/* 3. Sélection des produits */}
@@ -167,9 +229,9 @@ const CreateTransfertScreen = ({ navigation }) => {
                     <Text style={styles.cardTitle}>3. Produits & Quantités</Text>
                     <Text style={styles.hintText}>Recherchez un article pour l'ajouter au transfert.</Text>
 
-                    <View style={styles.searchBox}>
+                    <View style={styles.searchBar}>
                         <Ionicons name="search" size={18} color={Colors.textLight} />
-                            <TextInput
+                        <TextInput
                             style={styles.searchInput}
                             placeholder="Rechercher par nom ou code..."
                             value={search}
@@ -185,16 +247,18 @@ const CreateTransfertScreen = ({ navigation }) => {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow} style={styles.prodChipScroll}>
                         {filteredProduits.length > 0 ? (
                             filteredProduits.map(p => {
+                                const st = sourceStock(p);
                                 const inLine = lineProduitIds.includes(p.id);
+                                const disabled = !source || inLine || st <= 0;
                                 return (
                                     <TouchableOpacity
                                         key={p.id}
-                                        style={[styles.chip, inLine && styles.chipDisabled]}
+                                        style={[styles.chip, disabled && styles.chipDisabled, st > 0 && !inLine && { borderColor: Colors.primary }]}
                                         onPress={() => addLine(p)}
-                                        disabled={!source || inLine}
+                                        disabled={disabled}
                                     >
-                                        <Text style={[styles.chipText, inLine && { color: Colors.textLight }]} numberOfLines={1}>
-                                            {p.nom}
+                                        <Text style={[styles.chipText, disabled && { color: Colors.textLight }]} numberOfLines={1}>
+                                            {p.nom} ({st} dispo)
                                         </Text>
                                     </TouchableOpacity>
                                 );
@@ -277,7 +341,7 @@ const styles = StyleSheet.create({
     chipTextActive: { color: '#FFF', fontFamily: 'Poppins_700Bold' },
     chipDisabled: { backgroundColor: '#f1f5f9', opacity: 0.6 },
     prodChipScroll: { marginTop: 8, marginBottom: 4 },
-    searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f5f9', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8 },
+    searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12 },
     searchInput: { flex: 1, marginLeft: 8, fontFamily: 'Poppins_400Regular', fontSize: 13, color: Colors.text },
     emptyText: { fontSize: 13, color: Colors.textLight, paddingVertical: 8 },
     emptyCart: { backgroundColor: Colors.background, borderRadius: 14, padding: 20, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: Colors.border, marginTop: 12 },
@@ -292,6 +356,31 @@ const styles = StyleSheet.create({
     trashBtn: { padding: 6, justifyContent: 'center' },
     submitBtn: { backgroundColor: Colors.primary, paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 10 },
     submitBtnText: { color: '#FFF', fontWeight: '800', fontSize: 15 },
+    magasinCardItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 12,
+        backgroundColor: '#F8FAFC',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    magasinCardItemActive: {
+        backgroundColor: '#EFF6FF',
+        borderColor: Colors.primary,
+    },
+    magasinCardName: {
+        fontSize: 14,
+        fontFamily: 'Poppins_500Medium',
+        color: Colors.text,
+        marginLeft: 8,
+        flex: 1,
+    },
+    magasinCardNameActive: {
+        fontFamily: 'Poppins_700Bold',
+        color: Colors.primary,
+    },
 });
 
 export default CreateTransfertScreen;

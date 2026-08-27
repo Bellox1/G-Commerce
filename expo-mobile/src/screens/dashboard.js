@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    ActivityIndicator, RefreshControl, Modal, TextInput, Alert
+    ActivityIndicator, RefreshControl, Modal, TextInput, Alert,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useFocusEffect } from '@react-navigation/native';
@@ -16,7 +17,9 @@ import { formatDateFr } from '../utils/formatDate';
 
 const formatMoney = (val) => {
     if (val === null || val === undefined || val === '') return '0 F';
-    return Number(val).toLocaleString('fr-FR') + ' F';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' F';
 };
 
 const formatDate = (dateStr) => {
@@ -274,7 +277,7 @@ const DashboardScreen = ({ navigation }) => {
                                 <View style={styles.boxIconWrap}>
                                     <Ionicons name="receipt-outline" size={18} color={Colors.error} />
                                 </View>
-                                <Text style={[styles.statValue, { color: Colors.error }]}>-{formatMoney(depensePeriode)}</Text>
+                                <Text style={[styles.statValue, { color: Colors.error }]}>{Number(depensePeriode) > 0 ? '-' : ''}{formatMoney(depensePeriode)}</Text>
                                 <Text style={styles.statLabel}>Dépenses {periph}</Text>
                             </View>
 
@@ -308,7 +311,7 @@ const DashboardScreen = ({ navigation }) => {
                                 <View style={styles.boxIconWrap}>
                                     <Ionicons name="business-outline" size={18} color={Colors.primary} />
                                 </View>
-                                <Text style={[styles.statValue, { color: Colors.primary }]}>-{formatMoney(totalDettesSociete)}</Text>
+                                <Text style={[styles.statValue, { color: Colors.primary }]}>{Number(totalDettesSociete) > 0 ? '-' : ''}{formatMoney(totalDettesSociete)}</Text>
                                 <Text style={styles.statLabel}>Nos dettes</Text>
                             </TouchableOpacity>
                         </View>
@@ -400,14 +403,21 @@ const DashboardScreen = ({ navigation }) => {
                                     </Text>
                                 </View>
 
-                                {stockAlertes.map((st, i) => (
-                                    <View key={i} style={styles.stockAlertRow}>
-                                        <Text style={styles.stockAlertName}>{st.produit?.nom || 'Produit'}</Text>
-                                        <View style={styles.stockBadgeDanger}>
-                                            <Text style={styles.stockBadgeDangerText}>{st.quantite} dispo (seuil {st.seuil_alerte})</Text>
+                                {stockAlertes.map((st, i) => {
+                                    const nom = st.produit?.nom || st.nom || 'Produit';
+                                    const qty = st.stock ?? st.quantite ?? 0;
+                                    const seuil = st.produit?.seuil_alerte ?? st.seuil_alerte;
+                                    return (
+                                        <View key={i} style={styles.stockAlertRow}>
+                                            <Text style={styles.stockAlertName}>{nom}</Text>
+                                            <View style={[styles.stockBadgeDanger, qty <= 0 && { backgroundColor: '#fee2e2' }]}>
+                                                <Text style={[styles.stockBadgeDangerText, qty <= 0 && { color: Colors.error }]}>
+                                                    {qty} dispo{seuil !== undefined && seuil !== null ? ` (seuil ${seuil})` : ''}
+                                                </Text>
+                                            </View>
                                         </View>
-                                    </View>
-                                ))}
+                                    );
+                                })}
 
                                 {hasCapability('import') && (
                                 <TouchableOpacity style={styles.btnCommanderArrivage} onPress={() => navigation.navigate('ArrivageCreate')}>
@@ -437,7 +447,7 @@ const DashboardScreen = ({ navigation }) => {
                         )}
 
                         {/* 7b. Stimulateur CA + Trésorerie (après le Top Produits) */}
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingTop: 14, gap: 10, alignItems: 'center' }}>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginVertical: 14, gap: 10, alignItems: 'center' }}>
                             <StimulateurCA />
                             <TouchableOpacity style={styles.tresoPillDash} onPress={() => navigation.navigate('Tresorerie')} activeOpacity={0.88}>
                                 <Ionicons name="cash" size={18} color="#FFFFFF" />
@@ -477,7 +487,7 @@ const DashboardScreen = ({ navigation }) => {
                                             <Text style={styles.depenseUser}>{d.user?.name || ''}</Text>
                                         </View>
 
-                                        <Text style={styles.depenseAmount}>-{formatMoney(d.montant)}</Text>
+                                        <Text style={styles.depenseAmount}>{Number(d.montant) > 0 ? '-' : ''}{formatMoney(d.montant)}</Text>
                                     </View>
                                 ))
                             ) : (
@@ -490,66 +500,70 @@ const DashboardScreen = ({ navigation }) => {
 
             {/* Modal Sélection Date */}
             <Modal visible={dateModalVisible} transparent animationType="fade">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Filtrer par date</Text>
-                        <Text style={styles.inputLabel}>Saisir une date (AAAA-MM-JJ)</Text>
-                        <TextInput
-                            style={styles.modalInput}
-                            value={tempDate}
-                            onChangeText={setTempDate}
-                            placeholder="ex: 2026-08-18"
-                        />
-                        <View style={styles.modalActionsRow}>
-                            <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setDateModalVisible(false)}>
-                                <Text style={styles.modalBtnCancelText}>Annuler</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalBtnSubmit} onPress={() => { setDateModalVisible(false); handleApplyDate(tempDate); }}>
-                                <Text style={styles.modalBtnSubmitText}>Appliquer</Text>
-                            </TouchableOpacity>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Filtrer par date</Text>
+                            <Text style={styles.inputLabel}>Saisir une date (AAAA-MM-JJ)</Text>
+                            <TextInput
+                                style={styles.modalInput}
+                                value={tempDate}
+                                onChangeText={setTempDate}
+                                placeholder="ex: 2026-08-18"
+                            />
+                            <View style={styles.modalActionsRow}>
+                                <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setDateModalVisible(false)}>
+                                    <Text style={styles.modalBtnCancelText}>Annuler</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalBtnSubmit} onPress={() => { setDateModalVisible(false); handleApplyDate(tempDate); }}>
+                                    <Text style={styles.modalBtnSubmitText}>Appliquer</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
 
             {/* Modal Saisie Dépense */}
             <Modal visible={depenseModalVisible} transparent animationType="fade">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Enregistrer une dépense</Text>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Enregistrer une dépense</Text>
 
-                        <Text style={styles.inputLabel}>Montant (FCFA) *</Text>
-                        <TextInput
-                            style={styles.modalInput}
-                            value={depenseMontant}
-                            onChangeText={setDepenseMontant}
-                            placeholder="ex: 5000"
-                            keyboardType="numeric"
-                        />
+                            <Text style={styles.inputLabel}>Montant (FCFA) *</Text>
+                            <TextInput
+                                style={styles.modalInput}
+                                value={depenseMontant}
+                                onChangeText={setDepenseMontant}
+                                placeholder="ex: 5000"
+                                keyboardType="numeric"
+                            />
 
-                        <Text style={styles.inputLabel}>Motif / Description</Text>
-                        <TextInput
-                            style={[styles.modalInput, { height: 70, textAlignVertical: 'top' }]}
-                            value={depenseDesc}
-                            onChangeText={setDepenseDesc}
-                            placeholder="ex: Achat d'emballages"
-                            multiline
-                        />
+                            <Text style={styles.inputLabel}>Motif / Description</Text>
+                            <TextInput
+                                style={[styles.modalInput, { height: 70, textAlignVertical: 'top' }]}
+                                value={depenseDesc}
+                                onChangeText={setDepenseDesc}
+                                placeholder="ex: Achat d'emballages"
+                                multiline
+                            />
 
-                        <View style={styles.modalActionsRow}>
-                            <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setDepenseModalVisible(false)}>
-                                <Text style={styles.modalBtnCancelText}>Annuler</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalBtnSubmit} onPress={submitDepense} disabled={submittingDepense}>
-                                {submittingDepense ? (
-                                    <ActivityIndicator color="#FFF" size="small" />
-                                ) : (
-                                    <Text style={styles.modalBtnSubmitText}>Enregistrer</Text>
-                                )}
-                            </TouchableOpacity>
+                            <View style={styles.modalActionsRow}>
+                                <TouchableOpacity style={styles.modalBtnCancel} onPress={() => setDepenseModalVisible(false)}>
+                                    <Text style={styles.modalBtnCancelText}>Annuler</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.modalBtnSubmit} onPress={submitDepense} disabled={submittingDepense}>
+                                    {submittingDepense ? (
+                                        <ActivityIndicator color="#FFF" size="small" />
+                                    ) : (
+                                        <Text style={styles.modalBtnSubmitText}>Enregistrer</Text>
+                                    )}
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert, TextInput
+    ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert, TextInput,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../theme/Colors';
@@ -324,65 +325,63 @@ const DettesSocieteScreen = ({ navigation }) => {
                 />
             )}
 
-
             {/* Modal Paiement */}
             {selectedDette && (
                 <Modal visible={!!selectedDette} animationType="slide" transparent>
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent}>
-                            <View style={styles.modalHeader}>
-                                <Text style={styles.modalTitle}>Règlement Fournisseur</Text>
-                                <TouchableOpacity onPress={() => setSelectedDette(null)}>
-                                    <Ionicons name="close" size={24} color={Colors.text} />
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <View style={styles.modalHeader}>
+                                    <Text style={styles.modalTitle}>Règlement Fournisseur</Text>
+                                    <TouchableOpacity onPress={() => setSelectedDette(null)}>
+                                        <Ionicons name="close" size={24} color={Colors.text} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <Text style={styles.targetName}>{selectedDette.fournisseur?.nom}</Text>
+                                <Text style={styles.targetSub}>Reste dû : {formatMoney(restant(selectedDette))}</Text>
+
+                                <Text style={styles.inputLabel}>Montant du versement (FCFA)</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    keyboardType="numeric"
+                                    value={montantPaiement}
+                                    onChangeText={setMontantPaiement}
+                                    placeholder="Ex: 50000"
+                                />
+
+                                <Text style={styles.inputLabel}>Mode de règlement</Text>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipScrollContent}>
+                                    {[
+                                        { key: 'especes', label: 'Espèces' },
+                                        { key: 'momo', label: 'Mobile Money' },
+                                        { key: 'virement', label: 'Virement' },
+                                        { key: 'cheque', label: 'Chèque' },
+                                    ].map(m => (
+                                        <TouchableOpacity
+                                            key={m.key}
+                                            style={[styles.chip, modePaiement === m.key && styles.chipActive]}
+                                            onPress={() => setModePaiement(m.key)}
+                                        >
+                                            <Text style={[styles.chipText, modePaiement === m.key && styles.chipTextActive]}>{m.label}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </ScrollView>
+
+                                <Text style={styles.inputLabel}>Note / Référence</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={note}
+                                    onChangeText={setNote}
+                                    placeholder="Numéro de reçu ou note"
+                                />
+
+                                <TouchableOpacity style={styles.submitBtn} onPress={handlePayer} disabled={submitting}>
+                                    {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>Confirmer le Règlement</Text>}
                                 </TouchableOpacity>
                             </View>
-
-                            <Text style={styles.targetName}>{selectedDette.fournisseur?.nom}</Text>
-                            <Text style={styles.targetSub}>Reste dû : {formatMoney(restant(selectedDette))}</Text>
-
-                            <Text style={styles.inputLabel}>Montant du versement (FCFA)</Text>
-                            <TextInput
-                                style={styles.input}
-                                keyboardType="numeric"
-                                value={montantPaiement}
-                                onChangeText={setMontantPaiement}
-                                placeholder="Montant versement"
-                            />
-
-                            <Text style={styles.inputLabel}>Date de paiement</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={datePaiement}
-                                onChangeText={setDatePaiement}
-                                placeholder="AAAA-MM-JJ"
-                            />
-
-                            <Text style={styles.inputLabel}>Mode de paiement</Text>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll} contentContainerStyle={styles.chipScrollContent}>
-                                {MODES.map((m) => (
-                                    <TouchableOpacity
-                                        key={m.key}
-                                        style={[styles.chip, modePaiement === m.key && styles.chipActive]}
-                                        onPress={() => setModePaiement(m.key)}
-                                    >
-                                        <Text style={[styles.chipText, modePaiement === m.key && styles.chipTextActive]}>{m.label}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </ScrollView>
-
-                            <Text style={styles.inputLabel}>Note / Référence</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={note}
-                                onChangeText={setNote}
-                                placeholder="Numéro de reçu ou note"
-                            />
-
-                            <TouchableOpacity style={styles.submitBtn} onPress={handlePayer} disabled={submitting}>
-                                {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>Confirmer le Règlement</Text>}
-                            </TouchableOpacity>
                         </View>
-                    </View>
+                    </KeyboardAvoidingView>
                 </Modal>
             )}
         </View>

@@ -401,58 +401,24 @@ const CreateProduitScreen = ({ navigation, route }) => {
                     {/* Image du produit */}
                     <View style={{ marginTop: 4 }}>
                         <Text style={styles.fieldLabel}>Image du produit <Text style={styles.opt}>— optionnel</Text></Text>
-                        <View style={styles.imgTabs}>
-                            <TouchableOpacity
-                                style={[styles.imgTab, imageMode === 'file' && styles.imgTabActive]}
-                                onPress={() => setImageMode('file')}
-                            >
-                                <Ionicons name="cloud-upload-outline" size={15} color={imageMode === 'file' ? '#FFF' : Colors.textLight} />
-                                <Text style={[styles.imgTabText, imageMode === 'file' && styles.imgTabTextActive]}>Fichier</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.imgTab, imageMode === 'url' && styles.imgTabActive]}
-                                onPress={() => { setImageMode('url'); setPickedImage(null); }}
-                            >
-                                <Ionicons name="link-outline" size={15} color={imageMode === 'url' ? '#FFF' : Colors.textLight} />
-                                <Text style={[styles.imgTabText, imageMode === 'url' && styles.imgTabTextActive]}>URL</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {imageMode === 'file' ? (
-                            <View style={styles.imagePickerRow}>
-                                {pickedImage ? (
-                                    <Image source={{ uri: pickedImage.uri }} style={styles.previewImg} />
-                                ) : existingImage ? (
-                                    <Image source={{ uri: getImageUrl(existingImage) }} style={styles.previewImg} />
-                                ) : (
-                                    <View style={styles.previewPlaceholder}>
-                                        <Ionicons name="image-outline" size={40} color={Colors.textLight} />
-                                    </View>
-                                )}
-                                <View style={{ flex: 1 }}>
-                                    <TouchableOpacity style={styles.imageBtn} onPress={chooseImageSource}>
-                                        <Ionicons name="image-outline" size={18} color="#FFF" />
-                                        <Text style={styles.imageBtnText}>Importer une image</Text>
-                                    </TouchableOpacity>
-                                    <Text style={styles.helper}>Formats : JPEG, PNG, GIF, WebP — max 2 Mo</Text>
+                        <View style={styles.imagePickerRow}>
+                            {pickedImage ? (
+                                <Image source={{ uri: pickedImage.uri }} style={styles.previewImg} />
+                            ) : existingImage ? (
+                                <Image source={{ uri: getImageUrl(existingImage) }} style={styles.previewImg} />
+                            ) : (
+                                <View style={styles.previewPlaceholder}>
+                                    <Ionicons name="image-outline" size={40} color={Colors.textLight} />
                                 </View>
+                            )}
+                            <View style={{ flex: 1 }}>
+                                <TouchableOpacity style={styles.imageBtn} onPress={chooseImageSource}>
+                                    <Ionicons name="camera-outline" size={18} color="#FFF" />
+                                    <Text style={styles.imageBtnText}>Choisir une photo</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.helper}>Formats : JPEG, PNG, GIF, WebP — max 10 Mo</Text>
                             </View>
-                        ) : (
-                            <View>
-                                <TextInput
-                                    style={styles.input}
-                                    value={imageUrlInput}
-                                    onChangeText={setImageUrlInput}
-                                    placeholder="https://exemple.com/image.jpg"
-                                    autoCapitalize="none"
-                                    keyboardType="url"
-                                />
-                                <Text style={styles.helper}>Collez un lien direct vers une image (JPG, PNG…)</Text>
-                                {imageUrlInput.trim() ? (
-                                    <Image source={{ uri: imageUrlInput.trim() }} style={styles.urlPreview} resizeMode="cover" />
-                                ) : null}
-                            </View>
-                        )}
+                        </View>
                         {pickedImage && (
                             <TouchableOpacity onPress={() => setPickedImage(null)} style={{ marginTop: 6 }}>
                                 <Text style={{ color: Colors.error, fontSize: 12 }}>Retirer l'image sélectionnée</Text>

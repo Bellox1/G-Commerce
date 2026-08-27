@@ -1,8 +1,12 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 import { setCache, getCache, queueOfflineAction, syncOfflineQueue } from '../utils/offlineSync';
 
-export const BASE_URL = 'https://pilotix.alwaysdata.net'; // IP locale actuelle du serveur Laravel
+// Évite de réafficher plusieurs fois la même alerte de blocage d'offre
+let offerBlockAlertShown = false;
+
+export const BASE_URL = 'https://pilotix.alwaysdata.net'; //'http://192.168.1.13:8000'  // IP locale actuelle du serveur Laravel
 const API_URL = `${BASE_URL}/api`;
 
 const client = axios.create({
@@ -90,6 +94,18 @@ client.interceptors.response.use(
         if (error.response && error.response.status === 401 && !isLoginRequest) {
             console.log('Session expirée (401), nettoyage du token.');
             await AsyncStorage.multiRemove(['auth_token', 'user']);
+        }
+
+        // Offre en pause / expirée : informer l'utilisateur (fonctionnalités bloquées)
+        if (error.response && error.response.status === 403) {
+            const code = error.response.data?.code;
+            if ((code === 'offer_paused' || code === 'offer_expired') && !offerBlockAlertShown) {
+                offerBlockAlertShown = true;
+                const msg = error.response.data?.message || 'Votre offre est suspendue.';
+                Alert.alert('Accès bloqué', msg, [
+                    { text: 'OK', onPress: () => { offerBlockAlertShown = false; } },
+                ]);
+            }
         }
 
         error.userMessage = apiErrorMessage(error, { isLogin: isLoginRequest });

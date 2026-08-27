@@ -6,7 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommissionRule extends Model
 {
-    protected $fillable = ['nom', 'code', 'prix', 'commission'];
+    protected $fillable = ['nom', 'code', 'prix', 'commission', 'primes'];
+
+    protected $casts = [
+        'primes' => 'array',
+    ];
+
+    /**
+     * Retourne le montant de la prime pour un seuil (palier) donné.
+     */
+    public function primePour(int $seuil): float
+    {
+        return (float) ($this->primes[$seuil] ?? 0);
+    }
 
     /**
      * Retourne la durée en mois de l'offre (null = à vie)

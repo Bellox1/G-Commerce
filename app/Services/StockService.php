@@ -77,7 +77,7 @@ class StockService
                 WHEN type IN ('entree_arrivage','transfert_entree','ajustement_positif') THEN (quantite * {$cpcCase} + quantite_cartouche)
                 WHEN type IN ('sortie_vente','transfert_sortie','ajustement_negatif') THEN -(quantite * {$cpcCase} + quantite_cartouche)
                 ELSE 0
-            END)) / {$cpcCase}) as stock")
+            END)) / MAX({$cpcCase})) as stock")
             ->groupBy('produit_id')
             ->get()
             ->keyBy('produit_id')
@@ -98,7 +98,7 @@ class StockService
                 WHEN type IN ('entree_arrivage','transfert_entree','ajustement_positif') THEN (quantite * {$cpcCase} + quantite_cartouche)
                 WHEN type IN ('sortie_vente','transfert_sortie','ajustement_negatif') THEN -(quantite * {$cpcCase} + quantite_cartouche)
                 ELSE 0
-            END)) / {$cpcCase}) as stock")
+            END)) / MAX({$cpcCase})) as stock")
             ->groupBy('produit_id')
             ->get()
             ->keyBy('produit_id')
@@ -119,7 +119,7 @@ class StockService
                 WHEN type IN ('entree_arrivage','transfert_entree','ajustement_positif') THEN (quantite * {$cpcCase} + quantite_cartouche)
                 WHEN type IN ('sortie_vente','transfert_sortie','ajustement_negatif') THEN -(quantite * {$cpcCase} + quantite_cartouche)
                 ELSE 0
-            END)), {$cpcCase}) as reste")
+            END)), MAX({$cpcCase})) as reste")
             ->groupBy('produit_id')
             ->get()
             ->keyBy('produit_id')
@@ -141,7 +141,7 @@ class StockService
                 WHEN type IN ('entree_arrivage','transfert_entree','ajustement_positif') THEN (quantite * {$cpcCase} + quantite_cartouche)
                 WHEN type IN ('sortie_vente','transfert_sortie','ajustement_negatif') THEN -(quantite * {$cpcCase} + quantite_cartouche)
                 ELSE 0
-            END)), {$cpcCase}) as reste")
+            END)), MAX({$cpcCase})) as reste")
             ->groupBy('produit_id')
             ->get()
             ->keyBy('produit_id')
@@ -253,7 +253,7 @@ class StockService
                 }
             }
 
-            $transfert->statut         = 'receptionne';
+            $transfert->statut         = 'livre';
             $transfert->date_livraison = now();
             $transfert->save();
 

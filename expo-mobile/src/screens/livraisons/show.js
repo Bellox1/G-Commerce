@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, StatusBar,
-    TouchableOpacity, Modal, TextInput
+    TouchableOpacity, Modal, TextInput,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useRoute } from '@react-navigation/core';
 import Colors from '../../theme/Colors';
@@ -222,6 +223,7 @@ const ShowLivraisonScreen = ({ navigation }) => {
 
             {/* Modal statut livraison */}
             <Modal visible={showLivModal} transparent animationType="slide" onRequestClose={() => setShowLivModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
@@ -259,6 +261,8 @@ const ShowLivraisonScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

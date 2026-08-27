@@ -66,7 +66,7 @@ class TenantController extends Controller
             ->with('partenaire')
             ->get();
 
-        $rules = CommissionRule::all();
+        $rules = CommissionRule::where('code', '!=', 'locale')->get();
 
         if (request()->expectsJson() || request()->is('api/*')) {
             $payload = ['success' => true, 'data' => $tenants];
@@ -83,7 +83,7 @@ class TenantController extends Controller
     public function create()
     {
         $this->authorizeModule('tenants');
-        $rules = \App\Models\CommissionRule::all();
+        $rules = \App\Models\CommissionRule::where('code', '!=', 'locale')->get();
         $partners = [];
         if (auth()->user()->isSuperAdmin()) {
             $partners = User::where('role', 'prestataire')->get();
@@ -208,7 +208,9 @@ class TenantController extends Controller
             return response()->json(['success' => true, 'data' => $tenant]);
         }
 
-        return view('tenants.show', compact('tenant'));
+        $rules = \App\Models\CommissionRule::where('code', '!=', 'locale')->get();
+
+        return view('tenants.show', compact('tenant', 'rules'));
     }
 
     public function edit(Tenant $tenant)
@@ -315,5 +317,130 @@ class TenantController extends Controller
         }
 
         return $this->smartResponse(route('tenants.index'), 'Offre renouvelée avec succès !');
+    }
+
+    /**
+     * Changer l'offre d'une société (switch de plan).
+     */
+    public function changeOffer(Request $request, Tenant $tenant)
+    {
+        $this->authorizeModule('tenants');
+
+        $request->validate([
+            'offre_code' => 'required|exists:commission_rules,code',
+        ]);
+
+        $offerRule = CommissionRule::where('code', $request->offre_code)->first();
+        $expiresAt = $offerRule && $offerRule->dureeEnMois()
+            ? now()->addMonths($offerRule->dureeEnMois())
+            : null;
+
+        $tenant->update([
+            'offre_code'        => $request->offre_code,
+            'offre_expires_at'  => $expiresAt,
+            'offre_en_pause'    => false,
+            'offre_pause_depuis' => null,
+        ]);
+
+        if ($offerRule && $tenant->partenaire_id) {
+            Commission::create([
+                'partenaire_id' => $tenant->partenaire_id,
+                'tenant_id'     => $tenant->id,
+                'montant'       => $offerRule->commission,
+                'statut'        => 'en_attente',
+            ]);
+        }
+
+        return $this->smartResponse(
+            route('tenants.show', $tenant),
+            'Offre de la société changée avec succès !'
+        );
+    }
+
+    /**
+     * Prolonger l'offre actuelle (ajout de la durée de l'offre à l'expiration).
+     */
+    public function extendOffer(Request $request, Tenant $tenant)
+    {
+        $this->authorizeModule('tenants');
+
+        if (!$tenant->offre_code) {
+            $msg = 'Aucune offre à prolonger pour cette société.';
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return back()->with('error', $msg);
+        }
+
+        $offerRule = CommissionRule::where('code', $tenant->offre_code)->first();
+        $duree = $offerRule ? $offerRule->dureeEnMois() : null;
+
+        if (!$duree) {
+            $msg = 'Cette offre est à vie et ne nécessite pas de prolongation.';
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return back()->with('error', $msg);
+        }
+
+        $expiresAt = $tenant->offre_expires_at && $tenant->offre_expires_at->isFuture()
+            ? $tenant->offre_expires_at->addMonths($duree)
+            : now()->addMonths($duree);
+
+        $tenant->update([
+            'offre_expires_at'   => $expiresAt,
+            'offre_en_pause'     => false,
+            'offre_pause_depuis' => null,
+        ]);
+
+        if ($offerRule && $tenant->partenaire_id) {
+            Commission::create([
+                'partenaire_id' => $tenant->partenaire_id,
+                'tenant_id'     => $tenant->id,
+                'montant'       => $offerRule->commission,
+                'statut'        => 'en_attente',
+            ]);
+        }
+
+        return $this->smartResponse(
+            route('tenants.show', $tenant),
+            'Offre prolongée avec succès !'
+        );
+    }
+
+    /**
+     * Mettre l'offre de la société en pause.
+     */
+    public function pauseOffer(Request $request, Tenant $tenant)
+    {
+        $this->authorizeModule('tenants');
+
+        $tenant->update([
+            'offre_en_pause'      => true,
+            'offre_pause_depuis'  => now(),
+        ]);
+
+        return $this->smartResponse(
+            route('tenants.show', $tenant),
+            'Offre mise en pause. Les fonctionnalités liées sont suspendues.'
+        );
+    }
+
+    /**
+     * Reprendre (sortir de pause) l'offre de la société.
+     */
+    public function resumeOffer(Request $request, Tenant $tenant)
+    {
+        $this->authorizeModule('tenants');
+
+        $tenant->update([
+            'offre_en_pause'      => false,
+            'offre_pause_depuis'  => null,
+        ]);
+
+        return $this->smartResponse(
+            route('tenants.show', $tenant),
+            'Offre reprise avec succès. Les fonctionnalités sont de nouveau actives.'
+        );
     }
 }

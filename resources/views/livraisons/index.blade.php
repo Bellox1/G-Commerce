@@ -157,8 +157,8 @@
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="statut_livraison" value="livre">
-                                <button type="submit" class="btn btn-success btn-sm" style="padding: 6px 10px;" title="Valider la livraison">
-                                    <i class="bi bi-check-circle-fill"></i> Livré
+                                <button type="submit" class="btn btn-success btn-sm" style="padding: 6px 12px; font-weight:700; display:inline-flex; align-items:center; gap:5px;" title="Cocher et marquer rapidement comme livré">
+                                    <i class="bi bi-check-square-fill" style="font-size:1rem;"></i> Marquer livré
                                 </button>
                             </form>
                             @else

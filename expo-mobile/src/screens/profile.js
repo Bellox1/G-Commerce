@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    TextInput, ActivityIndicator, Alert, RefreshControl
+    TextInput, ActivityIndicator, Alert, RefreshControl, Modal,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import Colors from '../theme/Colors';
@@ -18,10 +19,18 @@ const ProfileScreen = ({ navigation }) => {
     const [email, setEmail] = useState(user?.email || '');
     const [loadingInfo, setLoadingInfo] = useState(false);
 
+    // Confirmation mot de passe pour changement d'email
+    const [emailPassword, setEmailPassword] = useState('');
+    const [showEmailPass, setShowEmailPass] = useState(false);
+    const [securityModalVisible, setSecurityModalVisible] = useState(false);
+
     // Sécurité
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showCurrPass, setShowCurrPass] = useState(false);
+    const [showNewPass, setShowNewPass] = useState(false);
+    const [showConfPass, setShowConfPass] = useState(false);
     const [loadingSecurity, setLoadingSecurity] = useState(false);
     const [showSecurity, setShowSecurity] = useState(false);
 
@@ -37,6 +46,7 @@ const ProfileScreen = ({ navigation }) => {
             setName(user.name || '');
             setTelephone(user.telephone || '');
             setEmail(user.email || '');
+            setEmailPassword('');
         }
     }, [user]);
 
@@ -56,10 +66,29 @@ const ProfileScreen = ({ navigation }) => {
             Alert.alert('Erreur', 'Le nom et l\'email sont obligatoires.');
             return;
         }
+
+        const emailHasChanged = email.trim().toLowerCase() !== user?.email?.toLowerCase();
+        if (emailHasChanged) {
+            setEmailPassword('');
+            setSecurityModalVisible(true);
+            return;
+        }
+
+        await executeSaveProfile('');
+    };
+
+    const executeSaveProfile = async (pwd) => {
         setLoadingInfo(true);
         try {
-            await updateProfile({ name, email, telephone });
-            Alert.alert('Succès', 'Profil mis à jour avec succès');
+            await updateProfile({
+                name,
+                email,
+                telephone,
+                current_password_email: pwd
+            });
+            Alert.alert('Succès', 'Profil mis à jour avec succès.');
+            setSecurityModalVisible(false);
+            setEmailPassword('');
             setEditing(false);
         } catch (error) {
             const msg = error.response?.data?.message || 'Erreur lors de la mise à jour';
@@ -216,11 +245,13 @@ const ProfileScreen = ({ navigation }) => {
                     <View style={styles.fieldGroup}>
                         <Text style={styles.label}>Email</Text>
                         {editing ? (
-                            <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" />
+                            <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
                         ) : (
                             <Text style={styles.value}>{user?.email || '—'}</Text>
                         )}
                     </View>
+
+
 
                     <View style={styles.fieldGroup}>
                         <Text style={styles.label}>Téléphone</Text>
@@ -252,17 +283,32 @@ const ProfileScreen = ({ navigation }) => {
                         <View style={{ marginTop: 12 }}>
                             <View style={styles.fieldGroup}>
                                 <Text style={styles.label}>Mot de passe actuel</Text>
-                                <TextInput style={styles.input} secureTextEntry value={currentPassword} onChangeText={setCurrentPassword} placeholder="••••••••" placeholderTextColor={Colors.textLight} />
+                                <View style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                                    <TextInput style={[styles.input, { flex: 1, paddingRight: 40 }]} secureTextEntry={!showCurrPass} value={currentPassword} onChangeText={setCurrentPassword} placeholder="••••••••" placeholderTextColor={Colors.textLight} />
+                                    <TouchableOpacity style={{ position: 'absolute', right: 12, top: 12, padding: 4 }} onPress={() => setShowCurrPass(!showCurrPass)} activeOpacity={0.7}>
+                                        <Ionicons name={showCurrPass ? "eye-outline" : "eye-off-outline"} size={20} color={Colors.textLight} />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
 
                             <View style={styles.fieldGroup}>
                                 <Text style={styles.label}>Nouveau mot de passe</Text>
-                                <TextInput style={styles.input} secureTextEntry value={newPassword} onChangeText={setNewPassword} placeholder="••••••••" placeholderTextColor={Colors.textLight} />
+                                <View style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                                    <TextInput style={[styles.input, { flex: 1, paddingRight: 40 }]} secureTextEntry={!showNewPass} value={newPassword} onChangeText={setNewPassword} placeholder="••••••••" placeholderTextColor={Colors.textLight} />
+                                    <TouchableOpacity style={{ position: 'absolute', right: 12, top: 12, padding: 4 }} onPress={() => setShowNewPass(!showNewPass)} activeOpacity={0.7}>
+                                        <Ionicons name={showNewPass ? "eye-outline" : "eye-off-outline"} size={20} color={Colors.textLight} />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
 
                             <View style={styles.fieldGroup}>
                                 <Text style={styles.label}>Confirmer le mot de passe</Text>
-                                <TextInput style={styles.input} secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} placeholder="••••••••" placeholderTextColor={Colors.textLight} />
+                                <View style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                                    <TextInput style={[styles.input, { flex: 1, paddingRight: 40 }]} secureTextEntry={!showConfPass} value={confirmPassword} onChangeText={setConfirmPassword} placeholder="••••••••" placeholderTextColor={Colors.textLight} />
+                                    <TouchableOpacity style={{ position: 'absolute', right: 12, top: 12, padding: 4 }} onPress={() => setShowConfPass(!showConfPass)} activeOpacity={0.7}>
+                                        <Ionicons name={showConfPass ? "eye-outline" : "eye-off-outline"} size={20} color={Colors.textLight} />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
 
                             <TouchableOpacity style={styles.saveBtn} onPress={handleChangePassword} disabled={loadingSecurity}>
@@ -308,6 +354,81 @@ const ProfileScreen = ({ navigation }) => {
                     <Text style={styles.appVersionText}>PILOTIX v1.0.0</Text>
                 </View>
             </ScrollView>
+
+            {/* Modal de sécurité pour modification d'email */}
+            <Modal visible={securityModalVisible} animationType="fade" transparent>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <View style={{ flex: 1, backgroundColor: 'rgba(15,23,42,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                        <View style={{ backgroundColor: '#FFF', width: '100%', borderRadius: 20, padding: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10 }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Ionicons name="shield-checkmark" size={22} color={Colors.primary} style={{ marginRight: 8 }} />
+                                    <Text style={{ fontSize: 16, fontFamily: 'Poppins_700Bold', color: Colors.text }}>Confirmation de sécurité</Text>
+                                </View>
+                                <TouchableOpacity onPress={() => setSecurityModalVisible(false)}>
+                                    <Ionicons name="close" size={24} color={Colors.textLight} />
+                                </TouchableOpacity>
+                            </View>
+
+                            <Text style={{ fontSize: 13, color: Colors.textLight, marginBottom: 16, lineHeight: 18 }}>
+                                Pour confirmer la modification de votre e-mail vers <Text style={{ fontFamily: 'Poppins_700Bold', color: Colors.primary }}>{email}</Text>, veuillez saisir votre mot de passe actuel :
+                            </Text>
+
+                            <View style={{ marginBottom: 20 }}>
+                                <Text style={{ fontSize: 12, fontFamily: 'Poppins_600SemiBold', color: Colors.text, marginBottom: 6 }}>
+                                    Mot de passe actuel *
+                                </Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                                    <TextInput
+                                        style={[styles.input, { flex: 1, paddingRight: 40 }]}
+                                        secureTextEntry={!showEmailPass}
+                                        value={emailPassword}
+                                        onChangeText={setEmailPassword}
+                                        placeholder="Mot de passe actuel"
+                                        placeholderTextColor={Colors.textLight}
+                                        autoFocus
+                                    />
+                                    <TouchableOpacity
+                                        style={{ position: 'absolute', right: 12, top: 12, padding: 4 }}
+                                        onPress={() => setShowEmailPass(!showEmailPass)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Ionicons name={showEmailPass ? "eye-outline" : "eye-off-outline"} size={20} color={Colors.textLight} />
+                                    </TouchableOpacity>
+                                </View>
+                                <Text style={{ fontSize: 10, color: Colors.textLight, marginTop: 4 }}>🔒 Limité à 3 tentatives maximum.</Text>
+                            </View>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
+                                <TouchableOpacity
+                                    style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }}
+                                    onPress={() => setSecurityModalVisible(false)}
+                                >
+                                    <Text style={{ fontSize: 13, fontFamily: 'Poppins_600SemiBold', color: Colors.text }}>Annuler</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={{ paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, backgroundColor: Colors.primary }}
+                                    onPress={() => {
+                                        if (!emailPassword) {
+                                            Alert.alert('Erreur', 'Veuillez saisir votre mot de passe actuel.');
+                                            return;
+                                        }
+                                        executeSaveProfile(emailPassword);
+                                    }}
+                                    disabled={loadingInfo}
+                                >
+                                    {loadingInfo ? (
+                                        <ActivityIndicator color="#FFF" />
+                                    ) : (
+                                        <Text style={{ fontSize: 13, fontFamily: 'Poppins_600SemiBold', color: '#FFF' }}>Confirmer</Text>
+                                    )}
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </KeyboardAvoidingView>
+            </Modal>
         </View>
     );
 };

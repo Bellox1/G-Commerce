@@ -33,6 +33,16 @@ class LoginController extends Controller
                 return back()->withErrors(['email' => $message])->onlyInput('email');
             }
 
+            // Compte rattaché à une société désactivée → connexion impossible (web & mobile).
+            if ($user->tenant && !$user->tenant->actif) {
+                Auth::logout();
+                $message = 'La société associée à votre compte est désactivée. Contactez l\'administrateur.';
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    return response()->json(['success' => false, 'message' => $message], 403);
+                }
+                return back()->withErrors(['email' => $message])->onlyInput('email');
+            }
+
             if ($request->expectsJson() || $request->is('api/*')) {
                 $user = Auth::user();
                 $token = $user->createToken('auth_token')->plainTextToken;
@@ -43,9 +53,11 @@ class LoginController extends Controller
                     'token_type'   => 'Bearer',
                     'user'         => $user,
                     'tenant'       => $user->tenant ? [
-                        'offre_code'    => $user->tenant->offre_code,
-                        'plan_level'    => $user->tenant->planLevel(),
-                        'capabilities' => [
+                        'offre_code'      => $user->tenant->offre_code,
+                        'offre_en_pause'  => $user->tenant->offre_en_pause,
+                        'offre_statut'    => $user->tenant->offreStatut(),
+                        'plan_level'      => $user->tenant->planLevel(),
+                        'capabilities'    => [
                             'import'         => $user->tenant->hasCapability('import'),
                             'multi_magasin' => $user->tenant->hasCapability('multi_magasin'),
                             'advanced_stats' => $user->tenant->hasCapability('advanced_stats'),

@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    TextInput, ActivityIndicator, RefreshControl, Modal, StatusBar, Alert
+    TextInput, ActivityIndicator, RefreshControl, Modal, StatusBar, Alert,
+    KeyboardAvoidingView, Platform, ScrollView
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../theme/Colors';
@@ -189,40 +190,44 @@ const MagasinsScreen = ({ navigation }) => {
 
             {/* Modal Création / Modification */}
             <Modal visible={showModal} transparent animationType="slide" onRequestClose={closeModal}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalCard}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>{editingId ? 'Modifier le Dépôt' : 'Nouveau Dépôt'}</Text>
-                            <TouchableOpacity onPress={closeModal}>
-                                <Ionicons name="close" size={24} color={Colors.text} />
-                            </TouchableOpacity>
-                        </View>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <View style={styles.modalOverlay}>
+                        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }} keyboardShouldPersistTaps="handled">
+                            <View style={styles.modalCard}>
+                                <View style={styles.modalHeader}>
+                                    <Text style={styles.modalTitle}>{editingId ? 'Modifier le Dépôt' : 'Nouveau Dépôt'}</Text>
+                                    <TouchableOpacity onPress={closeModal}>
+                                        <Ionicons name="close" size={24} color={Colors.text} />
+                                    </TouchableOpacity>
+                                </View>
 
-                        <View style={styles.fieldGroup}>
-                            <Text style={styles.label}>Nom du Dépôt *</Text>
-                            <TextInput style={styles.input} placeholder="Ex: Dépôt Saint-Michel" value={nom} onChangeText={setNom} />
-                        </View>
+                                <View style={styles.fieldGroup}>
+                                    <Text style={styles.label}>Nom du Dépôt *</Text>
+                                    <TextInput style={styles.input} placeholder="Ex: Dépôt Saint-Michel" value={nom} onChangeText={setNom} />
+                                </View>
 
-                        <View style={styles.fieldGroup}>
-                            <Text style={styles.label}>Adresse</Text>
-                            <TextInput style={styles.input} placeholder="Ex: Avenue Clozel" value={adresse} onChangeText={setAdresse} />
-                        </View>
+                                <View style={styles.fieldGroup}>
+                                    <Text style={styles.label}>Adresse</Text>
+                                    <TextInput style={styles.input} placeholder="Ex: Avenue Clozel" value={adresse} onChangeText={setAdresse} />
+                                </View>
 
-                        <View style={styles.fieldGroup}>
-                            <Text style={styles.label}>Ville</Text>
-                            <TextInput style={styles.input} placeholder="Ex: Cotonou" value={ville} onChangeText={setVille} />
-                        </View>
+                                <View style={styles.fieldGroup}>
+                                    <Text style={styles.label}>Ville</Text>
+                                    <TextInput style={styles.input} placeholder="Ex: Cotonou" value={ville} onChangeText={setVille} />
+                                </View>
 
-                        <View style={styles.fieldGroup}>
-                            <Text style={styles.label}>Loyer Mensuel (FCFA)</Text>
-                            <TextInput style={styles.input} keyboardType="number-pad" placeholder="Ex: 150000" value={loyer} onChangeText={setLoyer} />
-                        </View>
+                                <View style={styles.fieldGroup}>
+                                    <Text style={styles.label}>Loyer Mensuel (FCFA)</Text>
+                                    <TextInput style={styles.input} keyboardType="number-pad" placeholder="Ex: 150000" value={loyer} onChangeText={setLoyer} />
+                                </View>
 
-                        <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={submitting}>
-                            {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>{editingId ? 'Enregistrer' : 'Enregistrer le dépôt'}</Text>}
-                        </TouchableOpacity>
+                                <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={submitting}>
+                                    {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>{editingId ? 'Enregistrer' : 'Enregistrer le dépôt'}</Text>}
+                                </TouchableOpacity>
+                            </View>
+                        </ScrollView>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

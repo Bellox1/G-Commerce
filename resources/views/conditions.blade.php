@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conditions d'utilisation — pilotix</title>
-    <meta name="description" content="Conditions d'utilisation de l'application pilotix. Consultez les règles et conditions d'usage.">
+    <title>Conditions d'utilisation — PILOTIX</title>
+    <meta name="description" content="Conditions d'utilisation de l'application PILOTIX. Consultez les règles et conditions d'usage.">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@
 
 <nav>
     <a href="/" class="nav-logo">
-        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix">
+        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX">
     </a>
     <div class="nav-links">
         <a href="/">Accueil</a>
@@ -62,9 +62,9 @@
 
 <div class="page-body">
 
-    <h2>1. Qu'est-ce que Pilotix ?</h2>
-    <p>Pilotix est un logiciel de gestion commerciale en ligne. Il permet aux commerçants et PME de gérer leurs ventes, stocks, clients, livraisons et dettes depuis leur téléphone ou ordinateur.</p>
-    <p>En utilisant Pilotix, vous acceptez ces conditions. On a tout écrit simplement pour que ce soit clair.</p>
+    <h2>1. Qu'est-ce que PILOTIX ?</h2>
+    <p>PILOTIX est un logiciel de gestion commerciale en ligne. Il permet aux commerçants et PME de gérer leurs ventes, stocks, clients, livraisons et dettes depuis leur téléphone ou ordinateur.</p>
+    <p>En utilisant PILOTIX, vous acceptez ces conditions. On a tout écrit simplement pour que ce soit clair.</p>
 
     <h2>2. Votre compte</h2>
     <ul>
@@ -75,7 +75,7 @@
     </ul>
 
     <h2>3. Les offres et paiements</h2>
-    <p>Pilotix propose deux types d'offres :</p>
+    <p>PILOTIX propose deux types d'offres :</p>
     <ul>
         <li><strong>Locale :</strong> vous payez une seule fois (79 900 FCFA) et c'est pour la vie. Vous l'utilisez sur un seul ordinateur, sans connexion internet.</li>
         <li><strong>Cloud Sync :</strong> un abonnement mensuel (à partir de 3 500 FCFA). Vous pouvez y accéder depuis n'importe quel appareil, avec synchronisation des données.</li>
@@ -83,7 +83,7 @@
     <p>Les paiements se font via les moyens proposés sur la plateforme. Si on change un tarif, on vous prévient au moins 30 jours avant.</p>
 
     <h2>4. Ce qu'on vous demande</h2>
-    <p>En utilisant Pilotix, vous vous engagez à :</p>
+    <p>En utilisant PILOTIX, vous vous engagez à :</p>
     <ul>
         <li>Utiliser le logiciel de manière honnête et légale.</li>
         <li>Ne pas essayer de pirater ou contourner le système.</li>
@@ -96,17 +96,17 @@
 
     <h2>6. Disponibilité du service</h2>
     <ul>
-        <li>On fait tout pour que Pilotix soit disponible en permanois, mais il peut y avoir des coupures ponctuelles pour maintenance.</li>
+        <li>On fait tout pour que PILOTIX soit disponible en permanois, mais il peut y avoir des coupures ponctuelles pour maintenance.</li>
         <li>On vous prévient au moins 48h à l'avance quand c'est planifié.</li>
         <li>On ne peut pas être tenus responsables si vous perdez des données à cause d'une mauvaise manipulation ou d'une panne de votre appareil.</li>
     </ul>
 
     <h2>7. Propriété</h2>
-    <p>Tout ce qui compose Pilotix (design, code, logos) nous appartient. Vous ne pouvez pas le copier ni le revendre.</p>
+    <p>Tout ce qui compose PILOTIX (design, code, logos) nous appartient. Vous ne pouvez pas le copier ni le revendre.</p>
 
     <h2>8. Résiliation</h2>
     <ul>
-        <li>Vous pouvez arrêter d'utiliser Pilotix quand vous voulez.</li>
+        <li>Vous pouvez arrêter d'utiliser PILOTIX quand vous voulez.</li>
         <li>Si vous avez un abonnement Cloud, vous pouvez le résilier depuis votre compte.</li>
         <li>On garde vos données 90 jours après la résiliation, puis on les supprime définitivement.</li>
     </ul>
@@ -130,7 +130,7 @@
     <div class="footer-top">
         <div class="footer-brand">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
+                <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
             </div>
             <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
@@ -152,7 +152,7 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-Dépôt ou Magasin</span>
+        <span>&copy; {{ date('Y') }} PILOTIX — Gestion commerciale multi-Dépôt ou Magasin</span>
         <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
     </div>
 </footer>

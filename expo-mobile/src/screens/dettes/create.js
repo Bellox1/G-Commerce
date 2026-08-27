@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    TextInput, ActivityIndicator, Alert, StatusBar
+    TextInput, ActivityIndicator, Alert, StatusBar, Platform
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,7 +17,8 @@ const CreateDetteScreen = ({ navigation }) => {
 
     const [selectedClient, setSelectedClient] = useState(null);
     const [montant, setMontant] = useState('');
-    const [dateEcheance, setDateEcheance] = useState('');
+    const [dateEcheance, setDateEcheance] = useState(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [motif, setMotif] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
@@ -49,10 +51,11 @@ const CreateDetteScreen = ({ navigation }) => {
 
         setSubmitting(true);
         try {
+            const formattedDate = dateEcheance ? dateEcheance.toISOString().split('T')[0] : null;
             await client.post('/dettes', {
                 client_id: selectedClient,
                 montant: Number(montant),
-                date_echeance: dateEcheance || null,
+                date_echeance: formattedDate,
                 motif
             });
 
@@ -64,6 +67,11 @@ const CreateDetteScreen = ({ navigation }) => {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const formatDateDisplay = (d) => {
+        if (!d) return '';
+        return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }).format(d);
     };
 
     if (loadingData) {
@@ -113,13 +121,39 @@ const CreateDetteScreen = ({ navigation }) => {
                         placeholder="Ex: 50000"
                     />
 
-                    <Text style={styles.fieldLabel}>Date d'échéance (AAAA-MM-JJ)</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={dateEcheance}
-                        onChangeText={setDateEcheance}
-                        placeholder="AAAA-MM-JJ"
-                    />
+                    <Text style={styles.fieldLabel}>Date d'échéance</Text>
+                    <TouchableOpacity
+                        style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }]}
+                        onPress={() => setShowDatePicker(true)}
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Ionicons name="calendar-outline" size={18} color={Colors.primary} style={{ marginRight: 8 }} />
+                            <Text style={{ color: dateEcheance ? Colors.text : Colors.textLight, fontSize: 14 }}>
+                                {dateEcheance ? formatDateDisplay(dateEcheance) : 'Sélectionner une date sur le calendrier...'}
+                            </Text>
+                        </View>
+                        {dateEcheance ? (
+                            <TouchableOpacity onPress={() => setDateEcheance(null)} style={{ padding: 2 }}>
+                                <Ionicons name="close-circle" size={18} color={Colors.textLight} />
+                            </TouchableOpacity>
+                        ) : (
+                            <Ionicons name="chevron-down" size={16} color={Colors.textLight} />
+                        )}
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={dateEcheance || new Date()}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            minimumDate={new Date()}
+                            maximumDate={new Date(new Date().getFullYear() + 1, 11, 31)}
+                            onChange={(event, selectedDate) => {
+                                setShowDatePicker(false);
+                                if (selectedDate) setDateEcheance(selectedDate);
+                            }}
+                        />
+                    )}
 
                     <Text style={styles.fieldLabel}>Motif / Note</Text>
                     <TextInput

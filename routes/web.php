@@ -27,6 +27,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\TresorerieController;
 use App\Http\Controllers\Admin\DemandeController;
+use App\Http\Controllers\Admin\OffreController as AdminOffreController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Traitements Auth Web (Avec Sessions & Cookies) ────────────────────────
@@ -94,7 +95,16 @@ Route::middleware('auth')->group(function () {
         // Gestion des commissions
         Route::get('/admin/commissions', [DemandeController::class, 'indexCommissions'])->name('admin.commissions');
         Route::post('/admin/commissions/{id}/statut', [DemandeController::class, 'updateCommissionStatut'])->name('admin.commissions.statut');
+
+        // Gestion des prix d'abonnement & commissions des offres
+        Route::get('/admin/offres', [AdminOffreController::class, 'index'])->name('admin.offres');
+        Route::post('/admin/offres/paliers', [AdminOffreController::class, 'updatePaliers'])->name('admin.offres.paliers.update');
+        Route::post('/admin/offres/{code}', [AdminOffreController::class, 'update'])->name('admin.offres.update');
         Route::post('/tenants/{tenant}/renouveler', [TenantController::class, 'renewOffer'])->name('tenants.renew');
+        Route::post('/tenants/{tenant}/changer-offre', [TenantController::class, 'changeOffer'])->name('tenants.changeOffer');
+        Route::post('/tenants/{tenant}/prolonger', [TenantController::class, 'extendOffer'])->name('tenants.extendOffer');
+        Route::post('/tenants/{tenant}/pause', [TenantController::class, 'pauseOffer'])->name('tenants.pauseOffer');
+        Route::post('/tenants/{tenant}/reprendre', [TenantController::class, 'resumeOffer'])->name('tenants.resumeOffer');
     });
 
     // ─── Routes métier (utilisateurs avec un tenant associé) ───────────
@@ -125,7 +135,7 @@ Route::middleware('auth')->group(function () {
         // Transferts (Multi-magasins — Offre Professionnel+)
         Route::resource('transferts', TransfertController::class)->only(['index', 'create', 'show', 'edit', 'update']);
         Route::middleware('plan:multi_magasin')->group(function () {
-            Route::post('transferts', [TransfertController::class, 'store']);
+            Route::post('transferts', [TransfertController::class, 'store'])->name('transferts.store');
             Route::post('transferts/{transfert}/reception', [TransfertController::class, 'receptionner'])->name('transferts.reception');
         });
 
@@ -198,4 +208,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/prestataire/societes/{tenant}/modifier', [\App\Http\Controllers\PrestataireSpaceController::class, 'editTenant'])->name('prestataire.tenants.edit');
     Route::put('/prestataire/societes/{tenant}', [\App\Http\Controllers\PrestataireSpaceController::class, 'updateTenant'])->name('prestataire.tenants.update');
     Route::post('/prestataire/societes/{tenant}/renouveler', [\App\Http\Controllers\PrestataireSpaceController::class, 'renewOffer'])->name('prestataire.tenants.renew');
+    Route::post('/prestataire/societes/{tenant}/changer-offre', [\App\Http\Controllers\PrestataireSpaceController::class, 'changeOffer'])->name('prestataire.tenants.changeOffer');
+    Route::post('/prestataire/societes/{tenant}/prolonger', [\App\Http\Controllers\PrestataireSpaceController::class, 'extendOffer'])->name('prestataire.tenants.extendOffer');
+    Route::post('/prestataire/societes/{tenant}/pause', [\App\Http\Controllers\PrestataireSpaceController::class, 'pauseOffer'])->name('prestataire.tenants.pauseOffer');
+    Route::post('/prestataire/societes/{tenant}/reprendre', [\App\Http\Controllers\PrestataireSpaceController::class, 'resumeOffer'])->name('prestataire.tenants.resumeOffer');
 });

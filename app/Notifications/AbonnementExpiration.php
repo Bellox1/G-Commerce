@@ -62,7 +62,7 @@ class AbonnementExpiration extends Notification
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage())
-            ->subject('[Pilotix] ' . ($this->toArray($notifiable)['titre']))
+            ->subject('[PILOTIX] ' . ($this->toArray($notifiable)['titre']))
             ->line($this->toArray($notifiable)['message'])
             ->action('Voir mon offre', url('/offre'));
     }

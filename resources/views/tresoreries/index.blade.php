@@ -35,7 +35,7 @@
         <div class="treso-lbl"><i class="bi bi-arrow-down-left"></i> Total entrées</div>
     </div>
     <div class="treso-card">
-        <div class="treso-val treso-neg">-{{ number_format($totalSorties, 0, ',', ' ') }} F</div>
+        <div class="treso-val treso-neg">{{ $totalSorties > 0 ? '-' : '' }}{{ number_format($totalSorties, 0, ',', ' ') }} F</div>
         <div class="treso-lbl"><i class="bi bi-arrow-up-right"></i> Total sorties</div>
     </div>
     <div class="treso-card">
@@ -64,28 +64,32 @@
                 <label class="form-label" style="font-size: .8rem;">Date *</label>
                 <input type="date" name="date" class="form-control" value="{{ old('date', date('Y-m-d')) }}" required>
             </div>
+            @php
+                $oldSens = old('sens', 'entree');
+                $defaultLibelle = old('libelle', ($oldSens === 'sortie' || $oldSens === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté");
+            @endphp
             <div class="form-group">
                 <label class="form-label" style="font-size: .8rem;">Sens *</label>
-                <select name="sens" class="form-control" required>
-                    <option value="entree">Entrée (argent en caisse)</option>
-                    <option value="sortie">Sortie (dépense / retrait)</option>
-                    <option value="ca_jour">CA du jour (encaissement vente)</option>
+                <select name="sens" id="sensSelect" class="form-control" required>
+                    <option value="entree" {{ $oldSens === 'entree' ? 'selected' : '' }}>Entrée (argent en caisse)</option>
+                    <option value="sortie" {{ $oldSens === 'sortie' ? 'selected' : '' }}>Sortie (dépense / retrait)</option>
+                    <option value="ca_jour" {{ $oldSens === 'ca_jour' ? 'selected' : '' }}>CA du jour (encaissement vente)</option>
                 </select>
             </div>
             <div class="form-group">
                 <label class="form-label" style="font-size: .8rem;">Montant (FCFA) *</label>
-                <input type="number" name="montant" class="form-control" min="1" required placeholder="0">
+                <input type="number" name="montant" class="form-control" min="1" required placeholder="0" value="{{ old('montant') }}">
             </div>
             <div class="form-group">
                 <label class="form-label" style="font-size: .8rem;">Libellé</label>
-                <input type="text" name="libelle" class="form-control" maxlength="255" placeholder="Ex : Versement, achat, etc.">
+                <input type="text" name="libelle" id="libelleInput" class="form-control" maxlength="255" value="{{ $defaultLibelle }}">
             </div>
             <div class="form-group">
                 <label class="form-label" style="font-size: .8rem;">Mode de paiement</label>
                 <select name="mode_paiement" class="form-control">
-                    <option value="Espèces" selected>Espèces</option>
-                    <option value="Mobile Money">Mobile Money</option>
-                    <option value="Chèque">Chèque</option>
+                    <option value="Espèces" {{ old('mode_paiement', 'Espèces') === 'Espèces' ? 'selected' : '' }}>Espèces</option>
+                    <option value="Mobile Money" {{ old('mode_paiement') === 'Mobile Money' ? 'selected' : '' }}>Mobile Money</option>
+                    <option value="Chèque" {{ old('mode_paiement') === 'Chèque' ? 'selected' : '' }}>Chèque</option>
                 </select>
             </div>
             <div style="grid-column: 1 / -1;">
@@ -176,4 +180,26 @@
     @endif
 </div>
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sensSelect = document.getElementById('sensSelect');
+    const libelleInput = document.getElementById('libelleInput');
+    
+    if (sensSelect && libelleInput) {
+        sensSelect.addEventListener('change', function() {
+            const val = this.value;
+            const currentLib = libelleInput.value.trim();
+            if (!currentLib || currentLib === 'Capital apporté' || currentLib === "Chiffre d'affaire du jour") {
+                if (val === 'sortie' || val === 'ca_jour') {
+                    libelleInput.value = "Chiffre d'affaire du jour";
+                } else {
+                    libelleInput.value = "Capital apporté";
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush
 @endsection

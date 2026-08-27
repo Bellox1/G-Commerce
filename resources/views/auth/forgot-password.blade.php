@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mot de passe oublié — pilotix</title>
+    <title>Mot de passe oublié — PILOTIX</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
@@ -171,7 +171,7 @@
 <body>
 
     <a href="{{ url('/') }}" class="login-logo-link">
-        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo" class="login-logo-img">
+        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" class="login-logo-img">
     </a>
 
     <div class="login-container">
@@ -191,7 +191,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">Adresse e-mail</label>
-                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="votre@Pilotix.com" required autofocus>
+                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="votre@PILOTIX.com" required autofocus>
                 </div>
 
                 <button type="submit" class="btn-submit">

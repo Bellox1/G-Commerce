@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, Modal, StatusBar, Alert, ScrollView, TextInput
+    ActivityIndicator, RefreshControl, Modal, StatusBar, Alert, ScrollView, TextInput,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Platform } from 'react-native';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import client from '../../api/client';
@@ -96,6 +96,17 @@ const LivraisonsScreen = ({ navigation }) => {
             Alert.alert('Erreur', e.response?.data?.message || 'Mise à jour échouée.');
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    const quickMarkAsDelivered = async (venteId) => {
+        try {
+            await client.put(`/livraisons/${venteId}/statut`, {
+                statut_livraison: 'livre',
+            });
+            fetchData();
+        } catch (e) {
+            Alert.alert('Erreur', e.response?.data?.message || 'Mise à jour échouée.');
         }
     };
 
@@ -222,8 +233,24 @@ const LivraisonsScreen = ({ navigation }) => {
                             <View style={styles.divider} />
 
                             <View style={styles.cardFooter}>
+                                {item.statut_livraison !== 'livre' ? (
+                                    <TouchableOpacity
+                                        style={styles.quickCheckBtn}
+                                        onPress={() => quickMarkAsDelivered(item.id)}
+                                        activeOpacity={0.8}
+                                    >
+                                        <Ionicons name="checkbox-outline" size={18} color="#166534" />
+                                        <Text style={styles.quickCheckBtnText}>Cocher comme livré</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <View style={styles.deliveredRow}>
+                                        <Ionicons name="checkmark-circle" size={16} color={Colors.success} />
+                                        <Text style={styles.deliveredRowText}>Livrée avec succès</Text>
+                                    </View>
+                                )}
+
                                 <TouchableOpacity style={styles.actionBtn} onPress={() => setSelectedVente(item)}>
-                                    <Text style={styles.actionBtnText}>Changer statut</Text>
+                                    <Text style={styles.actionBtnText}>Détails</Text>
                                     <Ionicons name="chevron-forward" size={16} color={Colors.primary} />
                                 </TouchableOpacity>
                             </View>
@@ -236,7 +263,7 @@ const LivraisonsScreen = ({ navigation }) => {
             {/* Modal de changement de statut */}
             {selectedVente && (
                 <Modal visible={!!selectedVente} animationType="slide" transparent>
-                    <View style={styles.modalOverlay}>
+                                        <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
                             <View style={styles.modalHeader}>
                                 <Text style={styles.modalTitle}>Mettre à jour la livraison</Text>
@@ -268,6 +295,7 @@ const LivraisonsScreen = ({ navigation }) => {
                             />
                         </View>
                     </View>
+
                 </Modal>
             )}
 
@@ -333,6 +361,32 @@ const styles = StyleSheet.create({
     infoText: { fontSize: 13, fontFamily: 'Poppins_400Regular', color: Colors.textLight },
     divider: { height: 1, backgroundColor: Colors.border, marginVertical: 6 },
     cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    quickCheckBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#F0FDF4',
+        borderWidth: 1,
+        borderColor: '#86EFAC',
+        paddingHorizontal: 12,
+        paddingVertical: 7,
+        borderRadius: 10,
+    },
+    quickCheckBtnText: {
+        fontSize: 12.5,
+        fontFamily: 'PlusJakartaSans_700Bold',
+        color: '#166534',
+    },
+    deliveredRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+    },
+    deliveredRowText: {
+        fontSize: 12,
+        fontFamily: 'PlusJakartaSans_600SemiBold',
+        color: Colors.success,
+    },
     amount: { fontSize: 16, fontFamily: 'Poppins_700Bold', color: Colors.primary },
     actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     actionBtnText: { fontSize: 13, fontFamily: 'Poppins_600SemiBold', color: Colors.primary },

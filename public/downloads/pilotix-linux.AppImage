@@ -9,11 +9,11 @@ echo "Lancement de PILOTIX Desktop sur : $TARGET_URL ..."
 if command -v electron &> /dev/null; then
     electron --app="$TARGET_URL" --name="PILOTIX" &
 elif command -v google-chrome &> /dev/null; then
-    google-chrome --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/pilotix-desktop" &
+    google-chrome --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/PILOTIX-desktop" &
 elif command -v chromium-browser &> /dev/null; then
-    chromium-browser --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/pilotix-desktop" &
+    chromium-browser --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/PILOTIX-desktop" &
 elif command -v chromium &> /dev/null; then
-    chromium --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/pilotix-desktop" &
+    chromium --app="$TARGET_URL" --name="PILOTIX" --user-data-dir="/tmp/PILOTIX-desktop" &
 elif command -v firefox &> /dev/null; then
     firefox --new-window "$TARGET_URL" &
 elif command -v xdg-open &> /dev/null; then

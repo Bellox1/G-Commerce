@@ -133,6 +133,86 @@
 
     <!-- Détails de la société -->
     <div>
+        {{-- Gestion de l'offre & abonnement --}}
+        @php $statut = $tenant->offreStatut(); @endphp
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <h3><i class="bi bi-stars"></i> Offre & Abonnement</h3>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.95rem;">
+                <div>
+                    <label class="form-label" style="margin-bottom: 2px;">Offre actuelle :</label>
+                    <div style="font-weight: 700; text-transform: capitalize;">{{ $tenant->offre_code ?? 'Aucune' }}</div>
+                </div>
+                <div>
+                    <label class="form-label" style="margin-bottom: 2px;">Statut :</label>
+                    <div><span class="badge {{ $statut['badge'] }}">{{ $statut['libelle'] }}</span></div>
+                </div>
+                <div>
+                    <label class="form-label" style="margin-bottom: 2px;">Expiration :</label>
+                    <div>
+                        @if($tenant->offre_code === 'locale')
+                            <span style="font-weight:600; color: var(--primary);">À vie</span>
+                        @elseif($tenant->offre_expires_at)
+                            {{ $tenant->offre_expires_at->fr('d F Y') }}
+                        @else
+                            <span style="color: var(--text-muted);">Non définie</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <hr style="border:none; border-top:1px solid var(--border); margin:18px 0;">
+
+            {{-- Changer d'offre --}}
+            <form action="{{ route('tenants.changeOffer', $tenant) }}" method="POST" style="margin-bottom: 14px;">
+                @csrf
+                <label class="form-label" style="margin-bottom:6px;">Changer d'offre</label>
+                <div style="display:flex; gap:8px;">
+                    <select name="offre_code" class="form-control" required style="flex:1;">
+                        @foreach($rules as $r)
+                            <option value="{{ $r->code }}" {{ $tenant->offre_code === $r->code ? 'selected' : '' }}>
+                                {{ $r->nom }} ({{ number_format($r->prix, 0, ' ', ' ') }} FCFA)
+                            </option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap;">
+                        <i class="bi bi-arrow-repeat"></i> Changer
+                    </button>
+                </div>
+            </form>
+
+            {{-- Prolonger --}}
+            @php $currentRule = \App\Models\CommissionRule::where('code', $tenant->offre_code)->first(); @endphp
+            @if($currentRule && $currentRule->dureeEnMois())
+                <form action="{{ route('tenants.extendOffer', $tenant) }}" method="POST" style="margin-bottom: 14px;">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;">
+                        <i class="bi bi-calendar-plus"></i> Prolonger l'offre ({{ $currentRule->dureeEnMois() }} mois)
+                    </button>
+                </form>
+            @endif
+
+            {{-- Pause / Reprendre --}}
+            @if($tenant->offre_en_pause)
+                <form action="{{ route('tenants.resumeOffer', $tenant) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-success btn-sm" style="width:100%;">
+                        <i class="bi bi-play-circle"></i> Reprendre l'offre
+                    </button>
+                </form>
+            @else
+                <form action="{{ route('tenants.pauseOffer', $tenant) }}" method="POST"
+                      onsubmit="return confirm('Mettre l\'offre en pause ? Toutes les fonctionnalités liées seront suspendues pour cette société.');">
+                    @csrf
+                    <button type="submit" class="btn btn-warning btn-sm" style="width:100%;">
+                        <i class="bi bi-pause-circle"></i> Mettre en pause
+                    </button>
+                </form>
+            @endif
+        </div>
+
         <div class="card">
             <h3 style="margin-bottom: 15px;"><i class="bi bi-info-square"></i> Fiche d'identité</h3>
             

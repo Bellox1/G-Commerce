@@ -216,7 +216,12 @@ class DashboardController extends Controller
                 if ($s <= 5 || $s <= $seuil) $enAlerte = true;
             }
             if ($enAlerte) {
-                $stockAlertes[] = ['produit' => $produit, 'stock' => $minStock];
+                $stockAlertes[] = [
+                    'produit'      => $produit,
+                    'stock'        => $minStock,
+                    'quantite'     => $minStock,
+                    'seuil_alerte' => $seuil,
+                ];
             }
         }
 

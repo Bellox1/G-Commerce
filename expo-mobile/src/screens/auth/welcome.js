@@ -56,7 +56,7 @@ const WelcomeScreen = ({ navigation }) => {
             {/* Header Brand */}
             <View style={[styles.headerLogo, { paddingTop: Math.max(insets.top + 8, 28) }]}>
                 <Image
-                    source={require('../../../assets/pilotix.png')}
+                    source={require('../../../assets/pilotix-logo.png')}
                     style={styles.logoImage}
                     resizeMode="contain"
                 />

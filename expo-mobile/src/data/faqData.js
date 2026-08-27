@@ -629,7 +629,7 @@ const FAQ_DATA = [
       {
         q: `À quoi sert l'onglet Dépôts ?`,
         blocks: [
-          { t: 'p', text: `C'est ici que vous gérez vos **points de stockage physique**. Chaque dépôt (ou magasin) est un endroit où vous stockez et vendez vos produits. Pilotix est conçu pour la **multi-magasins** : vous pouvez en avoir autant que nécessaire (Magasin Principal, Entrepôt, Boutique de quartier...). Chaque dépôt a son propre stock, ses propres ventes et ses propres statistiques.` },
+          { t: 'p', text: `C'est ici que vous gérez vos **points de stockage physique**. Chaque dépôt (ou magasin) est un endroit où vous stockez et vendez vos produits. PILOTIX est conçu pour la **multi-magasins** : vous pouvez en avoir autant que nécessaire (Magasin Principal, Entrepôt, Boutique de quartier...). Chaque dépôt a son propre stock, ses propres ventes et ses propres statistiques.` },
         ],
       },
       {
@@ -678,7 +678,7 @@ const FAQ_DATA = [
       {
         q: `À quoi sert l'onglet Personnel ?`,
         blocks: [
-          { t: 'p', text: `C'est ici que vous gérez les **comptes utilisateurs** de votre équipe. Chaque employé a un compte avec un email et un mot de passe pour se connecter à Pilotix. Vous définissez leurs **rôles** pour contrôler ce que chacun peut voir et faire dans l'application. C'est un outil de sécurité essentiel pour protéger vos données commerciales.` },
+          { t: 'p', text: `C'est ici que vous gérez les **comptes utilisateurs** de votre équipe. Chaque employé a un compte avec un email et un mot de passe pour se connecter à PILOTIX. Vous définissez leurs **rôles** pour contrôler ce que chacun peut voir et faire dans l'application. C'est un outil de sécurité essentiel pour protéger vos données commerciales.` },
         ],
       },
       {

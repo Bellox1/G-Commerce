@@ -10,20 +10,26 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDateFr, formatDateTimeFr } from '../../utils/formatDate';
 
 const formatMoney = (val) => {
-    if (val === null || val === undefined || val === '') return '0 F';
-    return Math.round(Number(val)).toLocaleString('fr-FR') + ' FCFA';
+    if (val === null || val === undefined || val === '') return '0 FCFA';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' FCFA';
 };
 
 const formatNaira = (val) => {
     if (!val && val !== 0) return '0 ₦';
-    return Math.round(Number(val)).toLocaleString('fr-FR') + ' ₦';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' ₦';
 };
 
 const DEVISE_SYM = { NGN: '₦', EUR: '€', USD: '$', CNY: '¥', XOF: 'FCFA', AUTRE: '' };
 const getDeviseSymbole = (d) => DEVISE_SYM[d] || '₦';
 const formatOrigine = (val, devise) => {
     if (!val && val !== 0) return '0';
-    return Math.round(Number(val)).toLocaleString('fr-FR') + ' ' + getDeviseSymbole(devise);
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' ' + getDeviseSymbole(devise);
 };
 
 const computeRevenu = (arr) => {
@@ -61,6 +67,14 @@ const getFournisseurs = (arr) => {
 const plurielUnite = (qte, unite) => {
     if (!unite) return '';
     return Number(qte) > 1 ? `${unite}s` : unite;
+};
+
+const arrondirPrix = (prix) => {
+    const p = Number(prix || 0);
+    if (p <= 0) return 0;
+    if (p < 30000) return Math.ceil(p / 100) * 100;
+    if (p < 50000) return Math.ceil(p / 500) * 500;
+    return Math.ceil(p / 1000) * 1000;
 };
 
 const ShowArrivageScreen = ({ navigation, route }) => {
@@ -120,12 +134,12 @@ const ShowArrivageScreen = ({ navigation, route }) => {
         try {
             setSavingPrixId(ligneId);
             await client.put(`/arrivages/produit/${ligneId}/prix-suggere`, {
-                prix_vente_suggere: Number(val),
+                prix_vente_suggere: Math.round(Number(val)),
             });
             setArrivageData((prev) => {
                 const arr = prev?.arrivage || prev;
                 const prods = (arr?.produits || []).map((p) =>
-                    p.id === ligneId ? { ...p, prix_vente_suggere: Number(val) } : p
+                    p.id === ligneId ? { ...p, prix_vente_suggere: Math.round(Number(val)) } : p
                 );
                 const updated = { ...arr, produits: prods };
                 return prev?.arrivage ? { ...prev, arrivage: updated } : updated;
@@ -139,9 +153,14 @@ const ShowArrivageScreen = ({ navigation, route }) => {
     };
 
     const toggleConserverPrix = (p) => {
-        const ancien = Number(p.produit?.prix_vente_conseille ?? 0);
-        const pvSug = Number(p.prix_vente_suggere || p.produit?.prix_vente_suggere || 0);
-        const isConserving = conserverMap[p.id] ?? (pvSug === ancien);
+        const ancien = Math.round(Number(p.produit?.prix_vente_conseille ?? 0));
+        const coutRevU = Number(p.cout_unitaire_reel || p.pivot?.cout_unitaire_reel || 0);
+        const calcSug = Math.round(arrondirPrix(coutRevU));
+
+        const rawPvSug = Math.round(Number(p.prix_vente_suggere || p.produit?.prix_vente_suggere || 0));
+        const pvSug = (rawPvSug > 0 && rawPvSug !== ancien) ? rawPvSug : (calcSug > 0 ? calcSug : ancien);
+
+        const isConserving = conserverMap[p.id] ?? (rawPvSug === ancien && ancien > 0);
         const newVal = !isConserving;
         setConserverMap((prev) => ({ ...prev, [p.id]: newVal }));
         if (newVal) {
@@ -269,11 +288,16 @@ const ShowArrivageScreen = ({ navigation, route }) => {
                             const achatFcfa = prixAchat * Number(arrivage.taux_change || 0);
                             const fraisProrata = qte > 0 ? Number(p.part_frais || p.pivot?.part_frais || 0) / qte : 0;
                             const coutRevU = Number(p.cout_unitaire_reel || p.pivot?.cout_unitaire_reel || 0);
-                            const pvSug = Number(p.prix_vente_suggere || p.produit?.prix_vente_suggere || 0);
-                            const ancienPrix = Number(p.produit?.prix_vente_conseille ?? 0);
-                            const conserving = conserverMap[p.id] ?? (pvSug === ancienPrix);
+                            const calcSug = Math.round(arrondirPrix(coutRevU));
+                            const rawPvSug = Math.round(Number(p.prix_vente_suggere || p.produit?.prix_vente_suggere || 0));
+                            const ancienPrix = Math.round(Number(p.produit?.prix_vente_conseille ?? 0));
+                            const pvSug = (rawPvSug > 0 && rawPvSug !== ancienPrix) ? rawPvSug : (calcSug > 0 ? calcSug : ancienPrix);
+                            const conserving = conserverMap[p.id] ?? (rawPvSug === ancienPrix && ancienPrix > 0);
                             const unite = p.produit?.unite || p.unite || 'Carton';
                             const deviseSym = getDeviseSymbole(arrivage.devise_origine);
+                            const currentInputVal = conserving
+                                ? String(ancienPrix)
+                                : (prixEdits[p.id] !== undefined ? String(prixEdits[p.id]) : String(pvSug));
                             return (
                                 <View key={idx} style={styles.prodCard}>
                                     <Text style={styles.prodName}>{p.nom || p.produit?.nom || 'Article'}</Text>
@@ -307,7 +331,7 @@ const ShowArrivageScreen = ({ navigation, route }) => {
                                         <View style={styles.pvSugEditInputWrap}>
                                             <TextInput
                                                 style={[styles.pvSugEditInput, conserving && { backgroundColor: '#F1F5F9' }]}
-                                                value={conserving ? String(ancienPrix) : (prixEdits[p.id] !== undefined ? prixEdits[p.id] : String(pvSug))}
+                                                value={currentInputVal}
                                                 onChangeText={(t) => setPrixEdits((prev) => ({ ...prev, [p.id]: t }))}
                                                 keyboardType="numeric"
                                                 placeholder="0"

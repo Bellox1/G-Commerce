@@ -56,6 +56,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('tenants/{tenant}', [TenantController::class, 'destroy']);
         Route::post('tenants/{tenant}/magasins', [TenantController::class, 'storeMagasin']);
         Route::delete('tenants/{tenant}/magasins/{magasin}', [TenantController::class, 'destroyMagasin']);
+        Route::post('tenants/{tenant}/renouveler', [TenantController::class, 'renewOffer']);
+        Route::post('tenants/{tenant}/changer-offre', [TenantController::class, 'changeOffer']);
+        Route::post('tenants/{tenant}/prolonger', [TenantController::class, 'extendOffer']);
+        Route::post('tenants/{tenant}/pause', [TenantController::class, 'pauseOffer']);
+        Route::post('tenants/{tenant}/reprendre', [TenantController::class, 'resumeOffer']);
 
         // ─── Administration : prestataires & commissions ─────────────
         Route::get('prestataires', [DemandeController::class, 'indexPrestataires']);

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    TextInput, ActivityIndicator, Alert, StatusBar
+    TextInput, ActivityIndicator, Alert, StatusBar, Platform
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import client, { getDettesSociete } from '../../api/client';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { todayWAT } from '../../utils/formatDate';
 
 const CreateDetteSocieteScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
@@ -19,7 +19,8 @@ const CreateDetteSocieteScreen = ({ navigation }) => {
     const [arrivageId, setArrivageId] = useState(null);
     const [montant, setMontant] = useState('');
     const [description, setDescription] = useState('');
-    const [dateDette, setDateDette] = useState(todayWAT());
+    const [dateDetteObj, setDateDetteObj] = useState(new Date());
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [devise, setDevise] = useState('');
     const [tauxDeChange, setTauxDeChange] = useState('');
     const [montantOrigine, setMontantOrigine] = useState('');
@@ -60,6 +61,7 @@ const CreateDetteSocieteScreen = ({ navigation }) => {
 
         setSubmitting(true);
         try {
+            const formattedDate = dateDetteObj ? dateDetteObj.toISOString().split('T')[0] : null;
             await client.post('/dettes-societe', {
                 fournisseur_id: fournisseurId || null,
                 arrivage_id: arrivageId || null,
@@ -68,7 +70,7 @@ const CreateDetteSocieteScreen = ({ navigation }) => {
                 taux_de_change: tauxDeChange ? Number(tauxDeChange) : null,
                 montant_origine: montantOrigine ? Number(montantOrigine) : null,
                 description: description || null,
-                date_dette: dateDette,
+                date_dette: formattedDate,
             });
 
             Alert.alert('Succès', 'Dette société enregistrée avec succès.');
@@ -79,6 +81,11 @@ const CreateDetteSocieteScreen = ({ navigation }) => {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const formatDateDisplay = (d) => {
+        if (!d) return '';
+        return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }).format(d);
     };
 
     return (
@@ -143,8 +150,32 @@ const CreateDetteSocieteScreen = ({ navigation }) => {
                     <Text style={styles.fieldLabel}>Description</Text>
                     <TextInput style={styles.input} value={description} onChangeText={setDescription} placeholder="Ex: Arrivage ARR-2026-004" />
 
-                    <Text style={styles.fieldLabel}>Date *</Text>
-                    <TextInput style={styles.input} value={dateDette} onChangeText={setDateDette} placeholder="AAAA-MM-JJ" />
+                    <Text style={styles.fieldLabel}>Date de la dette *</Text>
+                    <TouchableOpacity
+                        style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }]}
+                        onPress={() => setShowDatePicker(true)}
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Ionicons name="calendar-outline" size={18} color={Colors.primary} style={{ marginRight: 8 }} />
+                            <Text style={{ color: Colors.text, fontSize: 14 }}>
+                                {formatDateDisplay(dateDetteObj)}
+                            </Text>
+                        </View>
+                        <Ionicons name="chevron-down" size={16} color={Colors.textLight} />
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={dateDetteObj}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            maximumDate={new Date()}
+                            onChange={(event, selectedDate) => {
+                                setShowDatePicker(false);
+                                if (selectedDate) setDateDetteObj(selectedDate);
+                            }}
+                        />
+                    )}
                 </View>
 
                 <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={submitting}>

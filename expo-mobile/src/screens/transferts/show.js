@@ -17,17 +17,22 @@ const STATUT_MAP = {
     en_attente: { label: 'En attente', color: Colors.textLight, bg: Colors.textLight + '20' },
 };
 
+const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
 const formatDate = (val) => {
     if (!val) return '—';
     const d = new Date(val);
-    return isNaN(d) ? '—' : d.toLocaleDateString('fr-FR');
+    if (isNaN(d)) return '—';
+    return `${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()}`;
 };
 
 const formatDateTime = (val) => {
     if (!val) return '—';
     const d = new Date(val);
     if (isNaN(d)) return '—';
-    return d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()} à ${hh}h${mm}`;
 };
 
 const ShowTransfertScreen = ({ navigation }) => {
@@ -52,7 +57,8 @@ const ShowTransfertScreen = ({ navigation }) => {
             setTransfert(resp.data?.data || resp.data);
         } catch (e) {
             console.error('Error fetching transfert detail:', e);
-            Alert.alert('Erreur', 'Impossible de charger le transfert.');
+            const msg = e.response?.data?.message || 'Impossible de charger le transfert.';
+            Alert.alert('Erreur', msg);
         } finally {
             setLoading(false);
         }
@@ -158,35 +164,50 @@ const ShowTransfertScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.cardSection}>
-                    <Text style={styles.cardTitle}>Produits transférés</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <Text style={styles.cardTitle}>Produits transférés</Text>
+                        <View style={{ backgroundColor: Colors.primary + '15', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 }}>
+                            <Text style={{ fontSize: 12, fontFamily: 'Poppins_700Bold', color: Colors.primary }}>
+                                Total: {produits.reduce((sum, p) => sum + Number(p.quantite || 0), 0)}
+                            </Text>
+                        </View>
+                    </View>
                     {produits.length > 0 ? (
-                        produits.map((p, idx) => {
-                            const pid = p.produit_id ?? p.produit?.id;
-                            const recue = recus[pid] ?? p.quantite;
-                            return (
-                                <View key={idx} style={styles.prodRow}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={styles.prodName}>{p.produit?.nom || 'Produit'}</Text>
-                                        <Text style={styles.prodSub}>Déclarée : {p.quantite}</Text>
-                                    </View>
-                                    {transfert.statut === 'en_transit' ? (
-                                        <View style={styles.stepper}>
-                                            <TouchableOpacity style={styles.stepperBtn} onPress={() => setRecus(prev => ({ ...prev, [pid]: Math.max(0, (prev[pid] ?? p.quantite) - 1) }))}>
-                                                <Ionicons name="remove" size={18} color={Colors.primary} />
-                                            </TouchableOpacity>
-                                            <Text style={styles.prodQty}>{recue}</Text>
-                                            <TouchableOpacity style={styles.stepperBtn} onPress={() => setRecus(prev => ({ ...prev, [pid]: (prev[pid] ?? p.quantite) + 1 }))}>
-                                                <Ionicons name="add" size={18} color={Colors.primary} />
-                                            </TouchableOpacity>
+                        <>
+                            {produits.map((p, idx) => {
+                                const pid = p.produit_id ?? p.produit?.id;
+                                const recue = recus[pid] ?? p.quantite;
+                                return (
+                                    <View key={idx} style={styles.prodRow}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={styles.prodName}>{p.produit?.nom || 'Produit'}</Text>
+                                            <Text style={styles.prodSub}>Déclarée : {p.quantite}</Text>
                                         </View>
-                                    ) : (
-                                        <Text style={[styles.prodQty, p.quantite_recue !== null && p.quantite_recue !== undefined && p.quantite_recue !== p.quantite ? { color: Colors.warning } : null]}>
-                                            {p.quantite_recue !== null && p.quantite_recue !== undefined ? p.quantite_recue : recue} reçu(s)
-                                        </Text>
-                                    )}
-                                </View>
-                            );
-                        })
+                                        {transfert.statut === 'en_transit' ? (
+                                            <View style={styles.stepper}>
+                                                <TouchableOpacity style={styles.stepperBtn} onPress={() => setRecus(prev => ({ ...prev, [pid]: Math.max(0, (prev[pid] ?? p.quantite) - 1) }))}>
+                                                    <Ionicons name="remove" size={18} color={Colors.primary} />
+                                                </TouchableOpacity>
+                                                <Text style={styles.prodQty}>{recue}</Text>
+                                                <TouchableOpacity style={styles.stepperBtn} onPress={() => setRecus(prev => ({ ...prev, [pid]: (prev[pid] ?? p.quantite) + 1 }))}>
+                                                    <Ionicons name="add" size={18} color={Colors.primary} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        ) : (
+                                            <Text style={[styles.prodQty, p.quantite_recue !== null && p.quantite_recue !== undefined && p.quantite_recue !== p.quantite ? { color: Colors.warning } : null]}>
+                                                {p.quantite_recue !== null && p.quantite_recue !== undefined ? p.quantite_recue : recue} reçu(s)
+                                            </Text>
+                                        )}
+                                    </View>
+                                );
+                            })}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: Colors.border }}>
+                                <Text style={{ fontSize: 13, fontFamily: 'Poppins_700Bold', color: Colors.text }}>Total général transféré :</Text>
+                                <Text style={{ fontSize: 14, fontFamily: 'Poppins_700Bold', color: Colors.primary }}>
+                                    {produits.reduce((sum, p) => sum + Number(p.quantite || 0), 0)} unité(s)
+                                </Text>
+                            </View>
+                        </>
                     ) : (
                         <Text style={styles.emptyText}>Aucun produit enregistré</Text>
                     )}
@@ -208,24 +229,29 @@ const ShowTransfertScreen = ({ navigation }) => {
                         </View>
                     ) : null}
 
+                    {/* Trajet vertical — plus responsive */}
                     <View style={styles.trajet}>
-                        <View style={styles.trajetItem}>
+                        <View style={styles.trajetRow}>
                             <View style={[styles.trajetIcon, { backgroundColor: '#fee2e2' }]}>
                                 <Ionicons name="storefront-outline" size={18} color={Colors.error} />
                             </View>
-                            <View>
-                                <Text style={styles.trajetLabel}>Départ</Text>
-                                <Text style={[styles.trajetName, { color: Colors.error }]}>{transfert.magasin_source?.nom || '—'}</Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.trajetLabel}>Dépôt de départ</Text>
+                                <Text style={[styles.trajetName, { color: Colors.error }]} numberOfLines={2}>{transfert.magasin_source?.nom || '—'}</Text>
                             </View>
                         </View>
-                        <Ionicons name="arrow-forward" size={22} color={Colors.primary} />
-                        <View style={styles.trajetItem}>
+
+                        <View style={styles.trajetArrow}>
+                            <Ionicons name="arrow-down" size={20} color={Colors.primary} />
+                        </View>
+
+                        <View style={styles.trajetRow}>
                             <View style={[styles.trajetIcon, { backgroundColor: '#dcfce7' }]}>
                                 <Ionicons name="storefront-outline" size={18} color={Colors.success} />
                             </View>
-                            <View>
-                                <Text style={styles.trajetLabel}>Arrivée</Text>
-                                <Text style={[styles.trajetName, { color: Colors.success }]}>{transfert.magasin_destination?.nom || '—'}</Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.trajetLabel}>Dépôt d'arrivée</Text>
+                                <Text style={[styles.trajetName, { color: Colors.success }]} numberOfLines={2}>{transfert.magasin_destination?.nom || '—'}</Text>
                             </View>
                         </View>
                     </View>
@@ -265,11 +291,12 @@ const styles = StyleSheet.create({
     prodQty: { fontSize: 13, fontFamily: 'Poppins_700Bold', color: Colors.primary },
     stepper: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     stepperBtn: { width: 30, height: 30, borderRadius: 8, backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, justifyContent: 'center', alignItems: 'center' },
-    trajet: { marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    trajetItem: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-    trajetIcon: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+    trajet: { marginTop: 14, flexDirection: 'column', gap: 4 },
+    trajetRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6 },
+    trajetArrow: { paddingLeft: 24, paddingVertical: 2 },
+    trajetIcon: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
     trajetLabel: { fontSize: 11, color: Colors.textLight, fontFamily: 'Poppins_600SemiBold', textTransform: 'uppercase' },
-    trajetName: { fontSize: 14, fontFamily: 'Poppins_700Bold' },
+    trajetName: { fontSize: 14, fontFamily: 'Poppins_700Bold', flexShrink: 1 },
     emptyText: { textAlign: 'center', color: Colors.textLight, fontSize: 12, paddingVertical: 12 },
 });
 

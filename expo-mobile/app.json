@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Pilotix",
-    "slug": "pilotix",
-    "scheme": "pilotix",
+    "name": "PILOTIX",
+    "slug": "PILOTIX",
+    "scheme": "PILOTIX",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,13 +15,13 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pilotix.app",
+      "bundleIdentifier": "com.PILOTIX.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.pilotix.app",
+      "package": "com.PILOTIX.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -52,14 +52,14 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "pilotix a besoin d'accéder à votre caméra pour prendre des photos de produits."
+          "cameraPermission": "PILOTIX a besoin d'accéder à votre caméra pour prendre des photos de produits."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "pilotix accède à votre galerie pour ajouter des photos de produits.",
-          "cameraPermission": "pilotix a besoin de la caméra pour photographier vos produits.",
+          "photosPermission": "PILOTIX accède à votre galerie pour ajouter des photos de produits.",
+          "cameraPermission": "PILOTIX a besoin de la caméra pour photographier vos produits.",
           "microphonePermission": false
         }
       ],

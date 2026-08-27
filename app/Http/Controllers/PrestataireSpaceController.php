@@ -40,8 +40,8 @@ class PrestataireSpaceController extends Controller
             ->latest()
             ->paginate(10);
 
-        $societesExpirees = $societes->filter(fn($s) => $s->isOffreExpiree());
-        $rules = CommissionRule::all();
+        $societesExpirees = $societes->filter(fn($s) => $s->isOffreExpiree() && !$s->offre_en_pause);
+        $rules = CommissionRule::where('code', '!=', 'locale')->get();
 
         return view('prestataire.dashboard', compact(
             'societes',
@@ -71,7 +71,7 @@ class PrestataireSpaceController extends Controller
 
     public function createTenant()
     {
-        $rules = CommissionRule::all();
+        $rules = CommissionRule::where('code', '!=', 'locale')->get();
         return view('prestataire.create-tenant', compact('rules'));
     }
 
@@ -218,5 +218,106 @@ class PrestataireSpaceController extends Controller
         }
 
         return $this->smartResponse('prestataire.dashboard', 'Offre renouvelée avec succès !');
+    }
+
+    public function changeOffer(Request $request, Tenant $tenant)
+    {
+        if ($tenant->partenaire_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'offre_code' => 'required|exists:commission_rules,code',
+        ]);
+
+        $offerRule = CommissionRule::where('code', $request->offre_code)->first();
+        $expiresAt = $offerRule && $offerRule->dureeEnMois()
+            ? now()->addMonths($offerRule->dureeEnMois())
+            : null;
+
+        $tenant->update([
+            'offre_code'        => $request->offre_code,
+            'offre_expires_at'  => $expiresAt,
+            'offre_en_pause'    => false,
+            'offre_pause_depuis' => null,
+        ]);
+
+        if ($offerRule) {
+            Commission::create([
+                'partenaire_id' => auth()->id(),
+                'tenant_id'     => $tenant->id,
+                'montant'       => $offerRule->commission,
+                'statut'        => 'en_attente',
+            ]);
+        }
+
+        return $this->smartResponse('prestataire.dashboard', 'Offre de la société changée avec succès !');
+    }
+
+    public function extendOffer(Request $request, Tenant $tenant)
+    {
+        if ($tenant->partenaire_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (!$tenant->offre_code) {
+            return $this->smartResponse('prestataire.dashboard', 'Aucune offre à prolonger pour cette société.', [], 422);
+        }
+
+        $offerRule = CommissionRule::where('code', $tenant->offre_code)->first();
+        $duree = $offerRule ? $offerRule->dureeEnMois() : null;
+
+        if (!$duree) {
+            return $this->smartResponse('prestataire.dashboard', 'Cette offre est à vie et ne nécessite pas de prolongation.', [], 422);
+        }
+
+        $expiresAt = $tenant->offre_expires_at && $tenant->offre_expires_at->isFuture()
+            ? $tenant->offre_expires_at->addMonths($duree)
+            : now()->addMonths($duree);
+
+        $tenant->update([
+            'offre_expires_at'   => $expiresAt,
+            'offre_en_pause'     => false,
+            'offre_pause_depuis' => null,
+        ]);
+
+        if ($offerRule) {
+            Commission::create([
+                'partenaire_id' => auth()->id(),
+                'tenant_id'     => $tenant->id,
+                'montant'       => $offerRule->commission,
+                'statut'        => 'en_attente',
+            ]);
+        }
+
+        return $this->smartResponse('prestataire.dashboard', 'Offre prolongée avec succès !');
+    }
+
+    public function pauseOffer(Request $request, Tenant $tenant)
+    {
+        if ($tenant->partenaire_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $tenant->update([
+            'offre_en_pause'     => true,
+            'offre_pause_depuis' => now(),
+        ]);
+
+        return $this->smartResponse('prestataire.dashboard', 'Offre mise en pause. Les fonctionnalités liées sont suspendues.');
+    }
+
+    public function resumeOffer(Request $request, Tenant $tenant)
+    {
+        if ($tenant->partenaire_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $tenant->update([
+            'offre_en_pause'     => false,
+            'offre_pause_depuis' => null,
+        ]);
+
+        return $this->smartResponse('prestataire.dashboard', 'Offre reprise avec succès. Les fonctionnalités sont de nouveau actives.');
     }
 }

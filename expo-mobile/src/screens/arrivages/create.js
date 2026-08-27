@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    TextInput, ActivityIndicator, Alert, StatusBar, Modal
+    TextInput, ActivityIndicator, Alert, StatusBar, Modal,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
 import Colors from '../../theme/Colors';
@@ -10,6 +11,7 @@ import client from '../../api/client';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const DEVISES = [
+    { code: 'XOF', label: 'FCFA', sym: 'FCFA' },
     { code: 'NGN', label: 'Naira', sym: '₦' },
     { code: 'EUR', label: 'Euro', sym: '€' },
     { code: 'USD', label: 'Dollar', sym: '$' },
@@ -85,6 +87,11 @@ const CreateArrivageScreen = ({ navigation }) => {
 
     const selectDevise = async (code) => {
         setSelectedDevise(code);
+        if (code === 'XOF') {
+            setTauxChange('1');
+            setTauxSource('FCFA = monnaie locale : aucun taux à définir.');
+            return;
+        }
         if (code === 'AUTRE') {
             setTauxSource('Devise personnalisée — saisissez le taux manuellement.');
             return;
@@ -247,10 +254,11 @@ const CreateArrivageScreen = ({ navigation }) => {
 
                     <Text style={styles.fieldLabel}>Taux de change ({DEVISES.find(d => d.code === selectedDevise)?.sym || 'origine'} → FCFA)</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, selectedDevise === 'XOF' && { backgroundColor: '#F1F5F9', color: Colors.textLight }]}
                         keyboardType="numeric"
-                        value={tauxChange}
+                        value={selectedDevise === 'XOF' ? '1' : tauxChange}
                         onChangeText={setTauxChange}
+                        editable={selectedDevise !== 'XOF'}
                         placeholder="0.65"
                     />
                     <Text style={styles.hintText}>Ex: 0.65 signifie 1 000 {DEVISES.find(d => d.code === selectedDevise)?.sym || 'unité'} = 650 FCFA</Text>
@@ -398,6 +406,7 @@ const CreateArrivageScreen = ({ navigation }) => {
 
             {/* Modal Création Fournisseur */}
             <Modal visible={showFournModal} transparent animationType="slide" onRequestClose={() => setShowFournModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalCard}>
                         <View style={styles.modalHeader}>
@@ -429,6 +438,8 @@ const CreateArrivageScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

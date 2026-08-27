@@ -23,7 +23,7 @@ class ProduitController extends Controller
             $q = $request->get('q');
             $query->where(function ($sub) use ($q) {
                 $sub->where('nom', 'like', "%{$q}%")
-                    ->orWhere('code', 'like', "%{$q}%");
+                    ->orWhere('description', 'like', "%{$q}%");
             });
         }
 
@@ -145,7 +145,7 @@ class ProduitController extends Controller
                     }
                 },
             ],
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
             'image_url' => 'nullable|url|max:2048',
             'description' => 'nullable|string',
             'seuil_alerte' => 'required|integer|min:0',
@@ -168,9 +168,7 @@ class ProduitController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('produits', 'public');
-        } elseif ($request->filled('image_url')) {
-            $imagePath = $request->image_url;
+            $imagePath = $request->file('image')->store("tenants/{$tenant->id}/produits", 'public');
         }
 
         $produit = Produit::create([
@@ -311,7 +309,7 @@ class ProduitController extends Controller
                     }
                 },
             ],
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
             'image_url' => 'nullable|url|max:2048',
             'description' => 'nullable|string',
             'seuil_alerte' => 'required|integer|min:0',
@@ -334,12 +332,7 @@ class ProduitController extends Controller
             if ($produit->image && !str_starts_with($produit->image, 'http')) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($produit->image);
             }
-            $data['image'] = $request->file('image')->store('produits', 'public');
-        } elseif ($request->filled('image_url')) {
-            if ($produit->image && !str_starts_with($produit->image, 'http')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($produit->image);
-            }
-            $data['image'] = $request->image_url;
+            $data['image'] = $request->file('image')->store("tenants/{$produit->tenant_id}/produits", 'public');
         }
         if (!$data['a_cartouche']) {
             $data['cartouche_par_carton'] = null;

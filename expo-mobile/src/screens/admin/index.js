@@ -90,7 +90,7 @@ const AdminHomeScreen = () => {
                     </TouchableOpacity>
                     <View>
                         <Text style={styles.headerTitle}>Gestion des Sociétés</Text>
-                        <Text style={styles.headerSubtitle}>Pilotix</Text>
+                        <Text style={styles.headerSubtitle}>PILOTIX</Text>
                     </View>
                 </View>
                 <View style={styles.center}><ActivityIndicator size="large" color={Colors.primary} /></View>
@@ -107,7 +107,7 @@ const AdminHomeScreen = () => {
                 </TouchableOpacity>
                 <View>
                     <Text style={styles.headerTitle}>Gestion des Sociétés</Text>
-                    <Text style={styles.headerSubtitle}>Pilotix</Text>
+                    <Text style={styles.headerSubtitle}>PILOTIX</Text>
                 </View>
             </View>
 

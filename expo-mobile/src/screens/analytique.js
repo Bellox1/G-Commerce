@@ -17,8 +17,10 @@ const { width } = Dimensions.get('window');
 const chartWidth = width - 64;
 
 const formatMoney = (val) => {
-    if (!val && val !== 0) return '0 F';
-    return Number(val).toLocaleString('fr-FR') + ' F';
+    if (val === null || val === undefined || val === '') return '0 F';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' F';
 };
 
 const fmtY = (v) => {
@@ -69,14 +71,17 @@ const AnalytiqueScreen = ({ navigation }) => {
     const currentYear = new Date().getFullYear();
     const years = [currentYear - 3, currentYear - 2, currentYear - 1, currentYear];
     const [annee, setAnnee] = useState(currentYear);
-    const [mois, setMois] = useState(String(new Date().getMonth() + 1).padStart(2, '0'));
+    // null = pas de filtre mois (vue annuelle), sinon '01'..'12'
+    const [mois, setMois] = useState(null);
     const [raw, setRaw] = useState(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchAnalytique = useCallback(async () => {
         try {
-            const resp = await client.get('/analytique', { params: { annee, mois } });
+            const params = { annee };
+            if (mois) params.mois = mois;
+            const resp = await client.get('/analytique', { params });
             const body = resp.data;
             const payload = body && body.data !== undefined ? body.data : body;
             setRaw(payload || {});
@@ -92,11 +97,18 @@ const AnalytiqueScreen = ({ navigation }) => {
 
     const onRefresh = () => { setRefreshing(true); fetchAnalytique(); };
 
+    // Nombre de mois écoulés dans l'année sélectionnée
+    // (si année en cours → mois courant, si année passée → 12)
+    const moisEcoules = annee === currentYear ? new Date().getMonth() + 1 : 12;
+
     const totalVentesAn = raw?.moisData ? raw.moisData.reduce((a, b) => a + b, 0) : 0;
     const totalDepensesAn = raw?.depensesData ? raw.depensesData.reduce((a, b) => a + b, 0) : 0;
-    const totalLoyerAn = raw?.loyersCumules ?? (raw?.loyerMensuel || 0) * 12;
+    // Loyer : on multiplie par les mois réellement écoulés, pas 12 fixes
+    const totalLoyerAn = raw?.loyersCumules ?? (raw?.loyerMensuel || 0) * (mois ? 1 : moisEcoules);
     const totalNetAn = totalVentesAn - totalDepensesAn - totalLoyerAn;
     const nbVentesAn = raw?.nbVentesData ? raw.nbVentesData.reduce((a, b) => a + b, 0) : 0;
+
+    const moisLabel = mois ? (MOIS.find(m => m.v === mois)?.l ?? mois) : null;
 
     const maxTop = raw?.topProduits?.length
         ? Math.max(...raw.topProduits.map(p => p.total_vendu || 0), 1)
@@ -137,20 +149,47 @@ const AnalytiqueScreen = ({ navigation }) => {
                 >
                     {/* Sélecteur Année / Mois */}
                     <View style={styles.filterCard}>
-                        <View style={styles.filterCol}>
-                            <Text style={styles.filterLabel}>Année</Text>
-                            <View style={styles.pickerWrap}>
-                                <Picker selectedValue={annee} onValueChange={setAnnee} mode="dropdown">
-                                    {years.map(y => <Picker.Item key={y} label={String(y)} value={y} />)}
-                                </Picker>
+                        {/* --- Ligne Année --- */}
+                        <View style={styles.filterSection}>
+                            <View style={styles.filterLabelRow}>
+                                <Ionicons name="calendar-outline" size={13} color="#64748B" />
+                                <Text style={styles.filterLabel}>Année</Text>
+                            </View>
+                            <View style={styles.yearChips}>
+                                {years.map(y => (
+                                    <TouchableOpacity
+                                        key={y}
+                                        style={[styles.yearChip, annee === y && styles.yearChipActive]}
+                                        onPress={() => setAnnee(y)}
+                                    >
+                                        <Text style={[styles.yearChipText, annee === y && styles.yearChipTextActive]}>{y}</Text>
+                                    </TouchableOpacity>
+                                ))}
                             </View>
                         </View>
-                        <View style={styles.filterCol}>
-                            <Text style={styles.filterLabel}>Mois</Text>
-                            <View style={styles.pickerWrap}>
-                                <Picker selectedValue={mois} onValueChange={setMois} mode="dropdown">
-                                    {MOIS.map(m => <Picker.Item key={m.v} label={m.l} value={m.v} />)}
-                                </Picker>
+
+                        {/* --- Ligne Mois (optionnel) --- */}
+                        <View style={[styles.filterSection, { borderTopWidth: 1, borderTopColor: '#EEF2F6', paddingTop: 12, marginTop: 4 }]}>
+                            <View style={styles.filterLabelRow}>
+                                <Ionicons name="filter-outline" size={13} color="#64748B" />
+                                <Text style={styles.filterLabel}>Mois <Text style={styles.filterOptional}>(optionnel)</Text></Text>
+                                {mois && (
+                                    <TouchableOpacity onPress={() => setMois(null)} style={styles.clearBtn}>
+                                        <Ionicons name="close-circle" size={15} color="#94A3B8" />
+                                        <Text style={styles.clearBtnText}>Tout l'an</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                            <View style={styles.moisChips}>
+                                {MOIS.map(m => (
+                                    <TouchableOpacity
+                                        key={m.v}
+                                        style={[styles.moisChip, mois === m.v && styles.moisChipActive]}
+                                        onPress={() => setMois(prev => prev === m.v ? null : m.v)}
+                                    >
+                                        <Text style={[styles.moisChipText, mois === m.v && styles.moisChipTextActive]}>{m.l.slice(0, 3)}</Text>
+                                    </TouchableOpacity>
+                                ))}
                             </View>
                         </View>
                     </View>
@@ -312,28 +351,42 @@ const AnalytiqueScreen = ({ navigation }) => {
                         )}
                     </ChartCard>
 
-                    {/* 10. Résumé annuel */}
-                    <ChartCard icon="calculator" title={`Résumé ${raw?.annee || annee}`} sub="Chiffres clés annuels">
+                    {/* 10. Résumé */}
+                    <ChartCard
+                        icon="calculator"
+                        title={moisLabel ? `Résumé — ${moisLabel} ${annee}` : `Résumé ${annee}`}
+                        sub={moisLabel
+                            ? `Chiffres clés pour ${moisLabel} ${annee}`
+                            : `Chiffres clés — ${moisEcoules} mois écoulés sur ${annee}`
+                        }
+                    >
                         <View style={styles.summaryGrid}>
                             <View style={[styles.summaryCell, { backgroundColor: '#f8f9fa' }]}>
                                 <Text style={styles.summaryVal}>{formatMoney(totalVentesAn)}</Text>
-                                <Text style={styles.summaryLbl}>Total ventes</Text>
+                                <Text style={styles.summaryLbl}>{moisLabel ? 'Ventes du mois' : 'Total ventes'}</Text>
                             </View>
                             <View style={[styles.summaryCell, { backgroundColor: '#fef2f2' }]}>
                                 <Text style={[styles.summaryVal, { color: Colors.error }]}>{formatMoney(totalDepensesAn)}</Text>
-                                <Text style={styles.summaryLbl}>Total dépenses</Text>
+                                <Text style={styles.summaryLbl}>{moisLabel ? 'Dépenses du mois' : 'Total dépenses'}</Text>
                             </View>
                             <View style={[styles.summaryCell, { backgroundColor: '#fef2f2' }]}>
                                 <Text style={[styles.summaryVal, { color: Colors.error }]}>{formatMoney(totalLoyerAn)}</Text>
-                                <Text style={styles.summaryLbl}>Loyers annuels</Text>
+                                <Text style={styles.summaryLbl}>
+                                    {moisLabel
+                                        ? 'Loyer du mois'
+                                        : `Loyers (${moisEcoules} mois)`
+                                    }
+                                </Text>
                             </View>
                             <View style={[styles.summaryCell, { backgroundColor: '#f8f9fa' }]}>
                                 <Text style={styles.summaryVal}>{nbVentesAn}</Text>
-                                <Text style={styles.summaryLbl}>Nombre de ventes</Text>
+                                <Text style={styles.summaryLbl}>Nb de ventes</Text>
                             </View>
                             <View style={[styles.summaryCellFull, { borderColor: '#1f2937' }]}>
                                 <Text style={styles.summaryNet}>{formatMoney(totalNetAn)}</Text>
-                                <Text style={styles.summaryLbl}>Revenu net annuel</Text>
+                                <Text style={styles.summaryLbl}>
+                                    {moisLabel ? 'Revenu net du mois' : `Revenu net (${moisEcoules} mois)`}
+                                </Text>
                             </View>
                         </View>
                     </ChartCard>
@@ -358,15 +411,34 @@ const styles = StyleSheet.create({
     loaderText: { fontSize: 14, fontFamily: 'PlusJakartaSans_400Regular', color: Colors.textLight },
     scrollContent: { padding: 16, paddingBottom: 32 },
     filterCard: {
-        flexDirection: 'row', gap: 12, backgroundColor: Colors.surface,
-        borderRadius: 16, padding: 12, marginBottom: 16, elevation: 1,
+        backgroundColor: Colors.surface,
+        borderRadius: 16, padding: 14, marginBottom: 16, elevation: 1,
+        borderWidth: 1, borderColor: '#EEF2F6',
     },
-    filterCol: { flex: 1 },
-    filterLabel: { fontSize: 12, fontFamily: 'Poppins_600SemiBold', color: Colors.textLight, marginBottom: 2 },
-    pickerWrap: {
-        backgroundColor: Colors.background, borderRadius: 10,
-        borderWidth: 1, borderColor: Colors.border, overflow: 'hidden',
+    filterSection: { marginBottom: 2 },
+    filterLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 8 },
+    filterLabel: { fontSize: 12, fontFamily: 'Poppins_600SemiBold', color: Colors.textLight, flex: 1 },
+    filterOptional: { fontWeight: '400', color: '#94A3B8', fontSize: 11 },
+    clearBtn: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+    clearBtnText: { fontSize: 11, color: '#94A3B8', fontFamily: 'Poppins_500Medium' },
+    yearChips: { flexDirection: 'row', gap: 8 },
+    yearChip: {
+        flex: 1, paddingVertical: 8, borderRadius: 10,
+        backgroundColor: '#F1F5F9', alignItems: 'center',
+        borderWidth: 1, borderColor: 'transparent',
     },
+    yearChipActive: { backgroundColor: '#0F172A', borderColor: '#0F172A' },
+    yearChipText: { fontSize: 13, fontFamily: 'Poppins_600SemiBold', color: '#64748B' },
+    yearChipTextActive: { color: '#fff' },
+    moisChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    moisChip: {
+        paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8,
+        backgroundColor: '#F1F5F9',
+        borderWidth: 1, borderColor: 'transparent',
+    },
+    moisChipActive: { backgroundColor: '#0F172A', borderColor: '#0F172A' },
+    moisChipText: { fontSize: 12, fontFamily: 'Poppins_500Medium', color: '#64748B' },
+    moisChipTextActive: { color: '#fff' },
     chartCard: {
         backgroundColor: Colors.surface, borderRadius: 16, padding: 16,
         marginBottom: 16, elevation: 1,

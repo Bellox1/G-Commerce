@@ -71,8 +71,8 @@ const DateRangeModal = ({ visible, initialDebut = null, initialFin = null, onApp
                                 value={field === 'debut' ? toDate(debut) : toDate(fin)}
                                 mode="date"
                                 display="spinner"
-                                maximumDate={field === 'fin' && debut ? toDate(debut) : undefined}
-                                minimumDate={field === 'debut' && fin ? toDate(fin) : undefined}
+                                minimumDate={field === 'fin' ? toDate(debut) : undefined}
+                                maximumDate={field === 'debut' ? toDate(fin) : undefined}
                                 onChange={(e, d) => {
                                     if (d) {
                                         const s = toStr(d);

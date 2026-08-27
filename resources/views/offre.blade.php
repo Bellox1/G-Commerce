@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Mon offre')
-@section('subtitle', 'Détails de votre abonnement Pilotix')
+@section('subtitle', 'Détails de votre abonnement PILOTIX')
 
 @section('content')
 <div class="container-offre">
@@ -27,7 +27,7 @@
 
     <div class="offre-grid">
         {{-- Carte offre --}}
-        <div class="offre-card">
+        <div class="offre-card offre-card-dark">
             <div class="offre-card-head">
                 <span class="offre-badge">{{ $data['offre_nom'] }}</span>
                 <span class="offre-status {{ $data['actif'] ? 'on' : 'off' }}">
@@ -99,6 +99,55 @@
             </a>
         </div>
     </div>
+
+    {{-- Bloc incitation montée en offre (visible uniquement pour les offres non-supérieures) --}}
+    @if(!$data['est_admin'] && $data['offre_code'] === 'essentiel')
+    <div class="offre-upgrade-block">
+        <div class="offre-upgrade-inner">
+            <div class="offre-upgrade-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
+            <div class="offre-upgrade-body">
+                <div class="offre-upgrade-tag">✨ Passez à l'offre supérieure</div>
+                <h3 class="offre-upgrade-title">
+                    Votre commerce grandit ? PILOTIX grandit avec vous.
+                </h3>
+                <p class="offre-upgrade-desc">
+                    Vous êtes actuellement sur l'offre <strong>{{ $data['offre_nom'] }}</strong>.
+                    Si votre activité implique des <strong>importations</strong>, la gestion de 
+                    <strong>plusieurs magasins ou dépôts</strong>, ou une <strong>équipe de plusieurs 
+                    collaborateurs</strong> — l'offre supérieure est faite pour vous.
+                </p>
+
+                <div class="offre-upgrade-reasons">
+                    <div class="offre-upgrade-reason">
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span><strong>Importation & arrivages</strong> — Suivez vos commandes fournisseurs, coûts de revient et marges à l'importation.</span>
+                    </div>
+                    <div class="offre-upgrade-reason">
+                        <i class="bi bi-buildings-fill"></i>
+                        <span><strong>Multi-magasins & dépôts</strong> — Gérez plusieurs points de vente ou entrepôts depuis un seul tableau de bord.</span>
+                    </div>
+                    <div class="offre-upgrade-reason">
+                        <i class="bi bi-people-fill"></i>
+                        <span><strong>Équipe & multi-postes</strong> — Ajoutez vendeurs, magasiniers, livreurs et superviseurs avec des accès distincts.</span>
+                    </div>
+                    <div class="offre-upgrade-reason">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span><strong>Statistiques avancées</strong> — Analysez vos performances par magasin, par produit, par période.</span>
+                    </div>
+                </div>
+
+                <div class="offre-upgrade-note">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Pas d'importation, pas de multi-magasins, une seule personne qui gère ? <strong>Votre offre actuelle est amplement suffisante</strong>, pas besoin de changer. Renouvelez simplement à l'échéance.</span>
+                </div>
+
+                <a href="https://wa.me/{{ $data['contact']['whatsapp'] }}" target="_blank" class="offre-upgrade-cta">
+                    <i class="bi bi-whatsapp"></i> Discuter de la montée en offre
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 <style>
@@ -113,6 +162,34 @@
     .offre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     @media (max-width: 760px) { .offre-grid { grid-template-columns: 1fr; } }
     .offre-card { background: #fff; border: 1px solid var(--border); border-radius: 18px; padding: 24px; }
+    /* Carte offre en cours — dark premium */
+    .offre-card-dark {
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%) !important;
+        border-color: transparent !important;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+    .offre-card-dark::before {
+        content: '';
+        position: absolute;
+        top: -50px; right: -50px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+        pointer-events: none;
+    }
+    .offre-card-dark .offre-badge { background: rgba(255,255,255,0.15); color: #fff; }
+    .offre-card-dark .offre-status.on { background: rgba(74,222,128,0.2); color: #4ADE80; }
+    .offre-card-dark .offre-status.off { background: rgba(239,68,68,0.2); color: #F87171; }
+    .offre-card-dark .offre-price-val { color: #fff; }
+    .offre-card-dark .offre-price-sub { color: rgba(255,255,255,0.6); }
+    .offre-card-dark .offre-meta { color: rgba(255,255,255,0.65); }
+    .offre-card-dark .offre-meta i { color: #93C5FD; }
+    .offre-card-dark .offre-meta strong { color: #fff; }
+    .offre-card-dark .offre-section-title { color: #fff; border-bottom-color: rgba(255,255,255,0.3); }
+    .offre-card-dark .offre-features li { color: rgba(255,255,255,0.8); }
+    .offre-card-dark .offre-features i { color: #60A5FA; }
     .offre-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .offre-badge { background: #F1F5F9; color: #1E293B; font-weight: 800; padding: 6px 14px; border-radius: 50px; font-size: 0.9rem; }
     .offre-status { font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; }
@@ -136,5 +213,83 @@
     .contact-btn.whatsapp { color: #1E293B; border-color: #CBD5E1; }
     .contact-btn.mail { color: #1E293B; border-color: #CBD5E1; }
     .offre-faq-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; color: #1E293B; font-weight: 700; text-decoration: none; font-size: 0.9rem; }
+
+    /* Bloc montée en offre */
+    .offre-upgrade-block {
+        margin-top: 24px;
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%);
+        border-radius: 20px;
+        padding: 28px 28px;
+        color: #fff;
+        overflow: hidden;
+        position: relative;
+    }
+    .offre-upgrade-block::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+    .offre-upgrade-inner { display: flex; gap: 24px; align-items: flex-start; position: relative; }
+    .offre-upgrade-icon {
+        font-size: 2.5rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: 16px;
+        width: 60px; height: 60px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+    .offre-upgrade-body { flex: 1; }
+    .offre-upgrade-tag {
+        display: inline-block;
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 50px;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+    }
+    .offre-upgrade-title { font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 10px; line-height: 1.3; }
+    .offre-upgrade-desc { font-size: 0.92rem; color: rgba(255,255,255,0.75); line-height: 1.6; margin-bottom: 18px; }
+    .offre-upgrade-desc strong { color: #fff; }
+    .offre-upgrade-reasons { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .offre-upgrade-reason { display: flex; gap: 12px; align-items: flex-start; }
+    .offre-upgrade-reason i { font-size: 1.1rem; color: #60A5FA; margin-top: 2px; flex-shrink: 0; }
+    .offre-upgrade-reason span { font-size: 0.9rem; color: rgba(255,255,255,0.8); line-height: 1.5; }
+    .offre-upgrade-reason span strong { color: #fff; }
+    .offre-upgrade-note {
+        display: flex; gap: 10px; align-items: flex-start;
+        background: rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        font-size: 0.87rem;
+        color: rgba(255,255,255,0.7);
+        line-height: 1.5;
+    }
+    .offre-upgrade-note i { color: #93C5FD; font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
+    .offre-upgrade-note strong { color: #fff; }
+    .offre-upgrade-cta {
+        display: inline-flex; align-items: center; gap: 10px;
+        background: #25D366;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.92rem;
+        padding: 12px 22px;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+    .offre-upgrade-cta:hover { opacity: 0.9; color: #fff; }
+    .offre-upgrade-cta i { font-size: 1.2rem; }
+    @media (max-width: 640px) {
+        .offre-upgrade-inner { flex-direction: column; gap: 16px; }
+        .offre-upgrade-icon { width: 48px; height: 48px; font-size: 1.8rem; }
+        .offre-upgrade-title { font-size: 1.1rem; }
+    }
 </style>
 @endsection

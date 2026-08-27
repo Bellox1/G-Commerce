@@ -74,6 +74,29 @@ class DetteController extends Controller
             $request->input('note')
         );
 
+        if ($request->filled('echeance_option')) {
+            $option = $request->input('echeance_option');
+            $custom = $request->input('date_echeance_custom');
+            $map = [
+                'today'          => \Carbon\Carbon::today(),
+                'tomorrow'       => \Carbon\Carbon::tomorrow(),
+                'after_tomorrow' => \Carbon\Carbon::today()->addDays(2),
+                '6_days'         => \Carbon\Carbon::today()->addDays(6),
+                '2_weeks'        => \Carbon\Carbon::today()->addWeeks(2),
+                '1_month'        => \Carbon\Carbon::today()->addMonth(),
+            ];
+            $newEcheance = null;
+            if ($option === 'custom' && $custom) {
+                $newEcheance = \Carbon\Carbon::parse($custom);
+            } elseif (isset($map[$option])) {
+                $newEcheance = $map[$option];
+            }
+            if ($newEcheance) {
+                $dette->date_echeance = $newEcheance;
+                $dette->save();
+            }
+        }
+
         return $this->smartResponse(route('dettes.show', $dette), 'Versement de ' . number_format($request->montant, 0, ',', ' ') . ' FCFA enregistré avec succès.');
     }
 
@@ -126,7 +149,14 @@ class DetteController extends Controller
 
     private function authorizeTenant(Dette $dette)
     {
-        if ($dette->tenant_id !== Auth::user()->tenant_id) {
+        $user = Auth::user();
+        if (!$user || $user->isSuperAdmin() || $user->hasRole('prestataire')) return;
+
+        $tenantId = $user->tenant_id 
+            ?? $user->tenant?->id 
+            ?? optional($user->magasin)->tenant_id;
+
+        if ($tenantId && (int)$dette->tenant_id !== (int)$tenantId) {
             abort(403, 'Action non autorisée.');
         }
     }

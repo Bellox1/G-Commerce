@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
-    TextInput, ActivityIndicator, Alert, Modal, StatusBar, Platform
+    TextInput, ActivityIndicator, Alert, Modal, StatusBar, Platform,
+    KeyboardAvoidingView
 } from 'react-native';
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -758,6 +759,7 @@ const VenteEditScreen = ({ navigation }) => {
 
             {/* Modal création client */}
             <Modal visible={showClientModal} transparent animationType="slide" onRequestClose={() => setShowClientModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
@@ -797,6 +799,8 @@ const VenteEditScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

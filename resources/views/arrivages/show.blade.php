@@ -124,16 +124,23 @@
                                     {{ number_format($ligne->cout_unitaire_reel, 0, ',', ' ') }} FCFA
                                 </td>
                                 <td style="text-align: right;">
-                                    @php $ancienPrixLigne = $ligne->produit?->prix_vente_conseille ?? 0; @endphp
+                                    @php 
+                                        $ancienPrixLigne = (int)round($ligne->produit?->prix_vente_conseille ?? 0);
+                                        $prixCalcul = (int)round(App\Models\Produit::arrondir($ligne->cout_unitaire_reel));
+                                        $rawSuggere = (int)round($ligne->prix_vente_suggere ?? 0);
+                                        $prixSuggereRestaure = ($rawSuggere > 0 && $rawSuggere !== $ancienPrixLigne) ? $rawSuggere : ($prixCalcul > 0 ? $prixCalcul : $ancienPrixLigne);
+                                        $isConservingInit = ($rawSuggere === $ancienPrixLigne && $ancienPrixLigne > 0);
+                                        $valeurInput = $isConservingInit ? $ancienPrixLigne : $prixSuggereRestaure;
+                                    @endphp
                                     <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:2px;">Ancien : {{ number_format($ancienPrixLigne, 0, ',', ' ') }} FCFA</div>
                                     <form method="POST" action="{{ route('arrivages.produit.prix-suggere', $ligne) }}" data-api="true" style="display: flex; gap: 4px; align-items: center; justify-content: flex-end;">
                                         @csrf
                                         @method('PUT')
-                                        <input type="number" name="prix_vente_suggere" value="{{ $ligne->prix_vente_suggere }}" data-suggere="{{ $ligne->prix_vente_suggere }}" min="0" class="prix-vente-suggere" style="width: 100px; text-align: right; font-weight: 700; color: var(--primary); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: .85rem;">
+                                        <input type="number" name="prix_vente_suggere" value="{{ $valeurInput }}" data-suggere="{{ $prixSuggereRestaure }}" data-ancien="{{ $ancienPrixLigne }}" min="0" step="1" class="prix-vente-suggere" style="width: 100px; text-align: right; font-weight: 700; color: var(--primary); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: .85rem;" {{ $isConservingInit ? 'readonly' : '' }}>
                                         <button type="submit" style="background: none; border: none; color: var(--primary); cursor: pointer; padding: 2px;" title="Enregistrer"><i class="bi bi-check-circle-fill"></i></button>
                                     </form>
                                     <label style="display: flex; align-items: center; gap: 4px; font-size: .68rem; cursor: pointer; margin-top: 4px; justify-content: flex-end;">
-                                        <input type="checkbox" class="conserver-prix" data-ancien="{{ $ancienPrixLigne }}"> Conserver actuel
+                                        <input type="checkbox" class="conserver-prix" data-ancien="{{ $ancienPrixLigne }}" data-suggere="{{ $prixSuggereRestaure }}" {{ $isConservingInit ? 'checked' : '' }}> Conserver actuel
                                     </label>
                                 </td>
                             </tr>
@@ -244,13 +251,15 @@
             const input = this.closest('td').querySelector('.prix-vente-suggere');
             if (!input) return;
             if (this.checked) {
-                input.value = this.dataset.ancien;
+                const valAncien = Math.round(Number(this.dataset.ancien || 0));
+                input.value = valAncien;
                 input.readOnly = true;
                 input.style.background = '#F1F5F9';
             } else {
-                input.value = this.dataset.suggere;
+                const valSuggere = Math.round(Number(this.dataset.suggere || 0));
+                input.value = valSuggere;
                 input.readOnly = false;
-                input.style.background = '';
+                input.style.background = '#FFFFFF';
             }
         });
     });

@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ route('profile.update') }}">
+            <form method="POST" action="{{ route('profile.update') }}" id="profileInfoForm">
                 @csrf
                 @method('PUT')
 
@@ -32,7 +32,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
+                    <input type="email" name="email" id="profileEmailInput" class="form-control" value="{{ old('email', $user->email) }}" required data-original="{{ $user->email }}">
                     @error('email') <small style="color:var(--danger);">{{ $message }}</small> @enderror
                 </div>
 
@@ -42,8 +42,73 @@
                     @error('telephone') <small style="color:var(--danger);">{{ $message }}</small> @enderror
                 </div>
 
+                <input type="hidden" name="current_password_email" id="hiddenPasswordInput">
+
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check"></i> Enregistrer</button>
             </form>
+
+            <!-- Modal Confirmation Sécurité Changement Email -->
+            <div id="emailSecurityModal" class="modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center;">
+                <div style="background:#FFF; width:90%; max-width:440px; border-radius:16px; padding:24px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                        <h4 style="margin:0; font-size:1.1rem; font-weight:700; color:var(--text-dark);">
+                            <i class="bi bi-shield-lock-fill" style="color:var(--primary);"></i> Confirmation de sécurité
+                        </h4>
+                        <button type="button" onclick="closeSecurityModal()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#94a3b8;">&times;</button>
+                    </div>
+                    <p style="font-size:0.875rem; color:#475569; margin-bottom:16px;">
+                        Vous souhaitez modifier votre adresse e-mail vers <strong id="newEmailDisplay" style="color:var(--primary);"></strong>. Veuillez saisir votre mot de passe actuel pour valider.
+                    </p>
+                    <div class="form-group" style="margin-bottom:16px;">
+                        <label class="form-label" style="font-size:0.8rem; font-weight:600;">Mot de passe actuel <span style="color:var(--danger);">*</span></label>
+                        <div style="position:relative;">
+                            <input type="password" id="modalPasswordInput" class="form-control" placeholder="Entrez votre mot de passe actuel" style="padding-right:40px;">
+                            <button type="button" onclick="togglePassVisibility('modalPasswordInput', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                                <i class="bi bi-eye-slash"></i>
+                            </button>
+                        </div>
+                        <small style="color:#94a3b8; font-size:0.75rem; display:block; margin-top:4px;">🔒 Limité à 3 tentatives maximum.</small>
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:flex-end;">
+                        <button type="button" onclick="closeSecurityModal()" class="btn btn-secondary" style="border-radius:8px;">Annuler</button>
+                        <button type="button" onclick="submitEmailChangeWithPassword()" class="btn btn-primary" style="border-radius:8px;"><i class="bi bi-check-lg"></i> Confirmer</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var form = document.getElementById('profileInfoForm');
+                var emailInput = document.getElementById('profileEmailInput');
+                var originalEmail = (emailInput ? emailInput.dataset.original : '').trim().toLowerCase();
+
+                form.addEventListener('submit', function(e) {
+                    var currentEmail = (emailInput.value || '').trim().toLowerCase();
+                    if (currentEmail !== originalEmail && !document.getElementById('hiddenPasswordInput').value) {
+                        e.preventDefault();
+                        document.getElementById('newEmailDisplay').textContent = emailInput.value;
+                        document.getElementById('emailSecurityModal').style.display = 'flex';
+                        document.getElementById('modalPasswordInput').focus();
+                    }
+                });
+            });
+
+            function closeSecurityModal() {
+                document.getElementById('emailSecurityModal').style.display = 'none';
+                document.getElementById('modalPasswordInput').value = '';
+            }
+
+            function submitEmailChangeWithPassword() {
+                var pwd = document.getElementById('modalPasswordInput').value;
+                if (!pwd) {
+                    alert('Veuillez entrer votre mot de passe actuel.');
+                    return;
+                }
+                document.getElementById('hiddenPasswordInput').value = pwd;
+                document.getElementById('emailSecurityModal').style.display = 'none';
+                document.getElementById('profileInfoForm').submit();
+            }
+            </script>
         </div>
     </div>
 
@@ -59,19 +124,34 @@
 
                 <div class="form-group">
                     <label class="form-label">Mot de passe actuel</label>
-                    <input type="password" name="current_password" class="form-control" required>
+                    <div style="position:relative;">
+                        <input type="password" name="current_password" id="profCurrPass" class="form-control" style="padding-right:40px;" required>
+                        <button type="button" onclick="togglePassVisibility('profCurrPass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                     @error('current_password') <small style="color:var(--danger);">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Nouveau mot de passe</label>
-                    <input type="password" name="password" class="form-control" required>
+                    <div style="position:relative;">
+                        <input type="password" name="password" id="profNewPass" class="form-control" style="padding-right:40px;" required>
+                        <button type="button" onclick="togglePassVisibility('profNewPass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                     @error('password') <small style="color:var(--danger);">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Confirmer le mot de passe</label>
-                    <input type="password" name="password_confirmation" class="form-control" required>
+                    <div style="position:relative;">
+                        <input type="password" name="password_confirmation" id="profConfPass" class="form-control" style="padding-right:40px;" required>
+                        <button type="button" onclick="togglePassVisibility('profConfPass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check"></i> Modifier</button>
@@ -99,7 +179,12 @@
 
             <div class="form-group" style="margin-bottom: 12px;">
                 <label class="form-label" style="font-size: .78rem; color: #742a2a;">Entrez votre mot de passe pour confirmer</label>
-                <input type="password" name="delete_password" class="form-control form-control-sm" required placeholder="Mot de passe actuel">
+                <div style="position:relative;">
+                    <input type="password" name="delete_password" id="profDelPass" class="form-control form-control-sm" style="padding-right:40px;" required placeholder="Mot de passe actuel">
+                    <button type="button" onclick="togglePassVisibility('profDelPass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                        <i class="bi bi-eye-slash"></i>
+                    </button>
+                </div>
                 @error('delete_password') <small style="color:var(--danger);">{{ $message }}</small> @enderror
             </div>
 
@@ -109,4 +194,18 @@
         </form>
     </div>
 </div>
+
+<script>
+function togglePassVisibility(inputId, btn) {
+    var input = document.getElementById(inputId);
+    var icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye-slash';
+    }
+}
+</script>
 @endsection

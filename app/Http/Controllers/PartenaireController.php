@@ -13,19 +13,38 @@ class PartenaireController extends Controller
         $rules = DB::table('commission_rules')->get()->keyBy('code');
 
         $planCodes = ['essentiel', 'professionnel', 'entreprise'];
+        $paliers   = \App\Models\Setting::get('prime_paliers', [5, 10, 15]);
 
         $calcData = $rules->filter(function ($rule) use ($planCodes) {
             return in_array($rule->code, $planCodes);
-        })->map(function ($rule) {
+        })->map(function ($rule) use ($paliers) {
+            $primes = is_array($rule->primes) ? $rule->primes : json_decode($rule->primes ?? '[]', true);
+
             return [
                 'direct' => (float) $rule->commission,
-                'b5'     => (float) $rule->prime_5,
-                'b10'    => (float) $rule->prime_10,
-                'b15'    => (float) $rule->prime_15,
+                'primes' => collect($paliers)->mapWithKeys(function ($seuil) use ($primes) {
+                    return [$seuil => (float) ($primes[$seuil] ?? 0)];
+                })->all(),
             ];
         })->toArray();
 
-        return view('partenaires', compact('rules', 'calcData'));
+        $maxCommission = $rules->max('commission');
+
+        $primesByCode = $rules->mapWithKeys(function ($rule) {
+            $primes = is_array($rule->primes) ? $rule->primes : json_decode($rule->primes ?? '[]', true);
+
+            return [$rule->code => $primes ?: []];
+        })->all();
+
+        $maxPrime = $rules->reduce(function ($carry, $rule) use ($paliers) {
+            $primes = is_array($rule->primes) ? $rule->primes : json_decode($rule->primes ?? '[]', true);
+            foreach ($paliers as $seuil) {
+                $carry = max($carry, (float) ($primes[$seuil] ?? 0));
+            }
+            return $carry;
+        }, 0);
+
+        return view('partenaires', compact('rules', 'calcData', 'maxCommission', 'maxPrime', 'paliers', 'primesByCode'));
     }
 
     public function submit(Request $request)
@@ -95,7 +114,7 @@ class PartenaireController extends Controller
                 \Mail::raw($this->buildMailBody($partner), function ($message) use ($email, $partner) {
                     $message->to($email)
                         ->subject("Nouvelle candidature partenaire — {$partner->nom} {$partner->prenom}")
-                        ->from('pilotixcontact@gmail.com', 'Pilotix');
+                        ->from('pilotixcontact@gmail.com', 'PILOTIX');
                 });
             } catch (\Exception $e) {
                 \Log::warning("Email candidature échoué pour {$email}: " . $e->getMessage());

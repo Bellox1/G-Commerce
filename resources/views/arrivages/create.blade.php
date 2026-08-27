@@ -135,6 +135,7 @@
                     <div class="form-group">
                         <label class="form-label">Devise d'origine</label>
                         <select name="devise_origine" id="devise-select" class="form-control">
+                            <option value="XOF">FCFA (XOF)</option>
                             <option value="NGN">Naira (₦)</option>
                             <option value="EUR">Euro (€)</option>
                             <option value="USD">Dollar ($)</option>
@@ -143,7 +144,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="taux-field">
                         <label class="form-label">Taux <span id="devise-taux-sym">₦</span> -> FCFA (ex: Taux marché)</label>
                         <input type="number" name="taux_change_naira_cfa" id="taux-input" class="form-control" value="0.65" step="0.0001" min="0.0001" required>
                         <div id="taux-resultat" style="font-size: .8rem; color: var(--primary); font-weight: 600; margin-top: 4px;">1 000 ₦ = 650 FCFA</div>
@@ -391,15 +392,27 @@
         const tauxInput = document.getElementById('taux-input');
         const tauxResultat = document.getElementById('taux-resultat');
         const deviseSelect = document.getElementById('devise-select');
-        const DEVISE_SYM = { NGN: '₦', EUR: '€', USD: '$', CNY: '¥', AUTRE: '' };
+        const DEVISE_SYM = { XOF: 'FCFA', NGN: '₦', EUR: '€', USD: '$', CNY: '¥', AUTRE: '' };
         function currentSym() { return DEVISE_SYM[deviseSelect.value] || '₦'; }
         function updateDevise() {
             const sym = currentSym();
+            const code = deviseSelect.value;
             const tauxSym = document.getElementById('devise-taux-sym');
             if (tauxSym) tauxSym.textContent = sym;
             document.querySelectorAll('.prix-origine-label').forEach(l => {
                 l.textContent = `${l.dataset.base} (${sym})`;
             });
+            const tauxField = document.getElementById('taux-field');
+            if (code === 'XOF') {
+                tauxInput.value = 1;
+                tauxInput.disabled = true;
+                tauxField.style.opacity = '0.5';
+                tauxField.title = 'FCFA = monnaie locale : aucun taux à définir';
+            } else {
+                tauxInput.disabled = false;
+                tauxField.style.opacity = '1';
+                tauxField.title = '';
+            }
             updateTaux();
             fetchLiveRate();
         }
@@ -409,6 +422,10 @@
             const note = document.getElementById('taux-note');
             if (code === 'AUTRE') {
                 if (note) note.textContent = 'Devise personnalisée — saisissez le taux manuellement.';
+                return;
+            }
+            if (code === 'XOF') {
+                if (note) note.textContent = 'FCFA = monnaie locale : aucun taux à définir.';
                 return;
             }
             if (note) note.textContent = 'Chargement du taux de marché…';

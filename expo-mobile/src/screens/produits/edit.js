@@ -50,8 +50,20 @@ const ProduitEditScreen = ({ navigation }) => {
             const pid = id || item?.id;
             if (pid) {
                 const det = await client.get(`/produits/${pid}`);
-                const spm = det.data?.stockParMagasin || {};
+                const pData = det.data?.data || det.data;
+                const pObj = pData?.produit || pData;
+                const spm = det.data?.stockParMagasin || pData?.stockParMagasin || {};
                 setStocks(Object.fromEntries(list.map(m => [m.id, String(spm[m.id] ?? 0)])));
+
+                if (pObj && pObj.nom) {
+                    setNom(pObj.nom);
+                    if (pObj.prix_vente_conseille !== undefined) setPrixVenteConseille(pObj.prix_vente_conseille ? String(pObj.prix_vente_conseille) : '');
+                    if (pObj.seuil_alerte !== undefined) setSeuilAlerte(pObj.seuil_alerte ? String(pObj.seuil_alerte) : '5');
+                    if (pObj.a_cartouche !== undefined) setHasCartouche(!!pObj.a_cartouche);
+                    if (pObj.cartouche_par_carton !== undefined) setCartoucheParCarton(pObj.cartouche_par_carton ? String(pObj.cartouche_par_carton) : '');
+                    if (pObj.prix_cartouche !== undefined) setPrixCartouche(pObj.prix_cartouche ? String(pObj.prix_cartouche) : '');
+                    if (pObj.description !== undefined) setDescription(pObj.description || '');
+                }
             }
         } catch (e) {
             console.error('Error fetching magasins:', e);
@@ -60,24 +72,98 @@ const ProduitEditScreen = ({ navigation }) => {
         }
     };
 
+    const chooseImageSource = () => {
+        Alert.alert(
+            'Importer une image',
+            'Choisir la source de l\'image',
+            [
+                { text: 'Galerie', onPress: pickImage },
+                { text: 'Appareil photo', onPress: takePhoto },
+                { text: 'Annuler', style: 'cancel' },
+            ]
+        );
+    };
+
+    const compressImage = async (uri) => {
+        try {
+            const manip = require('expo-image-manipulator');
+            const { manipulateAsync, SaveFormat } = manip;
+            const dims = await new Promise((res) =>
+                Image.getSize(uri, (w, h) => res({ w, h }), () => res({ w: 0, h: 0 }))
+            );
+            let resize = [];
+            if (dims.w && dims.h) {
+                const scale = Math.min(1, 1280 / Math.max(dims.w, dims.h));
+                if (scale < 1) {
+                    resize = [{ resize: { width: Math.round(dims.w * scale), height: Math.round(dims.h * scale) } }];
+                }
+            }
+            const res = await manipulateAsync(
+                uri,
+                resize,
+                { compress: 0.7, format: SaveFormat.JPEG }
+            );
+            return res;
+        } catch (e) {
+            console.warn('compressImage error:', e);
+            return null;
+        }
+    };
+
+    const setPickedFromAsset = async (a) => {
+        const mime = a.mimeType || a.type || '';
+        if (mime && !mime.startsWith('image/')) {
+            Alert.alert('Erreur', 'Format non supporté (JPEG, PNG, GIF, WebP).');
+            return;
+        }
+
+        const compressed = await compressImage(a.uri);
+        const finalUri = compressed ? compressed.uri : a.uri;
+
+        setPickedImage({ uri: finalUri, name: a.fileName || 'produit.jpg', type: mime || 'image/jpeg' });
+        setImageUrlInput('');
+    };
+
     const pickImage = async () => {
         try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission', 'Accès à la galerie photos requis.');
+            const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (perm.status !== 'granted') {
+                Alert.alert('Permission requise', 'Veuillez autoriser l\'accès à la galerie photos.');
                 return;
             }
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                quality: 0.6,
+                allowsEditing: false,
+                quality: 0.7,
             });
             if (!result.canceled && result.assets && result.assets.length > 0) {
-                const a = result.assets[0];
-                setPickedImage({ uri: a.uri, name: a.fileName || 'produit.jpg', type: a.type || 'image/jpeg' });
-                setImageUrlInput('');
+                await setPickedFromAsset(result.assets[0]);
             }
         } catch (e) {
             console.error('pickImage error:', e);
+            Alert.alert('Erreur', 'Impossible de charger l\'image.');
+        }
+    };
+
+    const takePhoto = async () => {
+        try {
+            const perm = await ImagePicker.requestCameraPermissionsAsync();
+            if (perm.status !== 'granted') {
+                Alert.alert('Permission requise', 'Veuillez autoriser l\'accès à l\'appareil photo.');
+                return;
+            }
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: false,
+                quality: 0.7,
+                exif: false,
+            });
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                await setPickedFromAsset(result.assets[0]);
+            }
+        } catch (e) {
+            console.error('takePhoto error:', e);
+            Alert.alert('Erreur', 'Impossible de prendre la photo.');
         }
     };
 
@@ -254,16 +340,11 @@ const ProduitEditScreen = ({ navigation }) => {
                             </View>
                         )}
                         <View style={{ flex: 1 }}>
-                            <TouchableOpacity style={styles.imageBtn} onPress={pickImage}>
+                            <TouchableOpacity style={styles.imageBtn} onPress={chooseImageSource}>
                                 <Ionicons name="camera-outline" size={18} color="#FFF" />
                                 <Text style={styles.imageBtnText}>Choisir une photo</Text>
                             </TouchableOpacity>
-                            <TextInput
-                                style={styles.input}
-                                value={imageUrlInput}
-                                onChangeText={setImageUrlInput}
-                                placeholder="Ou coller une URL d'image"
-                            />
+                            <Text style={styles.helper}>Formats : JPEG, PNG, GIF, WebP — max 10 Mo</Text>
                         </View>
                     </View>
                     {pickedImage && (

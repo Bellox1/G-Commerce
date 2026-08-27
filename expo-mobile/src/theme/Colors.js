@@ -1,5 +1,5 @@
 export default {
-    primary: '#105e49',         // Vert Émeraude Pilotix Officiel
+    primary: '#105e49',         // Vert Émeraude PILOTIX Officiel
     primaryDark: '#0B4334',     // Vert Émeraude Sombre
     primaryLight: '#E8F5F1',    // Vert très clair pour accents
     secondary: '#F59E0B',       // Ambre d'alerte discret

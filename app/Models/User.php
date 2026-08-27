@@ -118,7 +118,7 @@ class User extends Authenticatable
  
     public function peutGererTransferts(): bool
     {
-        return $this->aAccesAdmin() || $this->hasRole('magasinier');
+        return $this->aAccesAdmin() || $this->hasRole('magasinier') || $this->hasRole('vendeur') || $this->hasRole('livreur');
     }
 
     public function peutGererLivraisons(): bool

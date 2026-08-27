@@ -7,7 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import TopHeaderNav from '../../components/TopHeaderNav';
 import client from '../../api/client';
 import Colors from '../../theme/Colors';
-import { todayWAT, formatDateFr } from '../../utils/formatDate';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { todayWAT, formatDateFr, parseToLocalDateObj } from '../../utils/formatDate';
 
 const SENS_OPTIONS = [
     { key: 'entree',  label: 'Entrée',     color: Colors.success, icon: 'arrow-down-circle' },
@@ -17,8 +18,11 @@ const SENS_OPTIONS = [
 
 const MODES = ['Espèces', 'Mobile Money', 'Chèque'];
 
-const formatMoney = (val) =>
-    Number(val || 0).toLocaleString('fr-FR') + ' F';
+const formatMoney = (val) => {
+    let n = Math.round(Number(val || 0));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' F';
+};
 
 const TresorerieScreen = ({ navigation }) => {
     const [items, setItems] = useState([]);
@@ -33,10 +37,11 @@ const TresorerieScreen = ({ navigation }) => {
     const [form, setForm] = useState({
         sens: 'entree',
         montant: '',
-        libelle: '',
-        mode_paiement: '',
+        libelle: 'Capital apporté',
+        mode_paiement: 'Espèces',
         date: todayWAT(),
     });
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [saving, setSaving] = useState(false);
 
     const fetchData = useCallback(async () => {
@@ -64,7 +69,7 @@ const TresorerieScreen = ({ navigation }) => {
     const onRefresh = () => { setRefreshing(true); fetchData(); };
 
     const openModal = () => {
-        setForm({ sens: 'entree', montant: '', libelle: '', mode_paiement: '', date: todayWAT() });
+        setForm({ sens: 'entree', montant: '', libelle: 'Capital apporté', mode_paiement: 'Espèces', date: todayWAT() });
         setModalVisible(true);
     };
 
@@ -76,8 +81,12 @@ const TresorerieScreen = ({ navigation }) => {
         }
         setSaving(true);
         try {
+            const finalLibelle = form.libelle.trim() || ((form.sens === 'sortie' || form.sens === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté");
+            const finalMode = form.mode_paiement || 'Espèces';
             await client.post('/tresoreries', {
                 ...form,
+                libelle: finalLibelle,
+                mode_paiement: finalMode,
                 montant,
             });
             setModalVisible(false);
@@ -227,7 +236,15 @@ const TresorerieScreen = ({ navigation }) => {
                                     <TouchableOpacity
                                         key={s.key}
                                         style={[styles.sensChip, form.sens === s.key && { backgroundColor: s.color, borderColor: s.color }]}
-                                        onPress={() => setForm((f) => ({ ...f, sens: s.key }))}
+                                        onPress={() => setForm((f) => {
+                                            const newSens = s.key;
+                                            const currentLib = (f.libelle || '').trim();
+                                            let newLib = f.libelle;
+                                            if (!currentLib || currentLib === 'Capital apporté' || currentLib === "Chiffre d'affaire du jour") {
+                                                newLib = (newSens === 'sortie' || newSens === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté";
+                                            }
+                                            return { ...f, sens: newSens, libelle: newLib, mode_paiement: f.mode_paiement || 'Espèces' };
+                                        })}
                                     >
                                         <Ionicons name={s.icon} size={16} color={form.sens === s.key ? '#fff' : s.color} />
                                         <Text style={[styles.sensChipText, form.sens === s.key && { color: '#fff' }]}>{s.label}</Text>
@@ -251,6 +268,35 @@ const TresorerieScreen = ({ navigation }) => {
                                 value={form.libelle}
                                 onChangeText={(v) => setForm((f) => ({ ...f, libelle: v }))}
                             />
+
+                            <Text style={styles.fieldLabel}>Date du mouvement</Text>
+                            <TouchableOpacity
+                                style={[styles.input, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}
+                                onPress={() => setShowDatePicker(true)}
+                            >
+                                <Text style={{ fontSize: 14, fontFamily: 'PlusJakartaSans_500Medium', color: Colors.text }}>
+                                    {form.date ? formatDateFr(form.date) : 'Sélectionner la date'}
+                                </Text>
+                                <Ionicons name="calendar-outline" size={18} color={Colors.primary} />
+                            </TouchableOpacity>
+
+                            {showDatePicker && (
+                                <DateTimePicker
+                                    value={parseToLocalDateObj(form.date)}
+                                    mode="date"
+                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                    maximumDate={new Date()}
+                                    onChange={(event, selectedDate) => {
+                                        setShowDatePicker(false);
+                                        if (selectedDate) {
+                                            const y = selectedDate.getFullYear();
+                                            const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                                            const d = String(selectedDate.getDate()).padStart(2, '0');
+                                            setForm(f => ({ ...f, date: `${y}-${m}-${d}` }));
+                                        }
+                                    }}
+                                />
+                            )}
 
                             <Text style={styles.fieldLabel}>Mode de paiement</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.modeScroll}>

@@ -138,7 +138,7 @@ const RegisterScreen = ({ navigation }) => {
             {/* --- Zone image (haut) --- */}
             <View style={styles.imgZone}>
                 <Image
-                    source={require('../../../assets/app/horaire.webp')}
+                    source={require('../../../assets/hero.png')}
                     style={styles.img}
                     resizeMode="cover"
                 />
@@ -153,7 +153,7 @@ const RegisterScreen = ({ navigation }) => {
                         resizeMode="contain"
                     />
                     <View>
-                        <Text style={styles.appName}>Nonvi Voyage Plus</Text>
+                        <Text style={styles.appName}>Gestion de stock, ventes, clients et chiffre d'affaire Voyage Plus</Text>
                         <Text style={styles.appSub}>Créez votre compte gratuitement</Text>
                     </View>
                 </View>

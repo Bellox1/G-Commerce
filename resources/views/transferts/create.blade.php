@@ -86,6 +86,31 @@
 
         let rowIndex = 0;
 
+        if (sourceSelect) {
+            sourceSelect.addEventListener('change', function() {
+                const destSelect = document.querySelector('select[name="magasin_destination_id"]');
+                if (destSelect) {
+                    const srcVal = this.value;
+                    Array.from(destSelect.options).forEach(opt => {
+                        if (opt.value === srcVal) {
+                            opt.disabled = true;
+                            if (destSelect.value === srcVal) destSelect.value = '';
+                        } else {
+                            opt.disabled = false;
+                        }
+                    });
+                }
+                container.querySelectorAll('.ligne-row').forEach(row => {
+                    const hiddenInput = row.querySelector('.produit-id-input');
+                    const stockInfo = row.querySelector('.stock-info');
+                    if (hiddenInput && hiddenInput.value) {
+                        const st = stockDispo(parseInt(hiddenInput.value));
+                        if (stockInfo) stockInfo.textContent = 'Stock disponible : ' + st;
+                    }
+                });
+            });
+        }
+
         function getSourceId() {
             return parseInt(sourceSelect.value);
         }

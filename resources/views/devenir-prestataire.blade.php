@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devenir Partenaire — pilotix</title>
-    <meta name="description" content="Rejoignez le réseau de partenaires pilotix. Proposez la gestion commerciale à vos clients.">
+    <title>Devenir Partenaire — PILOTIX</title>
+    <meta name="description" content="Rejoignez le réseau de partenaires PILOTIX. Proposez la gestion commerciale à vos clients.">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -103,7 +103,7 @@
     <!-- Nav -->
     <nav>
         <a href="/" class="nav-logo">
-            <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo">
+            <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo">
         </a>
         <div class="nav-links-pub">
             <a href="/">Accueil</a>
@@ -120,7 +120,7 @@
     <section class="sub-hero">
         <div class="sub-hero-inner">
             <a href="{{ route('partenaires') }}" class="back-link"><i class="bi bi-arrow-left"></i> Retour au programme</a>
-            <h1>Devenir Partenaire Pilotix</h1>
+            <h1>Devenir Partenaire PILOTIX</h1>
             <p>Soumettez votre candidature. Notre équipe étudiera votre demande et créera votre espace partenaire dédié.</p>
         </div>
     </section>
@@ -136,7 +136,7 @@
 
         <div class="form-card">
             <h3>Informations personnelles</h3>
-            <p class="sub-text">Remplissez ce formulaire pour soumettre votre candidature au programme de partenariat commercial Pilotix.</p>
+            <p class="sub-text">Remplissez ce formulaire pour soumettre votre candidature au programme de partenariat commercial PILOTIX.</p>
 
             <form action="{{ route('prestataire.submit') }}" method="POST">
                 @csrf
@@ -172,6 +172,6 @@
         </div>
     </div>
 
-    <footer>&copy; {{ date('Y') }} Pilotix — Tous droits réservés.</footer>
+    <footer>&copy; {{ date('Y') }} PILOTIX — Tous droits réservés.</footer>
 </body>
 </html>

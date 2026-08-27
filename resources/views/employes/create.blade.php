@@ -105,15 +105,39 @@
             <div class="form-row form-row-2">
                 <div class="form-group">
                     <label class="form-label">Mot de passe <span style="color:var(--danger);">*</span></label>
-                    <input type="password" name="password" class="form-control" required>
+                    <div style="position:relative;">
+                        <input type="password" name="password" id="inputPass" class="form-control" style="padding-right:40px;" required>
+                        <button type="button" onclick="togglePassVisibility('inputPass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                     @error('password') <small style="color:var(--danger);">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Confirmer le mot de passe <span style="color:var(--danger);">*</span></label>
-                    <input type="password" name="password_confirmation" class="form-control" required>
+                    <div style="position:relative;">
+                        <input type="password" name="password_confirmation" id="inputPassConf" class="form-control" style="padding-right:40px;" required>
+                        <button type="button" onclick="togglePassVisibility('inputPassConf', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <script>
+            function togglePassVisibility(inputId, btn) {
+                var input = document.getElementById(inputId);
+                var icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'bi bi-eye';
+                } else {
+                    input.type = 'password';
+                    icon.className = 'bi bi-eye-slash';
+                }
+            }
+            </script>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
                 <a href="{{ route('employes.index') }}" class="btn btn-secondary">Annuler</a>

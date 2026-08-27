@@ -22,7 +22,7 @@ class StockController extends Controller
         $tenant = Auth::user()->tenant;
         $magasins = $tenant->magasins;
         $produits = Produit::where('tenant_id', $tenant->id)->where('actif', true)
-            ->select('id', 'nom', 'code', 'seuil_alerte')->get();
+            ->select('id', 'nom', 'seuil_alerte')->get();
 
         $selectedMagasinId = $request->get('magasin_id', $magasins->first()?->id);
         
@@ -55,7 +55,7 @@ class StockController extends Controller
         $query = StockMouvement::where('tenant_id', $tenant->id)
             ->with([
                 'magasin',
-                'produit' => fn($q) => $q->select('id', 'nom', 'code'),
+                'produit' => fn($q) => $q->select('id', 'nom'),
                 'user' => fn($q) => $q->select('id', 'name'),
             ])
             ->latest('date_mouvement');

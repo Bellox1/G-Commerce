@@ -84,6 +84,83 @@
 </div>
 @endif
 
+<!-- Gestion des abonnements -->
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <h3><i class="bi bi-stars"></i> Gestion des abonnements</h3>
+    </div>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        Changer l'offre d'une société, prolonger sa durée ou la mettre en pause (une offre en pause équivaut à « pas d'offre » : les fonctionnalités liées sont suspendues).
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:14px;">
+        @foreach($societes as $s)
+            @php $sStatut = $s->offreStatut(); @endphp
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+                    <div>
+                        <div style="font-weight:700; font-size:0.98rem;">{{ $s->nom }}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">
+                            Offre : {{ $s->offre_code ?? 'Aucune' }}
+                            @if($s->offre_code === 'locale')
+                                — À vie
+                            @elseif($s->offre_expires_at)
+                                — Expire le {{ $s->offre_expires_at->fr('d F Y') }}
+                            @endif
+                        </div>
+                    </div>
+                    <span class="badge {{ $sStatut['badge'] }}">{{ $sStatut['libelle'] }}</span>
+                </div>
+
+                {{-- Changer d'offre --}}
+                <form action="{{ route('prestataire.tenants.changeOffer', $s) }}" method="POST" style="margin-bottom:10px;">
+                    @csrf
+                    <div style="display:flex; gap:8px;">
+                        <select name="offre_code" class="form-control" required style="flex:1; padding:8px 10px; font-size:0.85rem;">
+                            @foreach($rules as $r)
+                                <option value="{{ $r->code }}" {{ $s->offre_code === $r->code ? 'selected' : '' }}>
+                                    {{ $r->nom }} ({{ number_format($r->prix, 0, ' ', ' ') }} F)
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap;">
+                            <i class="bi bi-arrow-repeat"></i> Changer
+                        </button>
+                    </div>
+                </form>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    @if($s->offre_code && $s->offre_code !== 'locale')
+                        <form action="{{ route('prestataire.tenants.extendOffer', $s) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-calendar-plus"></i> Prolonger
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($s->offre_en_pause)
+                        <form action="{{ route('prestataire.tenants.resumeOffer', $s) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="bi bi-play-circle"></i> Reprendre
+                            </button>
+                        </form>
+                    @else
+                        <form action="{{ route('prestataire.tenants.pauseOffer', $s) }}" method="POST"
+                              onsubmit="return confirm('Mettre l\'offre en pause ? Les fonctionnalités liées seront suspendues.');">
+                            @csrf
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pause-circle"></i> Mettre en pause
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
+
 <!-- Sociétés + Historique paiements -->
 <div class="page-grid page-grid-3">
     <!-- Liste des sociétés -->

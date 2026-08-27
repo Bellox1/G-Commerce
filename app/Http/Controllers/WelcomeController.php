@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Tenant;
 use App\Models\Produit;
+use App\Models\CommissionRule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -15,8 +16,9 @@ class WelcomeController extends Controller
     {
         $tenants = Tenant::all();
         $produits = Produit::where('actif', true)->with('tenant')->get()->groupBy('tenant_id');
+        $rules = CommissionRule::where('code', '!=', 'locale')->get()->keyBy('code');
 
-        return view('welcome', compact('tenants', 'produits'));
+        return view('welcome', compact('tenants', 'produits', 'rules'));
     }
 
     public function submitContact(Request $request)
@@ -45,18 +47,20 @@ class WelcomeController extends Controller
         $secteursActivite = e($data['secteurs_activite']);
         $emailContact = e($data['email']);
         
+        $typeRules = CommissionRule::get()->keyBy('code');
+        $fmt = fn($c) => number_format($typeRules->get($c)?->prix ?? 0, 0, ' ', ' ');
         $typeMap = [
-            'essentiel'    => 'Offre Essentiel (30 000 FCFA / an)',
-            'professionnel' => 'Offre Professionnel (75 000 FCFA / an)',
-            'entreprise'   => 'Offre Entreprise (250 000 FCFA — Sur-Mesure)',
-            'cloud'        => 'Cloud Sync (3 500 FCFA/mois)',
-            'local'        => 'Locale (79 900 FCFA)'
+            'essentiel'     => 'Offre Essentiel (' . $fmt('essentiel') . ' FCFA / an)',
+            'professionnel' => 'Offre Professionnel (' . $fmt('professionnel') . ' FCFA / an)',
+            'entreprise'    => 'Offre Entreprise (' . $fmt('entreprise') . ' FCFA — Sur-Mesure)',
+            'cloud'         => 'Cloud Sync (3 500 FCFA/mois)',
+            'local'         => 'Locale (79 900 FCFA)',
         ];
         $typeSouscription = $typeMap[$data['type_souscription']] ?? $data['type_souscription'];
         $is3x = $request->has('paiement_3x');
         $modePaiement = $is3x ? 'Oui (Paiement échelonné en 3 tranches)' : 'Comptant / Intégral';
 
-        $subject = "Nouvelle demande de création de société — Pilotix";
+        $subject = "Nouvelle demande de création de société — PILOTIX";
 
         try {
             Mail::send([], [], function ($message) use ($recipientEmails, $subject, $societe, $localisation, $ville, $telephone, $secteursActivite, $emailContact, $typeSouscription, $modePaiement) {
@@ -65,13 +69,13 @@ class WelcomeController extends Controller
                     ->html("
                         <div style=\"font-family: 'Inter', sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;\">
                             <div style=\"text-align: center; margin-bottom: 24px;\">
-                                <h2 style=\"color: #105e49; font-weight: 800; font-size: 24px; margin: 0 0 8px 0;\">Pilotix</h2>
+                                <h2 style=\"color: #105e49; font-weight: 800; font-size: 24px; margin: 0 0 8px 0;\">PILOTIX</h2>
                                 <p style=\"color: #6b7280; font-size: 14px; margin: 0;\">Gestion commerciale & stock</p>
                             </div>
                             <div style=\"border-bottom: 1px solid #f3f4f6; margin-bottom: 24px;\"></div>
                             <h3 style=\"color: #1f2937; font-weight: 700; font-size: 18px; margin: 0 0 12px 0;\">Nouvelle demande de création de société</h3>
                             <p style=\"color: #4b5563; font-size: 15px; line-height: 1.5; margin: 0 0 20px 0;\">
-                                Une demande a été soumise depuis la page d'accueil d'Pilotix.
+                                Une demande a été soumise depuis la page d'accueil d'PILOTIX.
                             </p>
                             <table style=\"width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;\">
                                 <tr>
@@ -109,7 +113,7 @@ class WelcomeController extends Controller
                             </table>
                             <div style=\"text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f3f4f6;\">
                                 <p style=\"color: #9ca3af; font-size: 12px; margin: 0;\">
-                                    Pilotix — Gestion commerciale &amp; stock<br>
+                                    PILOTIX — Gestion commerciale &amp; stock<br>
                                     Cet email est un accusé de réception automatique.
                                 </p>
                             </div>

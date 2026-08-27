@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réinitialiser le mot de passe — pilotix</title>
+    <title>Réinitialiser le mot de passe — PILOTIX</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
@@ -201,7 +201,7 @@
 <body>
 
     <a href="{{ url('/') }}" class="login-logo-link">
-        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix Logo" class="login-logo-img">
+        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" class="login-logo-img">
     </a>
 
     <div class="login-container">
@@ -229,7 +229,7 @@
                     @csrf
                     <div class="form-group">
                         <label class="form-label">Adresse e-mail</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email', $email) }}" placeholder="votreemail@Pilotix.com" required>
+                        <input type="email" name="email" class="form-control" value="{{ old('email', $email) }}" placeholder="votreemail@PILOTIX.com" required>
                     </div>
 
                     <div class="form-group">

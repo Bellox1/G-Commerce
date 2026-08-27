@@ -59,19 +59,49 @@
 @endpush
 
 @section('actions')
-<form method="GET" action="{{ route('analytique') }}" style="display:flex; align-items:center; gap:8px;">
-    <label style="font-size:.85rem; font-weight:600; color:var(--text); white-space:nowrap;">Année :</label>
-    <select name="annee" onchange="this.form.submit()" style="padding:5px 10px; border:1px solid var(--border); border-radius:6px; font-size:.85rem;">
-        @for($y = date('Y') - 3; $y <= date('Y'); $y++)
-            <option value="{{ $y }}" {{ $annee == $y ? 'selected' : '' }}>{{ $y }}</option>
-        @endfor
-    </select>
-    <label style="font-size:.85rem; font-weight:600; color:var(--text); white-space:nowrap;">Mois :</label>
-    <select name="mois" onchange="this.form.submit()" style="padding:5px 10px; border:1px solid var(--border); border-radius:6px; font-size:.85rem;">
-        @foreach(['01'=>'Janvier','02'=>'Février','03'=>'Mars','04'=>'Avril','05'=>'Mai','06'=>'Juin','07'=>'Juillet','08'=>'Août','09'=>'Septembre','10'=>'Octobre','11'=>'Novembre','12'=>'Décembre'] as $v => $l)
-            <option value="{{ $v }}" {{ $mois == $v ? 'selected' : '' }}>{{ $l }}</option>
-        @endforeach
-    </select>
+<form method="GET" action="{{ route('analytique') }}" id="form-analytique" style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
+
+    {{-- Chips année --}}
+    @php $yearList = range(date('Y') - 3, date('Y')); @endphp
+    @foreach($yearList as $y)
+        <button type="submit" name="annee" value="{{ $y }}"
+            @if($mois) onclick="document.getElementById('mois-hidden').value='{{ $mois }}'" @endif
+            style="padding:5px 14px; border-radius:50px; border:1px solid {{ $annee==$y ? '#0F172A' : '#CBD5E1' }};
+                   background:{{ $annee==$y ? '#0F172A' : '#fff' }}; color:{{ $annee==$y ? '#fff' : '#475569' }};
+                   font-size:.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
+            {{ $y }}
+        </button>
+    @endforeach
+
+    <span style="color:#CBD5E1; margin:0 4px;">|</span>
+
+    {{-- Chips mois (optionnel) --}}
+    @php
+        $moisList = ['01'=>'Jan','02'=>'Fév','03'=>'Mar','04'=>'Avr','05'=>'Mai','06'=>'Jui',
+                     '07'=>'Jul','08'=>'Aoû','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Déc'];
+    @endphp
+    @foreach($moisList as $mv => $ml)
+        <button type="submit" name="mois" value="{{ $mv }}"
+            onclick="document.getElementById('annee-hidden').value='{{ $annee }}'"
+            style="padding:5px 11px; border-radius:50px; border:1px solid {{ $mois==$mv ? '#0F172A' : '#E2E8F0' }};
+                   background:{{ $mois==$mv ? '#0F172A' : '#F8FAFC' }}; color:{{ $mois==$mv ? '#fff' : '#64748B' }};
+                   font-size:.78rem; font-weight:600; cursor:pointer;">
+            {{ $ml }}
+        </button>
+    @endforeach
+
+    {{-- Si un mois est actif : bouton pour réinitialiser au mode annuel --}}
+    @if($mois)
+        <a href="{{ route('analytique', ['annee' => $annee]) }}"
+           style="padding:5px 12px; border-radius:50px; border:1px solid #CBD5E1;
+                  background:#fff; color:#94A3B8; font-size:.78rem; font-weight:600; text-decoration:none;">
+            × Tout l'an
+        </a>
+    @endif
+
+    {{-- champs hidden pour conserver année et mois lors du clic sur l'autre --}}
+    <input type="hidden" id="annee-hidden" name="annee" value="{{ $annee }}">
+    <input type="hidden" id="mois-hidden" name="mois" value="">
 </form>
 @endsection
 
@@ -170,39 +200,57 @@
         @endif
     </div>
 
-    {{-- 10. Résumé chiffres clés (cumulé à date) --}}
+    {{-- 10. Résumé chiffres clés --}}
     @php
-        $totalVentesAn = array_sum($moisData);
+        $totalVentesAn  = array_sum($moisData);
         $totalDepensesAn = array_sum($depensesData);
-        $totalLoyerAn = $loyersCumules;
-        $totalNetAn = $totalVentesAn - $totalDepensesAn - $totalLoyerAn;
-        $nbVentesAn = array_sum($nbVentesData);
+        $totalLoyerAn   = $loyersCumules;
+        $totalNetAn     = $totalVentesAn - $totalDepensesAn - $totalLoyerAn;
+        $nbVentesAn     = array_sum($nbVentesData);
+
+        $moisNomsFull = ['01'=>'Janvier','02'=>'Février','03'=>'Mars','04'=>'Avril','05'=>'Mai',
+                         '06'=>'Juin','07'=>'Juillet','08'=>'Août','09'=>'Septembre',
+                         '10'=>'Octobre','11'=>'Novembre','12'=>'Décembre'];
+        $moisNomActif = $mois ? ($moisNomsFull[$mois] ?? $mois) : null;
+
+        $titreResume = $moisNomActif
+            ? "Résumé — {$moisNomActif} {$annee}"
+            : "Résumé {$annee} — {$moisEcoules} mois écoulé(s)";
+        $sousTitreResume = $moisNomActif
+            ? "Chiffres du mois de {$moisNomActif}"
+            : "Cumul sur {$moisEcoules} mois (loyers = {$moisEcoules} × loyer mensuel)";
     @endphp
-    <div class="chart-card">
-        <h3><i class="bi bi-calculator" style="color:var(--primary);"></i> Résumé {{ $annee }} — au {{ $dateDuJour }}</h3>
-        <div class="chart-sub">Cumulé à date (ne compare pas à une année complète)</div>
+    <div class="chart-card" style="grid-column: 1 / -1;">
+        <h3><i class="bi bi-calculator" style="color:var(--primary);"></i> {{ $titreResume }}</h3>
+        <div class="chart-sub">{{ $sousTitreResume }}</div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px;">
             <div style="background:#f8f9fa; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#1f2937;">{{ number_format($totalVentesAn, 0, ',', ' ') }} F</div>
-                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">C.A. cumulé (année)</div>
+                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">
+                    {{ $moisNomActif ? 'Ventes du mois' : 'Total ventes' }}
+                </div>
             </div>
             <div style="background:#fef2f2; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#dc2626;">{{ number_format($totalDepensesAn, 0, ',', ' ') }} F</div>
-                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Dépenses cumulées</div>
+                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">
+                    {{ $moisNomActif ? 'Dépenses du mois' : 'Total dépenses' }}
+                </div>
             </div>
             <div style="background:#fef2f2; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#dc2626;">{{ number_format($totalLoyerAn, 0, ',', ' ') }} F</div>
-                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Loyers cumulés à date</div>
+                <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">
+                    {{ $moisNomActif ? 'Loyer du mois' : "Loyers ({$moisEcoules} mois)" }}
+                </div>
             </div>
             <div style="background:#f8f9fa; padding:14px; border-radius:8px; text-align:center;">
                 <div style="font-size:1.3rem; font-weight:800; color:#1f2937;">{{ $nbVentesAn }}</div>
                 <div style="font-size:.7rem; color:var(--text-muted); text-transform:uppercase;">Nombre de ventes</div>
             </div>
             <div style="grid-column:1/-1; background:#f8f9fa; padding:18px; border-radius:8px; text-align:center; border:2px solid #1f2937;">
-                <div style="font-size:1.6rem; font-weight:900; color:#000;">
-                    {{ number_format($totalNetAn, 0, ',', ' ') }} F
+                <div style="font-size:1.6rem; font-weight:900; color:#000;">{{ number_format($totalNetAn, 0, ',', ' ') }} F</div>
+                <div style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase;">
+                    {{ $moisNomActif ? 'Revenu net du mois' : "Revenu net ({$moisEcoules} mois)" }}
                 </div>
-                <div style="font-size:.75rem; color:var(--text-muted); text-transform:uppercase;">Résultat cumulé à date</div>
             </div>
         </div>
     </div>

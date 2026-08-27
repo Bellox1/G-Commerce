@@ -83,7 +83,7 @@ const MouvementsScreen = ({ navigation }) => {
                 <FlatList
                     data={filteredMouvements}
                     keyExtractor={item => item.id.toString()}
-                    contentContainerStyle={styles.listContent}
+                    contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(insets.bottom + 100, 120) }]}
                     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
                     ListEmptyComponent={
                         <View style={styles.emptyBox}>

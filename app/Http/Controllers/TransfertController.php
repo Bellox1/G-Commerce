@@ -16,8 +16,8 @@ class TransfertController extends Controller
     public function index()
     {
         $this->authorizeModule('transferts');
-        $tenant = Auth::user()->tenant;
-        $transferts = Transfert::where('tenant_id', $tenant->id)
+        $tenantId = Auth::user()->tenant_id ?? Auth::user()->tenant?->id;
+        $transferts = Transfert::where('tenant_id', $tenantId)
             ->with(['magasinSource', 'magasinDestination', 'produits.produit', 'user'])
             ->latest()
             ->paginate(15);
@@ -35,43 +35,76 @@ class TransfertController extends Controller
      */
     public function form()
     {
-        $this->authorizeModule('transferts');
-        $tenant = Auth::user()->tenant;
+        try {
+            $this->authorizeModule('transferts');
+            $user = Auth::user();
 
-        $magasins = Magasin::where('tenant_id', $tenant->id)->orderBy('nom')->get(['id', 'nom']);
-        $produits = Produit::where('tenant_id', $tenant->id)
-            ->where('actif', true)
-            ->orderBy('nom')
-            ->get(['id', 'nom', 'unite']);
+            // Résolution du tenant_id — même logique que MagasinController
+            $tenantId = $user->tenant_id
+                ?? $user->tenant?->id
+                ?? optional($user->magasin)->tenant_id;
 
-        $produitsData = $produits->map(function ($produit) use ($magasins) {
-            $stocks = [];
-            foreach ($magasins as $magasin) {
-                $stocks[$magasin->id] = $this->stockService->getStock($magasin->id, $produit->id);
+            // Dernier recours : chercher les magasins liés à cet utilisateur directement
+            if (!$tenantId) {
+                $magasins = Magasin::where('user_id', $user->id)->orWhere(function ($q) use ($user) {
+                    if ($user->magasin_id) $q->where('id', $user->magasin_id);
+                })->orderBy('nom')->get(['id', 'nom']);
+
+                return response()->json([
+                    'success' => true,
+                    'data'    => ['magasins' => $magasins, 'produits' => []],
+                ]);
             }
-            return [
-                'id'     => $produit->id,
-                'nom'    => $produit->nom,
-                'unite'  => $produit->unite,
-                'stocks' => $stocks,
-            ];
-        });
 
-        return response()->json([
-            'success' => true,
-            'data'    => [
-                'magasins' => $magasins,
-                'produits' => $produitsData,
-            ],
-        ]);
+            $magasins = Magasin::where('tenant_id', $tenantId)->orderBy('nom')->get(['id', 'nom']);
+            $produits = Produit::where('tenant_id', $tenantId)
+                ->where('actif', true)
+                ->orderBy('nom')
+                ->get(['id', 'nom']);
+
+            $produitsData = $produits->map(function ($produit) use ($magasins) {
+                $stocks = [];
+                foreach ($magasins as $magasin) {
+                    try {
+                        $stocks[$magasin->id] = $this->stockService->getStock($magasin->id, $produit->id);
+                    } catch (\Throwable $e) {
+                        $stocks[$magasin->id] = 0;
+                    }
+                }
+                return [
+                    'id'     => $produit->id,
+                    'nom'    => $produit->nom,
+                    'unite'  => $produit->unite,
+                    'stocks' => (object) $stocks,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data'    => [
+                    'magasins' => $magasins,
+                    'produits' => $produitsData,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Transfert form error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du chargement des données.',
+                'data'    => [
+                    'magasins' => [],
+                    'produits' => [],
+                ],
+            ], 200);
+        }
     }
 
     public function create()
     {
         $this->authorizeModule('transferts');
-        $tenant = Auth::user()->tenant;
-        $magasins = Magasin::where('tenant_id', $tenant->id)->get();
-        $produits = Produit::where('tenant_id', $tenant->id)->where('actif', true)->get();
+        $tenantId = Auth::user()->tenant_id ?? Auth::user()->tenant?->id;
+        $magasins = Magasin::where('tenant_id', $tenantId)->get();
+        $produits = Produit::where('tenant_id', $tenantId)->where('actif', true)->get();
 
         // Stock par magasin pour tous les produits
         $stockParMagasin = [];
@@ -140,7 +173,7 @@ class TransfertController extends Controller
     {
         $this->authorizeModule('transferts');
         $this->authorizeTenant($transfert);
-        $transfert->load(['magasinSource', 'magasinDestination', 'produits.produit', 'user', 'livreur']);
+        $transfert->load(['magasinSource', 'magasinDestination', 'produits.produit', 'produit', 'user', 'livreur']);
 
         if (request()->expectsJson() || request()->is('api/*')) {
             return response()->json(['success' => true, 'data' => $transfert]);
@@ -196,9 +229,9 @@ class TransfertController extends Controller
             return redirect()->route('transferts.show', $transfert)->with('error', 'Seuls les transferts en transit peuvent être modifiés.');
         }
 
-        $tenant = Auth::user()->tenant;
-        $magasins = Magasin::where('tenant_id', $tenant->id)->get();
-        $produits = Produit::where('tenant_id', $tenant->id)->where('actif', true)->get();
+        $tenantId = Auth::user()->tenant_id ?? Auth::user()->tenant?->id;
+        $magasins = Magasin::where('tenant_id', $tenantId)->get();
+        $produits = Produit::where('tenant_id', $tenantId)->where('actif', true)->get();
 
         $stockParMagasin = [];
         foreach ($magasins as $m) {
@@ -281,7 +314,14 @@ class TransfertController extends Controller
 
     private function authorizeTenant(Transfert $transfert)
     {
-        if ($transfert->tenant_id !== Auth::user()->tenant_id) {
+        $user = Auth::user();
+        if (!$user || $user->isSuperAdmin() || $user->hasRole('prestataire')) return;
+
+        $tenantId = $user->tenant_id 
+            ?? $user->tenant?->id 
+            ?? optional($user->magasin)->tenant_id;
+
+        if ($tenantId && (int)$transfert->tenant_id !== (int)$tenantId) {
             abort(403, 'Action non autorisée sur ce transfert.');
         }
     }

@@ -23,8 +23,12 @@
         .table-wrap th:nth-child(2), .table-wrap td:nth-child(2) { width: 20% !important; }
         .table-wrap th:nth-child(3), .table-wrap td:nth-child(3) { width: 18% !important; }
         .table-wrap th:nth-child(4), .table-wrap td:nth-child(4) { width: 20% !important; }
+        .hide-company .invoice-company-name { display: none !important; }
+        .hide-vendeur .invoice-seller-name { display: none !important; }
     }
     .invoice-card { background: white; padding: 40px; box-shadow: var(--shadow-md); }
+    .hide-company .invoice-company-name { display: none; }
+    .hide-vendeur .invoice-seller-name { display: none; }
     @media (max-width: 768px) {
         .invoice-card { padding: 16px; }
         .invoice-header { flex-direction: column; text-align: center; gap: 12px; }
@@ -37,11 +41,19 @@
 <div class="print-full" style="max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
     
     {{-- Boutons d'actions --}}
-    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <a href="{{ route('ventes.index') }}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Retour
         </a>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <label style="font-size: .85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; color: var(--text);">
+                <input type="checkbox" onchange="togglePrintOption('company', this.checked)">
+                Masquer la société
+            </label>
+            <label style="font-size: .85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; color: var(--text);">
+                <input type="checkbox" onchange="togglePrintOption('vendeur', this.checked)">
+                Masquer le vendeur
+            </label>
             <a href="{{ route('ventes.edit', $vente) }}" class="btn btn-secondary">
                 <i class="bi bi-pencil"></i> Modifier
             </a>
@@ -57,7 +69,7 @@
         {{-- En-tête Facture --}}
         <div class="invoice-header" style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 24px;">
             <div>
-                <h1 style="font-size: 1.6rem; font-weight: 800; color: #1f2937;">{{ auth()->user()->tenant->nom ?? 'SAÏMOUS' }}</h1>
+                <h1 class="invoice-company-name" style="font-size: 1.6rem; font-weight: 800; color: #1f2937;">{{ auth()->user()->tenant->nom ?? 'SAÏMOUS' }}</h1>
             </div>
             <div style="text-align: right;">
                 <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">FACTURE</h2>
@@ -81,7 +93,7 @@
                 <p style="color: var(--text-muted); font-weight: 600;">Client Anonyme</p>
             @endif
             @if($vente->user)
-                <p style="color: var(--text-muted); margin-top: 4px;">Établi par: {{ $vente->user->name }}</p>
+                <p class="invoice-seller-name" style="color: var(--text-muted); margin-top: 4px;">Établi par: {{ $vente->user->name }}</p>
             @endif
         </div>
 
@@ -152,4 +164,17 @@
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+function togglePrintOption(option, checked) {
+    const card = document.querySelector('.invoice-card');
+    if (option === 'company') {
+        card.classList.toggle('hide-company', checked);
+    } else if (option === 'vendeur') {
+        card.classList.toggle('hide-vendeur', checked);
+    }
+}
+</script>
+@endpush
 @endsection

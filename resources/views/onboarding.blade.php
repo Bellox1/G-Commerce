@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>pilotix — Bienvenue</title>
+    <title>PILOTIX — Bienvenue</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#105e49">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="pilotix">
+    <meta name="apple-mobile-web-app-title" content="PILOTIX">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <style>
         :root {
@@ -194,7 +194,7 @@
 
         {{-- Top Bar --}}
         <div class="splash-top">
-            <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="splash-logo">
+            <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" class="splash-logo">
             <a href="{{ route('login') }}" class="splash-login-btn">
                 <i class="bi bi-box-arrow-in-right"></i> Se connecter
             </a>
@@ -210,10 +210,10 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #167e65, #0d4d3c);">
                             <i class="bi bi-rocket-takeoff-fill"></i>
                         </div>
-                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
+                        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" class="slide-img">
                     </div>
                     <div class="slide-text">
-                        <div class="slide-title">Bienvenue sur <span>pilotix</span></div>
+                        <div class="slide-title">Bienvenue sur <span>PILOTIX</span></div>
                         <div class="slide-desc">La solution complète pour gérer votre activité commerciale en toute simplicité.</div>
                         <div class="slide-pills">
                             <span class="pill"><i class="bi bi-lightning-fill"></i> Rapide</span>
@@ -233,7 +233,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #16a34a, #0d8a3a);">
                             <i class="bi bi-graph-up-arrow"></i>
                         </div>
-                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
+                        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Suivi <span>Temps Réel</span> des Ventes</div>
@@ -256,7 +256,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
                             <i class="bi bi-boxes"></i>
                         </div>
-                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
+                        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Gestion <span>Multi-Dépôts</span> des Stocks</div>
@@ -279,7 +279,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, var(--secondary), #d97706);">
                             <i class="bi bi-truck"></i>
                         </div>
-                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
+                        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Livraisons & <span>Arrivages</span></div>
@@ -302,7 +302,7 @@
                         <div class="slide-icon-badge" style="background: linear-gradient(135deg, #dc2626, #b91c1c);">
                             <i class="bi bi-wallet2"></i>
                         </div>
-                        <img src="{{ asset('pilotix-logo.png') }}" alt="pilotix" class="slide-img">
+                        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" class="slide-img">
                     </div>
                     <div class="slide-text">
                         <div class="slide-title">Dettes & <span>Finances</span></div>
@@ -356,7 +356,7 @@
             dots.forEach(function(d, i) { d.classList.toggle('active', i === currentSlide); });
 
             if (currentSlide === totalSlides - 1) {
-                splashNav.innerHTML = '<a href="{{ route('login') }}" class="btn-connect"><i class="bi bi-box-arrow-in-right"></i> Se connecter à pilotix</a>';
+                splashNav.innerHTML = '<a href="{{ route('login') }}" class="btn-connect"><i class="bi bi-box-arrow-in-right"></i> Se connecter à PILOTIX</a>';
             } else {
                 splashNav.innerHTML = '<button class="btn-skip" onclick="goToSlide(' + (totalSlides - 1) + ')">Passer</button><button class="btn-next" id="btnNext" onclick="nextSlide()">Suivant <i class="bi bi-arrow-right"></i></button>';
             }

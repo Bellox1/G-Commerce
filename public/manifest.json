@@ -1,7 +1,7 @@
 {
-    "name": "pilotix",
-    "short_name": "pilotix",
-    "description": "Gestion de stock, ventes, clients et livraisons",
+    "name": "PILOTIX",
+    "short_name": "PILOTIX",
+    "description": "Gestion de stock, ventes, clients et chiffre d'affaire",
     "id": "/",
     "start_url": "/onboarding",
     "display": "standalone",

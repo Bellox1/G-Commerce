@@ -93,7 +93,7 @@ const DepensesScreen = () => {
                         <Ionicons name="calendar-outline" size={13} color={Colors.textLight} /> {fmtFr(item.date_depense)} · {item.user?.name || '—'}
                     </Text>
                 </View>
-                <Text style={styles.amount}>-{formatMoney(item.montant)}</Text>
+                <Text style={styles.amount}>{Number(item.montant) > 0 ? '-' : ''}{formatMoney(item.montant)}</Text>
             </View>
 
             <View style={styles.cardActions}>
@@ -119,7 +119,7 @@ const DepensesScreen = () => {
                     <Ionicons name="chevron-down" size={16} color={Colors.textLight} />
                 </TouchableOpacity>
                 <View style={styles.totalBadge}>
-                    <Text style={styles.totalText}>-{formatMoney(total)}</Text>
+                    <Text style={styles.totalText}>{Number(total) > 0 ? '-' : ''}{formatMoney(total)}</Text>
                 </View>
             </View>
 

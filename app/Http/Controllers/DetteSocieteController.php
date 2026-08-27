@@ -33,6 +33,21 @@ class DetteSocieteController extends Controller
         $totalDettes = DetteSociete::where('tenant_id', $tenant->id)->where('statut', '!=', 'solde')->sum(\DB::raw('montant - montant_paye'));
         $totalSolde = DetteSociete::where('tenant_id', $tenant->id)->where('statut', 'solde')->sum('montant');
 
+        // Total des dettes restantes regroupées par devise d'origine
+        $dettesParDevise = DetteSociete::where('tenant_id', $tenant->id)
+            ->where('statut', '!=', 'solde')
+            ->get()
+            ->groupBy(fn ($d) => $d->devise ?: 'FCFA')
+            ->map(function ($group) {
+                return $group->sum(function ($d) {
+                    if ($d->taux_de_change && $d->taux_de_change > 0 && $d->montant_origine) {
+                        return (float) $d->montant_origine - ((float) $d->montant_paye / (float) $d->taux_de_change);
+                    }
+                    return (float) $d->montant - (float) $d->montant_paye;
+                });
+            })
+            ->filter(fn ($v) => $v > 0);
+
         $arrivages = Arrivage::where('tenant_id', $tenant->id)
             ->whereDoesntHave('detteSociete')
             ->latest()
@@ -49,7 +64,7 @@ class DetteSocieteController extends Controller
             ]);
         }
 
-        return view('dettes-societe.index', compact('dettes', 'fournisseurs', 'totalDettes', 'totalSolde', 'arrivages'));
+        return view('dettes-societe.index', compact('dettes', 'fournisseurs', 'totalDettes', 'totalSolde', 'arrivages', 'dettesParDevise'));
     }
 
     public function store(Request $request)

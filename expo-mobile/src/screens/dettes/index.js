@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    TextInput, ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert
+    TextInput, ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../theme/Colors';
@@ -100,15 +101,23 @@ const DettesScreen = ({ navigation }) => {
     const getEcheanceInfo = (dateStr) => {
         if (!dateStr) return { label: 'Non définie', color: '#475569', bg: '#F1F5F9' };
         const cleanDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
-        const d = new Date(cleanDate + 'T00:00:00');
-        if (isNaN(d.getTime())) return { label: dateStr, color: '#475569', bg: '#F1F5F9' };
+        const parts = cleanDate.split('-');
+        if (parts.length !== 3) return { label: dateStr, color: '#475569', bg: '#F1F5F9' };
+
+        const echYear = parseInt(parts[0], 10);
+        const echMonth = parseInt(parts[1], 10) - 1;
+        const echDay = parseInt(parts[2], 10);
+
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (d < today) return { label: 'En retard', color: '#B91C1C', bg: '#FEE2E2' };
-        if (d.getTime() === today.getTime()) return { label: "Aujourd'hui", color: '#B45309', bg: '#FEF3C7' };
-        const diff = Math.ceil((d.getTime() - today.getTime()) / 86400000);
-        if (isNaN(diff)) return { label: 'Valide', color: '#15803D', bg: '#DCFCE7' };
-        return { label: `Dans ${diff} j`, color: '#15803D', bg: '#DCFCE7' };
+        const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const startEch = new Date(echYear, echMonth, echDay);
+
+        const diffMs = startEch.getTime() - startToday.getTime();
+        const diffDays = Math.round(diffMs / 86400000);
+
+        if (diffDays < 0) return { label: 'En retard', color: '#B91C1C', bg: '#FEE2E2' };
+        if (diffDays === 0) return { label: "Aujourd'hui", color: '#B45309', bg: '#FEF3C7' };
+        return { label: `Dans ${diffDays} j`, color: '#15803D', bg: '#DCFCE7' };
     };
 
     return (
@@ -242,6 +251,7 @@ const DettesScreen = ({ navigation }) => {
 
             {/* Modal Encaisser Dette */}
             <Modal visible={!!payItem} transparent animationType="slide" onRequestClose={() => setPayItem(null)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalCard}>
                         <View style={styles.modalHeader}>
@@ -289,10 +299,13 @@ const DettesScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
 
             {/* Modal de filtre statut dettes */}
             <Modal visible={showFilterModal} transparent animationType="slide" onRequestClose={() => setShowFilterModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalCard}>
                         <View style={styles.modalHeader}>
@@ -332,6 +345,8 @@ const DettesScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

@@ -87,42 +87,42 @@ function shiftDash(delta){
     <div class="stat-card">
         <div class="stat-icon blue"><i class="bi bi-currency-exchange"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($encaissePeriode, 0, ',', ' ') }}</div>
+            <div class="stat-val">@prix($encaissePeriode)</div>
             <div class="stat-lbl">Encaissé · {{ $periodeLabel }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-graph-up-arrow"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($caPeriode, 0, ',', ' ') }}</div>
+            <div class="stat-val">@prix($caPeriode)</div>
             <div class="stat-lbl">C.A. · {{ $periodeLabel }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-receipt"></i></div>
         <div>
-            <div class="stat-val" style="color:var(--danger);">- {{ number_format($depensePeriode, 0, ',', ' ') }}</div>
+            <div class="stat-val" style="color:var(--danger);">@prix($depensePeriode)</div>
             <div class="stat-lbl">Dépenses · {{ $periodeLabel }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
         <div>
-            <div class="stat-val" style="color:var(--warning);">{{ number_format($creancesPeriode, 0, ',', ' ') }}</div>
+            <div class="stat-val" style="color:var(--warning);">@prix($creancesPeriode)</div>
             <div class="stat-lbl">Créances · {{ $periodeLabel }} (FCFA)</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green"><i class="bi bi-cash-stack"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($dettePaiementsJour, 0, ',', ' ') }}</div>
+            <div class="stat-val">@prix($dettePaiementsJour)</div>
             <div class="stat-lbl">Dettes encaissées le {{ \Carbon\Carbon::parse($date)->fr('d F') }}</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-credit-card-2-back"></i></div>
         <div>
-            <div class="stat-val">{{ number_format($totalDettes, 0, ',', ' ') }}</div>
+            <div class="stat-val">@prix($totalDettes)</div>
             <div class="stat-lbl">Mes dettes clients (FCFA)
                 @if($dettesEnRetard > 0)
                     <span class="badge badge-danger" style="margin-left:4px;">{{ $dettesEnRetard }} en retard</span>
@@ -133,7 +133,7 @@ function shiftDash(delta){
     <div class="stat-card">
         <div class="stat-icon red"><i class="bi bi-building"></i></div>
         <div>
-            <div class="stat-val" style="color:var(--danger);">- {{ number_format($totalDettesSociete, 0, ',', ' ') }}</div>
+            <div class="stat-val" style="color:var(--danger);">@prix($totalDettesSociete)</div>
             <div class="stat-lbl">Mes dettes société (FCFA)
                 <a href="{{ route('dettes-societe.index') }}" style="font-size:.7rem; color:var(--primary);">Voir</a>
             </div>
@@ -172,7 +172,7 @@ function shiftDash(delta){
                             <div class="ref-date" style="font-size:.7rem; color:var(--text-muted);">{{ $v->date_vente->fr('d F Y H:i') }}</div>
                         </td>
                         <td>@if($v->client){{ $v->client->nomComplet() }}@else<i style="color:#94a3b8">Anonyme</i>@endif</td>
-                        <td style="font-weight:600;">{{ number_format($v->montant_total, 0, ',', ' ') }}</td>
+                        <td style="font-weight:600;">@prix($v->montant_total)</td>
                         <td>
                             @if($v->statut_paiement === 'paye')
                                 <span class="badge badge-success">Payé</span>
@@ -221,7 +221,7 @@ function shiftDash(delta){
                         </div>
                     </div>
                     <span style="font-weight:700; color:var(--danger); white-space:nowrap;">
-                        {{ number_format($dette->montant_restant, 0, ',', ' ') }} F
+                        @prix($dette->montant_restant)
                     </span>
                     <span style="font-size:.75rem; color:var(--primary); white-space:nowrap;">
                         <i class="bi bi-wallet2"></i>
@@ -314,7 +314,7 @@ function shiftDash(delta){
                 @foreach($statsParPersonne as $stat)
                 <tr>
                     <td style="font-weight: 600;">{{ $stat->user?->name ?? 'N/A' }}</td>
-                    <td style="text-align: right;">{{ number_format($stat->total_ca, 0, ',', ' ') }}</td>
+                    <td style="text-align: right;">@prix($stat->total_ca)</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -365,7 +365,7 @@ function shiftDash(delta){
                             <td>
                             {{ $d->description ?: '-' }}
                             </td>
-                            <td style="text-align: right; font-weight: 600; color: #dc2626;">-{{ number_format($d->montant, 0, ',', ' ') }}</td>
+                            <td style="text-align: right; font-weight: 600; color: #dc2626;">@prix($d->montant)</td>
                             <td>{{ $d->user?->name ?? 'N/A' }}</td>
                             <td>{{ $d->created_at->format('H:i') }}</td>
                         </tr>
@@ -379,7 +379,7 @@ function shiftDash(delta){
                     <tfoot>
                         <tr style="background: #f1f5f9; font-weight: 700;">
                             <td>Total</td>
-                            <td style="text-align: right; color: #dc2626;">-{{ number_format($depenseJour, 0, ',', ' ') }} FCFA</td>
+                            <td style="text-align: right; color: #dc2626;">@prix($depenseJour)</td>
                             <td colspan="2"></td>
                         </tr>
                     </tfoot>

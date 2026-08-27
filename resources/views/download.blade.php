@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Téléchargements PILOTIX — Application Mobile & Desktop</title>
     <meta name="description" content="Téléchargez PILOTIX pour Android (APK), iOS (Expo Go) et Ordinateur (Windows, Mac, Linux). Solution complète de gestion commerciale.">
-    <meta name="keywords" content="télécharger pilotix, application mobile gestion, apk android pilotix, pilotix desktop, expo go pilotix">
+    <meta name="keywords" content="télécharger PILOTIX, application mobile gestion, apk android PILOTIX, PILOTIX desktop, expo go PILOTIX">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
@@ -284,7 +284,7 @@
     <!-- NAV BAR -->
     <nav>
         <a href="{{ url('/') }}" class="nav-logo">
-            <img src="{{ asset('pilotix-logo.png') }}" alt="PILOTIX Logo">
+            <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo">
             <span class="nav-logo-text">PILOTIX</span>
         </a>
 
@@ -370,7 +370,7 @@
                     </ul>
 
                     <a href="{{ asset('downloads/pilotix-latest.apk') }}" download class="btn-card-action btn-action-primary">
-                        <i class="bi bi-download"></i> Télécharger l'APK (~35 Mo)
+                        <i class="bi bi-download"></i> Télécharger l'APK (~115 Mo)
                     </a>
                 </div>
 
@@ -412,12 +412,12 @@
 
                         <div class="qr-box-wrap">
                             <div class="qr-image-holder">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=exp%3A%2F%2Fexp.host%2F%40pilotix%2Fpilotix%3Frelease-channel%3Ddefault" alt="QR Code Expo PILOTIX">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=exp%3A%2F%2Fexp.host%2F%40PILOTIX%2FPILOTIX%3Frelease-channel%3Ddefault" alt="QR Code Expo PILOTIX">
                             </div>
                             <div style="flex:1;">
                                 <p style="font-size:0.8rem; font-weight:700; color:var(--text); margin-bottom:4px;">2. Scannez le QR Code</p>
                                 <p style="font-size:0.75rem; color:var(--muted); line-height:1.4;">Ouvrez l'appareil photo sur iPhone ou l'app Expo Go sur Android.</p>
-                                <a href="exp://exp.host/@pilotix/pilotix?release-channel=default" style="display:inline-block; font-size:0.78rem; font-weight:700; color:#7c3aed; margin-top:6px; text-decoration:none;">Lancer directement →</a>
+                                <a href="exp://exp.host/@PILOTIX/PILOTIX?release-channel=default" style="display:inline-block; font-size:0.78rem; font-weight:700; color:#7c3aed; margin-top:6px; text-decoration:none;">Lancer directement →</a>
                             </div>
                         </div>
                     </div>
@@ -425,12 +425,12 @@
 
                 <!-- CARD 3: IOS APP STORE -->
                 <div class="dl-card" id="card-ios">
-                    <span class="dl-card-badge badge-orange"><i class="bi bi-clock-history"></i> Prochainement</span>
+                    <span class="dl-card-badge badge-orange"><i class="bi bi-clock-history"></i> Bientôt disponible</span>
                     <div class="dl-card-icon icon-orange">
                         <i class="bi bi-apple"></i>
                     </div>
                     <h3 class="dl-card-title">iPhone — App Store Native</h3>
-                    <p class="dl-card-desc">L'application officielle PILOTIX iOS est actuellement en cours de publication sur l'App Store Apple.</p>
+                    <p class="dl-card-desc">L'application officielle PILOTIX iOS est actuellement en cours de préparation pour l'App Store Apple.</p>
                     
                     <ul class="dl-feature-list">
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(234,141,34,0.1); color:var(--secondary);"></i> Distribution officielle Apple</li>
@@ -438,7 +438,7 @@
                     </ul>
 
                     <button class="btn-card-action btn-action-secondary" disabled style="opacity:0.6; cursor:not-allowed;">
-                        <i class="bi bi-apple"></i> En cours de validation Apple
+                        <i class="bi bi-clock-history"></i> Bientôt disponible
                     </button>
                 </div>
 
@@ -456,13 +456,13 @@
             <div class="dl-grid">
 
                 <!-- DESKTOP ELECTRON CARD -->
-                <div class="dl-card highlight" id="card-desktop">
-                    <span class="dl-card-badge badge-blue"><i class="bi bi-pc-display"></i> Version Bureau Native</span>
+                <div class="dl-card" id="card-desktop">
+                    <span class="dl-card-badge badge-orange"><i class="bi bi-clock-history"></i> Bientôt disponible</span>
                     <div class="dl-card-icon icon-blue">
                         <i class="bi bi-laptop"></i>
                     </div>
                     <h3 class="dl-card-title">Application Desktop (Windows / Mac / Linux)</h3>
-                    <p class="dl-card-desc">Package d'installation complet basé sur Electron. Transformez n'importe quel ordinateur en poste de gestion dédié.</p>
+                    <p class="dl-card-desc">Application de bureau complète basée sur Electron pour votre poste de gestion ou caisse enregistreuse.</p>
                     
                     <ul class="dl-feature-list">
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(37,99,235,0.1); color:#2563eb;"></i> Exécution autonome hors navigateur</li>
@@ -470,52 +470,28 @@
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(37,99,235,0.1); color:#2563eb;"></i> Windows (.exe), Mac (.dmg) &amp; Linux (.AppImage)</li>
                     </ul>
 
-                    <button class="btn-card-action btn-action-primary" onclick="toggleExpand('expand-desktop')" style="background:linear-gradient(135deg, #2563eb, #1d4ed8);">
-                        <i class="bi bi-download"></i> Choisir votre système PC
+                    <button class="btn-card-action btn-action-secondary" disabled style="opacity:0.6; cursor:not-allowed;">
+                        <i class="bi bi-clock-history"></i> Bientôt disponible
                     </button>
-
-                    <div class="card-expand-content" id="expand-desktop">
-                        <div class="os-tabs-nav">
-                            <button class="os-tab-btn active" onclick="switchOsTab('desk-win', this)"><i class="bi bi-windows"></i> Windows</button>
-                            <button class="os-tab-btn" onclick="switchOsTab('desk-mac', this)"><i class="bi bi-apple"></i> macOS</button>
-                            <button class="os-tab-btn" onclick="switchOsTab('desk-linux', this)"><i class="bi bi-ubuntu"></i> Linux</button>
-                        </div>
-
-                        <div id="desk-win" class="os-tab-panel active">
-                            <a href="{{ asset('downloads/pilotix-setup-windows.exe') }}" download class="btn-card-action btn-action-secondary">
-                                <i class="bi bi-windows"></i> Télécharger pour Windows (.exe - ~75 Mo)
-                            </a>
-                        </div>
-                        <div id="desk-mac" class="os-tab-panel">
-                            <a href="{{ asset('downloads/pilotix-mac.dmg') }}" download class="btn-card-action btn-action-secondary">
-                                <i class="bi bi-apple"></i> Télécharger pour macOS (.dmg - ~85 Mo)
-                            </a>
-                        </div>
-                        <div id="desk-linux" class="os-tab-panel">
-                            <a href="{{ asset('downloads/pilotix-linux.AppImage') }}" download class="btn-card-action btn-action-secondary">
-                                <i class="bi bi-ubuntu"></i> Télécharger pour Linux (.AppImage - ~80 Mo)
-                            </a>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- UPDATE CARD -->
                 <div class="dl-card" id="card-update">
-                    <span class="dl-card-badge badge-orange"><i class="bi bi-arrow-repeat"></i> Mises à jour</span>
+                    <span class="dl-card-badge badge-orange"><i class="bi bi-clock-history"></i> Bientôt disponible</span>
                     <div class="dl-card-icon icon-orange">
                         <i class="bi bi-arrow-down-circle"></i>
                     </div>
                     <h3 class="dl-card-title">Mise à jour PC Existante</h3>
-                    <p class="dl-card-desc">Vous possédez déjà l'application PC PILOTIX ? Téléchargez uniquement le patch de mise à jour rapide.</p>
+                    <p class="dl-card-desc">Fichier de mise à jour rapide pour les installations de bureau existantes.</p>
                     
                     <ul class="dl-feature-list">
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(234,141,34,0.1); color:var(--secondary);"></i> Patch léger d'actualisation</li>
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(234,141,34,0.1); color:var(--secondary);"></i> Conserve l'intégralité des données locales</li>
                     </ul>
 
-                    <a href="{{ asset('downloads/pilotix-update.exe') }}" download class="btn-card-action btn-action-secondary" style="margin-top:auto;">
-                        <i class="bi bi-download"></i> Fichier de mise à jour (~12 Mo)
-                    </a>
+                    <button class="btn-card-action btn-action-secondary" disabled style="opacity:0.6; cursor:not-allowed; margin-top:auto;">
+                        <i class="bi bi-clock-history"></i> Bientôt disponible
+                    </button>
                 </div>
 
             </div>
@@ -527,7 +503,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div style="margin-bottom:10px;">
-                    <img src="{{ asset('pilotix-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+                    <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
                 </div>
                 <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
             </div>

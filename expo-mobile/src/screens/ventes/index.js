@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity, Modal,
-    TextInput, ActivityIndicator, RefreshControl, ScrollView, StatusBar, Platform
+    TextInput, ActivityIndicator, RefreshControl, ScrollView, StatusBar, Platform,
+    KeyboardAvoidingView
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -290,6 +291,7 @@ const VentesScreen = ({ navigation }) => {
 
             {/* Modal période personnalisée */}
             <Modal visible={showDateModal} animationType="slide" transparent>
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>\n                    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }} keyboardShouldPersistTaps="handled">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
@@ -363,6 +365,10 @@ const VentesScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+                </ScrollView>
+
+                </KeyboardAvoidingView>
+
             </Modal>
 
         </View>

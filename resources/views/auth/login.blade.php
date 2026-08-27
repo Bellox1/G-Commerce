@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion — pilotix</title>
+    <title>Connexion — PILOTIX</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
@@ -249,7 +249,7 @@
         <!-- Formulaire -->
         <div class="login-card">
             <div style="text-align: center; margin-bottom: 24px;">
-                <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="height: 70px; width: auto; object-fit: contain; margin-bottom: 12px;">
+                <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="height: 70px; width: auto; object-fit: contain; margin-bottom: 12px;">
                 <h2 class="login-title" style="font-family: 'Space Grotesk', sans-serif;">Connexion à votre Espace</h2>
                 <p class="login-subtitle">Pilotez votre réseau commercial, stocks et dettes.</p>
             </div>

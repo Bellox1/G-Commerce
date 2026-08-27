@@ -1,9 +1,9 @@
-const CACHE_NAME = 'pilotix-v5';
+const CACHE_NAME = 'PILOTIX-v1.0.0';
 
 const PRECACHE_URLS = [
     '/manifest.json',
     '/favicon.ico',
-    '/Pilotix.jpeg',
+    '/PILOTIX.jpeg',
     '/icons/icon-72x72.png',
     '/icons/icon-96x96.png',
     '/icons/icon-128x128.png',

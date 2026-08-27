@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
-    TextInput, ActivityIndicator, Alert, Modal, StatusBar, Platform
+    TextInput, ActivityIndicator, Alert, Modal, StatusBar, Platform,
+    KeyboardAvoidingView
 } from 'react-native';
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import client from '../../api/client';
 import { getImageUrl } from '../../utils/image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { formatDateFr, formatDateTimeFr } from '../../utils/formatDate';
+import { formatDateFr, formatDateTimeFr, parseToLocalDateObj } from '../../utils/formatDate';
 
 
 const DRAFT_KEY = 'vente_draft';
@@ -544,7 +545,7 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
                             </ScrollView>
                             {showDatePicker && (
                                 <DateTimePicker
-                                    value={session.dateEcheance ? new Date(session.dateEcheance) : new Date()}
+                                    value={parseToLocalDateObj(session.dateEcheance)}
                                     mode="date"
                                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                                     minimumDate={new Date()}
@@ -576,6 +577,7 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
 
             {/* Modal création client */}
             <Modal visible={showClientModal} transparent animationType="slide" onRequestClose={() => setShowClientModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
@@ -615,6 +617,8 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

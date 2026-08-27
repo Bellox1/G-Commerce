@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>@yield('title', 'Tableau de bord') — pilotix</title>
-    <meta name="description" content="@yield('meta_description', 'pilotix — Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.')">
-    <meta name="keywords" content="gestion stock, ventes, clients, livraisons, dettes, multi-magasins, applicaition gestion, pilotix">
+    <title>@yield('title', 'Tableau de bord') — PILOTIX</title>
+    <meta name="description" content="@yield('meta_description', 'PILOTIX — Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.')">
+    <meta name="keywords" content="gestion stock, ventes, clients, livraisons, dettes, multi-magasins, applicaition gestion, PILOTIX">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="@yield('title', 'Tableau de bord') — pilotix">
+    <meta property="og:title" content="@yield('title', 'Tableau de bord') — PILOTIX">
     <meta property="og:description" content="Gestion de stock, ventes, clients, livraisons et dettes. Application de gestion commerciale multi-magasins.">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="pilotix">
+    <meta property="og:site_name" content="PILOTIX">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts -->
@@ -24,7 +24,7 @@
     <meta name="theme-color" content="#105e49">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="pilotix">
+    <meta name="apple-mobile-web-app-title" content="PILOTIX">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
@@ -377,13 +377,31 @@
     <!-- Top Header -->
     <header class="app-header">
         <a href="{{ url('/') }}" class="header-brand" id="headerBrand">
-            <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+            <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
         </a>
 
         <div class="header-user">
+            <div class="dropdown" style="position:relative; display:inline-block;">
+                <button class="btn-icon" id="infoMenuBtn" onclick="toggleInfoDropdown(event)" title="Informations & Suggestions" style="display:flex; align-items:center; justify-content:center; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; border:none; cursor:pointer;">
+                    <i class="bi bi-info-circle" style="font-size:1.2rem;"></i>
+                </button>
+                <div id="infoMenuDropdown" class="dropdown-menu" style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); width:230px; z-index:1000; padding:8px 0;">
+                    <a href="{{ route('conditions') }}" target="_blank" class="dropdown-item" style="display:flex; align-items:center; gap:10px; padding:10px 16px; color:var(--text); text-decoration:none; font-size:.85rem; font-weight:500;">
+                        <i class="bi bi-file-earmark-text" style="font-size:1rem; color:var(--primary);"></i> Conditions d'utilisation
+                    </a>
+                    <a href="{{ route('confidentialite') }}" target="_blank" class="dropdown-item" style="display:flex; align-items:center; gap:10px; padding:10px 16px; color:var(--text); text-decoration:none; font-size:.85rem; font-weight:500;">
+                        <i class="bi bi-shield-check" style="font-size:1rem; color:var(--primary);"></i> Politique de confidentialité
+                    </a>
+                    <div style="border-top:1px solid var(--border); margin:4px 0;"></div>
+                    <a href="mailto:pilotixcontact@gmail.com?subject=Suggestion%20sur%20PILOTIX" class="dropdown-item" style="display:flex; align-items:center; gap:10px; padding:10px 16px; color:#d97706; text-decoration:none; font-size:.85rem; font-weight:600;">
+                        <i class="bi bi-lightbulb-fill" style="font-size:1rem; color:#f59e0b;"></i> Faire une suggestion
+                    </a>
+                </div>
+            </div>
             <a href="{{ route('download') }}" title="Télécharger l'app" id="downloadLink" style="display:flex; align-items:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; justify-content:center; flex-shrink:0;">
                 <i class="bi bi-download" style="font-size:1.2rem;"></i>
             </a>
+            @if(!Auth::user()->isSuperAdmin())
             <a href="{{ route('offre') }}" title="Mon offre" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; flex-shrink:0;">
                 <i class="bi bi-star" style="font-size:1.2rem;"></i>
             </a>
@@ -393,6 +411,7 @@
                     <span style="position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; border-radius:9px; background:var(--danger); color:#fff; font-size:0.7rem; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 4px;">{{ Auth::user()->unreadNotifications()->count() }}</span>
                 @endif
             </a>
+            @endif
             <a href="{{ route('profile') }}" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
                 <i class="bi bi-person-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
                 <span>{{ auth()->user()->name }}</span>
@@ -429,6 +448,9 @@
                 </a>
                 <a href="{{ route('admin.commissions') }}" class="nav-link {{ request()->routeIs('admin.commissions') ? 'active' : '' }}">
                     <i class="bi bi-wallet2"></i> Commissions
+                </a>
+                <a href="{{ route('admin.offres') }}" class="nav-link {{ request()->routeIs('admin.offres') ? 'active' : '' }}">
+                    <i class="bi bi-tag-fill"></i> Prix des offres
                 </a>
             @else
                 {{-- Liens métier seulement si l'utilisateur a un tenant associé --}}
@@ -1351,7 +1373,7 @@ document.addEventListener('DOMContentLoaded', function() {
         installBanner = document.createElement('div');
         installBanner.id = 'pwa-install-banner';
         installBanner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#105e49;color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:10000;font-size:.85rem;box-shadow:0 -4px 20px rgba(0,0,0,.15);flex-wrap:wrap;';
-        installBanner.innerHTML = '<span style="flex:1;min-width:200px;">📲 Installer <strong>pilotix</strong> sur votre écran d\'accueil</span>' +
+        installBanner.innerHTML = '<span style="flex:1;min-width:200px;">📲 Installer <strong>PILOTIX</strong> sur votre écran d\'accueil</span>' +
             '<button id="pwa-install-btn" style="background:#fff;color:#105e49;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem;">Installer</button>' +
             '<button id="pwa-dismiss-btn" style="background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.8rem;">Plus tard</button>';
         document.body.appendChild(installBanner);
@@ -1371,9 +1393,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    window.addEventListener('appinstalled', function() {
-        if (installBanner) { installBanner.remove(); installBanner = null; }
-        localStorage.removeItem('pwa_install_dismissed');
+    window.toggleInfoDropdown = function(e) {
+        if (e) e.stopPropagation();
+        var dd = document.getElementById('infoMenuDropdown');
+        if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+    };
+    document.addEventListener('click', function() {
+        var dd = document.getElementById('infoMenuDropdown');
+        if (dd) dd.style.display = 'none';
     });
 })();
 </script>

@@ -2,8 +2,9 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import { BASE_URL } from '../api/client';
 
-const API_URL = 'http://10.73.136.181:8000/api/v1'; // Should match client.js
+const API_URL = `${BASE_URL}/api`; // Aligné sur client.js (prod : https://pilotix.alwaysdata.net/api)
 
 let exportInProgress = false;
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    ActivityIndicator, Image, Alert, StatusBar
+    ActivityIndicator, Image, Alert, StatusBar, Modal
 } from 'react-native';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,6 +40,7 @@ const ShowProduitScreen = ({ navigation, route }) => {
 
     const [produitData, setProduitData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [imageModalVisible, setImageModalVisible] = useState(false);
     const [mouvements, setMouvements] = useState([]);
     const [mvtMeta, setMvtMeta] = useState({ current_page: 1, last_page: 1, per_page: 10, total: 0 });
     const [mvtLoading, setMvtLoading] = useState(false);
@@ -126,7 +127,7 @@ const ShowProduitScreen = ({ navigation, route }) => {
                     <Ionicons name="arrow-back" size={20} color={Colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topTitle}>{produit.nom}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('ProduitEdit', { id: produit.id })} style={styles.topActionBtn}>
+                <TouchableOpacity onPress={() => navigation.navigate('ProduitEdit', { id: produit.id, item: produit })} style={styles.topActionBtn}>
                     <Ionicons name="pencil-outline" size={18} color={Colors.primary} />
                 </TouchableOpacity>
             </View>
@@ -137,7 +138,17 @@ const ShowProduitScreen = ({ navigation, route }) => {
                 <View style={styles.mainCard}>
                     <View style={styles.imageWrap}>
                         {imgSrc ? (
-                            <Image source={{ uri: imgSrc }} style={styles.productImg} resizeMode="contain" />
+                            <TouchableOpacity
+                                activeOpacity={0.85}
+                                onPress={() => setImageModalVisible(true)}
+                                style={styles.imageTouchWrap}
+                            >
+                                <Image source={{ uri: imgSrc }} style={styles.productImg} resizeMode="contain" />
+                                <View style={styles.expandBadge}>
+                                    <Ionicons name="expand-outline" size={13} color="#FFF" />
+                                    <Text style={styles.expandBadgeText}>Agrandir</Text>
+                                </View>
+                            </TouchableOpacity>
                         ) : (
                             <View style={styles.placeholderImg}>
                                 <Ionicons name="image-outline" size={48} color={Colors.border} />
@@ -271,6 +282,30 @@ const ShowProduitScreen = ({ navigation, route }) => {
                 </View>
 
             </ScrollView>
+
+            {/* Modal Plein Écran Image */}
+            <Modal
+                visible={imageModalVisible}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setImageModalVisible(false)}
+            >
+                <View style={styles.modalBg}>
+                    <TouchableOpacity
+                        style={[styles.modalCloseBtn, { top: Math.max(insets.top + 10, 24) }]}
+                        onPress={() => setImageModalVisible(false)}
+                    >
+                        <Ionicons name="close" size={26} color="#FFF" />
+                    </TouchableOpacity>
+                    {imgSrc ? (
+                        <Image
+                            source={{ uri: imgSrc }}
+                            style={styles.fullImg}
+                            resizeMode="contain"
+                        />
+                    ) : null}
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -285,7 +320,13 @@ const styles = StyleSheet.create({
     errorText: { color: Colors.error, fontSize: 14, fontFamily: 'Poppins_500Medium' },
     scrollContent: { padding: 16, paddingBottom: 30 },
     mainCard: { backgroundColor: '#FFF', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: Colors.border, marginBottom: 16, alignItems: 'center' },
-    imageWrap: { width: '100%', height: 180, justifyContent: 'center', alignItems: 'center', marginBottom: 14 },
+    imageWrap: { width: '100%', height: 200, justifyContent: 'center', alignItems: 'center', marginBottom: 14 },
+    imageTouchWrap: { width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', position: 'relative' },
+    expandBadge: { position: 'absolute', bottom: 6, right: 6, backgroundColor: 'rgba(15,23,42,0.75)', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4, flexDirection: 'row', alignItems: 'center', gap: 4 },
+    expandBadgeText: { color: '#FFF', fontSize: 11, fontWeight: '600' },
+    modalBg: { flex: 1, backgroundColor: 'rgba(15,23,42,0.92)', justifyContent: 'center', alignItems: 'center', padding: 16 },
+    modalCloseBtn: { position: 'absolute', right: 20, width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', zIndex: 10 },
+    fullImg: { width: '92%', height: '80%' },
     productImg: { width: '100%', height: '100%' },
     placeholderImg: { width: 120, height: 120, borderRadius: 12, backgroundColor: '#f1f5f9', justifyContent: 'center', alignItems: 'center' },
     headerInfo: { width: '100%', alignItems: 'center' },

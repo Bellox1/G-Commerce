@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert, TextInput
+    ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert, TextInput,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../theme/Colors';
@@ -13,6 +14,7 @@ import TopHeaderNav from '../../components/TopHeaderNav';
 
 const EmployesScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
+    const passwordRef = useRef(null);
     const [employes, setEmployes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -22,9 +24,27 @@ const EmployesScreen = ({ navigation }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [telephone, setTelephone] = useState('');
     const [role, setRole] = useState('vendeur');
+    const [rolesSecondaires, setRolesSecondaires] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+
+    const toggleRoleSecondaire = (r) => {
+        if (r === role) return;
+        setRolesSecondaires(prev =>
+            prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r]
+        );
+    };
+
+    const handleSelectPrimaryRole = (r) => {
+        setRole(r);
+        if (r === 'superviseur') {
+            setRolesSecondaires([]);
+        } else {
+            setRolesSecondaires(prev => prev.filter(x => x !== r));
+        }
+    };
 
     const fetchData = useCallback(async () => {
         try {
@@ -111,7 +131,8 @@ const EmployesScreen = ({ navigation }) => {
                 email,
                 password,
                 telephone,
-                role
+                role,
+                roles_secondaires: rolesSecondaires
             });
             Alert.alert('Succès', 'Membre du personnel créé avec succès.');
             setModalVisible(false);
@@ -119,9 +140,12 @@ const EmployesScreen = ({ navigation }) => {
             setEmail('');
             setPassword('');
             setTelephone('');
+            setRole('vendeur');
+            setRolesSecondaires([]);
             fetchData();
         } catch (e) {
-            Alert.alert('Erreur', e.response?.data?.message || 'Création échouée.');
+            const msg = e.response?.data?.message || 'Erreur lors de la création.';
+            Alert.alert('Erreur', msg);
         } finally {
             setSubmitting(false);
         }
@@ -229,43 +253,103 @@ const EmployesScreen = ({ navigation }) => {
 
             {/* Modal Nouveau membre */}
             <Modal visible={modalVisible} animationType="slide" transparent>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Créer un membre du personnel</Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Ionicons name="close" size={24} color={Colors.text} />
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <View style={styles.modalHeader}>
+                                <Text style={styles.modalTitle}>Créer un membre du personnel</Text>
+                                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                    <Ionicons name="close" size={24} color={Colors.text} />
+                                </TouchableOpacity>
+                            </View>
+
+                            <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                                <Text style={styles.inputLabel}>Nom complet *</Text>
+                                <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="ex: Jean Dupont" />
+
+                                <Text style={styles.inputLabel}>Email d'accès *</Text>
+                                <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" placeholder="email@societe.com" autoCapitalize="none" />
+
+                                <Text style={styles.inputLabel}>Mot de passe *</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
+                                    <TextInput
+                                        ref={passwordRef}
+                                        style={[styles.input, { flex: 1, paddingRight: 40 }]}
+                                        value={password}
+                                        onChangeText={setPassword}
+                                        secureTextEntry={!showPassword}
+                                        placeholder="Mot de passe"
+                                    />
+                                    <TouchableOpacity
+                                        style={{ position: 'absolute', right: 12, top: 12, padding: 4 }}
+                                        onPress={() => {
+                                            setShowPassword(!showPassword);
+                                            setTimeout(() => passwordRef.current?.focus(), 50);
+                                        }}
+                                        activeOpacity={0.7}
+                                    >
+                                        <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={20} color={Colors.textLight} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <Text style={styles.inputLabel}>Téléphone</Text>
+                                <TextInput style={styles.input} value={telephone} onChangeText={setTelephone} keyboardType="phone-pad" placeholder="+229 97 00 00 00" />
+
+                                <Text style={styles.inputLabel}>Rôle principal *</Text>
+                                <View style={styles.chipRow}>
+                                    {['superviseur', 'vendeur', 'magasinier', 'controleur'].map(r => (
+                                        <TouchableOpacity
+                                            key={r}
+                                            style={[styles.chip, role === r && styles.chipActive]}
+                                            onPress={() => handleSelectPrimaryRole(r)}
+                                        >
+                                            <Text style={[styles.chipText, role === r && styles.chipTextActive]}>{r.toUpperCase()}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+
+                                {role !== 'superviseur' && (
+                                    <>
+                                        <Text style={[styles.inputLabel, { marginTop: 14 }]}>Rôles secondaires (optionnel)</Text>
+                                        <Text style={{ fontSize: 11, color: Colors.textLight, marginBottom: 8 }}>Cochez un ou plusieurs rôles cumulables pour cet employé.</Text>
+                                        <View style={styles.chipRow}>
+                                            {['vendeur', 'magasinier', 'controleur'].map(r => {
+                                                const isPrimary = role === r;
+                                                const isSelected = rolesSecondaires.includes(r);
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={r}
+                                                        style={[
+                                                            styles.chip,
+                                                            isSelected && { backgroundColor: Colors.secondary || '#1E293B', borderColor: Colors.secondary || '#1E293B' },
+                                                            isPrimary && { opacity: 0.35, backgroundColor: '#F1F5F9' }
+                                                        ]}
+                                                        onPress={() => toggleRoleSecondaire(r)}
+                                                        disabled={isPrimary}
+                                                    >
+                                                        <Ionicons
+                                                            name={isSelected ? "checkbox" : "square-outline"}
+                                                            size={14}
+                                                            color={isSelected ? "#FFF" : Colors.textLight}
+                                                            style={{ marginRight: 4 }}
+                                                        />
+                                                        <Text style={[styles.chipText, isSelected && { color: '#FFF', fontFamily: 'Poppins_700Bold' }]}>
+                                                            {r.toUpperCase()}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </>
+                                )}
+                            </ScrollView>
+
+                            <TouchableOpacity style={styles.submitBtn} onPress={handleCreateEmploye} disabled={submitting}>
+                                {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>Créer le membre</Text>}
                             </TouchableOpacity>
                         </View>
-
-                        <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
-                            <Text style={styles.inputLabel}>Nom complet</Text>
-                            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="ex: Jean Dupont" />
-
-                            <Text style={styles.inputLabel}>Email d'accès</Text>
-                            <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" placeholder="email@societe.com" autoCapitalize="none" />
-
-                            <Text style={styles.inputLabel}>Mot de passe</Text>
-                            <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry placeholder="Mot de passe" />
-
-                            <Text style={styles.inputLabel}>Téléphone</Text>
-                            <TextInput style={styles.input} value={telephone} onChangeText={setTelephone} keyboardType="phone-pad" placeholder="+229 97 00 00 00" />
-
-                            <Text style={styles.inputLabel}>Rôle principal</Text>
-                            <View style={styles.chipRow}>
-                                {['superviseur', 'vendeur', 'magasinier', 'controleur'].map(r => (
-                                    <TouchableOpacity key={r} style={[styles.chip, role === r && styles.chipActive]} onPress={() => setRole(r)}>
-                                        <Text style={[styles.chipText, role === r && styles.chipTextActive]}>{r.toUpperCase()}</Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </ScrollView>
-
-                        <TouchableOpacity style={styles.submitBtn} onPress={handleCreateEmploye} disabled={submitting}>
-                            {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>Créer le membre</Text>}
-                        </TouchableOpacity>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

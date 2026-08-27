@@ -10,8 +10,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDateFr, formatDateTimeFr } from '../../utils/formatDate';
 
 const formatMoney = (val) => {
-    if (val === null || val === undefined || val === '') return '0 F';
-    return Number(val).toLocaleString('fr-FR') + ' FCFA';
+    if (val === null || val === undefined || val === '') return '0 FCFA';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' FCFA';
 };
 
 const ShowClientScreen = ({ navigation, route }) => {

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Politique de confidentialité — pilotix</title>
-    <meta name="description" content="Politique de confidentialité de pilotix. Découvrez comment nous protégeons vos données.">
+    <title>Politique de confidentialité — PILOTIX</title>
+    <meta name="description" content="Politique de confidentialité de PILOTIX. Découvrez comment nous protégeons vos données.">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@
 
 <nav>
     <a href="/" class="nav-logo">
-        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix">
+        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX">
     </a>
     <div class="nav-links">
         <a href="/">Accueil</a>
@@ -63,7 +63,7 @@
 <div class="page-body">
 
     <h2>1. Qui sommes-nous ?</h2>
-    <p>Pilotix est un logiciel de gestion commerciale édité au Bénin. On développe cette solution pour aider les PME et commerçants d'Afrique de l'Ouest à mieux gérer leur activité.</p>
+    <p>PILOTIX est un logiciel de gestion commerciale édité au Bénin. On développe cette solution pour aider les PME et commerçants d'Afrique de l'Ouest à mieux gérer leur activité.</p>
     <p>Si vous avez des questions sur vos données, contactez-nous directement :</p>
     <ul>
         <li>Email : <a href="mailto:pilotixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotixcontact@gmail.com</a></li>
@@ -71,7 +71,7 @@
     </ul>
 
     <h2>2. Quelles données collecte-t-on ?</h2>
-    <p>On collecte uniquement ce qui est nécessaire pour faire tourner Pilotix :</p>
+    <p>On collecte uniquement ce qui est nécessaire pour faire tourner PILOTIX :</p>
     <ul>
         <li><strong>Vos informations personnelles :</strong> nom, prénom, email, téléphone — fournies lors de l'inscription.</li>
         <li><strong>Vos données commerciales :</strong> ventes, stocks, clients, livraisons — que vous saisissez vous-même dans l'application.</li>
@@ -82,7 +82,7 @@
     <p>On utilise vos données pour :</p>
     <ul>
         <li>Vous fournir le service (gérer votre compte, vos ventes, vos stocks).</li>
-        <li>Améliorer Pilotix en comprenant comment vous l'utilisez.</li>
+        <li>Améliorer PILOTIX en comprenant comment vous l'utilisez.</li>
         <li>Vous prévenir des mises à jour importantes.</li>
         <li>Assurer la sécurité de votre compte.</li>
     </ul>
@@ -115,7 +115,7 @@
     <p>Pour exercer ces droits, envoyez un email à <a href="mailto:pilotixcontact@gmail.com" style="color:var(--primary); font-weight:600;">pilotixcontact@gmail.com</a>.</p>
 
     <h2>8. Cookies</h2>
-    <p>Pilotix utilise uniquement des cookies techniques (pour garder votre session ouverte). Pas de cookies publicitaires ni de suivi.</p>
+    <p>PILOTIX utilise uniquement des cookies techniques (pour garder votre session ouverte). Pas de cookies publicitaires ni de suivi.</p>
 
     <h2>9. Où sont stockées vos données ?</h2>
     <p>Vos données sont hébergées en Afrique de l'Ouest. On ne les envoie pas à l'étranger.</p>
@@ -136,7 +136,7 @@
     <div class="footer-top">
         <div class="footer-brand">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
+                <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="height:56px; width:56px; object-fit:contain; border-radius:12px;">
             </div>
             <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
@@ -158,7 +158,7 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <span>&copy; {{ date('Y') }} Pilotix — Gestion commerciale multi-Dépôt ou Magasin</span>
+        <span>&copy; {{ date('Y') }} PILOTIX — Gestion commerciale multi-Dépôt ou Magasin</span>
         <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
     </div>
 </footer>

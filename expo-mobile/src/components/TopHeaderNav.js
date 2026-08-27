@@ -1,13 +1,15 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity,
-    ScrollView, Platform, StatusBar, Image
+    ScrollView, Platform, StatusBar, Image, Modal, Linking
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '../theme/Colors';
 import { useAuth } from '../context/AuthContext';
 import { useCan } from '../utils/permissions';
 import useAlertCount from '../hooks/useAlertCount';
+import { BASE_URL } from '../api/client';
 
 const ALL_CATEGORIES = [
     { key: 'dashboard',      label: 'Aperçu',      icon: 'grid-outline',             iconActive: 'grid',              always: true,         screen: 'MainTabs' },
@@ -32,6 +34,8 @@ const TopHeaderNav = ({ navigation, activeCategory = 'dashboard' }) => {
     const { user } = useAuth();
     const can = useCan();
     const scrollRef = useRef(null);
+    const insets = useSafeAreaInsets();
+    const [menuModalVisible, setMenuModalVisible] = useState(false);
 
     // Single shared source of truth for the notification badge
     const alertCount = useAlertCount();
@@ -61,6 +65,16 @@ const TopHeaderNav = ({ navigation, activeCategory = 'dashboard' }) => {
         }
     };
 
+    const handleOpenLink = (url) => {
+        setMenuModalVisible(false);
+        Linking.openURL(url).catch(() => {});
+    };
+
+    const handleSendSuggestion = () => {
+        setMenuModalVisible(false);
+        Linking.openURL('mailto:pilotixcontact@gmail.com?subject=Suggestion%20sur%20PILOTIX').catch(() => {});
+    };
+
     const initials = user?.name
         ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
         : 'P';
@@ -70,7 +84,7 @@ const TopHeaderNav = ({ navigation, activeCategory = 'dashboard' }) => {
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
             {/* Top Bar */}
-            <View style={styles.topBar}>
+            <View style={[styles.topBar, { paddingTop: Math.max(insets.top + 6, Platform.OS === 'ios' ? 50 : 40) }]}>
                 <Image
                     source={require('../../assets/pilotix-logo.png')}
                     style={styles.logoImage}
@@ -85,12 +99,19 @@ const TopHeaderNav = ({ navigation, activeCategory = 'dashboard' }) => {
                 >
                     <Ionicons name="search-outline" size={18} color={Colors.primary} style={{ marginRight: 8 }} />
                     <View style={{ flex: 1 }}>
-                        <Text style={styles.searchPillTitle} numberOfLines={1}>Rechercher dans Pilotix</Text>
+                        <Text style={styles.searchPillTitle} numberOfLines={1}>Rechercher dans PILOTIX</Text>
                         <Text style={styles.searchPillSub} numberOfLines={1}>Produits · Clients · Ventes</Text>
                     </View>
-                    <View style={styles.searchFilterCircle}>
+                    <TouchableOpacity
+                        style={styles.searchFilterCircle}
+                        onPress={(e) => {
+                            e.stopPropagation();
+                            setMenuModalVisible(true);
+                        }}
+                        activeOpacity={0.7}
+                    >
                         <Ionicons name="options-outline" size={16} color={Colors.text} />
-                    </View>
+                    </TouchableOpacity>
                 </TouchableOpacity>
 
                 {/* Notification Bell */}
@@ -140,6 +161,65 @@ const TopHeaderNav = ({ navigation, activeCategory = 'dashboard' }) => {
                     })}
                 </ScrollView>
             </View>
+
+            {/* Modal Menu Options (Conditions, Confidentialité, Suggestions) */}
+            <Modal visible={menuModalVisible} transparent animationType="fade" onRequestClose={() => setMenuModalVisible(false)}>
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setMenuModalVisible(false)}
+                >
+                    <TouchableOpacity activeOpacity={1} style={styles.menuModalCard}>
+                        <View style={styles.menuHeader}>
+                            <Text style={styles.menuTitle}>Informations & Support</Text>
+                            <TouchableOpacity onPress={() => setMenuModalVisible(false)}>
+                                <Ionicons name="close" size={22} color={Colors.text} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity
+                            style={styles.menuItem}
+                            onPress={() => handleOpenLink(`${BASE_URL}/conditions`)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[styles.menuIconBox, { backgroundColor: '#EFF6FF' }]}>
+                                <Ionicons name="document-text-outline" size={20} color={Colors.primary} />
+                            </View>
+                            <Text style={styles.menuItemText}>Conditions d'utilisation</Text>
+                            <Ionicons name="chevron-forward" size={16} color={Colors.textLight} />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.menuItem}
+                            onPress={() => handleOpenLink(`${BASE_URL}/confidentialite`)}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[styles.menuIconBox, { backgroundColor: '#F0FDF4' }]}>
+                                <Ionicons name="shield-checkmark-outline" size={20} color={Colors.success} />
+                            </View>
+                            <Text style={styles.menuItemText}>Politique de confidentialité</Text>
+                            <Ionicons name="chevron-forward" size={16} color={Colors.textLight} />
+                        </TouchableOpacity>
+
+                        <View style={styles.menuDivider} />
+
+                        <TouchableOpacity
+                            style={[styles.menuItem, styles.suggestionItem]}
+                            onPress={handleSendSuggestion}
+                            activeOpacity={0.7}
+                        >
+                            <View style={[styles.menuIconBox, { backgroundColor: '#FEF3C7' }]}>
+                                <Ionicons name="bulb" size={20} color="#D97706" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.menuItemText, { color: '#92400E', fontFamily: 'PlusJakartaSans_700Bold' }]}>Faire une suggestion</Text>
+                                <Text style={{ fontSize: 11, color: Colors.textLight }}>Envoyer un e-mail à l'équipe PILOTIX</Text>
+                            </View>
+                            <Ionicons name="mail" size={18} color="#D97706" />
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
         </View>
     );
 };
@@ -154,7 +234,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 14,
-        paddingTop: Platform.OS === 'ios' ? 48 : StatusBar.currentHeight + 8,
+        paddingTop: Platform.OS === 'ios' ? 52 : (StatusBar.currentHeight ? StatusBar.currentHeight + 8 : 44),
         paddingBottom: 10,
         backgroundColor: '#FFFFFF',
         gap: 8,
@@ -210,6 +290,45 @@ const styles = StyleSheet.create({
         position: 'absolute', bottom: 0, left: 0, right: 0,
         height: 2.5, backgroundColor: Colors.primary, borderRadius: 1.5,
     },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(15, 23, 42, 0.45)',
+        justifyContent: 'flex-end',
+    },
+    menuModalCard: {
+        backgroundColor: '#FFFFFF',
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        padding: 20,
+        paddingBottom: 34,
+        gap: 8,
+    },
+    menuHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+        paddingBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
+    },
+    menuTitle: { fontSize: 16, fontFamily: 'SpaceGrotesk_700Bold', color: Colors.text },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        borderRadius: 12,
+        backgroundColor: '#F8FAFC',
+        gap: 12,
+    },
+    menuIconBox: {
+        width: 36, height: 36, borderRadius: 10,
+        justifyContent: 'center', alignItems: 'center',
+    },
+    menuItemText: { flex: 1, fontSize: 14, fontFamily: 'PlusJakartaSans_600SemiBold', color: Colors.text },
+    menuDivider: { height: 1, backgroundColor: '#E2E8F0', marginVertical: 4 },
+    suggestionItem: { backgroundColor: '#FFFBEB', borderWidth: 1, borderColor: '#FCD34D' },
 });
 
 export default TopHeaderNav;

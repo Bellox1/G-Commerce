@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useRef } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    TextInput, ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert
+    TextInput, ActivityIndicator, RefreshControl, Modal, ScrollView, StatusBar, Alert,
+    KeyboardAvoidingView, Platform
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Colors from '../../theme/Colors';
@@ -272,7 +273,7 @@ const StockScreen = ({ navigation }) => {
                     <FlatList
                         data={filteredProduits}
                         keyExtractor={(item, index) => (item?.id != null ? `${item.id}-${index}` : `k-${index}`)}
-                        contentContainerStyle={styles.listContent}
+                        contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(insets.bottom + 100, 120) }]}
                         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
                         ListEmptyComponent={
                             <View style={styles.emptyBox}>
@@ -315,71 +316,72 @@ const StockScreen = ({ navigation }) => {
                         <Text style={styles.loaderText}>Chargement des mouvements de stock...</Text>
                     </View>
                 ) : (
-                    <View>
+                    <View style={{ flex: 1 }}>
                         <Text style={styles.countText}>
                             {totalMouv} mouvement{totalMouv > 1 ? 's' : ''} au total
                         </Text>
                         <FlatList
-                        data={filteredMouvements}
-                        keyExtractor={(item, index) => (item?.id != null ? `${item.id}-${index}` : `k-${index}`)}
-                        contentContainerStyle={styles.listContent}
-                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
-                        onEndReached={loadMoreMouv}
-                        onEndReachedThreshold={0.3}
-                        ListFooterComponent={
-                            loadingMoreMouv ? (
-                                <View style={styles.listFooter}>
-                                    <ActivityIndicator color={Colors.primary} />
-                                    <Text style={styles.listFooterText}>Chargement...</Text>
-                                </View>
-                            ) : pageMouv < lastPageMouv ? (
-                                <View style={styles.listFooter}>
-                                    <Text style={styles.listFooterText}>Tirez pour plus de mouvements</Text>
-                                </View>
-                            ) : null
-                        }
-                        ListEmptyComponent={
-                            !loadingMouv ? (
-                                <View style={styles.emptyBox}>
-                                    <Ionicons name="swap-horizontal-outline" size={50} color={Colors.border} />
-                                    <Text style={styles.emptyTitle}>Aucun mouvement enregistré</Text>
-                                </View>
-                            ) : null
-                        }
-                        renderItem={({ item }) => {
-                            const badge = getTypeBadge(item.type);
-                            const dateStr = item.date_mouvement || item.created_at ? formatDateTimeFr(item.date_mouvement || item.created_at) : '—';
+                            data={filteredMouvements}
+                            keyExtractor={(item, index) => (item?.id != null ? `${item.id}-${index}` : `k-${index}`)}
+                            contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(insets.bottom + 100, 120) }]}
+                            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+                            onEndReached={loadMoreMouv}
+                            onEndReachedThreshold={0.3}
+                            ListFooterComponent={
+                                loadingMoreMouv ? (
+                                    <View style={styles.listFooter}>
+                                        <ActivityIndicator color={Colors.primary} />
+                                        <Text style={styles.listFooterText}>Chargement...</Text>
+                                    </View>
+                                ) : pageMouv < lastPageMouv ? (
+                                    <View style={styles.listFooter}>
+                                        <Text style={styles.listFooterText}>Tirez pour plus de mouvements</Text>
+                                    </View>
+                                ) : null
+                            }
+                            ListEmptyComponent={
+                                !loadingMouv ? (
+                                    <View style={styles.emptyBox}>
+                                        <Ionicons name="swap-horizontal-outline" size={50} color={Colors.border} />
+                                        <Text style={styles.emptyTitle}>Aucun mouvement enregistré</Text>
+                                    </View>
+                                ) : null
+                            }
+                            renderItem={({ item }) => {
+                                const badge = getTypeBadge(item.type);
+                                const dateStr = item.date_mouvement || item.created_at ? formatDateTimeFr(item.date_mouvement || item.created_at) : '—';
 
-                            return (
-                                <View style={styles.mouvCard}>
-                                    <View style={styles.mouvHeader}>
-                                        <View style={[styles.badge, { backgroundColor: badge.bg }]}>
-                                            <Text style={[styles.badgeText, { color: badge.color }]}>{badge.label}</Text>
+                                return (
+                                    <View style={styles.mouvCard}>
+                                        <View style={styles.mouvHeader}>
+                                            <View style={[styles.badge, { backgroundColor: badge.bg }]}>
+                                                <Text style={[styles.badgeText, { color: badge.color }]}>{badge.label}</Text>
+                                            </View>
+                                            <Text style={styles.mouvDate}>{dateStr}</Text>
                                         </View>
-                                        <Text style={styles.mouvDate}>{dateStr}</Text>
+
+                                        <Text style={styles.mouvProd}>{item.produit?.nom || 'Produit'}</Text>
+                                        <Text style={styles.mouvMeta}>Magasin: {item.magasin?.nom || '—'} • Par: {item.user?.name || 'Système'}</Text>
+
+                                        {item.note ? <Text style={styles.mouvNote}>Note: {item.note}</Text> : null}
+
+                                        <View style={styles.mouvFooter}>
+                                            <Text style={styles.mouvQtyLabel}>Quantité :</Text>
+                                            <Text style={[styles.mouvQtyVal, { color: badge.color }]}>
+                                                {item.type?.includes('entree') || item.type?.includes('positif') ? `+${item.quantite}` : `-${item.quantite}`} cartons
+                                            </Text>
+                                        </View>
                                     </View>
-
-                                    <Text style={styles.mouvProd}>{item.produit?.nom || 'Produit'}</Text>
-                                    <Text style={styles.mouvMeta}>Magasin: {item.magasin?.nom || '—'} • Par: {item.user?.name || 'Système'}</Text>
-
-                                    {item.note ? <Text style={styles.mouvNote}>Note: {item.note}</Text> : null}
-
-                                    <View style={styles.mouvFooter}>
-                                        <Text style={styles.mouvQtyLabel}>Quantité :</Text>
-                                        <Text style={[styles.mouvQtyVal, { color: badge.color }]}>
-                                            {item.type?.includes('entree') || item.type?.includes('positif') ? `+${item.quantite}` : `-${item.quantite}`} cartons
-                                        </Text>
-                                    </View>
-                                </View>
-                            );
-                        }}
-                    />
+                                );
+                            }}
+                        />
                     </View>
                 )
             )}
 
             {/* Modal Ajustement */}
             <Modal visible={!!adjustItem} transparent animationType="slide" onRequestClose={() => setAdjustItem(null)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalCard}>
                         <View style={styles.modalHeader}>
@@ -449,6 +451,8 @@ const StockScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );
@@ -521,6 +525,15 @@ const styles = StyleSheet.create({
     listFooter: { alignItems: 'center', paddingVertical: 16, gap: 6 },
     listFooterText: { fontSize: 12, fontFamily: 'Poppins_400Regular', color: Colors.textLight },
     countText: { fontSize: 13, fontFamily: 'Poppins_600SemiBold', color: Colors.textLight, paddingHorizontal: 16, paddingBottom: 8, marginTop: 4 },
+    magasinScrollContent: { gap: 8, paddingVertical: 2 },
+    magasinChip: {
+        flexDirection: 'row', alignItems: 'center',
+        paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12,
+        backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border,
+    },
+    magasinChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+    magasinChipText: { fontSize: 13, fontFamily: 'Poppins_600SemiBold', color: Colors.text },
+    magasinChipTextActive: { color: '#FFF' },
 });
 
 export default StockScreen;

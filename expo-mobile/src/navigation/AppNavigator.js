@@ -94,6 +94,7 @@ import PrestatairesScreen    from '../screens/admin/prestataires/index';
 import PrestataireShowScreen from '../screens/admin/prestataires/show';
 
 import TresorerieScreen      from '../screens/tresorerie/index';
+import OffrePauseScreen      from '../screens/OffrePauseScreen';
 
 import { useCan } from '../utils/permissions';
 
@@ -170,6 +171,15 @@ const AppNavigator = () => {
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background }}>
                 <ActivityIndicator size="large" color={Colors.primary} />
             </View>
+        );
+    }
+
+    // Offre en pause (utilisateurs rattachés à une société) : aucune fonctionnalité accessible.
+    if (user?.tenant?.offre_en_pause) {
+        return (
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="OffrePause" component={OffrePauseScreen} />
+            </Stack.Navigator>
         );
     }
 

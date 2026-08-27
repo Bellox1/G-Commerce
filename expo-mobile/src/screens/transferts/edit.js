@@ -9,9 +9,11 @@ import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import client from '../../api/client';
 import { Header } from '../../components/ui';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TransfertEditScreen = ({ navigation }) => {
     const route = useRoute();
+    const insets = useSafeAreaInsets();
     const { id } = route.params || {};
 
     const [loading, setLoading] = useState(true);
@@ -147,32 +149,56 @@ const TransfertEditScreen = ({ navigation }) => {
 
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>Magasins</Text>
-                    <Text style={styles.label}>Magasin Source (Départ)</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-                        {magasins.map(m => (
-                            <TouchableOpacity
-                                key={m.id}
-                                style={[styles.chip, sourceId === String(m.id) && styles.chipActive]}
-                                onPress={() => setSourceId(String(m.id))}
-                            >
-                                <Text style={[styles.chipText, sourceId === String(m.id) && styles.chipTextActive]}>{m.nom}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
 
-                    <Text style={styles.label}>Magasin Destination (Arrivée)</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-                        {magasins.map(m => (
-                            <TouchableOpacity
-                                key={m.id}
-                                style={[styles.chip, destId === String(m.id) && styles.chipActive, sourceId === String(m.id) && { opacity: 0.4 }]}
-                                onPress={() => setDestId(String(m.id))}
-                                disabled={sourceId === String(m.id)}
-                            >
-                                <Text style={[styles.chipText, destId === String(m.id) && styles.chipTextActive]}>{m.nom}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    <Text style={styles.label}>1. Dépôt de Départ (Source)</Text>
+                    <View style={{ gap: 8, marginBottom: 12 }}>
+                        {magasins.map(m => {
+                            const isSelected = sourceId === String(m.id);
+                            return (
+                                <TouchableOpacity
+                                    key={m.id}
+                                    style={[styles.magasinCardItem, isSelected && styles.magasinCardItemActive]}
+                                    onPress={() => setSourceId(String(m.id))}
+                                    activeOpacity={0.7}
+                                >
+                                    <Ionicons name={isSelected ? 'radio-button-on' : 'radio-button-off'} size={20} color={isSelected ? Colors.primary : Colors.textLight} />
+                                    <Ionicons name="storefront-outline" size={18} color={isSelected ? Colors.primary : Colors.textLight} style={{ marginLeft: 6 }} />
+                                    <Text style={[styles.magasinCardName, isSelected && styles.magasinCardNameActive]}>{m.nom}</Text>
+                                    {isSelected && <Text style={{ fontSize: 11, color: Colors.primary, fontFamily: 'Poppins_600SemiBold' }}>Sélectionné</Text>}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+
+                    <Text style={styles.label}>2. Dépôt d'Arrivée (Destination)</Text>
+                    <View style={{ gap: 8, marginBottom: 12 }}>
+                        {magasins.map(m => {
+                            const isSource = sourceId === String(m.id);
+                            const isSelected = destId === String(m.id);
+                            return (
+                                <TouchableOpacity
+                                    key={m.id}
+                                    style={[styles.magasinCardItem, isSelected && styles.magasinCardItemActive, isSource && { opacity: 0.45, backgroundColor: '#F1F5F9' }]}
+                                    onPress={() => {
+                                        if (isSource) {
+                                            Alert.alert('Attention', 'Ce dépôt est déjà le dépôt source.');
+                                            return;
+                                        }
+                                        setDestId(String(m.id));
+                                    }}
+                                    disabled={isSource}
+                                    activeOpacity={0.7}
+                                >
+                                    <Ionicons name={isSelected ? 'radio-button-on' : 'radio-button-off'} size={20} color={isSelected ? Colors.primary : Colors.textLight} />
+                                    <Ionicons name="storefront-outline" size={18} color={isSelected ? Colors.primary : Colors.textLight} style={{ marginLeft: 6 }} />
+                                    <Text style={[styles.magasinCardName, isSelected && styles.magasinCardNameActive]}>
+                                        {m.nom} {isSource ? '(Dépôt source)' : ''}
+                                    </Text>
+                                    {isSelected && <Text style={{ fontSize: 11, color: Colors.primary, fontFamily: 'Poppins_600SemiBold' }}>Sélectionné</Text>}
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
 
                     <Text style={styles.label}>Notes (optionnel)</Text>
                     <TextInput
@@ -277,7 +303,7 @@ const styles = StyleSheet.create({
     chipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
     chipText: { fontSize: 12, fontFamily: 'Poppins_500Medium', color: Colors.text },
     chipTextActive: { color: '#FFF' },
-    searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f1f5f9', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8 },
+    searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 12 },
     searchInput: { flex: 1, marginLeft: 8, fontFamily: 'Poppins_400Regular', fontSize: 13, color: Colors.text },
     prodScroll: { maxHeight: 140 },
     prodChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: Colors.background, borderWidth: 1, borderColor: Colors.border, alignItems: 'center', minWidth: 90 },
@@ -296,6 +322,31 @@ const styles = StyleSheet.create({
     trashBtn: { padding: 6, justifyContent: 'center' },
     submitBtn: { backgroundColor: Colors.primary, borderRadius: 14, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
     submitBtnText: { color: '#FFF', fontSize: 15, fontFamily: 'Poppins_700Bold' },
+    magasinCardItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 12,
+        backgroundColor: '#F8FAFC',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    magasinCardItemActive: {
+        backgroundColor: '#EFF6FF',
+        borderColor: Colors.primary,
+    },
+    magasinCardName: {
+        fontSize: 14,
+        fontFamily: 'Poppins_500Medium',
+        color: Colors.text,
+        marginLeft: 8,
+        flex: 1,
+    },
+    magasinCardNameActive: {
+        fontFamily: 'Poppins_700Bold',
+        color: Colors.primary,
+    },
 });
 
 export default TransfertEditScreen;

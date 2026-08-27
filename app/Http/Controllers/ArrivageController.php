@@ -189,7 +189,7 @@ class ArrivageController extends Controller
                     'fournisseur_id'       => $p['fournisseur_id'] ?? null,
                     'quantite'             => $p['quantite'],
                     'prix_unitaire_origine'=> $p['prix_unitaire_origine'],
-                    'prix_vente_suggere'   => $p['prix_vente_suggere'] ?? null,
+                    'prix_vente_suggere'   => $p['prix_vente_suggere'] ?? 0,
                     'total_origine'        => $totalOrigine,
                 ]);
             }

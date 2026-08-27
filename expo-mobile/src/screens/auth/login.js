@@ -55,7 +55,7 @@ const LoginScreen = ({ navigation }) => {
                 {/* Brand Header */}
                 <View style={styles.logoSection}>
                     <Image
-                        source={require('../../../assets/pilotix.png')}
+                        source={require('../../../assets/pilotix-logo.png')}
                         style={styles.logoImage}
                         resizeMode="contain"
                     />

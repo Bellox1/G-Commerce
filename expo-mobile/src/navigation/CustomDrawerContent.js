@@ -102,7 +102,7 @@ const CustomDrawerContent = (props) => {
             <View style={styles.header}>
                 <View style={styles.brandRow}>
                     <Image
-                        source={require('../../assets/pilotix.png')}
+                        source={require('../../assets/pilotix-logo.png')}
                         style={styles.brandLogo}
                         resizeMode="contain"
                     />

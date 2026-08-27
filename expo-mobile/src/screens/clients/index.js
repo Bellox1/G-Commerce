@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity,
-    TextInput, ActivityIndicator, RefreshControl, Modal, Linking, StatusBar, Alert
+    TextInput, ActivityIndicator, RefreshControl, Modal, Linking, StatusBar, Alert,
+    KeyboardAvoidingView, Platform, ScrollView
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Colors from '../../theme/Colors';
@@ -11,8 +12,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TopHeaderNav from '../../components/TopHeaderNav';
 
 const formatMoney = (val) => {
-    if (!val && val !== 0) return '0 F';
-    return Number(val).toLocaleString('fr-FR') + ' F';
+    if (val === null || val === undefined || val === '') return '0 F';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' F';
 };
 
 const ClientsScreen = ({ navigation }) => {
@@ -226,6 +229,7 @@ const ClientsScreen = ({ navigation }) => {
 
             {/* Modal Créer Client */}
             <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => setShowAddModal(false)}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalCard}>
                         <View style={styles.modalHeader}>
@@ -260,6 +264,8 @@ const ClientsScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
                 </View>
+
+                </KeyboardAvoidingView>
             </Modal>
         </View>
     );

@@ -15,6 +15,9 @@
 /.zed
 /auth.json
 /node_modules
+/electron-desktop/node_modules
+public/downloads/*.apk
+public/downloads/*.AppImage
 /public/build
 /public/hot
 /public/storage

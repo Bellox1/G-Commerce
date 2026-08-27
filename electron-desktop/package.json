@@ -1,5 +1,5 @@
 {
-  "name": "pilotix-desktop",
+  "name": "PILOTIX-desktop",
   "version": "1.0.0",
   "description": "PILOTIX Application Desktop pour Windows, macOS et Linux",
   "main": "main.js",
@@ -10,7 +10,7 @@
     "build:mac": "electron-builder --mac dmg"
   },
   "keywords": [
-    "pilotix",
+    "PILOTIX",
     "electron",
     "desktop",
     "gestion-commerciale"
@@ -22,7 +22,7 @@
     "electron-builder": "^24.9.0"
   },
   "build": {
-    "appId": "com.pilotix.desktop",
+    "appId": "com.PILOTIX.desktop",
     "productName": "PILOTIX",
     "directories": {
       "output": "../public/downloads"

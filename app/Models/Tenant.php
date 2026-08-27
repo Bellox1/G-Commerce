@@ -13,11 +13,14 @@ class Tenant extends Model
         'nom', 'marque', 'activite', 'pays', 'ville',
         'telephone', 'email', 'logo', 'actif', 'proprietaire_id',
         'partenaire_id', 'offre_code', 'offre_expires_at', 'alertes_envoyees',
+        'offre_en_pause', 'offre_pause_depuis',
     ];
 
     protected $casts = [
         'actif' => 'boolean',
         'offre_expires_at' => 'datetime',
+        'offre_en_pause' => 'boolean',
+        'offre_pause_depuis' => 'datetime',
         'alertes_envoyees' => 'array',
     ];
 
@@ -35,10 +38,19 @@ class Tenant extends Model
     public function commissions()    { return $this->hasMany(Commission::class); }
 
     /**
-     * L'offre est-elle active ? (offre à vie OU pas encore expirée)
+     * L'offre est-elle en pause ? (équivaut à « pas d'offre »)
+     */
+    public function isOffrePause(): bool
+    {
+        return (bool) $this->offre_en_pause;
+    }
+
+    /**
+     * L'offre est-elle active ? (offre à vie OU pas encore expirée ET non en pause)
      */
     public function isOffreActive(): bool
     {
+        if ($this->offre_en_pause) return false;
         if (!$this->offre_code) return false;
         if ($this->offre_code === 'locale') return true;
         if (!$this->offre_expires_at) return false;
@@ -51,6 +63,26 @@ class Tenant extends Model
     public function isOffreExpiree(): bool
     {
         return !$this->isOffreActive();
+    }
+
+    /**
+     * Statut de l'offre pour l'affichage (libellé + classe de badge).
+     */
+    public function offreStatut(): array
+    {
+        if ($this->offre_en_pause) {
+            return ['code' => 'pause', 'libelle' => 'En pause', 'badge' => 'badge-warning'];
+        }
+        if (!$this->offre_code) {
+            return ['code' => 'aucune', 'libelle' => 'Aucune offre', 'badge' => 'badge-danger'];
+        }
+        if ($this->offre_code === 'locale') {
+            return ['code' => 'active', 'libelle' => 'Offre à vie', 'badge' => 'badge-success'];
+        }
+        if ($this->isOffreExpiree()) {
+            return ['code' => 'expiree', 'libelle' => 'Expirée', 'badge' => 'badge-danger'];
+        }
+        return ['code' => 'active', 'libelle' => 'Active', 'badge' => 'badge-success'];
     }
 
     public const PLAN_ESSENTIEL   = 'essentiel';

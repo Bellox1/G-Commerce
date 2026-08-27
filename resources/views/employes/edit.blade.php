@@ -108,14 +108,24 @@
             <div class="form-row form-row-2">
                 <div class="form-group">
                     <label class="form-label">Nouveau mot de passe</label>
-                    <input type="password" name="password" class="form-control">
+                    <div style="position:relative;">
+                        <input type="password" name="password" id="inputEditPass" class="form-control" style="padding-right:40px;">
+                        <button type="button" onclick="togglePassVisibility('inputEditPass', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                     <small style="color:var(--text-muted); font-size:.75rem;">Laissez vide pour conserver le mot de passe actuel.</small>
                     @error('password') <small style="color:var(--danger);">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Confirmer le mot de passe</label>
-                    <input type="password" name="password_confirmation" class="form-control">
+                    <div style="position:relative;">
+                        <input type="password" name="password_confirmation" id="inputEditPassConf" class="form-control" style="padding-right:40px;">
+                        <button type="button" onclick="togglePassVisibility('inputEditPassConf', this)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;">
+                            <i class="bi bi-eye-slash"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 

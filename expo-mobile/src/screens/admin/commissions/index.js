@@ -10,7 +10,12 @@ import Colors from '../../../theme/Colors';
 import client from '../../../api/client';
 import { Header, Loader, Empty, StatusBadge, COMMISSION_STATUS } from '../components';
 
-const formatMoney = (val) => (val || val === 0 ? Number(val).toLocaleString('fr-FR') + ' FCFA' : '—');
+const formatMoney = (val) => {
+    if (val === null || val === undefined || val === '') return '0 FCFA';
+    let n = Math.round(Number(val));
+    if (!n || Math.abs(n) === 0) n = 0;
+    return n.toLocaleString('fr-FR') + ' FCFA';
+};
 const formatDate = (d) => {
     if (!d) return '—';
     try { return new Date(d).toLocaleDateString('fr-FR'); } catch { return '—'; }

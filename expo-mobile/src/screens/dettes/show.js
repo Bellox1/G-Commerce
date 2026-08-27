@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal,
-    ActivityIndicator, TextInput, Alert, StatusBar, Platform
+    ActivityIndicator, TextInput, Alert, StatusBar, Platform,
+    KeyboardAvoidingView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Colors from '../../theme/Colors';
@@ -32,6 +33,9 @@ const ShowDetteScreen = ({ navigation, route }) => {
     const [montantPaiement, setMontantPaiement] = useState('');
     const [modePaiement, setModePaiement] = useState('especes');
     const [notePaiement, setNotePaiement] = useState('');
+    const [echeancePaiementOption, setEcheancePaiementOption] = useState('');
+    const [customEcheancePaiementDate, setCustomEcheancePaiementDate] = useState(null);
+    const [showPaymentDatePicker, setShowPaymentDatePicker] = useState(false);
     const [submittingPaiement, setSubmittingPaiement] = useState(false);
 
     // Modification de l'échéance
@@ -45,14 +49,22 @@ const ShowDetteScreen = ({ navigation, route }) => {
     // Badge d'échéance (En retard / Aujourd'hui / Dans X j)
     let echeanceBadge = null;
     if (dette?.date_echeance && (dette?.montant_restant > 0)) {
-        const today = new Date();
-        const ech = new Date(dette.date_echeance);
-        const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const startEch = new Date(ech.getFullYear(), ech.getMonth(), ech.getDate());
-        const diff = Math.round((startEch - startToday) / 86400000);
-        if (diff < 0) echeanceBadge = { label: 'En retard', color: Colors.error };
-        else if (diff === 0) echeanceBadge = { label: "Aujourd'hui", color: Colors.warning };
-        else echeanceBadge = { label: `Dans ${diff} j`, color: Colors.success };
+        const cleanDate = dette.date_echeance.includes('T') ? dette.date_echeance.split('T')[0] : dette.date_echeance;
+        const parts = cleanDate.split('-');
+        if (parts.length === 3) {
+            const echYear = parseInt(parts[0], 10);
+            const echMonth = parseInt(parts[1], 10) - 1;
+            const echDay = parseInt(parts[2], 10);
+
+            const today = new Date();
+            const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const startEch = new Date(echYear, echMonth, echDay);
+
+            const diffDays = Math.round((startEch.getTime() - startToday.getTime()) / 86400000);
+            if (diffDays < 0) echeanceBadge = { label: 'En retard', color: Colors.error };
+            else if (diffDays === 0) echeanceBadge = { label: "Aujourd'hui", color: Colors.warning };
+            else echeanceBadge = { label: `Dans ${diffDays} j`, color: Colors.success };
+        }
     }
 
     const handleUpdateEcheance = async (option, customDate) => {
@@ -96,14 +108,23 @@ const ShowDetteScreen = ({ navigation, route }) => {
 
         setSubmittingPaiement(true);
         try {
-            await client.post(`/dettes/${id}/payer`, {
+            const payload = {
                 montant: parseFloat(montantPaiement),
                 mode_paiement: modePaiement,
                 note: notePaiement,
-            });
+            };
+            if (echeancePaiementOption) {
+                payload.echeance_option = echeancePaiementOption;
+                if (echeancePaiementOption === 'custom' && customEcheancePaiementDate) {
+                    payload.date_echeance_custom = toLocalDate(customEcheancePaiementDate);
+                }
+            }
+            await client.post(`/dettes/${id}/payer`, payload);
             Alert.alert('Succès', 'Paiement de dette enregistré avec succès !');
             setMontantPaiement('');
             setNotePaiement('');
+            setEcheancePaiementOption('');
+            setCustomEcheancePaiementDate(null);
             fetchDetteDetail();
         } catch (e) {
             Alert.alert('Erreur', e.response?.data?.message || 'Erreur lors de l\'enregistrement du paiement');
@@ -239,7 +260,7 @@ const ShowDetteScreen = ({ navigation, route }) => {
                             ))}
                         </View>
 
-                        <Text style={styles.inputLabel}>Remarque / Note</Text>
+                        <Text style={[styles.inputLabel, { marginTop: 10 }]}>Remarque / Note</Text>
                         <TextInput
                             style={styles.input}
                             value={notePaiement}
@@ -283,40 +304,42 @@ const ShowDetteScreen = ({ navigation, route }) => {
 
             {/* Modal modification échéance */}
             <Modal visible={showEcheance} animationType="slide" transparent>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Modifier l'échéance</Text>
-                            <TouchableOpacity onPress={() => setShowEcheance(false)}>
-                                <Ionicons name="close" size={24} color={Colors.text} />
-                            </TouchableOpacity>
-                        </View>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <View style={styles.modalHeader}>
+                                <Text style={styles.modalTitle}>Modifier l'échéance</Text>
+                                <TouchableOpacity onPress={() => setShowEcheance(false)}>
+                                    <Ionicons name="close" size={24} color={Colors.text} />
+                                </TouchableOpacity>
+                            </View>
 
-                        {[
-                            { key: 'today', label: "Aujourd'hui" },
-                            { key: 'tomorrow', label: 'Demain' },
-                            { key: 'after_tomorrow', label: 'Après-demain' },
-                            { key: '6_days', label: 'Dans 6 jours' },
-                            { key: '2_weeks', label: 'Dans 2 semaines' },
-                            { key: '1_month', label: 'Dans 1 mois' },
-                            { key: 'custom', label: 'Personnalisé...' },
-                        ].map(o => (
-                            <TouchableOpacity
-                                key={o.key}
-                                style={styles.optionRow}
-                                onPress={() => {
-                                    if (o.key === 'custom') {
-                                        setShowEcheanceDate(true);
-                                    } else {
-                                        handleUpdateEcheance(o.key);
-                                    }
-                                }}
-                            >
-                                <Text style={styles.optionText}>{o.label}</Text>
-                            </TouchableOpacity>
-                        ))}
+                            {[
+                                { key: 'today', label: "Aujourd'hui" },
+                                { key: 'tomorrow', label: 'Demain' },
+                                { key: 'after_tomorrow', label: 'Après-demain' },
+                                { key: '6_days', label: 'Dans 6 jours' },
+                                { key: '2_weeks', label: 'Dans 2 semaines' },
+                                { key: '1_month', label: 'Dans 1 mois' },
+                                { key: 'custom', label: 'Personnalisé...' },
+                            ].map(o => (
+                                <TouchableOpacity
+                                    key={o.key}
+                                    style={styles.optionRow}
+                                    onPress={() => {
+                                        if (o.key === 'custom') {
+                                            setShowEcheanceDate(true);
+                                        } else {
+                                            handleUpdateEcheance(o.key);
+                                        }
+                                    }}
+                                >
+                                    <Text style={styles.optionText}>{o.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
                     </View>
-                </View>
+                </KeyboardAvoidingView>
             </Modal>
 
             {showEcheanceDate && (

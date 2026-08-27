@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Programme Partenaires & Affiliation — PILOTIX</title>
-    <meta name="description" content="Devenez partenaire PILOTIX. Touchez jusqu'à {{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }} FCFA de commission unique par vente et débloquez jusqu'à {{ number_format($rules['entreprise']->prime_15, 0, ' ', ' ') }} FCFA de prime de performance !">
-    <meta name="keywords" content="partenaire, affiliation, commission, pilotix, souscription, parrainage, revendeur">
+    <meta name="description" content="Devenez partenaire PILOTIX. Touchez jusqu'à {{ number_format($maxCommission ?? 0, 0, ' ', ' ') }} FCFA de commission unique par vente et débloquez jusqu'à {{ number_format($maxPrime ?? 0, 0, ' ', ' ') }} FCFA de prime de performance !">
+    <meta name="keywords" content="partenaire, affiliation, commission, PILOTIX, souscription, parrainage, revendeur">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -208,6 +208,14 @@
             background: #fff; color: var(--primary-dark); border-color: #fff;
             box-shadow: 0 6px 18px rgba(0,0,0,0.15);
         }
+        .plan-input {
+            background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.15);
+            color: #fff; padding: 12px 10px; border-radius: 12px; text-align: center;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .plan-input span { font-weight: 700; font-size: 0.95rem; }
+        .plan-input small { font-weight: 400; opacity: 0.85; font-size: 0.72rem; }
+        .plan-input input { text-align: center; font-weight: 700; }
 
         .range-slider-wrap { background: rgba(255,255,255,0.08); padding: 18px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); }
         .range-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 700; font-size: 0.9rem; }
@@ -269,32 +277,40 @@
         .card-features-list li i { color: var(--primary); font-weight: 800; font-size: 1.05rem; margin-top: 2px; flex-shrink: 0; }
         .commission-card.featured .card-features-list li i { color: var(--secondary); }
 
-        /* TIERED BONUSES ROADMAP (VISUAL PALIERS) */
+        /* TIERED BONUSES — stylé comme les cartes Offres ci-dessus */
         .tiers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; max-width: 1100px; margin: 0 auto; }
         .tier-card {
-            background: #fff; border-radius: var(--radius-lg); padding: 30px 24px;
+            background: var(--card-bg); border-radius: var(--radius-lg); padding: 32px;
             border: 1px solid var(--border-color); position: relative;
-            transition: all 0.3s; display: flex; flex-direction: column; gap: 18px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+            transition: all 0.3s; display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
         }
-        .tier-card:hover { transform: translateY(-4px); box-shadow: 0 14px 35px rgba(0,0,0,0.08); }
-        .tier-header { display: flex; align-items: center; gap: 14px; }
-        .tier-icon {
-            width: 48px; height: 48px; border-radius: 14px;
-            background: rgba(15, 92, 71, 0.1); color: var(--primary);
-            display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 800;
-            flex-shrink: 0;
+        .tier-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
+        .tier-card.double {
+            border: 2px solid var(--secondary);
+            box-shadow: 0 15px 40px rgba(245, 158, 11, 0.15);
         }
-        .tier-card.double .tier-icon { background: rgba(245, 158, 11, 0.15); color: var(--secondary-dark); }
-        .tier-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); }
-        .tier-sub { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
+        .tier-card .card-badge {
+            position: absolute; top: -14px; right: 24px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+            color: #fff; font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+            padding: 4px 14px; border-radius: 50px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        .tier-card .plan-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+        .tier-card.double .plan-title { color: var(--secondary-dark); }
+        .tier-card .plan-price-tag { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 600; }
 
-        .bonus-lines { display: flex; flex-direction: column; gap: 12px; background: #f8fafc; padding: 18px 20px; border-radius: 14px; border: 1px solid #e2e8f0; }
-        .bonus-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0; gap: 12px; }
-        .bonus-row:last-child { border-bottom: none; padding-bottom: 0; }
-        .bonus-row span { color: #475569; font-weight: 600; flex: 1; }
-        .bonus-row strong { font-weight: 800; color: var(--primary-dark); font-size: 0.95rem; white-space: nowrap; flex-shrink: 0; }
-        .tier-card.double .bonus-row strong { color: var(--secondary-dark); }
+        .prime-list { display: flex; flex-direction: column; gap: 14px; flex-grow: 1; }
+        .prime-item {
+            background: rgba(15, 92, 71, 0.06); border: 1px solid rgba(15, 92, 71, 0.12);
+            border-radius: 14px; padding: 14px 18px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .tier-card.double .prime-item {
+            background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.2);
+        }
+        .prime-lbl { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+        .prime-amt { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 800; color: var(--primary-dark); }
+        .tier-card.double .prime-amt { color: var(--secondary-dark); }
 
         /* FORM SECTION (CLEAN & MODERN) */
         .form-container { max-width: 780px; margin: 0 auto; }
@@ -411,7 +427,7 @@
 
 <nav>
     <a href="/" class="nav-logo">
-        <img src="{{ asset('pilotix-logo.png') }}" alt="Pilotix">
+        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX">
         <span class="nav-logo-text">PILOTIX</span>
     </a>
     <div class="nav-links">
@@ -453,7 +469,7 @@
 <section class="hero">
     <div class="hero-badge"><i class="bi bi-shield-check"></i> Programme d'Affiliation Officiel</div>
     <h1>Devenez Partenaire <span>PILOTIX</span> & Monétisez Votre Réseau</h1>
-    <p class="hero-sub">Recommandez la solution n°1 de gestion commerciale. Encaissez jusqu'à <strong>{{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }} FCFA</strong> de commission cash par vente et débloquez jusqu'à <strong>{{ number_format($rules['entreprise']->prime_15, 0, ' ', ' ') }} FCFA</strong> de super-primes de performance !</p>
+    <p class="hero-sub">Recommandez la solution n°1 de gestion commerciale. Encaissez jusqu'à <strong>{{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }} FCFA</strong> de commission cash par vente et débloquez jusqu'à <strong>{{ number_format($maxPrime, 0, ' ', ' ') }} FCFA</strong> de super-primes de performance !</p>
     
     <div class="hero-actions">
         <a href="#simulateur" class="btn-hero-primary"><i class="bi bi-calculator"></i> Simuler Mes Gains</a>
@@ -471,15 +487,15 @@
         <div class="pill-stat">
             <div class="pill-icon"><i class="bi bi-award"></i></div>
             <div>
-                <div class="pill-text">Super-Prime Dès 5 Clients</div>
-                <div class="pill-val">Jusqu'à +{{ number_format($rules['entreprise']->prime_5, 0, ' ', ' ') }} FCFA</div>
+                <div class="pill-text">Super-Prime Dès {{ $paliers[0] }} Clients</div>
+                <div class="pill-val">Jusqu'à +{{ number_format($primesByCode['entreprise'][$paliers[0]] ?? 0, 0, ' ', ' ') }} FCFA</div>
             </div>
         </div>
         <div class="pill-stat">
             <div class="pill-icon"><i class="bi bi-graph-up-arrow"></i></div>
             <div>
-                <div class="pill-text">Palier 10 Clients (Le Double !)</div>
-                <div class="pill-val">Jusqu'à +{{ number_format($rules['entreprise']->prime_10, 0, ' ', ' ') }} FCFA</div>
+                <div class="pill-text">Palier {{ $paliers[1] ?? ($paliers[0] * 2) }} Clients (Le Double !)</div>
+                <div class="pill-val">Jusqu'à +{{ number_format($primesByCode['entreprise'][$paliers[1] ?? ($paliers[0] * 2)] ?? 0, 0, ' ', ' ') }} FCFA</div>
             </div>
         </div>
     </div>
@@ -490,7 +506,7 @@
     <div class="section-header">
         <div class="section-tag">Calculateur En Direct</div>
         <h2 class="section-title">Combien allez-vous gagner ?</h2>
-        <p class="section-sub">Choisissez une offre et déplacez le curseur pour calculer vos commissions uniques + vos primes de performance en temps réel.</p>
+        <p class="section-sub">Indiquez le nombre de clients apportés pour chaque offre pour calculer vos commissions uniques + vos primes de performance en temps réel.</p>
     </div>
 
     <div class="calc-wrapper">
@@ -502,22 +518,25 @@
         <div class="calc-grid">
             <div class="calc-controls">
                 <div class="calc-group">
-                    <label>1. Choisissez l'offre principale souscrite :</label>
+                    <label>1. Nombre de clients apportés par offre :</label>
                     <div class="plan-selector">
-                        <div class="plan-btn active" data-plan="essentiel" onclick="setCalcPlan('essentiel', this)">Essentiel<br><small style="font-weight:400; opacity:0.8;">{{ (int)($rules['essentiel']->prix/1000) }}k F</small></div>
-                        <div class="plan-btn" data-plan="professionnel" onclick="setCalcPlan('professionnel', this)">Professionnel<br><small style="font-weight:400; opacity:0.8;">{{ (int)($rules['professionnel']->prix/1000) }}k F</small></div>
-                        <div class="plan-btn" data-plan="entreprise" onclick="setCalcPlan('entreprise', this)">Entreprise<br><small style="font-weight:400; opacity:0.8;">{{ (int)($rules['entreprise']->prix/1000) }}k F</small></div>
-                    </div>
-                </div>
-
-                <div class="calc-group">
-                    <div class="range-slider-wrap">
-                        <div class="range-header">
-                            <span>2. Nombre de clients apportés :</span>
-                            <span id="clientCountLabel" style="color:var(--secondary); font-size:1.1rem;">5 clients</span>
+                        <div class="plan-input">
+                            <span>Essentiel</span>
+                            <small style="font-weight:400; opacity:0.8;">{{ number_format($rules['essentiel']->prix/1000, 0, '', '') }}k F · {{ number_format($rules['essentiel']->commission, 0, ' ', ' ') }} F/vente</small>
+                            <input type="number" min="0" value="0" id="nb_essentiel" class="form-control" oninput="updateCalc()">
                         </div>
-                        <input type="range" min="1" max="20" value="5" id="clientSlider" class="range-input" oninput="updateCalc()">
+                        <div class="plan-input">
+                            <span>Professionnel</span>
+                            <small style="font-weight:400; opacity:0.8;">{{ number_format($rules['professionnel']->prix/1000, 0, '', '') }}k F · {{ number_format($rules['professionnel']->commission, 0, ' ', ' ') }} F/vente</small>
+                            <input type="number" min="0" value="5" id="nb_professionnel" class="form-control" oninput="updateCalc()">
+                        </div>
+                        <div class="plan-input">
+                            <span>Entreprise</span>
+                            <small style="font-weight:400; opacity:0.8;">{{ number_format($rules['entreprise']->prix/1000, 0, '', '') }}k F · {{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }} F/vente</small>
+                            <input type="number" min="0" value="0" id="nb_entreprise" class="form-control" oninput="updateCalc()">
+                        </div>
                     </div>
+                    <p style="font-size:0.78rem; color:var(--muted); margin-top:8px;">Les primes de performance sont calculées <strong>par offre</strong> selon le nombre de ventes de cette offre (paliers {{ implode(', ', $paliers) }} ventes).</p>
                 </div>
             </div>
 
@@ -528,11 +547,11 @@
                 </div>
                 <div class="res-line">
                     <span>Super-Prime de Performance :</span>
-                    <span class="res-val" id="resBonus">+ {{ number_format($rules['professionnel']->prime_5, 0, ' ', ' ') }} FCFA</span>
+                    <span class="res-val" id="resBonus">+ {{ number_format($primesByCode['professionnel'][$paliers[0]] ?? 0, 0, ' ', ' ') }} FCFA</span>
                 </div>
                 <div class="res-total-wrap">
                     <div class="res-total-label">Gains Totaux Encaissés</div>
-                    <div class="res-total-num" id="resTotal">{{ number_format($rules['professionnel']->commission * 5 + $rules['professionnel']->prime_5, 0, ' ', ' ') }} FCFA</div>
+                    <div class="res-total-num" id="resTotal">{{ number_format($rules['professionnel']->commission * 5 + ($primesByCode['professionnel'][$paliers[0]] ?? 0), 0, ' ', ' ') }} FCFA</div>
                 </div>
             </div>
         </div>
@@ -617,83 +636,37 @@
     </div>
 
     <div class="tiers-grid">
-        <!-- Palier 5 -->
-        <div class="tier-card">
-            <div class="tier-header">
-                <div class="tier-icon"><i class="bi bi-award"></i></div>
-                <div>
-                    <div class="tier-title">Palier 5 Clients</div>
-                    <div class="tier-sub">Dès 5 ventes validées</div>
-                </div>
-            </div>
+        @foreach($paliers as $idx => $seuil)
+            @php
+                $isDouble = $idx === 1;
+                $isLast   = $idx === count($paliers) - 1;
+                $title    = $isLast ? "Palier {$seuil} Clients & Plus" : "Palier {$seuil} Clients";
+                $sub      = $isLast ? "Et ainsi de suite par tranche" : "Dès {$seuil} ventes validées";
+                if ($isDouble) { $title .= ' (Le Double !)'; $sub = "Le doublement de vos primes"; }
+            @endphp
+            <div class="tier-card @if($isDouble) double @endif">
+                @if($isDouble)
+                    <div class="card-badge">Le Double !</div>
+                @endif
+                <h3 class="plan-title">{{ $title }}</h3>
+                <div class="plan-price-tag">{{ $sub }}</div>
 
-            <div class="bonus-lines">
-                <div class="bonus-row">
-                    <span>Prime Offre Essentiel :</span>
-                    <strong>+ {{ number_format($rules['essentiel']->prime_5, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-                <div class="bonus-row">
-                    <span>Prime Offre Professionnel :</span>
-                    <strong>+ {{ number_format($rules['professionnel']->prime_5, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-                <div class="bonus-row">
-                    <span>Prime Offre Entreprise :</span>
-                    <strong>+ {{ number_format($rules['entreprise']->prime_5, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-            </div>
-        </div>
-
-        <!-- Palier 10 (Double !) -->
-        <div class="tier-card double" style="border:2px solid var(--primary); box-shadow:0 10px 30px rgba(15, 92, 71, 0.12);">
-            <div class="tier-header">
-                <div class="tier-icon"><i class="bi bi-trophy"></i></div>
-                <div>
-                    <div class="tier-title" style="color:var(--primary-dark);">Palier 10 Clients (Le Double !)</div>
-                    <div class="tier-sub">Le doublement de vos primes</div>
+                <div class="prime-list">
+                    <div class="prime-item">
+                        <span class="prime-lbl">Prime Offre Essentiel</span>
+                        <span class="prime-amt">+ {{ number_format($primesByCode['essentiel'][$seuil] ?? 0, 0, ' ', ' ') }} FCFA</span>
+                    </div>
+                    <div class="prime-item">
+                        <span class="prime-lbl">Prime Offre Professionnel</span>
+                        <span class="prime-amt">+ {{ number_format($primesByCode['professionnel'][$seuil] ?? 0, 0, ' ', ' ') }} FCFA</span>
+                    </div>
+                    <div class="prime-item">
+                        <span class="prime-lbl">Prime Offre Entreprise</span>
+                        <span class="prime-amt">+ {{ number_format($primesByCode['entreprise'][$seuil] ?? 0, 0, ' ', ' ') }} FCFA</span>
+                    </div>
                 </div>
             </div>
-
-            <div class="bonus-lines" style="background:rgba(15, 92, 71, 0.04);">
-                <div class="bonus-row">
-                    <span>Prime Offre Essentiel :</span>
-                    <strong>+ {{ number_format($rules['essentiel']->prime_10, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-                <div class="bonus-row">
-                    <span>Prime Offre Professionnel :</span>
-                    <strong>+ {{ number_format($rules['professionnel']->prime_10, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-                <div class="bonus-row">
-                    <span>Prime Offre Entreprise :</span>
-                    <strong>+ {{ number_format($rules['entreprise']->prime_10, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-            </div>
-        </div>
-
-        <!-- Palier 15+ -->
-        <div class="tier-card">
-            <div class="tier-header">
-                <div class="tier-icon"><i class="bi bi-arrow-repeat"></i></div>
-                <div>
-                    <div class="tier-title">Palier 15 Clients & Plus</div>
-                    <div class="tier-sub">Et ainsi de suite par tranche</div>
-                </div>
-            </div>
-
-            <div class="bonus-lines">
-                <div class="bonus-row">
-                    <span>Prime Offre Essentiel :</span>
-                    <strong>+ {{ number_format($rules['essentiel']->prime_15, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-                <div class="bonus-row">
-                    <span>Prime Offre Professionnel :</span>
-                    <strong>+ {{ number_format($rules['professionnel']->prime_15, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-                <div class="bonus-row">
-                    <span>Prime Offre Entreprise :</span>
-                    <strong>+ {{ number_format($rules['entreprise']->prime_15, 0, ' ', ' ') }} FCFA</strong>
-                </div>
-            </div>
-        </div>
+        @endforeach
     </div>
 </section>
 
@@ -941,7 +914,7 @@
                     <div class="panel-sub">Dernière étape pour finaliser votre dossier.</div>
 
                     <div class="form-group">
-                        <label>Souhaitez-vous suivre une formation rapide offerte par Pilotix ? *</label>
+                        <label>Souhaitez-vous suivre une formation rapide offerte par PILOTIX ? *</label>
                         <select name="q22" class="form-control" required>
                             <option value="">-- Sélectionnez --</option>
                             <option value="Oui, avec plaisir">Oui, avec plaisir</option>
@@ -969,7 +942,7 @@
 
                     <div class="form-group">
                         <label>Motif de votre candidature & message *</label>
-                        <textarea name="q25" class="form-control" placeholder="Dites-nous ce qui vous motive à rejoindre Pilotix..." required></textarea>
+                        <textarea name="q25" class="form-control" placeholder="Dites-nous ce qui vous motive à rejoindre PILOTIX..." required></textarea>
                     </div>
 
                     <div class="step-buttons">
@@ -988,7 +961,7 @@
     <div class="footer-top">
         <div class="footer-brand">
             <div style="margin-bottom:10px;">
-                <img src="{{ asset('pilotix-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+                <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
             </div>
             <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
@@ -1026,45 +999,43 @@
     </div>
 </footer>
 
-<script>
-    // Logic for Interactive Calculator
-    let currentCalcPlan = 'professionnel';
+    <script>
+        // Logic for Interactive Calculator (calcul par offre)
+        const planPrices = @json($calcData);
+        const planCodes = ['essentiel', 'professionnel', 'entreprise'];
+        const paliers = @json($paliers);
 
-    const planPrices = @json($calcData);
-
-    function setCalcPlan(plan, btn) {
-        currentCalcPlan = plan;
-        document.querySelectorAll('.plan-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        updateCalc();
-    }
-
-    function formatFcfa(val) {
-        return new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
-    }
-
-    function updateCalc() {
-        const count = parseInt(document.getElementById('clientSlider').value);
-        document.getElementById('clientCountLabel').textContent = count + (count > 1 ? ' clients' : ' client');
-
-        const rates = planPrices[currentCalcPlan];
-        const directTotal = count * rates.direct;
-
-        let bonusTotal = 0;
-        if (count >= 15) {
-            bonusTotal = rates.b15;
-        } else if (count >= 10) {
-            bonusTotal = rates.b10;
-        } else if (count >= 5) {
-            bonusTotal = rates.b5;
+        function formatFcfa(val) {
+            return new Intl.NumberFormat('fr-FR').format(Math.round(val)) + ' FCFA';
         }
 
-        const grandTotal = directTotal + bonusTotal;
+        function updateCalc() {
+            let directTotal = 0;
+            let bonusTotal = 0;
 
-        document.getElementById('resDirect').textContent = formatFcfa(directTotal);
-        document.getElementById('resBonus').textContent = bonusTotal > 0 ? '+ ' + formatFcfa(bonusTotal) : '0 FCFA';
-        document.getElementById('resTotal').textContent = formatFcfa(grandTotal);
-    }
+            planCodes.forEach(function (plan) {
+                const nb = parseInt(document.getElementById('nb_' + plan).value) || 0;
+                const rates = planPrices[plan];
+                if (!rates) return;
+
+                directTotal += nb * rates.direct;
+
+                // Prime du palier le plus élevé atteint.
+                let prime = 0;
+                paliers.forEach(function (seuil) {
+                    if (nb >= seuil) {
+                        prime = rates.primes[seuil] || 0;
+                    }
+                });
+                bonusTotal += prime;
+            });
+
+            const grandTotal = directTotal + bonusTotal;
+
+            document.getElementById('resDirect').textContent = formatFcfa(directTotal);
+            document.getElementById('resBonus').textContent = bonusTotal > 0 ? '+ ' + formatFcfa(bonusTotal) : '0 FCFA';
+            document.getElementById('resTotal').textContent = formatFcfa(grandTotal);
+        }
 
     // Wizard Step Navigation
     function goStep(n) {

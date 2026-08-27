@@ -12,13 +12,17 @@ import { formatDateFr, formatDateTimeFr } from '../../utils/formatDate';
 import TopHeaderNav from '../../components/TopHeaderNav';
 
     const formatMoney = (val) => {
-        if (!val && val !== 0) return '0 F';
-        return Number(val).toLocaleString('fr-FR') + ' F';
+        if (val === null || val === undefined || val === '') return '0 F';
+        let n = Math.round(Number(val));
+        if (!n || Math.abs(n) === 0) n = 0;
+        return n.toLocaleString('fr-FR') + ' F';
     };
 
     const formatNaira = (val) => {
-        if (!val && val !== 0) return '0 ₦';
-        return Number(val).toLocaleString('fr-FR') + ' ₦';
+        if (val === null || val === undefined || val === '') return '0 ₦';
+        let n = Math.round(Number(val));
+        if (!n || Math.abs(n) === 0) n = 0;
+        return n.toLocaleString('fr-FR') + ' ₦';
     };
 
     const computeBenefice = (item) => {
