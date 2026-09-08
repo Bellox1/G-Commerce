@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Magasin;
 use App\Models\Produit;
+use App\Models\StockMouvement;
 use App\Models\Transfert;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TransfertController extends Controller
 {
@@ -187,6 +189,17 @@ class TransfertController extends Controller
         $this->authorizeModule('transferts');
         $this->authorizeTenant($transfert);
 
+        if ($transfert->statut === 'recu' || $transfert->statut === 'livre') {
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Le transfert {$transfert->reference} a déjà été réceptionné avec succès.",
+                    'data'    => $transfert->fresh(['magasinSource', 'magasinDestination', 'produits.produit']),
+                ]);
+            }
+            return redirect()->route('transferts.show', $transfert)->with('info', 'Ce transfert a déjà été réceptionné.');
+        }
+
         if ($transfert->statut !== 'en_transit') {
             $msg = 'Seuls les transferts en transit peuvent être réceptionnés.';
             if (request()->expectsJson() || request()->is('api/*')) {
@@ -254,7 +267,7 @@ class TransfertController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'transfert'   => $transfert->load('produits.produit'),
+                    'transfert'   => $transfert->load(['magasinSource', 'magasinDestination', 'produits.produit']),
                     'magasins'    => $magasins,
                     'produits'    => $produits,
                     'produitsJson' => $produitsJson,
@@ -310,6 +323,47 @@ class TransfertController extends Controller
         ]);
 
         return $this->smartResponse(route('transferts.show', $transfert), "Transfert {$transfert->reference} mis à jour avec succès.");
+    }
+
+    public function destroy(Transfert $transfert)
+    {
+        $this->authorizeModule('transferts');
+        $this->authorizeTenant($transfert);
+
+        DB::transaction(function () use ($transfert) {
+            $user = Auth::user();
+
+            foreach ($transfert->produits as $tp) {
+                // Rendre au magasin source
+                StockMouvement::create([
+                    'tenant_id'      => $transfert->tenant_id,
+                    'magasin_id'     => $transfert->magasin_source_id,
+                    'produit_id'     => $tp->produit_id,
+                    'user_id'        => $user->id,
+                    'type'           => 'transfert_entree',
+                    'quantite'       => (int) $tp->quantite,
+                    'note'           => "Annulation transfert #" . $transfert->reference . " (récupération source) par " . $user->name,
+                    'date_mouvement' => now(),
+                ]);
+
+                // Retirer du magasin destination
+                StockMouvement::create([
+                    'tenant_id'      => $transfert->tenant_id,
+                    'magasin_id'     => $transfert->magasin_destination_id,
+                    'produit_id'     => $tp->produit_id,
+                    'user_id'        => $user->id,
+                    'type'           => 'transfert_sortie',
+                    'quantite'       => (int) $tp->quantite,
+                    'note'           => "Annulation transfert #" . $transfert->reference . " (retrait destination) par " . $user->name,
+                    'date_mouvement' => now(),
+                ]);
+            }
+
+            $transfert->produits()->delete();
+            $transfert->delete();
+        });
+
+        return $this->smartResponse(route('transferts.index'), 'Transfert annulé et supprimé avec succès.');
     }
 
     private function authorizeTenant(Transfert $transfert)

@@ -178,7 +178,7 @@ class AnalytiqueController extends Controller
         $topProduits = $topQuery
             ->select('produits.nom', \DB::raw('SUM(vente_lignes.quantite) as total_vendu'))
             ->groupBy('produits.id', 'produits.nom')
-            ->orderByDesc('total_vendu')->limit(10)->get();
+            ->orderByDesc('total_vendu')->get();
 
         // ─── Statut paiement ──────────────────────────────────────────────────
         $spQuery = Vente::where('tenant_id', $tenant->id)->whereYear('date_vente', $annee);

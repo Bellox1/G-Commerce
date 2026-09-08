@@ -47,6 +47,7 @@
     <button class="faq-tab" data-tab="produits"><i class="bi bi-box"></i> Produits</button>
     <button class="faq-tab" data-tab="arrivages"><i class="bi bi-cart3"></i> Arrivages</button>
     <button class="faq-tab" data-tab="ventes"><i class="bi bi-cart3"></i> Ventes</button>
+    <button class="faq-tab" data-tab="tresorerie"><i class="bi bi-wallet2"></i> Trésorerie</button>
     <button class="faq-tab" data-tab="livraisons"><i class="bi bi-bicycle"></i> Livraisons</button>
     <button class="faq-tab" data-tab="clients"><i class="bi bi-people"></i> Clients</button>
     <button class="faq-tab" data-tab="dettes"><i class="bi bi-wallet"></i> Dettes</button>
@@ -197,9 +198,40 @@
             <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Nom du produit</strong> : donnez un nom clair et reconnaissable (ex : "Savon Noir 250g", "Téléphone Samsung A14").</div></div>
             <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Prix de vente</strong> : le prix que le client paiera. C'est ce prix qui sera utilisé automatiquement lors des ventes.</div></div>
             <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Prix d'achat</strong> : le prix auquel vous achetez ce produit chez votre fournisseur. Utilisé pour calculer vos marges.</div></div>
-            <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Seuil d'alerte</strong> : la quantité minimale en stock. En dessous, le produit apparaît en alerte rouge sur le tableau de bord.</div></div>
+            <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Seuil d'alerte</strong> : calculé <strong>automatiquement à ¼ du stock total</strong> (Mode Auto). Il se réajuste dynamiquement à chaque saisie de stock. Vous pouvez aussi imposer votre propre valeur.</div></div>
             <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Image</strong> (optionnel) : ajoutez une photo du produit pour l'identifier visuellement.</div></div>
             <div class="step"><div class="step-num">7</div><div class="step-text">Validez. Le produit apparaît dans la liste et est maintenant utilisable dans les arrivages et les ventes.</div></div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Comment fonctionne le calcul automatique du seuil d'alerte ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Le <strong>seuil d'alerte</strong> se calcule automatiquement à <strong>¼ du stock total</strong> du produit (Mode Auto).
+            <ul>
+                <li><strong>Calcul dynamique</strong> : dès que vous modifiez le stock d'un magasin, le seuil se réajuste immédiatement en temps réel (ex: 2 cartons → seuil 1 ; 5 cartons → seuil 2).</li>
+                <li><strong>Seuil personnalisé</strong> : si vous préférez imposer votre propre valeur, tapez simplement le chiffre dans le champ.</li>
+                <li><strong>Réactivation du Mode Auto</strong> : si vous souhaitez rétablir le calcul automatique à tout moment, appuyez sur le bouton <strong>"↻ Recalculer Auto (¼)"</strong>.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Comment gérer les produits vendus en cartouches ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Si votre produit est vendu à la fois par <strong>cartons</strong> et par <strong>cartouches individuelles</strong> :
+            <ul>
+                <li>Cochez la case <strong>"Ce produit a des cartouches"</strong> lors de la création ou modification du produit.</li>
+                <li>Renseignez le <strong>nombre de cartouches par carton</strong> (ex : 9 ou 10 cartouches par carton).</li>
+                <li>Définissez le <strong>prix par cartouche</strong> (ou laissez le système calculer automatiquement le prix unitaire au prorata).</li>
+                <li>Lors de la vente ou de la création de stock, vous pourrez saisir séparément les quantités en <strong>cartons (ctn)</strong> et en <strong>cartouches (ctr)</strong>.</li>
+            </ul>
         </div>
     </div>
 
@@ -264,17 +296,11 @@
         </div>
         <div class="faq-answer">
             <div class="step"><div class="step-num">1</div><div class="step-text">Allez dans <strong>Arrivages</strong> puis cliquez sur <strong>"Nouvel arrivage"</strong>.</div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Fournisseur</strong> (optionnel) : sélectionnez le fournisseur chez qui vous avez acheté. Si c'est un nouveau fournisseur, vous pouvez l'ajouter directement depuis le formulaire.</div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Magasin de destination</strong> : choisissez le magasin qui réceptionne la marchandise. Le stock de CE magasin sera augmenté.</div></div>
-            <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Ajoutez les produits</strong> : pour chaque produit reçu, indiquez :
-                <ul>
-                    <li>Le <strong>produit</strong> (recherchez par nom dans votre catalogue)</li>
-                    <li>La <strong>quantité reçue</strong></li>
-                    <li>Le <strong>prix d'achat unitaire</strong> (ce que vous avez payé au fournisseur)</li>
-                </ul>
-            </div></div>
-            <div class="step"><div class="step-num">5</div><div class="step-text">Le système peut <strong>suggérer un prix de vente</strong> basé sur votre marge habituelle. Vous pouvez accepter ou modifier cette suggestion.</div></div>
-            <div class="step"><div class="step-num">6</div><div class="step-text">Validez l'arrivage. Le stock du magasin est automatiquement mis à jour.</div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-text"><strong>1. Taux &amp; Logistique</strong> : choisissez le dépôt/magasin de réception, la devise d'origine (le <strong>Naira ₦</strong> est sélectionné par défaut sous forme de puces directes), et vérifiez le taux de change.</div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-text"><strong>2. Articles Importés</strong> : chaque ligne possède son propre champ de recherche. Tapez le nom de l'article. Si le produit n'existe pas encore dans votre catalogue, une option <strong>"+ Créer [Nom]"</strong> apparaît pour l'ajouter directement à la volée ! (Le produit sera créé avec un stock de 0 partout sauf dans le dépôt de réception).</div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-text">Saisissez la quantité et le prix unitaire d'origine pour chaque ligne.</div></div>
+            <div class="step"><div class="step-num">5</div><div class="step-text">Attribuez un fournisseur par produit si nécessaire et renseignez les frais de transport.</div></div>
+            <div class="step"><div class="step-num">6</div><div class="step-text">Validez l'arrivage. Le stock du dépôt récepteur sera mis à jour.</div></div>
         </div>
     </div>
 
@@ -388,13 +414,40 @@
 
     <div class="faq-section">
         <div class="faq-question" onclick="toggleFaq(this)">
-            <span>Comment imprimer une facture ?</span>
+            <span>Comment imprimer ou personnaliser une facture ?</span>
             <i class="bi bi-chevron-down"></i>
         </div>
         <div class="faq-answer">
             <div class="step"><div class="step-num">1</div><div class="step-text">Après avoir créé une vente ou en consultant une vente existante, cliquez sur le bouton <strong>"Imprimer"</strong>.</div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-text">Une facture professionnelle s'ouvre dans un <strong>nouvel onglet</strong> avec toutes les informations : nom de la société, coordonnées du client, liste des articles, montant total, montant payé, reste à payer.</div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-text">Utilisez <strong>Ctrl+P</strong> (ou Cmd+P sur Mac) pour l'imprimer ou l'envoyer en PDF.</div></div>
+            <div class="step"><div class="step-num">2</div><div class="step-text">Une facture professionnelle s'ouvre avec le nom et le <strong>numéro de téléphone de votre société</strong>, la liste des articles et les montants réglés.</div></div>
+            <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Options de masquage :</strong> vous pouvez cocher <strong>"Masquer société"</strong> ou <strong>"Masquer vendeur"</strong> avant l'impression pour masquer ces informations.</div></div>
+            <div class="step"><div class="step-num">4</div><div class="step-text">Utilisez <strong>Ctrl+P</strong> (ou l'application d'impression mobile) pour l'imprimer ou l'enregistrer en PDF.</div></div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Comment fonctionne le mode Hors-Ligne sur mobile ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            L'application mobile permet d'enregistrer des ventes <strong>même en l'absence de réseau internet</strong>.
+            <ul>
+                <li><strong>Création immédiate</strong> : la vente est créée localement avec une référence temporaire (ex : <code>OFF-17258000</code>).</li>
+                <li><strong>Facture locale</strong> : la facture est générée instantanément et utilisable tout de suite.</li>
+                <li><strong>Synchronisation automatique</strong> : dès que le réseau réapparaît, les ventes hors-ligne sont automatiquement envoyées vers le serveur central.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Comment gérer plusieurs ventes simultanées (Multi-sessions) ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Sur l'écran de création de vente mobile, vous pouvez ouvrir <strong>plusieurs onglets/sessions de vente en parallèle</strong>.
+            <div class="faq-tip"><i class="bi bi-lightbulb"></i> <div>Pratique au comptoir : si un client hésite ou va chercher un article supplémentaire, créez une 2ème session pour servir le client suivant sans perdre la commande en cours.</div></div>
         </div>
     </div>
 
@@ -420,6 +473,46 @@
         <div class="faq-answer">
             Oui. Lorsque vous ajoutez un produit à la vente, le système vérifie automatiquement la <strong>quantité disponible</strong> dans le magasin source. Si vous essayez de vendre plus que ce qui est en stock, un message d'erreur vous empêche de valider la vente. Cela évite les stocks négatifs.
             <div class="faq-tip"><i class="bi bi-lightbulb"></i> <div>Si le stock est insuffisant, créez d'abord un <strong>transfert</strong> depuis un autre magasin qui a le produit, ou enregistrez un <strong>arrivage</strong> pour réapprovisionner.</div></div>
+        </div>
+    </div>
+</div>
+
+{{-- ═══════════ TRÉSORERIE ═══════════ --}}
+<div class="faq-panel" id="panel-tresorerie">
+    <div class="faq-title-section">Trésorerie & Caisse</div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>À quoi sert le module Trésorerie et qui y a accès ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Le module Trésorerie est votre <strong>journal de caisse en temps réel</strong>. Il enregistre l'argent réellement présent en caisse ou sur vos comptes mobiles.
+            <div class="faq-info"><i class="bi bi-lock-fill"></i> <div><strong>Accès sécurisé par rôle :</strong> Pour des raisons de confidentialité, ce module est strictement réservé aux utilisateurs ayant le rôle <strong>Admin</strong>, <strong>Superviseur</strong> ou <strong>DG</strong>. Les vendeurs et magasiniers n'y ont pas accès.</div></div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Quels sont les types de mouvements ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            <ul>
+                <li><strong>Entrée</strong> : Apports de capital ou fonds de caisse initial pour démarrer la journée.</li>
+                <li><strong>Sortie</strong> : Retraits d'argent ou décaissements de dépenses.</li>
+                <li><strong>Acompte / Argent comptant (Encaissement)</strong> : Les sommes physiques en espèces ou mobile money réellement encaissées lors des ventes ou reçues en acomptes de clients.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Quelle différence entre Ventes et Trésorerie (Acompte / Comptant) ?</span>
+            <i class="bi bi-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Les <strong>Ventes</strong> comptabilisent le montant total facturé (y compris les crédits non soldés). La <strong>Trésorerie</strong> ne mesure que l'argent liquide réellement entré dans votre caisse.
         </div>
     </div>
 </div>

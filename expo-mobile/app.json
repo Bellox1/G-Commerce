@@ -3,7 +3,13 @@
     "name": "PILOTIX",
     "slug": "PILOTIX",
     "scheme": "PILOTIX",
-    "version": "1.0.0",
+    "version": "1.1.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a68455bb-25ec-44d4-b75e-517b170f0636"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,13 +21,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.PILOTIX.app",
+      "bundleIdentifier": "com.pilotix.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.PILOTIX.app",
+      "versionCode": 2,
+      "package": "com.pilotix.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

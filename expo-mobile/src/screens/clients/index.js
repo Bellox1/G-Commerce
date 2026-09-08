@@ -126,7 +126,7 @@ const ClientsScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Client</Text>
+                    <Text style={styles.btnAddPillText}>Client</Text>
                 </TouchableOpacity>
             </View>
 
@@ -140,7 +140,6 @@ const ClientsScreen = ({ navigation }) => {
                         placeholderTextColor={Colors.textLight}
                         value={search}
                         onChangeText={setSearch}
-                        autoFocus
                     />
                     {search ? (
                         <TouchableOpacity onPress={() => setSearch('')}>
@@ -203,6 +202,33 @@ const ClientsScreen = ({ navigation }) => {
                                             onPress={() => navigation.navigate('ClientEdit', { item })}
                                         >
                                             <Ionicons name="create-outline" size={16} color={Colors.textLight} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[styles.editIconBtn, { backgroundColor: '#FEE2E2' }]}
+                                            onPress={() => {
+                                                Alert.alert(
+                                                    'Supprimer le client',
+                                                    `Voulez-vous vraiment supprimer ${item.nom} ?`,
+                                                    [
+                                                        { text: 'Annuler', style: 'cancel' },
+                                                        {
+                                                            text: 'Supprimer',
+                                                            style: 'destructive',
+                                                            onPress: async () => {
+                                                                try {
+                                                                    await client.delete(`/clients/${item.id}`);
+                                                                    Alert.alert('Succès', 'Client supprimé.');
+                                                                    fetchClients();
+                                                                } catch (e) {
+                                                                    Alert.alert('Erreur', e.response?.data?.message || 'Impossible de supprimer.');
+                                                                }
+                                                            },
+                                                        },
+                                                    ]
+                                                );
+                                            }}
+                                        >
+                                            <Ionicons name="trash-outline" size={16} color={Colors.error} />
                                         </TouchableOpacity>
                                     </View>
                                 </View>

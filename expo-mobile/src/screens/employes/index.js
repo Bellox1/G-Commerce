@@ -172,7 +172,7 @@ const EmployesScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Personnel</Text>
+                    <Text style={styles.btnAddPillText}>Personnel</Text>
                 </TouchableOpacity>
             </View>
 

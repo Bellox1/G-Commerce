@@ -40,7 +40,7 @@
     </div>
     <div class="treso-card">
         <div class="treso-val treso-neu">{{ number_format($totalCaJour, 0, ',', ' ') }} F</div>
-        <div class="treso-lbl"><i class="bi bi-graph-up-arrow"></i> CA du jour</div>
+        <div class="treso-lbl"><i class="bi bi-wallet2"></i> Acompte / Argent comptant</div>
     </div>
 </div>
 
@@ -66,14 +66,14 @@
             </div>
             @php
                 $oldSens = old('sens', 'entree');
-                $defaultLibelle = old('libelle', ($oldSens === 'sortie' || $oldSens === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté");
+                $defaultLibelle = old('libelle', ($oldSens === 'sortie') ? "Sortie de caisse" : (($oldSens === 'ca_jour') ? "Acompte / Argent comptant encaisse" : "Capital apporté"));
             @endphp
             <div class="form-group">
                 <label class="form-label" style="font-size: .8rem;">Sens *</label>
                 <select name="sens" id="sensSelect" class="form-control" required>
-                    <option value="entree" {{ $oldSens === 'entree' ? 'selected' : '' }}>Entrée (argent en caisse)</option>
+                    <option value="entree" {{ $oldSens === 'entree' ? 'selected' : '' }}>Entrée (apport / fond de caisse)</option>
                     <option value="sortie" {{ $oldSens === 'sortie' ? 'selected' : '' }}>Sortie (dépense / retrait)</option>
-                    <option value="ca_jour" {{ $oldSens === 'ca_jour' ? 'selected' : '' }}>CA du jour (encaissement vente)</option>
+                    <option value="ca_jour" {{ $oldSens === 'ca_jour' ? 'selected' : '' }}>Acompte / Argent comptant (Encaissement)</option>
                 </select>
             </div>
             <div class="form-group">

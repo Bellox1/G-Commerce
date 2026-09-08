@@ -33,9 +33,6 @@ class VenteService
                 $totalLigne = $prixVente * $l['quantite'];
                 $total += $totalLigne;
 
-                // Quantité réellement déduite du stock, en cartons et en cartouches isolées.
-                // On ne perd plus les cartouches : une vente en cartouches décrémente
-                // quantite_cartouche (et non des cartons entiers).
                 $qteCarton    = ($unite === 'cartouche') ? 0 : (int) $l['quantite'];
                 $qteCartouche = ($unite === 'cartouche') ? (int) $l['quantite'] : 0;
 
@@ -62,7 +59,23 @@ class VenteService
             $dateEcheance = $data['date_echeance'] ?? null;
             unset($data['date_echeance']);
 
-            $data['reference']       = $this->genererReference();
+            // Générer la référence DANS la transaction avec INSERT ... ON DUPLICATE KEY UPDATE (atomique)
+            $annee = now()->year;
+            $prefix = "VNT-{$annee}-";
+
+            // Atomic increment: insère si n'existe pas, sinon incrémente
+            DB::statement(
+                'INSERT INTO vente_counters (annee, counter, created_at, updated_at) VALUES (?, 1, NOW(), NOW()) 
+                 ON DUPLICATE KEY UPDATE counter = counter + 1, updated_at = NOW()',
+                [$annee]
+            );
+
+            $counter = DB::table('vente_counters')
+                ->where('annee', $annee)
+                ->value('counter');
+
+            $data['reference'] = sprintf('VNT-%d-%05d', $annee, $counter);
+
             $data['montant_total']   = $total;
             $data['montant_paye']    = $montantPaye;
             $data['montant_reste']   = $montantReste;
@@ -114,12 +127,5 @@ class VenteService
 
             return $vente->load('lignes', 'client');
         });
-    }
-
-    private function genererReference(): string
-    {
-        $annee = now()->year;
-        $count = Vente::whereYear('created_at', $annee)->count() + 1;
-        return sprintf('VNT-%d-%05d', $annee, $count);
     }
 }

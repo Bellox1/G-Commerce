@@ -118,6 +118,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // ── Magasins ─────────────────────────────────────────────────────
         Route::post('magasins', [MagasinController::class, 'store']);
         Route::put('magasins/{magasin}', [MagasinController::class, 'update']);
+        Route::delete('magasins/{magasin}', [MagasinController::class, 'destroy']);
 
         // ── Arrivages (Importation — Offre Professionnel+) ─────────────────
         Route::middleware('plan:import')->group(function () {
@@ -132,6 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('stock/ajuster', [StockController::class, 'ajuster']);
 
         // ── Transferts (Multi-magasins — Offre Professionnel+) ────────────
+        Route::delete('transferts/{transfert}', [TransfertController::class, 'destroy']);
         Route::middleware('plan:multi_magasin')->group(function () {
             Route::post('transferts', [TransfertController::class, 'store']);
             Route::post('transferts/{transfert}/reception', [TransfertController::class, 'receptionner']);

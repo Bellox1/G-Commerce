@@ -18,6 +18,16 @@ const formatMoney = (val) => {
     return Number(val).toLocaleString('fr-FR') + ' F';
 };
 
+const getLivraisonBadge = (statut) => {
+    switch (statut) {
+        case 'livre': return { label: '✓ Livrée', color: '#16a34a', bg: '#dcfce7' };
+        case 'probleme': return { label: '⚠ Problème', color: '#dc2626', bg: '#fee2e2' };
+        case 'livre_offline':
+        case 'en_attente_sync': return { label: '⏳ En attente de connexion', color: '#c2410c', bg: '#fff7ed' };
+        default: return { label: 'Non livré', color: '#92400e', bg: '#fef3c7' };
+    }
+};
+
 const toLocalDate = (d) => {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -30,7 +40,7 @@ const LivraisonsScreen = ({ navigation }) => {
     const [livraisons, setLivraisons] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [filterStatut, setFilterStatut] = useState('tous');
+    const [filterStatut, setFilterStatut] = useState('en_attente');
     const [periode, setPeriode] = useState('aujourd_hui');
     const [dateDebut, setDateDebut] = useState(null);
     const [dateFin, setDateFin] = useState(null);
@@ -200,12 +210,12 @@ const LivraisonsScreen = ({ navigation }) => {
                         </View>
                     }
                     renderItem={({ item }) => {
-                        const statusColor = item.statut_livraison === 'livre' ? Colors.success : (item.statut_livraison === 'probleme' ? Colors.error : Colors.warning);
+                        const livBadge = getLivraisonBadge(item.statut_livraison);
                         return (
                         <TouchableOpacity style={styles.card} activeOpacity={0.9} onPress={() => navigation.navigate('LivraisonShow', { id: item.id })}>
                             <View style={styles.cardHeader}>
-                                <View style={[styles.livIconWrap, { backgroundColor: statusColor + '20' }]}>
-                                    <Ionicons name="bicycle" size={20} color={statusColor} />
+                                <View style={[styles.livIconWrap, { backgroundColor: livBadge.bg }]}>
+                                    <Ionicons name="bicycle" size={20} color={livBadge.color} />
                                 </View>
                                 <View style={styles.factureRow}>
                                     <Ionicons name="document-text-outline" size={18} color={Colors.primary} />
@@ -214,9 +224,9 @@ const LivraisonsScreen = ({ navigation }) => {
                                         <Text style={styles.amountTop}>{formatMoney(item.montant_total)}</Text>
                                     </View>
                                 </View>
-                                <View style={[styles.badge, item.statut_livraison === 'livre' ? styles.badgeSuccess : (item.statut_livraison === 'probleme' ? styles.badgeError : styles.badgeWarning)]}>
-                                    <Text style={[styles.badgeText, item.statut_livraison === 'livre' ? styles.badgeSuccessText : (item.statut_livraison === 'probleme' ? styles.badgeErrorText : styles.badgeWarningText)]}>
-                                        {item.statut_livraison === 'livre' ? 'Livrée' : (item.statut_livraison === 'probleme' ? 'Problème' : 'Non livré')}
+                                <View style={[styles.badge, { backgroundColor: livBadge.bg }]}>
+                                    <Text style={[styles.badgeText, { color: livBadge.color }]}>
+                                        {livBadge.label}
                                     </Text>
                                 </View>
                             </View>

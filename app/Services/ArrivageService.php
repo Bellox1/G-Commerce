@@ -27,14 +27,40 @@ class ArrivageService
             $arrivage = Arrivage::create($data);
 
             foreach ($produits as $p) {
+                $produitId = $p['produit_id'] ?? null;
+                $nomProduit = isset($p['nom_produit']) ? trim($p['nom_produit']) : null;
+
+                if (!$produitId && $nomProduit) {
+                    $existing = Produit::where('tenant_id', $arrivage->tenant_id)
+                        ->whereRaw('LOWER(nom) = ?', [mb_strtolower($nomProduit)])
+                        ->first();
+                    if ($existing) {
+                        $produitId = $existing->id;
+                    } else {
+                        $newProd = Produit::create([
+                            'tenant_id' => $arrivage->tenant_id,
+                            'nom' => $nomProduit,
+                            'stock' => 0,
+                            'stock_cartouches' => 0,
+                            'prix_vente_conseille' => $p['prix_vente_suggere'] ?? 0,
+                            'actif' => true,
+                        ]);
+                        $produitId = $newProd->id;
+                    }
+                }
+
+                if (!$produitId) {
+                    continue;
+                }
+
                 $totalOrigine = $p['quantite'] * $p['prix_unitaire_origine'];
                 ArrivageProduit::create([
                     'arrivage_id'          => $arrivage->id,
-                    'produit_id'           => $p['produit_id'],
+                    'produit_id'           => $produitId,
                     'fournisseur_id'       => $p['fournisseur_id'] ?? null,
                     'quantite'             => $p['quantite'],
                     'prix_unitaire_origine'=> $p['prix_unitaire_origine'],
-                    'prix_vente_suggere'   => $p['prix_vente_suggere'] ?? null,
+                    'prix_vente_suggere'   => $p['prix_vente_suggere'] ?? 0,
                     'total_origine'        => $totalOrigine,
                 ]);
             }
@@ -96,7 +122,11 @@ class ArrivageService
     private function genererReference(): string
     {
         $annee = now()->year;
-        $count = Arrivage::whereYear('created_at', $annee)->count() + 1;
-        return sprintf('ARR-%d-%03d', $annee, $count);
+        $prefix = "ARR-{$annee}-";
+        $last = Arrivage::where('reference', 'like', "{$prefix}%")
+            ->orderByRaw('CAST(SUBSTRING(reference, ?) AS UNSIGNED) DESC', [strlen($prefix) + 1])
+            ->value('reference');
+        $next = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
+        return sprintf('ARR-%d-%03d', $annee, $next);
     }
 }

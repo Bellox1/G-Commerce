@@ -67,8 +67,10 @@
                         {{ number_format($arr->beneficePrevisionnel(), 0, ',', ' ') }}
                     </td>
                     <td style="text-align: center;">
-                        @if($arr->statut === 'receptionne')
+                        @if(in_array($arr->statut, ['receptionne', 'valide', 'integre']))
                             <span class="badge badge-success"><i class="bi bi-patch-check"></i> Réceptionné</span>
+                        @elseif(in_array($arr->statut, ['en_attente_sync', 'receptionne_offline']))
+                            <span class="badge badge-warning" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;"><i class="bi bi-wifi-off"></i> Réceptionné (En attente de connexion)</span>
                         @else
                             <span class="badge badge-warning"><i class="bi bi-hourglass-split"></i> En attente</span>
                         @endif
@@ -78,7 +80,7 @@
                             <a href="{{ route('arrivages.show', $arr) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px;">
                                 <i class="bi bi-eye"></i> Voir
                             </a>
-                            @if($arr->statut !== 'receptionne' && Auth::user()->peutGererArrivages())
+                            @if(!in_array($arr->statut, ['receptionne', 'valide', 'integre']) && Auth::user()->peutGererArrivages())
                             <form method="POST" action="{{ route('arrivages.destroy', $arr) }}" onsubmit="return confirm('Confirmer la suppression de cet arrivage ?')">
                                 @csrf
                                 @method('DELETE')

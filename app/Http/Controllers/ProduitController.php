@@ -40,12 +40,31 @@ class ProduitController extends Controller
 
         $stockParProduit = [];
         $stockCartouchesParProduit = [];
+        $includeEmpty = $request->boolean('include_empty', true) || $request->boolean('include_all', false) || $request->has('per_page') || $request->expectsJson() || $request->is('api/*');
+        $onlyAvailable = $request->boolean('only_available', false);
+
         if ($selectedMagasinId && $selectedMagasinId !== 'all') {
             $stockParProduit = $this->stockService->getStockMagasin($selectedMagasinId);
             $stockCartouchesParProduit = $this->stockService->getStockMagasinCartouches($selectedMagasinId);
+            $produits = $produits->map(function ($p) use ($stockParProduit, $stockCartouchesParProduit) {
+                $p->stock = $stockParProduit[$p->id] ?? 0;
+                $p->stock_cartouches = $stockCartouchesParProduit[$p->id] ?? 0;
+                return $p;
+            });
+
+            if ($onlyAvailable) {
+                $produits = $produits->filter(function ($p) {
+                    return (int)$p->stock > 0 || (int)$p->stock_cartouches > 0;
+                })->values();
+            }
         } else {
             $stockParProduit = $this->stockService->getStockTotalParProduit();
             $stockCartouchesParProduit = $this->stockService->getStockTotalCartouchesParProduit();
+            $produits = $produits->map(function ($p) use ($stockParProduit, $stockCartouchesParProduit) {
+                $p->stock = $stockParProduit[$p->id] ?? $p->stock;
+                $p->stock_cartouches = $stockCartouchesParProduit[$p->id] ?? $p->stock_cartouches;
+                return $p;
+            });
         }
 
         if (request()->expectsJson() || request()->is('api/*')) {

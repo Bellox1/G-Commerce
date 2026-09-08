@@ -1,4 +1,7 @@
 {
+  "cli": {
+    "version": ">= 12.0.0"
+  },
   "build": {
     "development": {
       "developmentClient": true,
@@ -8,7 +11,9 @@
       "distribution": "internal"
     },
     "production": {
-      "buildType": "apk"
+      "android": {
+        "buildType": "apk"
+      }
     }
   }
 }

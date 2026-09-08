@@ -26,39 +26,27 @@ const AlertesScreen = () => {
     const [notifLoading, setNotifLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    const fetchAlertes = useCallback(async () => {
-        try {
-            const resp = await client.get('/analytique');
-            const body = resp.data;
-            const payload = body && body.data !== undefined ? body.data : body;
-            setAlertes(payload?.stockAlertes || []);
-        } catch (e) {
-            console.error('Erreur alertes:', e);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    const fetchNotifs = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
             const resp = await client.get('/notifications');
             const body = resp.data;
+            setAlertes(body?.stockAlertes || []);
             setNotifs(body?.items || []);
         } catch (e) {
-            console.error('Erreur notifications:', e);
+            console.error('Erreur alertes/notifs:', e);
         } finally {
+            setLoading(false);
             setNotifLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        fetchAlertes();
-        fetchNotifs();
-    }, [fetchAlertes, fetchNotifs]);
+        fetchData();
+    }, [fetchData]);
 
     const onRefresh = () => {
         setRefreshing(true);
-        Promise.all([fetchAlertes(), fetchNotifs()]).finally(() => setRefreshing(false));
+        fetchData().finally(() => setRefreshing(false));
     };
 
     const markRead = async (id) => {
@@ -148,7 +136,40 @@ const AlertesScreen = () => {
                         <Text style={styles.emptyMiniText}>Aucun produit en alerte</Text>
                     </View>
                 ) : (
-                    alertes.map((it, i) => <View key={'s' + i}>{renderStockItem({ item: it })}</View>)
+                    <View style={styles.groupedAlertCard}>
+                        <View style={styles.groupedAlertHeader}>
+                            <Ionicons name="warning" size={18} color="#991B1B" />
+                            <Text style={styles.groupedAlertTitle}>Alertes & Ruptures de Stock ({alertes.length})</Text>
+                        </View>
+                        <View style={styles.groupedAlertBody}>
+                            {alertes.map((it, idx) => {
+                                const nom = it.produit?.nom || it.nom || 'Produit';
+                                const stock = it.stock ?? 0;
+                                const seuil = it.produit?.seuil_alerte ?? it.seuil_alerte ?? 5;
+                                const rupture = stock <= 0;
+                                const badgeColor = rupture ? '#DC2626' : '#D97706';
+                                const produitId = it.produit?.id ?? it.id;
+
+                                return (
+                                    <TouchableOpacity
+                                        key={'s' + idx}
+                                        style={[styles.groupedAlertRow, idx > 0 && styles.groupedAlertBorder]}
+                                        onPress={() => navigation.navigate('ProduitShow', { id: produitId })}
+                                    >
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={styles.groupedProdName}>{nom}</Text>
+                                            <Text style={styles.groupedProdMeta}>Seuil : {seuil} carton(s)</Text>
+                                        </View>
+                                        <View style={[styles.groupedStockBadge, { backgroundColor: badgeColor + '18' }]}>
+                                            <Text style={[styles.groupedStockText, { color: badgeColor }]}>
+                                                {stock} en stock {rupture ? '(Rupture)' : '(Faible)'}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    </View>
                 )}
 
                 {alertes.length > 0 && (
@@ -207,6 +228,16 @@ const styles = StyleSheet.create({
     },
     commanderText: { color: '#FFF', fontSize: 15, fontFamily: 'PlusJakartaSans_700Bold' },
     bottomSpacer: { height: 24 },
+    groupedAlertCard: { backgroundColor: '#FFF', borderRadius: 16, borderColor: '#FECACA', overflow: 'hidden', marginBottom: 12, borderWidth: 1 },
+    groupedAlertHeader: { backgroundColor: '#FEE2E2', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 8, borderBottomWidth: 1, borderBottomColor: '#FECACA' },
+    groupedAlertTitle: { fontSize: 14, fontFamily: 'SpaceGrotesk_700Bold', color: '#991B1B' },
+    groupedAlertBody: { padding: 4 },
+    groupedAlertRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 10 },
+    groupedAlertBorder: { borderTopWidth: 1, borderTopColor: '#FEE2E2' },
+    groupedProdName: { fontSize: 14, fontFamily: 'SpaceGrotesk_700Bold', color: '#1E293B' },
+    groupedProdMeta: { fontSize: 11.5, fontFamily: 'PlusJakartaSans_400Regular', color: '#64748B', marginTop: 2 },
+    groupedStockBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    groupedStockText: { fontSize: 11.5, fontFamily: 'PlusJakartaSans_700Bold' },
 });
 
 export default AlertesScreen;

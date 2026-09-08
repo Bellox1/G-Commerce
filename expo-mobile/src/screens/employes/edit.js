@@ -20,7 +20,9 @@ const EmployeEditScreen = ({ navigation }) => {
     const [email, setEmail] = useState(item?.email || '');
     const [telephone, setTelephone] = useState(item?.telephone || '');
     const [role, setRole] = useState(item?.role || 'vendeur');
-    const [salaire, setSalaire] = useState(item?.salaire ? String(item.salaire) : (item?.salaire_mensuel ? String(item.salaire_mensuel) : '0'));
+    const [salaire, setSalaire] = useState(
+        item?.salaire ? String(Math.round(Number(item.salaire))) : (item?.salaire_mensuel ? String(Math.round(Number(item.salaire_mensuel))) : '0')
+    );
     const [secondaryRoles, setSecondaryRoles] = useState(item?.roles_secondaires || []);
     const [password, setPassword] = useState('');
     const [submitting, setSubmitting] = useState(false);

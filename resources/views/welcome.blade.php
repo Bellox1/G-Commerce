@@ -1,891 +1,1345 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PILOTIX — Logiciel de Gestion Commerciale Multi-Magasins</title>
-    <meta name="description" content="PILOTIX : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel.">
-    <meta name="keywords" content="logiciel gestion, gestion stock, ventes en ligne, clients, livraisons, arrivages, dettes, multi-magasins, PILOTIX, application gestion">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="PILOTIX — Logiciel de Gestion Commerciale Multi-Magasins">
-    <meta property="og:description" content="Gérez vos ventes, stocks, clients, livraisons et dettes en temps réel. Solution complète pour commerçants.">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="PILOTIX">
-    <meta name="description" content="PILOTIX est une solution SaaS de gestion commerciale multi-tenant pour les PME africaines : ventes, stock, livraisons, dettes, arrivages et plus.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <meta name="description" content="PILOTIX : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel." />
+    <link rel="shortcut icon" href="/PILOTIX-logo.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         :root {
-            --primary: #105e49;
-            --primary-light: #167e65;
-            --secondary: #ea8d22;
-            --bg: #f4f7f6;
-            --text: #1f2937;
-            --muted: #6b7280;
+            --primary: #0d6b4e;
+            --primary-dark: #08503a;
+            --primary-light: #1a8b68;
+            --secondary: #e68a2e;
+            --secondary-light: #f5a94a;
+            --bg: #f6f9f8;
+            --surface: #ffffff;
+            --text: #0b1a17;
+            --text-secondary: #3d5a54;
+            --text-muted: #7a9a93;
+            --border: #dce9e5;
+            --shadow-sm: 0 4px 12px rgba(11, 26, 23, 0.06);
+            --shadow-md: 0 12px 40px rgba(11, 26, 23, 0.08);
+            --shadow-lg: 0 24px 60px rgba(11, 26, 23, 0.12);
+            --radius: 16px;
+            --radius-lg: 24px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        img {
+            max-width: 100%;
+            display: block;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
 
-        /* ─── TOP BANNER ─── */
-        .top-banner {
-            background: var(--primary); color: #fff;
-            display: flex; align-items: center; justify-content: center; gap: 16px;
-            padding: 8px 5%; font-size: 0.82rem; font-weight: 500;
-            white-space: nowrap; overflow: hidden; flex-wrap: nowrap;
+        /* ===== TOP BAR ===== */
+        .top-bar {
+            background: var(--primary-dark);
+            color: #fff;
+            padding: 6px 0;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
         }
-        .top-banner a { color: #fff; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
-        .top-banner a:hover { opacity: .85; }
-        .top-banner span { opacity: .3; }
-        @media (max-width: 576px) {
-            .top-banner { font-size: 0.72rem; gap: 8px; padding: 6px 10px; overflow-x: auto; justify-content: flex-start; }
-            .top-banner a { font-size: 0.72rem; gap: 4px; }
+        .top-bar a {
+            color: rgba(255, 255, 255, 0.85);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+        .top-bar a:hover {
+            color: #fff;
+        }
+        .top-bar .divider {
+            opacity: 0.25;
+        }
+        @media (max-width: 600px) {
+            .top-bar {
+                font-size: 0.7rem;
+                gap: 12px;
+                padding: 4px 12px;
+            }
         }
 
-        /* ─── NAV ─── */
+        /* ===== NAVIGATION ===== */
         nav {
-            position: sticky; top: 0; z-index: 100;
-            display: flex; align-items: center;
-            padding: 0 5%; min-height: 68px;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            flex-wrap: wrap; gap: 6px 0; justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .nav-logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-        .nav-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
-        .nav-links-pub { display: flex; align-items: center; gap: 32px; margin-left: auto; flex-wrap: wrap; }
-        .nav-links-pub a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.92rem; white-space: nowrap; }
-        .nav-links-pub a:hover, .nav-links-pub a.nav-active { color: var(--primary); }
-        .btn-nav-phone { background: var(--primary); color: #fff !important; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s; white-space: nowrap; }
-        .btn-nav-phone:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,94,73,.3); }
-        .btn-nav { background: var(--primary); color: #fff !important; padding: 9px 22px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; transition: all .2s; }
-        .btn-nav:hover { background: var(--primary-light) !important; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,94,73,.3); }
-
-        /* ─── HAMBURGER BUTTON ─── */
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+        }
+        .nav-logo img {
+            height: 44px;
+            width: 44px;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+        .nav-links a {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+            position: relative;
+        }
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        .nav-links a.active {
+            color: var(--primary);
+        }
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 2.5px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        .nav-cta {
+            background: var(--primary);
+            color: #fff !important;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .nav-cta:hover {
+            background: var(--primary-dark) !important;
+            transform: translateY(-1px);
+        }
         .hamburger {
             display: none;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
             gap: 5px;
-            width: 40px; height: 40px;
             background: none;
             border: none;
             cursor: pointer;
-            padding: 4px;
+            padding: 6px;
             border-radius: 8px;
             transition: background 0.2s;
-            z-index: 200;
         }
-        .hamburger:hover { background: rgba(16,94,73,0.06); }
+        .hamburger:hover {
+            background: rgba(11, 26, 23, 0.04);
+        }
         .hamburger span {
             display: block;
-            width: 24px; height: 2.5px;
+            width: 24px;
+            height: 2.5px;
             background: var(--text);
             border-radius: 99px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.3s;
         }
-        /* Croix quand ouvert */
-        .hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
-        .hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
-        .hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
-
-        /* ─── MOBILE DRAWER ─── */
+        .hamburger.open span:nth-child(1) {
+            transform: translateY(7.5px) rotate(45deg);
+        }
+        .hamburger.open span:nth-child(2) {
+            opacity: 0;
+            width: 0;
+        }
+        .hamburger.open span:nth-child(3) {
+            transform: translateY(-7.5px) rotate(-45deg);
+        }
         .mobile-menu {
             display: none;
-            flex-direction: column;
             position: fixed;
-            top: 68px; left: 0; right: 0;
-            background: rgba(255,255,255,0.98);
+            top: 72px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            padding: 20px 5% 28px;
+            padding: 20px 24px 32px;
+            border-bottom: 1px solid var(--border);
+            flex-direction: column;
             gap: 4px;
             z-index: 99;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            transform: translateY(-10px);
+            transform: translateY(-12px);
             opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
         }
         .mobile-menu.active {
             display: flex;
             transform: translateY(0);
             opacity: 1;
+            pointer-events: auto;
         }
         .mobile-menu a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1rem;
-            padding: 14px 16px;
+            padding: 12px 16px;
             border-radius: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 12px;
             transition: background 0.2s, color 0.2s;
         }
-        .mobile-menu a:hover { background: rgba(16,94,73,0.06); color: var(--primary); }
-        .mobile-menu .btn-nav-mobile {
+        .mobile-menu a:hover {
+            background: rgba(11, 26, 23, 0.04);
+            color: var(--primary);
+        }
+        .mobile-menu .mobile-cta {
             background: var(--primary);
             color: #fff !important;
+            justify-content: center;
             margin-top: 8px;
-            justify-content: center;
-            font-weight: 700;
-            border-radius: 10px;
         }
-        .mobile-menu .btn-nav-mobile:hover { background: var(--primary-light); }
-        .mobile-menu-divider { height: 1px; background: rgba(0,0,0,0.06); margin: 8px 0; }
-
-        @media (max-width: 768px) {
-            .nav-links-pub { display: none; }
-            .hamburger { display: flex; }
+        .mobile-menu .mobile-cta:hover {
+            background: var(--primary-dark);
+        }
+        .mobile-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
+        @media (max-width: 1180px) {
+            .nav-links {
+                gap: 16px;
+            }
+            .nav-links a {
+                font-size: 0.82rem;
+            }
+        }
+        @media (max-width: 1024px) {
+            .nav-links {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+        }
+        @media (max-width: 600px) {
+            nav {
+                padding: 0 16px;
+                height: 64px;
+            }
+            .nav-logo {
+                font-size: 1.05rem;
+                gap: 8px;
+            }
+            .nav-logo img {
+                height: 36px;
+                width: 36px;
+            }
+            .mobile-menu {
+                top: 64px;
+                padding: 16px 20px 24px;
+            }
         }
 
-        /* ─── HERO ─── */
+        /* ===== HERO ===== */
         .hero {
-            min-height: 92vh;
-            display: flex; align-items: center;
-            background: linear-gradient(135deg, #0a3d2d 0%, #105e49 50%, #167e65 100%);
-            padding: 80px 5% 60px;
-            position: relative; overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .hero-inner { width: 100%; display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 1; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(234,141,34,.15); border: 1px solid rgba(234,141,34,.4); color: var(--secondary); padding: 6px 16px; border-radius: 30px; font-weight: 700; font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
-        .hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 3rem; font-weight: 900; color: #fff; line-height: 1.45; letter-spacing: -2px; margin-bottom: 24px; }
-        .arc-underline {
+            padding: 80px 0 64px;
+            background: linear-gradient(165deg, #eaf5f1 0%, #d9ede6 100%);
             position: relative;
-            display: inline-block;
-            color: var(--secondary);
-            z-index: 1;
+            overflow: hidden;
         }
-        .arc-underline svg {
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 100%;
-            height: 15px;
-            pointer-events: none;
-        }
-        .hero-desc { font-size: 1.1rem; color: rgba(255,255,255,0.8); line-height: 1.7; margin-bottom: 40px; }
-        .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
-        .btn-hero-primary { display: inline-flex; align-items: center; gap: 10px; background: #fff; color: var(--primary); padding: 14px 30px; border-radius: 10px; font-weight: 800; font-size: 1rem; text-decoration: none; transition: all .3s; box-shadow: 0 8px 25px rgba(0,0,0,.15); }
-        .btn-hero-primary:hover { background: var(--secondary); color: #fff; transform: translateY(-3px); box-shadow: 0 16px 35px rgba(0,0,0,.2); }
-        .btn-hero-sec { display: inline-flex; align-items: center; gap: 10px; border: 2px solid rgba(255,255,255,.3); color: #fff; padding: 14px 28px; border-radius: 10px; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all .3s; }
-        .btn-hero-sec:hover { border-color: #fff; background: rgba(255,255,255,.1); }
-        .hero-stats { display: flex; gap: 36px; margin-top: 50px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,.12); }
-        .hero-stat .stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 900; color: var(--secondary); }
-        .hero-stat .stat-lbl { font-size: 0.8rem; color: rgba(255,255,255,.6); margin-top: 2px; }
-
-        /* Hero visual mock */
-        .hero-visual { position: relative; }
-        .hero-card-mockup {
-            background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
-            border-radius: 20px; padding: 28px; backdrop-filter: blur(10px);
-        }
-        .mock-header { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
-        .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .mock-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-        .mock-stat { background: rgba(255,255,255,.08); border-radius: 12px; padding: 16px; }
-        .mock-stat .ms-val { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.4rem; color: #fff; }
-        .mock-stat .ms-lbl { font-size: 0.72rem; color: rgba(255,255,255,.5); margin-top: 3px; }
-        .mock-stat .ms-trend { font-size: 0.72rem; color: #4ade80; margin-top: 4px; font-weight: 700; }
-        .mock-bar-row { display: flex; flex-direction: column; gap: 10px; }
-        .mock-bar { display: flex; align-items: center; gap: 10px; }
-        .mock-bar-label { font-size: 0.72rem; color: rgba(255,255,255,.55); width: 80px; flex-shrink: 0; }
-        .mock-bar-track { flex: 1; height: 8px; background: rgba(255,255,255,.1); border-radius: 99px; overflow: hidden; }
-        .mock-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--secondary), #f97316); }
-
-        .phone-frame {
-            position: relative;
-            width: 280px;
-            margin: 0 auto;
-            background: #1a1a2e;
-            border-radius: 36px;
-            padding: 12px;
-            box-shadow: 0 25px 60px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.1);
-        }
-        .phone-notch {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 24px;
-            background: #1a1a2e;
-            border-radius: 0 0 16px 16px;
-            z-index: 2;
-        }
-        .phone-notch::after {
+        .hero::after {
             content: '';
             position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 4px;
-            background: rgba(255,255,255,.15);
-            border-radius: 99px;
-        }
-        .phone-screen {
-            border-radius: 28px;
-            overflow: hidden;
-            background: #ffffff;
-            aspect-ratio: 9/16;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .phone-screen img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .tablet-frame {
-            position: relative;
-            width: 360px;
-            background: #1a1a2e;
-            border-radius: 24px;
-            padding: 14px;
-            box-shadow: 0 25px 60px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.1);
-        }
-        .tablet-camera {
-            position: absolute;
-            top: 14px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 8px;
-            height: 8px;
-            background: rgba(255,255,255,.12);
+            right: -120px;
+            top: -120px;
+            width: 600px;
+            height: 600px;
             border-radius: 50%;
-            z-index: 2;
-        }
-        .tablet-screen {
-            border-radius: 16px;
-            overflow: hidden;
-            background: #0a3d2d;
-            aspect-ratio: 4/3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .tablet-screen img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* ─── MULTI-DEVICE SECTION ─── */
-        .multi-device-section {
-            padding: 80px 5%;
-            background: transparent;
-            text-align: center;
-        }
-        .multi-device-inner { max-width: 1100px; margin: 0 auto; }
-        .devices-showcase {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 30px;
-            max-width: 100%;
-            overflow: hidden;
-        }
-
-        /* PC */
-        .pc-frame { text-align: center; flex-shrink: 0; }
-        .pc-screen {
-            width: 520px;
-            max-width: 520px;
-            height: 320px;
-            background: #1a1a2e;
-            border-radius: 12px 12px 0 0;
-            border: 4px solid #2a2a3e;
-            border-bottom: none;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .pc-screen img { width: 100%; height: 100%; object-fit: contain; }
-        .pc-stand {
-            width: 100px;
-            height: 40px;
-            margin: 0 auto;
-            background: #2a2a3e;
-            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
-        }
-
-        /* Tablette large */
-        .tablet-frame-lg {
-            position: relative;
-            width: 200px;
-            background: #1a1a2e;
-            border-radius: 20px;
-            padding: 10px;
-            box-shadow: 0 15px 40px rgba(0,0,0,.3), inset 0 0 0 2px rgba(255,255,255,.08);
-        }
-        .tablet-screen-lg {
-            border-radius: 14px;
-            overflow: hidden;
-            background: #0a3d2d;
-            aspect-ratio: 3/4;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .tablet-screen-lg img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* Téléphone petit */
-        .phone-frame-sm {
-            position: relative;
-            width: 120px;
-            background: #1a1a2e;
-            border-radius: 22px;
-            padding: 8px;
-            box-shadow: 0 15px 40px rgba(0,0,0,.3), inset 0 0 0 2px rgba(255,255,255,.08);
-        }
-        .phone-notch-sm {
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 14px;
-            background: #1a1a2e;
-            border-radius: 0 0 10px 10px;
-            z-index: 2;
-        }
-        .phone-screen-sm {
-            border-radius: 18px;
-            overflow: hidden;
-            background: #0a3d2d;
-            aspect-ratio: 9/16;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .phone-screen-sm img { width: 100%; height: 100%; object-fit: contain; }
-
-
-
-        /* ─── NOUVEAU WEB DESIGN ASYMÉTRIQUE ALTERNÉ ─── */
-        .features-section {
-            padding: 120px 5%;
-            background: #fbfcfd;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .features-header { text-align: center; margin-bottom: 80px; position: relative; z-index: 2; }
-        .section-label { display: inline-block; color: var(--primary); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; background: rgba(16, 94, 73, 0.1); padding: 6px 16px; border-radius: 50px; }
-        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 2.8rem; font-weight: 900; color: var(--text); letter-spacing: -1px; margin-bottom: 20px; }
-        .section-sub { font-size: 1.1rem; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.6; }
-
-        /* Arcs de couleurs géants pro en background */
-        .decor-arc {
-            position: absolute;
-            border-radius: 50%;
+            background: rgba(13, 107, 78, 0.06);
             pointer-events: none;
+        }
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
             z-index: 1;
-            opacity: 0.45;
         }
-        .decor-arc-1 {
-            width: 700px;
-            height: 700px;
-            border: 45px solid rgba(16, 94, 73, 0.03);
-            border-top-color: rgba(16, 94, 73, 0.08);
-            border-right-color: rgba(16, 94, 73, 0.05);
-            top: -200px;
-            right: -150px;
-            transform: rotate(45deg);
-        }
-        .decor-arc-2 {
-            width: 800px;
-            height: 800px;
-            border: 55px solid rgba(234, 141, 34, 0.02);
-            border-bottom-color: rgba(234, 141, 34, 0.05);
-            border-left-color: rgba(234, 141, 34, 0.03);
-            bottom: 10%;
-            left: -350px;
-            transform: rotate(-15deg);
-        }
-
-        .feat-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 80px;
-            max-width: 1300px;
-            margin: 0 auto 120px auto;
-            position: relative;
-            z-index: 2;
-        }
-        .feat-row:last-child {
-            margin-bottom: 0;
-        }
-        .feat-row:nth-child(even) {
-            flex-direction: row-reverse;
-            gap: 40px;
-        }
-        .feat-col-text {
-            flex: 1;
-            max-width: 550px;
-        }
-        .feat-col-image {
-            flex: 1.1;
-            position: relative;
-        }
-
-        /* Cadres d'images modernes avec bordure courbée pro */
-        .feat-image-card {
-            position: relative;
-            background: #ffffff;
-            border-radius: 90px 24px 90px 24px;
-            padding: 12px;
-            box-shadow: 0 25px 50px rgba(15, 25, 35, 0.06);
-            border: 4px solid var(--primary); /* Trait de couleur verte en arc */
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .feat-image-card img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 78px 18px 78px 18px;
-            display: block;
-        }
-        .feat-row:nth-child(even) .feat-image-card {
-            border: none;
-            background: transparent;
-            padding: 0;
-            border-radius: 0;
-            box-shadow: none;
-            max-width: 100%;
-        }
-        .feat-row:nth-child(even) .feat-image-card img {
-            border-radius: 0;
-            aspect-ratio: 1 / 1;
-            width: 100%;
-            display: block;
-        }
-        .feat-row:nth-child(even) .feat-col-image {
-            flex: 1.3;
-            margin: 0 0 0 40px;
-            padding: 0;
-        }
-        .feat-image-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 30px 60px rgba(16, 94, 73, 0.12);
-        }
-
-        /* Arc de cercle de fond stylisé décoratif */
-        .feat-ring-decoration {
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            border: 2px dashed rgba(16, 94, 73, 0.2);
-            border-radius: 50%;
-            z-index: -1;
-            pointer-events: none;
-        }
-        .ring-tr { top: -40px; right: -40px; }
-        .ring-bl { bottom: -40px; left: -40px; border-color: rgba(234, 141, 34, 0.2); }
-
-        .feat-badge {
+        .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(16, 94, 73, 0.07);
+            background: rgba(13, 107, 78, 0.1);
             color: var(--primary);
-            font-weight: 800;
+            font-weight: 700;
             font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            padding: 8px 18px;
+            letter-spacing: 1px;
+            padding: 6px 16px;
             border-radius: 100px;
-            margin-bottom: 24px;
-        }
-        .feat-row:nth-child(even) .feat-badge {
-            background: rgba(234, 141, 34, 0.1);
-            color: var(--secondary);
-        }
-        .feat-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 900;
-            font-size: 2.3rem;
-            line-height: 1.2;
-            letter-spacing: -1px;
-            color: var(--text);
             margin-bottom: 20px;
         }
-        .feat-desc {
-            font-size: 1.05rem;
-            color: var(--muted);
-            line-height: 1.75;
-            margin-bottom: 28px;
-        }
-        
-        .bullet-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .bullet-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            font-size: 0.95rem;
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 3.2rem;
+            line-height: 1.15;
+            letter-spacing: -2px;
             color: var(--text);
+            margin-bottom: 16px;
+        }
+        .hero h1 span {
+            color: var(--primary);
+        }
+        .hero p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 480px;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 16px rgba(13, 107, 78, 0.25);
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(13, 107, 78, 0.3);
+        }
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--text);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: 2px solid var(--border);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            background: rgba(13, 107, 78, 0.04);
+        }
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+        .hero-stats .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        .hero-stats .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
             font-weight: 500;
         }
-        .bullet-item i {
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .phone-mockup {
+            width: 280px;
+            background: #0b1a17;
+            border-radius: 40px;
+            padding: 12px;
+            border: 3px solid #2d4a43;
+            box-shadow: 0 30px 60px rgba(11, 26, 23, 0.2);
+            transition: transform 0.4s;
+        }
+        .phone-mockup:hover {
+            transform: translateY(-6px);
+        }
+        .phone-mockup .notch {
+            width: 80px;
+            height: 18px;
+            background: #0b1a17;
+            border-radius: 0 0 14px 14px;
+            margin: -8px auto 8px;
+        }
+        .phone-mockup .screen {
+            background: #fff;
+            border-radius: 28px;
+            overflow: hidden;
+            aspect-ratio: 9 / 19;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 12px;
+            text-align: center;
+        }
+        .phone-mockup .screen img {
+            width: 80%;
+            margin-bottom: 12px;
+        }
+        .phone-mockup .screen .tagline {
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: var(--primary-dark);
+            letter-spacing: 0.5px;
+        }
+        @media (max-width: 900px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero p {
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+            .hero-stats {
+                justify-content: center;
+            }
+            .hero h1 {
+                font-size: 2.4rem;
+            }
+            .phone-mockup {
+                width: 200px;
+            }
+        }
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .hero {
+                padding: 48px 0 40px;
+            }
+            .phone-mockup {
+                width: 160px;
+            }
+        }
+
+        /* ===== SECTION HEADERS ===== */
+        .section-header {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 56px;
+        }
+        .section-header .label {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            background: none;
+            padding: 0 0 4px;
+            border-radius: 0;
+            margin-bottom: 14px;
+            border-bottom: 2.5px solid var(--secondary);
+        }
+        .section-header h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 2.4rem;
+            letter-spacing: -1px;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .section-header h2 span {
+            color: var(--primary);
+        }
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        /* ===== FEATURES ===== */
+        .features {
+            padding: 80px 0;
+            background: var(--surface);
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+        .feature-card {
+            background: var(--bg);
+            border-radius: var(--radius-lg);
+            padding: 32px 28px;
+            transition: box-shadow 0.3s, transform 0.3s;
+            border: 1px solid transparent;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--border);
+        }
+        .feature-card .icon {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 24px;
-            height: 24px;
-            background: rgba(16, 94, 73, 0.08);
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(13, 107, 78, 0.08);
             color: var(--primary);
-            border-radius: 50%;
-            font-size: 0.8rem;
+            font-size: 1.5rem;
+            margin-bottom: 18px;
+        }
+        .feature-card h3 {
+            font-weight: 800;
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        .feature-card ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .feature-card ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+        .feature-card ul li i {
+            color: var(--primary);
+            font-size: 1rem;
             margin-top: 2px;
             flex-shrink: 0;
         }
-        .feat-row:nth-child(even) .bullet-item i {
-            background: rgba(234, 141, 34, 0.1);
-            color: var(--secondary);
+        @media (max-width: 900px) {
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 600px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
         }
 
-        @media (max-width: 991px) {
-            .nav-links-pub { gap: 10px; }
-            .nav-links-pub a { font-size: 0.82rem; }
-            .btn-nav { padding: 6px 14px; font-size: 0.8rem; }
-            .feat-row {
-                flex-direction: column !important;
-                gap: 48px;
-                margin-bottom: 80px;
-            }
-            .feat-col-text {
-                max-width: 100%;
-            }
-            .feat-image-card img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 14px;
-            display: block;
+        /* ===== DETAILED FEATURES (alternating) ===== */
+        .detailed-features {
+            padding: 80px 0;
+            background: var(--bg);
         }
-        }
-
-        /* ─── ROLES GRID (ORGANISATION DES ACCÈS) ─── */
-        .roles { padding: 80px 5% 120px; background: #fbfcfd; position: relative; }
-        .roles-inner { max-width: 1200px; margin: 0 auto; }
-        .roles-grid {
-            margin-top: 50px;
+        .detail-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 28px;
-        }
-        @media (max-width: 991px) {
-            .roles-grid { grid-template-columns: 1fr; gap: 20px; }
-        }
-        .role-card {
-            background: #ffffff;
-            border: 1px solid rgba(0,0,0,0.06);
-            border-radius: 20px;
-            padding: 32px 28px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            transition: all 0.3s ease;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .role-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 18px 40px rgba(16,94,73,0.1);
-            border-color: rgba(16,94,73,0.2);
-        }
-        .role-card-header {
-            display: flex;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
             align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 72px;
         }
-        .role-icon-box {
-            width: 48px; height: 48px;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem;
-            flex-shrink: 0;
+        .detail-row:last-child {
+            margin-bottom: 0;
         }
-        .role-card-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: var(--text);
-            line-height: 1.2;
+        .detail-row.reverse {
+            direction: rtl;
         }
-        .role-badge-pill {
-            display: inline-block;
-            font-size: 0.72rem;
+        .detail-row.reverse .detail-text {
+            direction: ltr;
+        }
+        .detail-text .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            padding: 3px 10px;
-            border-radius: 50px;
-            margin-top: 4px;
+            letter-spacing: 1px;
+            color: var(--primary);
+            background: none;
+            padding: 0 0 4px;
+            border-radius: 0;
+            margin-bottom: 14px;
+            border-bottom: 2.5px solid var(--secondary);
         }
-        .role-features-list {
-            list-style: none; padding: 0; margin: 0;
-            display: flex; flex-direction: column; gap: 12px;
-        }
-        .role-features-list li {
-            display: flex; align-items: flex-start; gap: 10px;
-            font-size: 0.9rem; color: #475569; line-height: 1.5;
-        }
-        .role-features-list li i {
-            font-size: 1.1rem; flex-shrink: 0; margin-top: 2px;
-        }
-        .role-accordion-content ul li strong {
+        .detail-text h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
             color: var(--text);
+        }
+        .detail-text p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .detail-text .check-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .detail-text .check-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .detail-text .check-list li i {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .detail-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+            background: transparent;
+        }
+        .phone-frame {
+            position: relative;
+            width: 100%;
+            max-width: 275px;
+            background: #0f172a;
+            border-radius: 44px;
+            padding: 12px;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.28), 0 0 0 2px #334155, inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .phone-frame:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 35px 60px -12px rgba(13, 107, 78, 0.25), 0 0 0 2.5px var(--primary);
+        }
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 75px;
+            height: 16px;
+            background: #0f172a;
+            border-radius: 12px;
+            z-index: 10;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .phone-frame .phone-screen {
+            position: relative;
+            width: 100%;
+            border-radius: 34px;
+            overflow: hidden;
+            background: #000;
+            line-height: 0;
+        }
+        .phone-frame .phone-screen img {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            display: block;
+            border-radius: 34px !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        @media (max-width: 820px) {
+            .detail-row {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .detail-row.reverse {
+                direction: ltr;
+            }
+            .detail-text h3 {
+                font-size: 1.5rem;
+            }
+            .phone-frame {
+                max-width: 240px;
+                padding: 10px;
+                border-radius: 38px;
+            }
+            .phone-frame .phone-screen {
+                border-radius: 28px;
+            }
+            .phone-frame .phone-screen img {
+                border-radius: 28px !important;
+            }
+        }
+
+        /* ===== PRICING ===== */
+        .pricing {
+            padding: 80px 0;
+            background: var(--surface);
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+            margin-top: 8px;
+        }
+        .pricing-card {
+            background: var(--bg);
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            border: 1px solid var(--border);
+            transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        .pricing-card.featured {
+            border-color: var(--secondary);
+            background: #fffcf7;
+            box-shadow: 0 8px 30px rgba(230, 138, 46, 0.1);
+        }
+        .pricing-card.featured .badge-top {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 16px;
+            border-radius: 100px;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(230, 138, 46, 0.3);
+        }
+        .pricing-card .plan-name {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .pricing-card .plan-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .pricing-card .price {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 2.2rem;
+            color: var(--text);
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        .pricing-card .price small {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .pricing-card .price-note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .pricing-card .features-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            margin-bottom: 28px;
+        }
+        .pricing-card .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .pricing-card .features-list li i {
+            color: var(--primary);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .pricing-card .btn-plan {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
             font-weight: 700;
+            font-size: 0.95rem;
+            background: var(--border);
+            color: var(--text-secondary);
+            transition: background 0.2s, color 0.2s;
         }
-
-        /* ─── CTA ─── */
-        .cta { padding: 100px 5%; background: url('https://i.pinimg.com/736x/6a/cd/1b/6acd1b1405369a5b0457877eed1dc42d.jpg') center/cover no-repeat; text-align: center; position: relative; overflow: hidden; }
-        .cta h2 { font-family: 'Space Grotesk', sans-serif; font-size: 2.8rem; font-weight: 900; color: #fff; letter-spacing: -1px; margin-bottom: 16px; }
-        .cta p { font-size: 1.15rem; color: rgba(255,255,255,.75); max-width: 520px; margin: 0 auto 40px; line-height: 1.7; }
-        .cta-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 60px; text-align: left; }
-        .cta-info { flex: 1; }
-        .cta-form-box { flex: 1; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 24px; padding: 36px; box-shadow: 0 20px 50px rgba(0,0,0,0.12); width: 100%; max-width: 520px; }
-        .cta-form-box h3 { color: var(--primary); font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.5rem; margin-bottom: 24px; text-align: center; }
-        .cta-form-box .form-group { margin-bottom: 20px; text-align: left; }
-        .cta-form-box .form-label { color: var(--text); font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-        .cta-form-box .form-control { background: #f8fafc; border: 1.5px solid #e2e8f0; color: var(--text); padding: 13px 16px; border-radius: 12px; font-size: 0.95rem; width: 100%; transition: all 0.25s ease; font-family: inherit; }
-        .cta-form-box .form-control:focus { outline: none; border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 4px rgba(16, 94, 73, 0.12); }
-        .cta-form-box .form-control::placeholder { color: #94a3b8; }
-        .cta-form-box select.form-control { color: var(--text); background: #f8fafc; cursor: pointer; }
-        .cta-form-box select.form-control option { background: #ffffff; color: var(--text); padding: 10px; }
-        .btn-cta-submit { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; border: none; padding: 15px 28px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px rgba(16, 94, 73, 0.25); }
-        .btn-cta-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 94, 73, 0.35); }
-        .btn-cta-submit:hover { background: #f97316; transform: translateY(-2px); box-shadow: 0 15px 30px rgba(234, 141, 34, 0.3); }
-        @media (max-width: 991px) {
-            .cta-container { flex-direction: column; text-align: left; gap: 40px; }
-            .cta-info { text-align: left; }
-            .cta-form-box { margin: 0 auto; }
+        .pricing-card .btn-plan:hover {
+            background: var(--primary);
+            color: #fff;
         }
-        .form-row-contact { display: flex; gap: 16px; }
-        @media (max-width: 640px) {
-            .form-row-contact { flex-direction: column; gap: 0; }
+        .pricing-card.featured .btn-plan {
+            background: var(--secondary);
+            color: #fff;
         }
-
-        /* ─── FOOTER ─── */
-        footer { background: #0f1923; color: #fff; padding: 60px 5% 28px; }
-        .footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 48px; }
-        .footer-brand { flex: 1; min-width: 200px; }
-        .footer-brand .logo-name { font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 1.6rem; letter-spacing: -1px; text-transform: uppercase; color: #fff; }
-        .footer-brand p { margin-top: 12px; color: #6b7280; font-size: 0.9rem; line-height: 1.7; max-width: 280px; }
-        .footer-links { min-width: 140px; }
-        .footer-links h5 { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; margin-bottom: 16px; }
-        .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-        .footer-links ul li a { color: #9ca3af; text-decoration: none; font-size: 0.9rem; transition: color .2s; display: inline-flex; align-items: center; gap: 7px; max-width: 100%; }
-        .footer-links ul li a:hover { color: #fff; }
-        .footer-links ul li a i { flex-shrink: 0; }
-        .footer-bottom { border-top: 1px solid rgba(255,255,255,.07); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: #4b5563; font-size: 0.85rem; }
-
-        /* Responsive */
+        .pricing-card.featured .btn-plan:hover {
+            background: #d67a20;
+        }
         @media (max-width: 1024px) {
-            .hero-inner { grid-template-columns: 1fr; }
-            .hero-visual { display: none; }
-            .hero-title { font-size: 2.8rem; }
-            .devices-showcase { flex-direction: column; align-items: center; gap: 20px; }
-            .pc-frame { width: 80%; max-width: 480px; }
-            .pc-screen { width: 100%; height: auto; aspect-ratio: 16/10; border-width: 3px; }
-            .pc-stand { width: 80px; height: 28px; }
-            .tablet-frame-lg { width: 160px; }
-            .phone-frame-sm { width: 100px; }
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                max-width: 480px;
+                margin-left: auto;
+                margin-right: auto;
+                gap: 32px;
+            }
+        }
+        @media (max-width: 600px) {
+            .pricing-card {
+                padding: 26px 18px;
+            }
+            .pricing-card .price {
+                font-size: 1.65rem;
+            }
+            .pricing-card .price small {
+                font-size: 0.85rem;
+            }
+            .pricing-card .features-list li {
+                font-size: 0.85rem;
+                align-items: flex-start;
+            }
+            .pricing-card .features-list li i {
+                margin-top: 3px;
+            }
         }
 
-        @media (max-width: 768px) {
-            .nav-links-pub { display: none; }
-            .hamburger { display: flex; }
-            .hero-title { font-size: 2.2rem; }
-            .cta h2 { font-size: 2rem; }
-            .hero-stats { gap: 16px; flex-wrap: wrap; }
-            .hero-stat { width: calc(50% - 8px); }
-            .section-title { font-size: 2rem; }
-            .feat-image-card img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 14px;
-            display: block;
+        /* ===== DEVICES SHOWCASE ===== */
+        .devices {
+            padding: 80px 0;
+            background: var(--bg);
         }
-            .feat-row:nth-child(even) .feat-image-card img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 14px;
-            display: block;
+        .devices-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 12px;
         }
-            .role-accordion-header { padding: 14px 16px; gap: 12px; }
-            .role-accordion-content { padding: 0 16px 20px 60px; font-size: 0.9rem; }
-            .role-accordion-header h4 { font-size: 1rem; }
-            .footer-top { gap: 24px; }
+        .device-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 20px 16px 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.3s, transform 0.3s;
+            text-align: center;
+            flex: 0 1 200px;
+        }
+        .device-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+        .device-item .icon-wrap {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .device-item .device-img-wrap {
+            width: 100%;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border-radius: var(--radius-md);
+            background: rgba(13, 107, 78, 0.04);
+            padding: 8px;
+        }
+        .device-item .device-img-wrap img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .device-item h4 {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .device-item p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== CONTACT / CTA ===== */
+        .contact {
+            padding: 80px 0;
+            background: var(--surface);
+            scroll-margin-top: 100px;
+        }
+        .contact-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 48px;
+            align-items: start;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 48px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 16px 40px rgba(13, 107, 78, 0.1);
+        }
+        .contact-info h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        .contact-info h2 span {
+            color: var(--primary);
+        }
+        .contact-info p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+        .contact-info .contact-detail {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .contact-info .contact-detail i {
+            color: var(--primary);
+            font-size: 1.2rem;
+            width: 24px;
+        }
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .contact-form .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .contact-form label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .contact-form input,
+        .contact-form select {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            font-family: inherit;
+            font-size: 0.92rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--text);
+        }
+        .contact-form input:focus,
+        .contact-form select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(13, 107, 78, 0.08);
+        }
+        .contact-form .price-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: 1.5px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .contact-form .price-preview .amount {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+        .contact-form .price-preview .installment {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .contact-form .checkbox-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .contact-form .checkbox-wrap input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .btn-submit {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 16px rgba(13, 107, 78, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(13, 107, 78, 0.3);
+        }
+        @media (max-width: 900px) {
+            .contact-wrapper {
+                grid-template-columns: 1fr;
+                padding: 32px 24px;
+            }
+            .contact-form .row {
+                grid-template-columns: 1fr;
+            }
         }
         @media (max-width: 480px) {
-            .hero-title { font-size: 1.8rem; letter-spacing: -1px; }
-            .hero-desc { font-size: 0.95rem; }
-            .hero-stats { gap: 12px; }
-            .hero-stat .stat-val { font-size: 1.5rem; }
-            .section-title { font-size: 1.6rem; }
-            .feat-title { font-size: 1.5rem; }
-            .feat-image-card {
-            position: relative;
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 8px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(16, 94, 73, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            .contact-wrapper {
+                padding: 24px 16px;
+            }
+            .contact-info h2 {
+                font-size: 1.6rem;
+            }
         }
-            .feat-image-card img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 14px;
-            display: block;
-        }
-            .feat-row:nth-child(even) .feat-image-card {
-            position: relative;
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 8px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(16, 94, 73, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-            .feat-row:nth-child(even) .feat-image-card img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            border-radius: 14px;
-            display: block;
-        }
-            .pc-screen { width: 320px; height: auto; aspect-ratio: 16/10; }
-            .pc-stand { width: 70px; height: 28px; }
-            .role-accordion-content { padding: 0 16px 16px 52px; font-size: 0.85rem; }
-            .role-accordion-header { padding: 12px 14px; gap: 10px; }
-            .role-accordion-icon { width: 24px; height: 24px; font-size: 0.7rem; border-radius: 6px; }
-            .role-accordion-header h4 { font-size: 0.9rem; }
-            .role-accordion-chevron { font-size: 0.9rem; }
-            .cta-form-box { padding: 20px; }
-            .footer-top { flex-direction: column; gap: 24px; }
-            .footer-bottom { flex-direction: column; text-align: center; }
-        }
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 94, 73, 0.2); }
-            50%      { box-shadow: 0 0 0 20px rgba(16, 94, 73, 0); }
-        }
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-12px); }
-        }
-        @keyframes logoEntry {
-            0%   { opacity: 0; transform: scale(0.6) translateY(30px); }
-            60%  { opacity: 1; transform: scale(1.05) translateY(-4px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @keyframes logoGlow {
-            0%, 100% { box-shadow: 0 8px 32px rgba(16,94,73,.25), 0 0 60px rgba(234,141,34,.08); }
-            50%      { box-shadow: 0 12px 40px rgba(16,94,73,.35), 0 0 80px rgba(234,141,34,.15); }
-        }
-        .anim-hero-content { animation: fadeSlideUp 0.9s ease-out both; }
-        .anim-hero-visual  { animation: fadeSlideUp 0.9s ease-out 0.3s both; }
-        .anim-hero-stats   { animation: fadeIn 0.8s ease-out 0.6s both; }
-        .hero-logo-wrap {
-            display: flex; align-items: center; justify-content: center;
-            width: 180px; height: 180px; margin: 0 auto;
-            border-radius: 40px; overflow: hidden;
-            animation: logoEntry 1s ease-out 0.5s both, logoGlow 3s ease-in-out infinite 1.5s;
-            background: #fff; border: 3px solid rgba(255,255,255,.15);
-        }
-        .hero-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
+        /* ===== FOOTER ===== */
+        footer {
+            background: #0f172a;
+            color: #f8fafc;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 60px 5% 28px;
+        }
+        .footer-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+        }
+        .footer-brand {
+            flex: 1;
+            min-width: 240px;
+        }
+        .footer-brand .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .footer-brand .logo-wrap img {
+            height: 48px;
+            width: 48px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        .footer-brand p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            max-width: 320px;
+        }
+        .footer-links {
+            min-width: 160px;
+        }
+        .footer-links h5 {
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #f8fafc;
+            margin-bottom: 18px;
+        }
+        .footer-links ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .footer-links ul li a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .footer-links ul li a:hover {
+            color: var(--secondary);
+            transform: translateX(3px);
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        @media (max-width: 600px) {
+            .footer-top { flex-direction: column; gap: 32px; }
+        }
+
+        /* ===== UTILITIES ===== */
+        .text-center {
+            text-align: center;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== REVEAL ANIMATION ===== */
         .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .contact, .contact-wrapper, .contact-form {
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block;
         }
-        .reveal-delay-1 { transition-delay: 0.1s; }
-        .reveal-delay-2 { transition-delay: 0.2s; }
-        .reveal-delay-3 { transition-delay: 0.3s; }
-        .reveal-delay-4 { transition-delay: 0.4s; }
+        .reveal-delay-1 {
+            transition-delay: 0.1s;
+        }
+        .reveal-delay-2 {
+            transition-delay: 0.2s;
+        }
+        .reveal-delay-3 {
+            transition-delay: 0.3s;
+        }
+        .reveal-delay-4 {
+            transition-delay: 0.4s;
+        }
 
-        .feat-image-card {
-            position: relative;
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 8px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(16, 94, 73, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        /* ===== CREATION MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 26, 23, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .feat-row:nth-child(even) .feat-image-card {
-            position: relative;
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-card {
             background: #ffffff;
-            border-radius: 20px;
-            padding: 8px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(16, 94, 73, 0.05);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: var(--radius-lg);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px 28px;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 2px solid var(--primary);
+        }
+        .modal-overlay.active .modal-card {
+            transform: translateY(0) scale(1);
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: var(--bg);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* ===== FLOATING ACTION BUTTON ===== */
+        .floating-cta {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 990;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #ffffff;
+            border: none;
+            padding: 14px 22px;
+            border-radius: 50px;
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(13, 107, 78, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .floating-cta:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 32px rgba(13, 107, 78, 0.5);
         }
     </style>
 </head>
 <body>
 
-
-    <!-- Top Banner -->
-    <div class="top-banner">
+    <!-- ===== TOP BAR ===== -->
+    <div class="top-bar">
         <a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a>
-        <span>|</span>
+        <span class="divider">|</span>
         <a href="mailto:pilotixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a>
     </div>
 
-    <!-- Nav -->
+    <!-- ===== NAV ===== -->
     <nav>
         <a href="/" class="nav-logo">
-            <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo">
+            <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" />
+            PILOTIX
         </a>
-        <div class="nav-links-pub">
-            <a href="#fonctionnalites">Fonctionnalités</a>
-            <a href="#offres">Tarif</a>
+        <div class="nav-links">
+            <a href="#features">Fonctionnalités</a>
+            <a href="#pricing">Tarifs</a>
+            <a href="#devices">Écrans</a>
             <a href="{{ route('partenaires') }}"><i class="bi bi-people"></i> Partenariat</a>
             <a href="{{ route('download') }}"><i class="bi bi-download"></i> Télécharger</a>
-            <a href="#contact">Demande</a>
+            <a href="#contact" onclick="openCreationModal(event)"><i class="bi bi-chat-dots"></i> Demande de création</a>
             @if (Auth::check())
-                <a href="{{ route('dashboard') }}" class="btn-nav"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
+                <a href="{{ route('dashboard') }}" class="nav-cta"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
             @else
-                <a href="{{ route('login') }}" class="btn-nav"><i class="bi bi-box-arrow-in-right"></i> Connexion</a>
+                <a href="{{ route('login') }}" class="nav-cta"><i class="bi bi-box-arrow-in-right"></i> Connexion</a>
             @endif
         </div>
         <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -893,530 +1347,731 @@
         </button>
     </nav>
 
-    <!-- Menu Mobile (Tiroir) -->
+    <!-- ===== MOBILE MENU ===== -->
     <div class="mobile-menu" id="mobileMenu">
-        <a href="#fonctionnalites" onclick="closeMenu()"><i class="bi bi-grid-1x2"></i> Fonctionnalités</a>
-        <a href="#offres" onclick="closeMenu()"><i class="bi bi-tag"></i> Tarif</a>
+        <a href="#features" onclick="closeMenu()"><i class="bi bi-grid-1x2"></i> Fonctionnalités</a>
+        <a href="#pricing" onclick="closeMenu()"><i class="bi bi-tag"></i> Tarifs</a>
+        <a href="#devices" onclick="closeMenu()"><i class="bi bi-display"></i> Écrans</a>
         <a href="{{ route('partenaires') }}" onclick="closeMenu()"><i class="bi bi-people"></i> Partenariat</a>
         <a href="{{ route('download') }}" onclick="closeMenu()"><i class="bi bi-download"></i> Télécharger</a>
-        <a href="#contact" onclick="closeMenu()"><i class="bi bi-chat-dots"></i> Demande</a>
+        <a href="#contact" onclick="openCreationModal(event);closeMenu()"><i class="bi bi-chat-dots"></i> Demande de création</a>
         <a href="tel:+2290146862536" onclick="closeMenu()"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a>
-        <div class="mobile-menu-divider"></div>
+        <div class="mobile-divider"></div>
         @if (Auth::check())
-            <a href="{{ route('dashboard') }}" class="btn-nav-mobile"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
+            <a href="{{ route('dashboard') }}" class="mobile-cta" onclick="closeMenu()"><i class="bi bi-box-arrow-in-right"></i> Tableau de bord</a>
         @else
-            <a href="{{ route('login') }}" class="btn-nav-mobile"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a>
+            <a href="{{ route('login') }}" class="mobile-cta" onclick="closeMenu()"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a>
         @endif
     </div>
 
-    <!-- Hero -->
+    <!-- ===== HERO ===== -->
     <section class="hero">
-        <div class="hero-inner">
-            <div class="hero-content anim-hero-content">
-                 <h1 class="hero-title">Pilotez votre entreprise avec <span style="color:var(--secondary);">confiance</span></h1>
-                <p class="hero-desc">Passez de l'estimation à la maîtrise.<br>Gérez vos <strong style="color:var(--secondary);">ventes</strong>, <strong style="color:var(--secondary);">stocks</strong>, <strong style="color:var(--secondary);">arrivages</strong>, <strong style="color:var(--secondary);">factures</strong>, <strong style="color:var(--secondary);">dettes clients</strong>, <strong style="color:var(--secondary);">dépenses</strong> et <strong style="color:var(--secondary);">finances</strong> au même endroit. Centralisez toutes vos opérations commerciales et suivez vos performances en temps réel pour prendre les meilleures décisions.</p>
+        <div class="container">
+            <div class="hero-content reveal">
+                <h1>Pilotez votre commerce avec <span>confiance</span></h1>
+                <p>Centralisez vos ventes, stocks, arrivages, factures, dettes clients et dépenses. Une vue d'ensemble en temps réel pour des décisions éclairées.</p>
                 <div class="hero-actions">
-                    <a href="{{ route('login') }}" class="btn-hero-primary">
-                        <i class="bi bi-box-arrow-in-right"></i> Accéder à mon espace
-                    </a>
-                    <button onclick="installPWA()" class="btn-hero-sec" id="heroInstallBtn" style="cursor:pointer; display:none;">
-                        <i class="bi bi-download"></i> Télécharger l'app
-                    </button>
-                    <a href="#fonctionnalites" class="btn-hero-sec">
-                        Voir les fonctionnalités <i class="bi bi-arrow-down"></i>
-                    </a>
+                    <a href="#contact" onclick="openCreationModal(event)" class="btn-primary"><i class="bi bi-rocket-takeoff-fill"></i> Demande de création de compte</a>
+                    <a href="{{ route('login') }}" class="btn-outline"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a>
                 </div>
-                <div class="hero-stats anim-hero-stats">
-                    <div class="hero-stat"><div class="stat-val">∞</div><div class="stat-lbl">Sociétés</div></div>
-                    <div class="hero-stat"><div class="stat-val">100%</div><div class="stat-lbl">Multi-magasins</div></div>
+                <div class="hero-stats">
+                    <div><span class="stat-value">∞</span> <span class="stat-label">Produits</span></div>
+                    <div><span class="stat-value">100%</span> <span class="stat-label">Multi-magasins</span></div>
                 </div>
             </div>
-            <div class="hero-visual anim-hero-visual">
-                <div class="phone-frame">
-                    <div class="phone-notch"></div>
-                    <div class="phone-screen" style="position:relative;">
-                        <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="width:100%; height:auto; object-fit:contain;">
-                        <p style="position:absolute; bottom:20px; left:0; right:0; text-align:center; color:#000; font-size:0.85rem; font-weight:700; letter-spacing:1px;">Pilotez. Controlez. Progressez.</p>
+            <div class="hero-visual reveal reveal-delay-1">
+                <div class="phone-mockup">
+                    <div class="notch"></div>
+                    <div class="screen" style="padding: 0; background: #000;">
+                        <img src="{{ asset('Visuel/mobile-dashboard.jpeg') }}" alt="Écran Tableau de bord PILOTIX" style="width: 100%; height: 100%; object-fit: cover; border-radius: 28px; margin: 0;" />
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Features Section Asymétrique Alternée -->
-    <section id="fonctionnalites" class="features-section">
-        
-        <!-- Arcs géants stylisés en arrière-plan -->
-        <div class="decor-arc decor-arc-1"></div>
-        <div class="decor-arc decor-arc-2"></div>
-
-        <div class="features-header reveal">
-            <div class="section-label reveal reveal-delay-1">Ce qu'PILOTIX fait pour vous</div>
-            <h2 class="section-title reveal reveal-delay-2">Un outil complet, pensé pour le <span class="arc-underline" style="color: var(--primary);">Marché local et Magasins<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span></h2>
-            <p class="section-sub reveal reveal-delay-3">Découvrez comment chaque module structure et sécurise vos processus commerciaux quotidiens.</p>
-        </div>
-
-        <!-- Rangée 1 : Gestion de Stock (Image à droite, Texte à gauche) -->
-        <div class="feat-row reveal">
-            <div class="feat-col-text">
-                <span class="feat-badge"><i class="bi bi-box-seam"></i> Logistique</span>
-                <h3 class="feat-title">Suivi des stocks en temps réel par dépôt</h3>
-                <p class="feat-desc">Ne soyez plus jamais pris au dépourvu. Suivez l’état de vos produits de façon globale et par point de stockage physique. PILOTIX calcule automatiquement les niveaux critiques pour vous alerter en cas de stock bas.</p>
-                <div class="bullet-list">
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Multi-dépôts : gestion indépendante par magasin physique.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Seuils d'alerte : notification dynamique avant rupture.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Historique : traçabilité complète de chaque entrée/sortie.</div>
-                </div>
+    <!-- ===== FEATURES GRID ===== -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="label"><i class="bi bi-stars"></i> Ce que PILOTIX vous apporte</span>
+                <h2>Un écosystème commercial <span>complet & interconnecté</span></h2>
+                <p>Une suite globale pensée pour les commerçants, grossistes, importateurs et gérants de multi-magasins.</p>
             </div>
-            <div class="feat-col-image">
-                <div class="feat-ring-decoration ring-tr"></div>
-                <div class="feat-image-card">
-                    <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&auto=format&fit=crop&q=80" alt="Gestion de Stock">
+            <div class="features-grid">
+                <!-- Card 1 -->
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="icon"><i class="bi bi-box-seam"></i></div>
+                    <h3>Stock multi-dépôts & arrivages</h3>
+                    <p>Gérez vos stocks physiques par magasin, enregistrez vos arrivages fournisseurs et recevez des alertes avant rupture.</p>
+                    <ul>
+                        <li><i class="bi bi-check-lg"></i> Multi-magasins en temps réel</li>
+                        <li><i class="bi bi-check-lg"></i> Coût de revient automatique</li>
+                        <li><i class="bi bi-check-lg"></i> Alertes seuil critique</li>
+                    </ul>
                 </div>
-            </div>
-        </div>
-
-        <!-- Rangée 2 : Ventes (Image à gauche, Texte à droite) -->
-        <div class="feat-row reveal">
-            <div class="feat-col-text">
-                <span class="feat-badge"><i class="bi bi-receipt"></i> Facturation & Résultats</span>
-                <h3 class="feat-title">Savoir exactement combien vous vendez</h3>
-                <p class="feat-desc">Enregistrez vos ventes en un clin d'œil et laissez le système analyser vos performances. Sachez combien vous vendez par jour, et suivez l'évolution précise de votre chiffre d'affaires toutes les semaines, chaque mois ou à l'année.</p>
-                <div class="bullet-list">
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Tableaux de bord : votre chiffre d'affaires quotidien en un clin d'œil.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Règlements fluides : encaissement d'acomptes et calcul des restes à payer.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Historique complet : analysez vos performances hebdos, mensuelles ou annuelles.</div>
+                <!-- Card 2 -->
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="icon"><i class="bi bi-tags"></i></div>
+                    <h3>Ventes gros & détail, factures</h3>
+                    <p>Adaptez vos prix selon la quantité (carton / unité) et éditez factures proforma, définitives et tickets de caisse.</p>
+                    <ul>
+                        <li><i class="bi bi-check-lg"></i> Bascule automatique gros/détail</li>
+                        <li><i class="bi bi-check-lg"></i> Impression tickets & factures</li>
+                        <li><i class="bi bi-check-lg"></i> Historique par vendeur</li>
+                    </ul>
                 </div>
-            </div>
-            <div class="feat-col-image">
-                <div class="feat-image-card">
-                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&auto=format&fit=crop&q=80" alt="Ventes & Facturation">
+                <!-- Card 3 -->
+                <div class="feature-card reveal reveal-delay-3">
+                    <div class="icon"><i class="bi bi-wallet2"></i></div>
+                    <h3>Trésorerie & rapprochement</h3>
+                    <p>Suivez la caisse espèces, les virements bancaires et les portefeuilles Mobile Money (MTN, Moov, Wave).</p>
+                    <ul>
+                        <li><i class="bi bi-check-lg"></i> Caisse magasin au franc près</li>
+                        <li><i class="bi bi-check-lg"></i> Rapprochement MoMo & banques</li>
+                        <li><i class="bi bi-check-lg"></i> Clôture quotidienne</li>
+                    </ul>
                 </div>
-            </div>
-        </div>
-
-        <!-- Rangée 3 : Livraisons (Image à droite, Texte à gauche) -->
-        <div class="feat-row reveal">
-            <div class="feat-col-text">
-                <span class="feat-badge"><i class="bi bi-truck"></i> Expédition</span>
-                <h3 class="feat-title">Suivi de livraison et interface contrôleur</h3>
-                <p class="feat-desc">Pilotez vos flux d'expéditions depuis votre console centrale. Vos agents contrôleurs accèdent à une interface épurée sur le terrain pour repérer les commandes à livrer, appeler le client en un clic et mettre à jour le statut.</p>
-                <div class="bullet-list">
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Bons de livraison détaillés avec contenu exact et contacts.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Statut en temps réel : livré, en cours, ou problème signalé.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Responsabilité : historique nominatif de l'expédition.</div>
+                <!-- Card 4 -->
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="icon"><i class="bi bi-credit-card-2-back"></i></div>
+                    <h3>Crédits & créances clients</h3>
+                    <p>Accordez des facilités de paiement en toute sécurité. Suivez le solde dû et chaque acompte versé.</p>
+                    <ul>
+                        <li><i class="bi bi-check-lg"></i> Suivi du portefeuille créances</li>
+                        <li><i class="bi bi-check-lg"></i> Reçu d'acompte instantané</li>
+                        <li><i class="bi bi-check-lg"></i> Plafond paramétrable</li>
+                    </ul>
                 </div>
-            </div>
-            <div class="feat-col-image">
-                <div class="feat-ring-decoration ring-tr"></div>
-                <div class="feat-image-card">
-                    <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=800&auto=format&fit=crop&q=80" alt="Suivi des Livraisons">
+                <!-- Card 5 -->
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="icon"><i class="bi bi-box-arrow-up-right"></i></div>
+                    <h3>Retrait magasin & validation</h3>
+                    <p>Le magasinier valide la remise physique des colis pour certifier le bon de sortie et déduire le stock.</p>
+                    <ul>
+                        <li><i class="bi bi-check-lg"></i> Validation physique magasinier</li>
+                        <li><i class="bi bi-check-lg"></i> Bon de sortie certifié</li>
+                        <li><i class="bi bi-check-lg"></i> Déduction stock instantanée</li>
+                    </ul>
                 </div>
-            </div>
-        </div>
-
-        <!-- Rangée 4 : Dettes & SaaS (Image à gauche, Texte à droite) -->
-        <div class="feat-row reveal">
-            <div class="feat-col-text">
-                <span class="feat-badge"><i class="bi bi-cash-stack"></i> Finance & SaaS</span>
-                <h3 class="feat-title">Régularisation des dettes et Multi-Sociétés</h3>
-                <p class="feat-desc">Contrôlez les encours financiers de votre clientèle et prévenez les impayés. Au niveau global, l’infrastructure SaaS robuste isole strictement les données de chaque société pour un déploiement fluide en marque blanche.</p>
-                <div class="bullet-list">
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Dettes clients : enregistrement de chaque versement de solde.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Échéanciers : suivi précis des retards par client.</div>
-                    <div class="bullet-item"><i class="bi bi-check2"></i> Multi-Tenant : étanchéité complète des données par société.</div>
-                </div>
-            </div>
-            <div class="feat-col-image">
-                <div class="feat-image-card">
-                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80" alt="Gestion des Dettes & SaaS">
+                <!-- Card 6 -->
+                <div class="feature-card reveal reveal-delay-3">
+                    <div class="icon"><i class="bi bi-calculator"></i></div>
+                    <h3>Dépenses & bénéfice net réel</h3>
+                    <p>Enregistrez vos frais d'exploitation (loyer, électricité, salaires) et calculez votre vrai bénéfice net.</p>
+                    <ul>
+                        <li><i class="bi bi-check-lg"></i> Catégorisation des charges</li>
+                        <li><i class="bi bi-check-lg"></i> Bénéfice net automatique</li>
+                        <li><i class="bi bi-check-lg"></i> Comparatifs mensuels</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Multi-Device Section -->
-    <section class="multi-device-section">
-        <div class="multi-device-inner">
-            <span class="feat-badge reveal">Disponible partout</span>
-            <h2 class="section-title reveal" style="margin-bottom: 50px;">Sur <span class="arc-underline" style="color: var(--primary);">tous vos écrans<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0,5 Q50,10 100,5" stroke="var(--secondary)" stroke-width="4" fill="none" stroke-linecap="round"/></svg></span></h2>
-            <div class="devices-showcase reveal">
-                <div class="device pc-frame">
-                    <div class="pc-screen">
-                        <img src="{{ asset('pc.png') }}" alt="PILOTIX sur PC">
-                    </div>
-                    <div class="pc-stand"></div>
-                </div>
-                <div class="device tablet-frame-lg">
-                    <div class="tablet-camera"></div>
-                    <div class="tablet-screen-lg">
-                        <img src="{{ asset('tablette.jpeg') }}" alt="PILOTIX sur Tablette">
-                    </div>
-                </div>
-                <div class="device phone-frame-sm">
-                    <div class="phone-notch-sm"></div>
-                    <div class="phone-screen-sm">
-                        <img src="{{ asset('telephone.jpeg') }}" alt="PILOTIX sur Téléphone">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <!-- Offres -->
-    <section id="offres" class="features-section" style="padding-top:40px; padding-bottom:80px;">
-        <div class="features-header reveal">
-            <div class="section-label">Nos Offres</div>
-            <h2 class="section-title">Choisissez votre version</h2>
-            <p class="section-sub" style="font-size:1.1rem; color:var(--muted); max-width:600px; margin:0 auto; line-height:1.6;">Deux options simples. Zéro engagement.</p>
-        </div>
-
-        <div style="display:flex; justify-content:center; gap:28px; flex-wrap:wrap; max-width:1200px; margin:0 auto;" class="reveal">
-            <!-- Offre Essentiel -->
-            <div style="flex:1; min-width:300px; max-width:380px; background:#fff; border-radius:24px; padding:36px 30px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.03); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
-                <div style="display:inline-block; background:rgba(16,94,73,0.08); color:var(--primary); font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:4px 12px; border-radius:50px; width:fit-content; margin-bottom:12px;">1 Poste</div>
-                <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:var(--text); margin-bottom:6px;">Essentiel</h3>
-                <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Idéal pour démarrer la gestion d'une boutique unique.</p>
-                
-                <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
-                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">{{ number_format($rules['essentiel']->prix ?? 0, 0, ' ', ' ') }} <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
-                    <div style="font-size:0.82rem; font-weight:700; color:var(--primary); margin-top:6px; display:flex; align-items:center; gap:5px;"><i class="bi bi-credit-card-2-front"></i> Paiement en 3x possible</div>
-                </div>
-
-                <ul style="list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex-grow:1;">
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">1 Poste de travail</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Gestion des produits & stocks</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Ventes en gros & détail + Factures</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Dépenses, clients & inventaires</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Mode Hors-Connexion & Sync auto</span></li>
-                </ul>
-
-                <a href="#contact" style="display:block; text-align:center; padding:14px; background:rgba(16,94,73,0.08); color:var(--primary); border-radius:12px; font-weight:800; font-size:0.95rem; text-decoration:none; transition:all .2s;">Choisir l'offre Essentiel</a>
+    <!-- ===== DETAILED FEATURES (alternating) ===== -->
+    <section class="detailed-features">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="label"><i class="bi bi-layers"></i> Fonctionnalités avancées</span>
+                <h2>Une vision <span>360°</span> de votre activité</h2>
             </div>
 
-            <!-- Offre Professionnel -->
-            <div style="flex:1; min-width:300px; max-width:380px; background:#fff; border-radius:24px; padding:36px 30px; border:2px solid var(--secondary); box-shadow:0 15px 40px rgba(234,141,34,0.12); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
-                <div style="position:absolute; top:0; left:0; right:0; background:linear-gradient(90deg, var(--secondary), #f59e0b); color:#fff; font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:2px; padding:6px 0; text-align:center; border-radius:22px 22px 0 0;">Le choix recommandé</div>
-                
-                <div style="display:inline-block; background:rgba(234,141,34,0.12); color:var(--secondary); font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:4px 12px; border-radius:50px; width:fit-content; margin-bottom:12px; margin-top:12px;">Multi-postes & Importation</div>
-                <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:var(--text); margin-bottom:6px;">Professionnel</h3>
-                <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Pour grossistes, importateurs et multi-magasins.</p>
-                
-                <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
-                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">{{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA / an</span></div>
-                    <div style="font-size:0.82rem; font-weight:700; color:var(--secondary); margin-top:6px; display:flex; align-items:center; gap:5px;"><i class="bi bi-credit-card-2-front"></i> Paiement en 3x possible</div>
+            <!-- Row 1 -->
+            <div class="detail-row reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-box-seam-fill"></i> Logistique</span>
+                    <h3>Gestion des stocks par dépôt & arrivages</h3>
+                    <p>Ne soyez plus jamais en rupture. PILOTIX comptabilise vos stocks physiques réels par magasin et dépôt, enregistre vos arrivages fournisseurs avec frais (douane, transport) et alerte avant tout seuil critique.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Multi-magasins & dépôts autonomes en temps réel</li>
+                        <li><i class="bi bi-check-lg"></i> Calcul automatique du coût de revient d'achat</li>
+                        <li><i class="bi bi-check-lg"></i> Alertes dynamiques de stock bas et réapprovisionnement</li>
+                        <li><i class="bi bi-check-lg"></i> Transferts inter-dépôts sécurisés</li>
+                    </ul>
                 </div>
-
-                <ul style="list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex-grow:1;">
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;"><strong>Plusieurs postes</strong> & utilisateurs</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;"><strong>Gestion des Importations</strong> & arrivages</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Calculs des <strong>coûts de revient & marges</strong></span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;"><strong>Multi-magasins</strong> & dépôts</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Mode Hors-Connexion & Sync auto</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--secondary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Statistiques avancées & suivi d'activité</span></li>
-                </ul>
-
-                <a href="#contact" style="display:block; text-align:center; padding:14px; background:var(--secondary); color:#fff; border-radius:12px; font-weight:800; font-size:0.95rem; text-decoration:none; transition:all .2s; box-shadow:0 8px 20px rgba(234,141,34,0.3);">Choisir l'offre Professionnel</a>
-            </div>
-
-            <!-- Offre Entreprise -->
-            <div style="flex:1; min-width:300px; max-width:380px; background:#fff; border-radius:24px; padding:36px 30px; border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 30px rgba(0,0,0,0.03); transition:all 0.3s; position:relative; display:flex; flex-direction:column;">
-                <div style="display:inline-block; background:rgba(15,23,42,0.06); color:#0f172a; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:4px 12px; border-radius:50px; width:fit-content; margin-bottom:12px;">Licence À Vie & Sur-Mesure</div>
-                <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:var(--text); margin-bottom:6px;">Entreprise</h3>
-                <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Pour les structures souhaitant une infrastructure dédiée.</p>
-                
-                <div style="margin-bottom:20px; border-bottom:1px solid #f1f5f9; padding-bottom:16px;">
-                    <div style="font-size:0.85rem; font-weight:700; color:var(--muted);">À partir de</div>
-                    <div style="font-family:'Space Grotesk', sans-serif; font-size:2.2rem; font-weight:900; color:var(--text); letter-spacing:-1px;">{{ number_format($rules['entreprise']->prix ?? 0, 0, ' ', ' ') }} <span style="font-size:0.9rem; font-weight:700; color:var(--muted);">FCFA</span></div>
-                    <div style="font-size:0.82rem; font-weight:700; color:var(--primary); margin-top:6px;">Licence à vie (Domaine client après 1 an)</div>
-                </div>
-
-                <ul style="list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex-grow:1;">
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Installation & configuration personnalisées</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Toutes les fonctionnalités incluses</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Domaine & hébergement dédiés du client</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Base de données 100% isolée & dédiée</span></li>
-                    <li style="display:flex; align-items:center; gap:8px;"><i class="bi bi-check2-circle" style="color:var(--primary); font-size:1.1rem; font-weight:800;"></i> <span style="font-size:0.88rem; color:#475569;">Support prioritaire & formation sur site</span></li>
-                </ul>
-
-                <a href="#contact" style="display:block; text-align:center; padding:14px; background:rgba(15,23,42,0.06); color:#0f172a; border-radius:12px; font-weight:800; font-size:0.95rem; text-decoration:none; transition:all .2s;">Demander un devis Entreprise</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Bannière Chaîne Commerciale Connectée -->
-    <section style="background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 56px 5%; text-align: center;">
-        <div style="max-width: 820px; margin: 0 auto;" class="reveal">
-            <span style="display:inline-block; background:rgba(16,94,73,0.08); color:var(--primary); font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; padding:6px 18px; border-radius:50px; margin-bottom:14px;">Une chaîne commerciale 100% connectée</span>
-            <h2 style="font-family:'Space Grotesk', sans-serif; font-size:2rem; font-weight:800; color:var(--text); margin-bottom:12px;">Une vision fluide de l'arrivée en stock à la livraison</h2>
-            <p style="font-size:1.05rem; color:var(--muted); line-height:1.7; margin:0 auto;">De l'arrivée du stock en magasin jusqu'à la livraison finale et la validation du DG, chaque collaborateur dispose d'un espace de travail taillé sur-mesure interconnecté aux autres.</p>
-        </div>
-    </section>
-
-    <!-- CTA & Formulaire de contact -->
-    <section class="cta" id="contact">
-        <div class="cta-container">
-            <div class="cta-info reveal">
-                <h2>Prêt à propulser votre commerce ?</h2>
-                <p style="margin-bottom: 24px; max-width: 100%;">Faites une demande de création de société dès aujourd'hui. Remplissez ce formulaire et configurez votre espace de vente multi-magasins en quelques minutes.</p>
-                <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:30px; color:rgba(255,255,255,0.9); font-size:0.95rem;">
-                    <div style="display:flex; align-items:flex-start; gap:12px;"><i class="bi bi-patch-check-fill" style="color:var(--secondary); font-size:1.2rem; flex-shrink:0; margin-top:2px;"></i> <span style="word-break:break-word;">Étancheité complète de vos données</span></div>
-                    <div style="display:flex; align-items:flex-start; gap:12px;"><i class="bi bi-patch-check-fill" style="color:var(--secondary); font-size:1.2rem; flex-shrink:0; margin-top:2px;"></i> <span style="word-break:break-word;">Accompagnement personnalisé pour l'intégration</span></div>
-                    <div style="display:flex; align-items:flex-start; gap:12px;"><i class="bi bi-patch-check-fill" style="color:var(--secondary); font-size:1.2rem; flex-shrink:0; margin-top:2px;"></i> <span style="word-break:break-word;">Suivi des stocks en temps réel et facturation pro</span></div>
-                </div>
-                <a href="{{ route('login') }}" class="btn-hero-sec" style="display:inline-flex;">
-                    <i class="bi bi-box-arrow-in-right"></i> J'ai déjà un compte
-                </a>
-            </div>
-
-            <div class="cta-form-box reveal reveal-delay-2">
-                <h3>Créer ma société</h3>
-
-                @if(session('success'))
-                    <div style="background: rgba(22, 163, 74, 0.9); border: 1px solid #4ade80; padding: 16px; border-radius: 10px; color: #fff; font-size: 0.95rem; margin-bottom: 20px; font-weight: 600; text-align:center;">
-                        <i class="bi bi-check-circle-fill" style="margin-right: 6px;"></i> {{ session('success') }}
-                    </div>
-                @endif
-
-                <form action="{{ route('contact.submit') }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <label class="form-label" for="nom_societe">Nom de la société *</label>
-                        <input type="text" name="nom_societe" id="nom_societe" class="form-control" placeholder="Ex: Mon Entreprise SARL" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="email">Adresse email de contact *</label>
-                        <input type="email" name="email" id="email" class="form-control" placeholder="Ex: contact@entreprise.com" required>
-                    </div>
-
-                    <div class="form-row-contact">
-                        <div class="form-group" style="flex:1;">
-                            <label class="form-label" for="localisation">Pays / Localisation *</label>
-                            <input type="text" name="localisation" id="localisation" class="form-control" placeholder="Ex: Bénin" required>
-                        </div>
-                        <div class="form-group" style="flex:1;">
-                            <label class="form-label" for="ville">Ville *</label>
-                            <input type="text" name="ville" id="ville" class="form-control" placeholder="Ex: Cotonou" required>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-depot.jpeg') }}" alt="Écran Stock & Arrivages PILOTIX">
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="telephone">Numéro de téléphone *</label>
-                        <input type="text" name="telephone" id="telephone" class="form-control" placeholder="Ex: +229 97 00 00 00" required>
+            <!-- Row 2 (reverse) -->
+            <div class="detail-row reverse reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-tags-fill"></i> Tarification</span>
+                    <h3>Ventes gros & détail, factures et tickets</h3>
+                    <p>Adaptez vos prix automatiquement selon la quantité vendue (au carton ou à l'unité). Éditez des factures proforma, factures définitives et tickets de caisse avec suivi individuel par vendeur.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Bascule automatique des tarifs (Gros vs Détail)</li>
+                        <li><i class="bi bi-check-lg"></i> Impression instantanée de tickets de caisse & factures</li>
+                        <li><i class="bi bi-check-lg"></i> Historique détaillé des ventes par vendeur</li>
+                        <li><i class="bi bi-check-lg"></i> Gestion des remises et rabais autorisés</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-ventes.jpeg') }}" alt="Écran Ventes & Facturation PILOTIX">
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="secteurs_activite">Secteurs d'activité *</label>
-                        <input type="text" name="secteurs_activite" id="secteurs_activite" class="form-control" placeholder="Ex: Import/Export, Distribution, Vente au détail" required>
+            <!-- Row 3 -->
+            <div class="detail-row reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-wallet2"></i> Trésorerie</span>
+                    <h3>Trésorerie globale, caisses espèces & Mobile Money</h3>
+                    <p>Comptabilisez l'argent au franc près. PILOTIX isole et suit les encaissements de la caisse espèces en boutique, des virements bancaires et des portefeuilles Mobile Money.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Suivi de la caisse espèces en magasin au franc près</li>
+                        <li><i class="bi bi-check-lg"></i> Rapprochement des paiements Mobile Money & Banques</li>
+                        <li><i class="bi bi-check-lg"></i> Historique des entrées/sorties de trésorerie</li>
+                        <li><i class="bi bi-check-lg"></i> Clôture quotidienne de caisse sans erreur</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-tresorerie.jpeg') }}" alt="Écran Trésorerie & Caisses PILOTIX">
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="type_souscription">Offre de souscription souhaitée *</label>
-                        <select name="type_souscription" id="type_souscription" class="form-control" required onchange="updateOffreDisplay()">
-                            <option value="essentiel">Offre Essentiel ({{ number_format($rules['essentiel']->prix ?? 0, 0, ' ', ' ') }} FCFA / an — 1 Poste)</option>
-                            <option value="professionnel" selected>Offre Professionnel ({{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} FCFA / an — Multi-Postes)</option>
-                            <option value="entreprise">Offre Entreprise (À partir de {{ number_format($rules['entreprise']->prix ?? 0, 0, ' ', ' ') }} FCFA — Sur-Mesure)</option>
-                        </select>
+            <!-- Row 4 (reverse) -->
+            <div class="detail-row reverse reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-exclamation-triangle-fill"></i> Alertes Stock</span>
+                    <h3>Alertes de stock bas & alerte rupture</h3>
+                    <p>Recevez des notifications automatiques dès qu'un produit atteint son seuil d'alerte critique afin d'éviter tout arrêt des ventes.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Alertes dynamiques de stock bas et rupture imminente</li>
+                        <li><i class="bi bi-check-lg"></i> Catalogue produits complet avec prix de gros & détail</li>
+                        <li><i class="bi bi-check-lg"></i> Niveau de stock physique en temps réel par dépôt</li>
+                        <li><i class="bi bi-check-lg"></i> Réapprovisionnement rapide guidé par le système</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-alert-stock.jpeg') }}" alt="Écran Alertes Stock PILOTIX">
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <div id="price-display" style="display:flex; align-items:center; gap:10px; padding:14px 18px; background:#f4f7f6; border:1px solid #e2e8f0; border-radius:12px; margin-bottom:12px;">
-                        <span style="font-weight:800; font-size:1.4rem; color:var(--primary);" id="price-total">{{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} FCFA</span>
-                        <span style="font-size:0.85rem; color:#64748b; font-weight:600;" id="price-period">/ an</span>
-                        <span id="price-eco" style="font-size:0.75rem; font-weight:700; color:#16a34a; background:#dcfce7; border:1px solid #bbf7d0; padding:4px 10px; border-radius:8px; margin-left:auto;">Paiement 3x disponible</span>
+            <!-- Row 5 -->
+            <div class="detail-row reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-credit-card-2-back-fill"></i> Créances</span>
+                    <h3>Gestion des crédits clients & acomptes</h3>
+                    <p>Accordez des facilités de paiement en toute sécurité. Suivez le solde dû par client, enregistrez chaque acompte versé et rééditez instantanément le reçu de versement.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Suivi rigoureux du portefeuille de créances clients</li>
+                        <li><i class="bi bi-check-lg"></i> Enregistrement des acomptes avec génération de reçu</li>
+                        <li><i class="bi bi-check-lg"></i> Historique chronologique des règlements effectués</li>
+                        <li><i class="bi bi-check-lg"></i> Plafond de crédit paramétrable par client</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-dettes-clients.jpeg') }}" alt="Écran Crédits & Créances PILOTIX">
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Option paiement 3x -->
-                    <div id="paiement3x-wrap" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:14px 16px; margin-bottom:20px;">
-                        <label style="display:flex; align-items:flex-start; gap:12px; cursor:pointer; user-select:none;">
-                            <input type="checkbox" name="paiement_3x" id="paiement_3x" value="1" onchange="updateOffreDisplay()" style="width:18px; height:18px; margin-top:2px; accent-color:var(--primary); cursor:pointer; flex-shrink:0;">
-                            <span style="font-size:0.9rem; font-weight:600; color:#1f2937;">
-                                Paiement en 3 tranches
-                                <br><span id="paiement3x-detail" style="font-size:0.82rem; color:#16a34a; font-weight:700;">3 × 27 500 FCFA <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(frais de dossier inclus)</span></span>
-                            </span>
+            <!-- Row 5 -->
+            <div class="detail-row reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-box-arrow-up-right"></i> Logistics</span>
+                    <h3>Retrait en magasin & validation magasinier</h3>
+                    <p>Vos clients récupèrent leurs marchandises directement au dépôt ou en boutique. Le magasinier valide la remise physique des colis pour certifier le bon de sortie et déduire le stock.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Validation physique de la remise du colis par le magasinier</li>
+                        <li><i class="bi bi-check-lg"></i> Certification du bon de sortie du magasin ou dépôt</li>
+                        <li><i class="bi bi-check-lg"></i> Suivi précis des commandes en attente de retrait</li>
+                        <li><i class="bi bi-check-lg"></i> Déduction instantanée du stock physique réel</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-transfert.jpeg') }}" alt="Écran Retrait Magasin & Transferts PILOTIX">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 6 (reverse) -->
+            <div class="detail-row reverse reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-calculator-fill"></i> Rentabilité</span>
+                    <h3>Dépenses d'exploitation & bénéfice net réel</h3>
+                    <p>Enregistrez vos frais d'exploitation (loyers de magasins, électricité, salaires, transport) pour calculer automatiquement votre vrai bénéfice net.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Catégorisation des charges fixes et variables</li>
+                        <li><i class="bi bi-check-lg"></i> Calcul automatique du bénéfice net réel de l'entreprise</li>
+                        <li><i class="bi bi-check-lg"></i> Statistiques financières comparatives mensuelles</li>
+                        <li><i class="bi bi-check-lg"></i> Visibilité claire sur les marges bénéficiaires</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-nos-dettes.jpeg') }}" alt="Écran Dépenses & Résultat Net PILOTIX">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 7: Facturation & Reçus -->
+            <div class="detail-row reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-receipt"></i> Facturation</span>
+                    <h3>Factures d'acompte, proforma & reçus</h3>
+                    <p>Éditez des factures professionnelles en quelques secondes, générez des reçus d'acompte et partagez-les directement avec vos clients.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Édition instantanée de factures proforma & définitives</li>
+                        <li><i class="bi bi-check-lg"></i> Reçus de paiement d'acompte avec récapitulatif du reste à payer</li>
+                        <li><i class="bi bi-check-lg"></i> Exportation et partage facile par WhatsApp et email</li>
+                        <li><i class="bi bi-check-lg"></i> Numérotation légale & traçabilité automatique des pièces</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-facture.jpeg') }}" alt="Écran Facture & Reçus PILOTIX">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 8 (reverse): Analytique & Graphiques -->
+            <div class="detail-row reverse reveal">
+                <div class="detail-text">
+                    <span class="badge"><i class="bi bi-graph-up-arrow"></i> Analytique</span>
+                    <h3>Analyse avancée & tableau de bord</h3>
+                    <p>Suivez les performances de votre entreprise grâce à des graphiques dynamiques et des métriques détaillées de chiffre d'affaires et marge brute.</p>
+                    <ul class="check-list">
+                        <li><i class="bi bi-check-lg"></i> Graphiques en temps réel du chiffre d'affaires et bénéfices</li>
+                        <li><i class="bi bi-check-lg"></i> Suivi d'évolution mensuel et comparatifs de croissance</li>
+                        <li><i class="bi bi-check-lg"></i> Palmarès des produits les plus vendus et les plus rentables</li>
+                        <li><i class="bi bi-check-lg"></i> Analyse complète de la rentabilité globale</li>
+                    </ul>
+                </div>
+                <div class="detail-image">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <img src="{{ asset('Visuel/mobile-analyse-avancee.jpeg') }}" alt="Écran Analytique & Graphiques PILOTIX">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===== PRICING ===== -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="label"><i class="bi bi-tag"></i> Nos offres</span>
+                <h2>Choisissez votre <span>version</span></h2>
+                <p>Deux options simples. Zéro engagement.</p>
+            </div>
+            <div class="pricing-grid">
+                <!-- Essentiel -->
+                <div class="pricing-card reveal reveal-delay-1">
+                    <div class="plan-name">Essentiel</div>
+                    <div class="plan-desc">Idéal pour démarrer une boutique unique.</div>
+                    <div class="price">{{ number_format($rules['essentiel']->prix ?? 0, 0, ' ', ' ') }}<small> FCFA / an</small></div>
+                    <div class="price-note"><i class="bi bi-wallet2"></i> Paiement en 3x possible</div>
+                    <ul class="features-list">
+                        <li><i class="bi bi-check-lg"></i> 1 Poste de travail</li>
+                        <li><i class="bi bi-check-lg"></i> Gestion des produits & stocks</li>
+                        <li><i class="bi bi-check-lg"></i> Ventes gros & détail + Factures</li>
+                        <li><i class="bi bi-check-lg"></i> Dépenses, clients & inventaires</li>
+                        <li><i class="bi bi-check-lg"></i> Mode Hors-Connexion & Sync auto</li>
+                    </ul>
+                    <a href="#contact" onclick="openCreationModal(event, 'essentiel')" class="btn-plan">Choisir l'offre</a>
+                </div>
+
+                <!-- Professionnel (featured) -->
+                <div class="pricing-card featured reveal reveal-delay-2">
+                    <div class="badge-top">Recommandé</div>
+                    <div class="plan-name">Professionnel</div>
+                    <div class="plan-desc">Pour grossistes, importateurs et multi-magasins.</div>
+                    <div class="price">{{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }}<small> FCFA / an</small></div>
+                    <div class="price-note"><i class="bi bi-wallet2"></i> Paiement en 3x possible</div>
+                    <ul class="features-list">
+                        <li><i class="bi bi-check-lg"></i> <strong>Plusieurs postes</strong> & utilisateurs</li>
+                        <li><i class="bi bi-check-lg"></i> <strong>Gestion des Importations</strong> & arrivages</li>
+                        <li><i class="bi bi-check-lg"></i> Calculs des <strong>coûts de revient & marges</strong></li>
+                        <li><i class="bi bi-check-lg"></i> <strong>Multi-magasins</strong> & dépôts</li>
+                        <li><i class="bi bi-check-lg"></i> Mode Hors-Connexion & Sync auto</li>
+                        <li><i class="bi bi-check-lg"></i> Statistiques avancées & suivi d'activité</li>
+                    </ul>
+                    <a href="#contact" onclick="openCreationModal(event, 'professionnel')" class="btn-plan">Choisir l'offre</a>
+                </div>
+
+                <!-- Entreprise -->
+                <div class="pricing-card reveal reveal-delay-3">
+                    <div class="plan-name">Entreprise</div>
+                    <div class="plan-desc">Pour les structures souhaitant une infrastructure dédiée.</div>
+                    <div class="price">{{ number_format($rules['entreprise']->prix ?? 0, 0, ' ', ' ') }}<small> FCFA</small></div>
+                    <div class="price-note">Licence à vie (Domaine client après 1 an)</div>
+                    <ul class="features-list">
+                        <li><i class="bi bi-check-lg"></i> Installation & configuration personnalisées</li>
+                        <li><i class="bi bi-check-lg"></i> Toutes les fonctionnalités incluses</li>
+                        <li><i class="bi bi-check-lg"></i> Domaine & hébergement dédiés du client</li>
+                        <li><i class="bi bi-check-lg"></i> Base de données 100% isolée & dédiée</li>
+                        <li><i class="bi bi-check-lg"></i> Support prioritaire & formation sur site</li>
+                    </ul>
+                    <a href="#contact" onclick="openCreationModal(event, 'entreprise')" class="btn-plan">Demander un devis</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FORMULAIRE DE SOUSCRIPTION ===== -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="section-header reveal" style="margin-bottom: 40px; text-align: center;">
+                <span class="label"><i class="bi bi-rocket-takeoff-fill"></i> Souscription & Création de compte</span>
+                <h2>Formulaire de <span>Demande de Création</span></h2>
+                <p>Remplissez les informations ci-dessous. Notre équipe prépare vos accès et vous recontacte sous 24h.</p>
+            </div>
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <span style="display:inline-block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--primary); border-bottom:2.5px solid var(--secondary); padding-bottom:3px; margin-bottom:12px;">
+                        <i class="bi bi-shield-check"></i> Assistance & Support
+                    </span>
+                    <h2>Prêt à propulser <span>votre commerce ?</span></h2>
+                    <p>Pour toute question ou assistance immédiate, nos conseillers sont joignables directement.</p>
+                    <div class="contact-detail"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</div>
+                    <div class="contact-detail"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</div>
+                    <div class="contact-detail"><i class="bi bi-geo-alt"></i> Bénin — Disponible dans toute l'Afrique de l'Ouest</div>
+                </div>
+
+                <div>
+                    @if(session('success'))
+                        <div style="background:#f0fdf4; border:1px solid #86efac; padding:14px; border-radius:12px; color:#166534; font-weight:600; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                            <i class="bi bi-check-circle-fill" style="color:#16a34a;"></i> {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <form action="{{ route('contact.submit') }}" method="POST" class="contact-form">
+                        @csrf
+                        <div class="row">
+                            <div>
+                                <label for="nom_societe">Nom de la société *</label>
+                                <input type="text" name="nom_societe" id="nom_societe" placeholder="Ex: Mon Entreprise SARL" required />
+                            </div>
+                            <div>
+                                <label for="email">Email de contact *</label>
+                                <input type="email" name="email" id="email" placeholder="Ex: contact@entreprise.com" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div>
+                                <label for="localisation">Pays / Localisation *</label>
+                                <input type="text" name="localisation" id="localisation" placeholder="Ex: Bénin" required />
+                            </div>
+                            <div>
+                                <label for="ville">Ville *</label>
+                                <input type="text" name="ville" id="ville" placeholder="Ex: Cotonou" required />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div>
+                                <label for="telephone">Téléphone *</label>
+                                <input type="text" name="telephone" id="telephone" placeholder="Ex: +229 97 00 00 00" required />
+                            </div>
+                            <div>
+                                <label for="secteurs_activite">Secteurs d'activité *</label>
+                                <input type="text" name="secteurs_activite" id="secteurs_activite" placeholder="Ex: Import/Export, Distribution" required />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="type_souscription">Offre de souscription *</label>
+                            <select name="type_souscription" id="type_souscription" onchange="updatePricing()">
+                                <option value="essentiel">Essentiel — {{ number_format($rules['essentiel']->prix ?? 0, 0, ' ', ' ') }} FCFA / an</option>
+                                <option value="professionnel" selected>Professionnel — {{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} FCFA / an</option>
+                                <option value="entreprise">Entreprise — À partir de {{ number_format($rules['entreprise']->prix ?? 0, 0, ' ', ' ') }} FCFA</option>
+                            </select>
+                        </div>
+
+                        <div class="price-preview">
+                            <div>
+                                <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Montant estimé</span>
+                                <div><span class="amount" id="priceTotal">{{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }} FCFA</span> <span style="font-size:0.9rem; color:var(--text-muted);">/ an</span></div>
+                            </div>
+                            <div>
+                                <span style="font-size:0.75rem; font-weight:700; color:var(--secondary); background:rgba(230,138,46,0.12); padding:4px 12px; border-radius:100px;" id="installmentLabel">Paiement 3x disponible</span>
+                            </div>
+                        </div>
+
+                        <label class="checkbox-wrap">
+                            <input type="checkbox" name="paiement_3x" id="paiement_3x" value="1" onchange="updatePricing()" />
+                            Option : Répartir en 3 tranches
+                            <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;" id="installmentDetail">3 × {{ number_format(round(($rules['professionnel']->prix ?? 0) / 3), 0, ' ', ' ') }} FCFA</span>
                         </label>
-                    </div>
 
-                    <button type="submit" class="btn-cta-submit">
-                        <i class="bi bi-send-fill"></i> Envoyer ma demande
-                    </button>
-                </form>
+                        <button type="submit" class="btn-submit"><i class="bi bi-send-fill"></i> Soumettre ma demande</button>
+                        <div style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                            <i class="bi bi-shield-check" style="color:var(--primary);"></i> Vos données sont protégées & traitées confidentiellement
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer style="background:#ffffff; border-top: 1px solid #e5e7eb;">
+    <!-- ===== DEVICES ===== -->
+    <section class="devices" id="devices">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="label"><i class="bi bi-display"></i> Multi-écrans</span>
+                <h2>Disponible sur <span>tous vos appareils</span></h2>
+                <p>Optimisée pour les smartphones vendeurs & livreurs, avec extensions sur Tablette POS et PC Bureau.</p>
+            </div>
+            <div class="devices-grid">
+                <div class="device-item reveal reveal-delay-1">
+                    <div class="icon-wrap"><i class="bi bi-phone"></i></div>
+                    <h4>Mobile App</h4>
+                    <p>Interface principale pour vendeurs et livreurs</p>
+                </div>
+                <div class="device-item reveal reveal-delay-2">
+                    <div class="icon-wrap"><i class="bi bi-tablet-landscape"></i></div>
+                    <h4>Tablette POS</h4>
+                    <p>Caisse magasin optimisée</p>
+                </div>
+                <div class="device-item reveal reveal-delay-3">
+                    <div class="icon-wrap"><i class="bi bi-laptop"></i></div>
+                    <h4>Ordinateur Web</h4>
+                    <p>Supervision & gestion des dépôts</p>
+                </div>
+                <div class="device-item reveal reveal-delay-4">
+                    <div class="icon-wrap"><i class="bi bi-wifi-off"></i></div>
+                    <h4>Mode Hors-Ligne</h4>
+                    <p>Synchronisation automatique</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
         <div class="footer-top">
             <div class="footer-brand">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+                <div class="logo-wrap">
+                    <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo">
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:1.3rem; font-weight:800; color:#f8fafc;">PILOTIX</span>
                 </div>
-                <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
+                <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
             </div>
+
             <div class="footer-links">
-                <h5 style="color: #374151;">Fonctionnalités</h5>
+                <h5>Navigation</h5>
                 <ul>
-                    <li><a href="#fonctionnalites" style="color: #374151;"><i class="bi bi-receipt"></i>Ventes & Facturation</a></li>
-                    <li><a href="#fonctionnalites" style="color: #374151;"><i class="bi bi-box-seam"></i>Stock & Arrivages</a></li>
-                    <li><a href="#fonctionnalites" style="color: #374151;"><i class="bi bi-truck"></i>Livraisons</a></li>
-                    <li><a href="#fonctionnalites" style="color: #374151;"><i class="bi bi-cash-stack"></i>Dettes Clients</a></li>
+                    <li><a href="{{ url('/') }}"><i class="bi bi-house"></i> Accueil</a></li>
+                    <li><a href="#features"><i class="bi bi-stars"></i> Fonctionnalités</a></li>
+                    <li><a href="#pricing"><i class="bi bi-tags"></i> Tarifs</a></li>
+                    <li><a href="{{ route('download') }}"><i class="bi bi-download"></i> Télécharger</a></li>
                 </ul>
             </div>
+
             <div class="footer-links">
-                <h5 style="color: #374151;">Accès</h5>
+                <h5>Contact</h5>
                 <ul>
-                    @if (Auth::check())
-                        <li><a href="{{ route('dashboard') }}" style="color: #374151;"><i class="bi bi-speedometer2"></i>Tableau de bord</a></li>
-                    @else
-                        <li><a href="{{ route('login') }}" style="color: #374151;"><i class="bi bi-box-arrow-in-right"></i>Se connecter</a></li>
+                    <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
+                    <li><a href="mailto:pilotixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
+                    <li><a href="{{ route('partenaires') }}"><i class="bi bi-people"></i> Partenariat</a></li>
+                    @if(Auth::check())
+                        <li><a href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i> Tableau de bord</a></li>
                     @endif
                 </ul>
             </div>
-            <div class="footer-links">
-                <h5 style="color: #374151;">Contact</h5>
-                <ul>
-                    <li><a href="tel:+2290146862536" style="color: #374151;"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                    <li><a href="mailto:pilotixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
-                    <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-people"></i> Partenariat</a></li>
-                </ul>
-            </div>
         </div>
-        <div class="footer-bottom" style="border-top: 1px solid #e5e7eb; color: #6b7280;">
+        <div class="footer-bottom">
             <span>&copy; {{ date('Y') }} PILOTIX — Gestion commerciale multi-Dépôt ou Magasin</span>
-            <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
+            <span>
+                <a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> ·
+                <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> ·
+                <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a>
+            </span>
         </div>
     </footer>
-<script>
-    // ─── Roles accordion toggle ───
-    function toggleRole(el) {
-        const isActive = el.classList.contains('active');
-        document.querySelectorAll('.role-accordion-item').forEach(item => item.classList.remove('active'));
-        if (!isActive) el.classList.add('active');
-    }
 
-    // ─── Intersection Observer for scroll reveals ───
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                revealObserver.unobserve(entry.target);
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+        // ---- Pricing updater ----
+        const OFFRE_PRIX = {
+            essentiel: {{ $rules['essentiel']?->prix ?? 0 }},
+            professionnel: {{ $rules['professionnel']?->prix ?? 0 }},
+            entreprise: {{ $rules['entreprise']?->prix ?? 0 }}
+        };
+
+        function formatFcfa(n) {
+            return new Intl.NumberFormat('fr-FR').format(Math.round(n)) + ' FCFA';
+        }
+
+        function updatePricing() {
+            const type = document.getElementById('type_souscription').value;
+            const is3x = document.getElementById('paiement_3x').checked;
+            const prix = OFFRE_PRIX[type] || 0;
+
+            document.getElementById('priceTotal').textContent = formatFcfa(prix);
+
+            const label = document.getElementById('installmentLabel');
+            const detail = document.getElementById('installmentDetail');
+
+            if (type === 'entreprise') {
+                label.textContent = 'Licence à vie / Devis';
+                detail.textContent = 'Sur-mesure';
+                document.getElementById('paiement_3x').checked = false;
+                document.getElementById('paiement_3x').disabled = true;
+            } else {
+                document.getElementById('paiement_3x').disabled = false;
+                if (is3x) {
+                    const each = Math.round(prix / 3);
+                    label.textContent = '3 × ' + formatFcfa(each);
+                    detail.textContent = '3 × ' + formatFcfa(each) + ' (soit ' + formatFcfa(prix) + ')';
+                } else {
+                    label.textContent = 'Paiement 3x disponible';
+                    const each = Math.round(prix / 3);
+                    detail.textContent = '3 × ' + formatFcfa(each);
+                }
+            }
+        }
+
+        // ---- Mobile menu ----
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const btn = document.getElementById('hamburger');
+            const isOpen = menu.classList.contains('active');
+            if (isOpen) {
+                closeMenu();
+            } else {
+                menu.classList.add('active');
+                btn.classList.add('open');
+            }
+        }
+
+        function closeMenu() {
+            document.getElementById('mobileMenu').classList.remove('active');
+            document.getElementById('hamburger').classList.remove('open');
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('mobileMenu');
+            const btn = document.getElementById('hamburger');
+            if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                closeMenu();
             }
         });
-    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 
-    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+        // ---- Scroll reveal ----
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05, rootMargin: '0px 0px 40px 0px' });
 
-    function toggleMenu() {
-        const menu = document.getElementById('mobileMenu');
-        const btn = document.getElementById('hamburger');
-        const isOpen = menu.classList.contains('active');
-        if (isOpen) {
-            closeMenu();
-        } else {
-            menu.classList.add('active');
-            btn.classList.add('open');
-        }
-    }
-    function closeMenu() {
-        document.getElementById('mobileMenu').classList.remove('active');
-        document.getElementById('hamburger').classList.remove('open');
-    }
-    // Fermer si on clique en dehors
-    document.addEventListener('click', function(e) {
-        const menu = document.getElementById('mobileMenu');
-        const btn = document.getElementById('hamburger');
-        if (!menu.contains(e.target) && !btn.contains(e.target)) {
-            closeMenu();
-        }
-    });
-
-    // ─── Lien actif selon section visible ───
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links-pub a:not(.btn-nav)');
-
-    function setActiveLink() {
-        let current = '';
-        sections.forEach(section => {
-            const top = section.getBoundingClientRect().top;
-            if (top <= 120) {
-                current = section.getAttribute('id');
+        document.querySelectorAll('.reveal').forEach(el => {
+            if (el.getBoundingClientRect().top < window.innerHeight) {
+                el.classList.add('visible');
+            } else {
+                revealObserver.observe(el);
             }
         });
-        navLinks.forEach(link => {
-            link.classList.remove('nav-active');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('nav-active');
-            }
-        });
-    }
 
-    window.addEventListener('scroll', setActiveLink);
-    setActiveLink();
+        // ---- Active nav link on scroll ----
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-links a:not(.nav-cta)');
 
-    var OFFRE_PRIX = {
-        essentiel:     {{ $rules['essentiel']?->prix ?? 0 }},
-        professionnel: {{ $rules['professionnel']?->prix ?? 0 }},
-        entreprise:    {{ $rules['entreprise']?->prix ?? 0 }}
-    };
-
-    function formatFcfa(n) { return new Intl.NumberFormat('fr-FR').format(Math.round(n)) + ' FCFA'; }
-
-    function updateOffreDisplay() {
-        var type = document.getElementById('type_souscription').value;
-        var is3x = document.getElementById('paiement_3x').checked;
-        var priceTotal = document.getElementById('price-total');
-        var pricePeriod = document.getElementById('price-period');
-        var priceEco = document.getElementById('price-eco');
-        var wrap3x = document.getElementById('paiement3x-wrap');
-        var detail3x = document.getElementById('paiement3x-detail');
-
-        var prix = OFFRE_PRIX[type] || 0;
-        var mensualite = Math.round(prix / 3);
-
-        if (type === 'essentiel' || type === 'professionnel') {
-            priceTotal.textContent = formatFcfa(prix);
-            pricePeriod.textContent = '/ an';
-            priceEco.style.display = 'inline-block';
-            priceEco.textContent = is3x ? '3 × ' + formatFcfa(mensualite) : 'Paiement 3x disponible';
-            wrap3x.style.display = '';
-            detail3x.innerHTML = '3 &times; ' + formatFcfa(mensualite) + ' <span style="font-size:0.75rem; color:#64748b; font-weight:600;">(soit ' + formatFcfa(prix) + ' — frais de dossier inclus)</span>';
-        } else if (type === 'entreprise') {
-            priceTotal.textContent = formatFcfa(prix);
-            pricePeriod.textContent = 'à partir de';
-            priceEco.style.display = 'inline-block';
-            priceEco.textContent = 'Licence à vie / Devis sur-mesure';
-            wrap3x.style.display = 'none';
-            document.getElementById('paiement_3x').checked = false;
+        function setActiveLink() {
+            let current = '';
+            sections.forEach(section => {
+                const top = section.getBoundingClientRect().top;
+                if (top <= 120) current = section.getAttribute('id');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
         }
-    }
 
-    updateOffreDisplay();
-</script>
-<script>
-// ─── PWA Install ───
-var deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
-    deferredPrompt = e;
-    var heroBtn = document.getElementById('heroInstallBtn');
-    if (heroBtn) heroBtn.style.display = 'inline-flex';
-});
-function installPWA() {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
-}
-window.addEventListener('appinstalled', function() {
-    var heroBtn = document.getElementById('heroInstallBtn');
-    if (heroBtn) heroBtn.style.display = 'none';
-    deferredPrompt = null;
-});
-</script>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#105e49">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+        window.addEventListener('scroll', setActiveLink);
+        setActiveLink();
+
+        // ---- PWA install ----
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
+        }
+
+        window.addEventListener('appinstalled', function() {
+            deferredPrompt = null;
+        });
+    </script>
+
+
+
+    <script>
+        function openCreationModal(e, plan) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            const sel = document.getElementById('type_souscription');
+            if (plan && sel) {
+                sel.value = plan;
+                if (typeof updatePricing === 'function') updatePricing();
+
+                // Highlight visuel : bordure colorée + fond léger sur le select
+                sel.style.transition = 'box-shadow 0.3s, border-color 0.3s, background 0.3s';
+                sel.style.boxShadow = '0 0 0 3px rgba(13, 107, 78, 0.35)';
+                sel.style.borderColor = 'var(--primary, #0d6b4e)';
+                sel.style.background = 'rgba(13, 107, 78, 0.06)';
+                setTimeout(() => {
+                    sel.style.boxShadow = '';
+                    sel.style.borderColor = '';
+                    sel.style.background = '';
+                }, 2000);
+            }
+
+            // Scroll directement vers le champ select (pas juste la section)
+            const target = sel || document.getElementById('contact');
+            if (target) {
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 80);
+            }
+        }
+    </script>
+
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0d6b4e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
 </body>
 </html>

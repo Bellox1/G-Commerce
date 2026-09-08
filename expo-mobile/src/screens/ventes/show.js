@@ -7,6 +7,7 @@ import {
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import client from '../../api/client';
+import { getOfflineVentes } from '../../utils/offlineSync';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import * as Print from 'expo-print';
@@ -50,11 +51,21 @@ const LIVRAISON_STATUTS = [
     { key: 'probleme', label: 'Problème', color: Colors.error },
 ];
 
+const getInvoiceLines = (v) => {
+    if (!v) return [];
+    if (Array.isArray(v.lignes) && v.lignes.length > 0) return v.lignes;
+    if (Array.isArray(v.produits) && v.produits.length > 0) return v.produits;
+    if (Array.isArray(v.items) && v.items.length > 0) return v.items;
+    if (Array.isArray(v.details) && v.details.length > 0) return v.details;
+    return [];
+};
+
 const ShowVenteScreen = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
     const { user } = useAuth();
-    const companyName = user?.tenant?.nom || 'E-STOCK';
-    const { id } = route?.params || {};
+    const companyName = vente?.tenant?.nom || vente?.magasin?.tenant?.nom || user?.tenant?.nom || 'E-STOCK';
+    const companyPhone = vente?.tenant?.telephone || vente?.magasin?.tenant?.telephone || user?.tenant?.telephone || user?.telephone || '';
+    const { id, openPrint } = route?.params || {};
     const printingRef = useRef(false);
     const [printing, setPrinting] = useState(false);
     const [vente, setVente] = useState(null);
@@ -72,9 +83,38 @@ const ShowVenteScreen = ({ navigation, route }) => {
     }, [id]);
 
     const fetchVente = async () => {
+        // Si c'est une vente hors-ligne (ID commençant par OFF- ou offline_), la charger depuis le stockage local
+        const isOfflineId = typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_'));
+        
+        if (isOfflineId) {
+            try {
+                const offlineVentes = await getOfflineVentes();
+                const offlineVente = offlineVentes.find(v => v.id === id);
+                if (offlineVente) {
+                    setVente(offlineVente);
+                    if (openPrint) {
+                        setTimeout(() => handlePrint(offlineVente), 600);
+                    }
+                } else {
+                    Alert.alert('Erreur', 'Vente hors-ligne introuvable.');
+                }
+            } catch (e) {
+                console.error('Error fetching offline vente:', e);
+                Alert.alert('Erreur', 'Impossible de charger la facture hors-ligne.');
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
         try {
             const resp = await client.get(`/ventes/${id}`);
-            setVente(resp.data?.data || resp.data);
+            const data = resp.data?.data || resp.data;
+            setVente(data);
+            // Auto-trigger print if opened from list with print icon
+            if (openPrint && data) {
+                setTimeout(() => handlePrint(data), 600);
+            }
         } catch (e) {
             console.error('Error fetching vente detail:', e);
             Alert.alert('Erreur', 'Impossible de charger la facture.');
@@ -84,6 +124,11 @@ const ShowVenteScreen = ({ navigation, route }) => {
     };
 
     const openLivModal = () => {
+        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
+        if (isOffline) {
+            Alert.alert('Non disponible', 'Les actions de livraison ne sont pas disponibles pour les ventes hors-ligne. Elles seront synchronisées au retour de la connexion.');
+            return;
+        }
         setLivStatut(vente.statut_livraison || 'en_attente');
         setLivNote('');
         setShowLivModal(true);
@@ -108,6 +153,12 @@ const ShowVenteScreen = ({ navigation, route }) => {
     };
 
     const handlePayerDette = async () => {
+        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
+        if (isOffline) {
+            Alert.alert('Non disponible', 'Le paiement de dette n\'est pas disponible pour les ventes hors-ligne. Il sera synchronisé au retour de la connexion.');
+            return;
+        }
+        
         const montant = parseFloat(payAmount);
         const reste = vente.dette?.montant_restant || 0;
         if (!montant || montant <= 0) {
@@ -135,44 +186,56 @@ const ShowVenteScreen = ({ navigation, route }) => {
     const [masquerSociete, setMasquerSociete] = useState(false);
     const [masquerVendeur, setMasquerVendeur] = useState(false);
 
-    const handlePrint = async () => {
-        if (!vente || printingRef.current) return;
+    const handlePrint = async (venteData) => {
+        const v = venteData || vente;
+        if (!v || printingRef.current) return;
         printingRef.current = true;
         setPrinting(true);
 
         try {
-            const lines = (vente.lignes || []).map((l) => `<tr>
-                <td>${escapeHtml(l.produit?.nom || 'Article')}</td>
-                <td style="text-align:right">${Math.round(Number(l.prix_vente || l.prix_unitaire || 0)).toLocaleString()}</td>
-                <td style="text-align:right">${l.quantite} ${uniteAbbrev(l.unite)}</td>
-                <td style="text-align:right">${Math.round(Number(l.total_ligne || (l.prix_unitaire * l.quantite) || 0)).toLocaleString()}</td>
-            </tr>`).join('');
-            const companyHeaderHtml = masquerSociete ? '' : `<h2>${escapeHtml(companyName)}</h2>`;
-            const vendeurRowHtml = (masquerVendeur || !vente.user?.name) ? '' : `<div class="row"><span>Vendeur:</span><span>${escapeHtml(vente.user.name)}</span></div>`;
+            const rawLines = getInvoiceLines(v);
+            const lines = rawLines.map((l) => {
+                const nom = l.produit?.nom || l.nom || l.designation || 'Article';
+                const px = Number(l.prix_vente || l.prix_unitaire || l.prix || 0);
+                const qte = Number(l.quantite || l.qte || 1);
+                const tot = Number(l.total_ligne || (px * qte) || 0);
+                return `<tr>
+                <td style="width:40%;text-align:left;vertical-align:middle;word-break:break-word;">${escapeHtml(nom)}</td>
+                <td style="width:20%;text-align:right;vertical-align:middle;">${Math.round(px).toLocaleString('fr-FR')}</td>
+                <td style="width:15%;text-align:right;vertical-align:middle;">${qte} ${uniteAbbrev(l.unite)}</td>
+                <td style="width:25%;text-align:right;vertical-align:middle;">${Math.round(tot).toLocaleString('fr-FR')}</td>
+            </tr>`;
+            }).join('');
+            const companyHeaderHtml = masquerSociete ? '' : `<h2>${escapeHtml(companyName)}</h2>${companyPhone ? `<div class="sub">Tél: ${escapeHtml(companyPhone)}</div>` : ''}`;
+            const vendeurRowHtml = (masquerVendeur || !v.user?.name) ? '' : `<div class="row"><span>Vendeur:</span><span>${escapeHtml(v.user.name)}</span></div>`;
             const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-                @page{size:80mm auto;margin:0}*{box-sizing:border-box}html,body{width:80mm}
-                body{font-family:sans-serif;font-size:12px;width:80mm;margin:0;padding:6px 8px;color:#000}
-                h2{text-align:center;margin:2px 0;font-size:15px}
-                .sub{text-align:center;font-size:11px;margin-bottom:6px}
-                .row{display:flex;justify-content:space-between;font-size:11px;margin:2px 0;gap:6px}
-                table{width:100%;border-collapse:collapse;margin-top:8px;table-layout:fixed}
-                th,td{padding:3px 4px;border-bottom:1px solid #999;font-size:11px;overflow-wrap:anywhere;word-break:break-word}
-                .total{font-weight:bold;margin-top:8px;border-top:2px solid #000;padding-top:6px}
+                @page{size:auto;margin:4mm}*{box-sizing:border-box}
+                html,body{width:100%;font-family:Arial,Helvetica,sans-serif;font-size:16px;margin:0;padding:8px;color:#000;font-weight:400}
+                h2{text-align:center;margin:0 0 6px;font-size:24px;font-weight:700;color:#000}
+                .sub{text-align:center;font-size:15px;margin-bottom:8px;color:#333;font-weight:400}
+                .divider{border:none;border-top:2px dashed #555;margin:8px 0}
+                .row{display:flex;justify-content:space-between;font-size:16px;margin:4px 0;gap:8px;font-weight:500;color:#000;word-break:break-word}
+                table{width:100%;border-collapse:collapse;margin-top:10px;table-layout:fixed;word-wrap:break-word}
+                th,td{padding:7px 6px;border-bottom:1px dashed #aaa;font-size:15px;color:#000;font-weight:400;overflow-wrap:anywhere;word-break:break-word}
+                th{border-bottom:2px dashed #555;font-size:16px;font-weight:600}
+                .total{font-weight:700;margin-top:10px;border-top:2px dashed #555;padding-top:8px;font-size:19px}
+                .thanks{text-align:center;margin-top:16px;font-size:15px;font-weight:400;color:#000}
             </style></head><body>
                 ${companyHeaderHtml}
-                <div class="sub">${escapeHtml(vente.magasin?.nom || '')}</div>
-                <div class="row"><span>FACTURE</span><span>${escapeHtml(vente.reference)}</span></div>
-                <div class="row"><span>${escapeHtml(formatInvoiceDate(vente.date_vente))}</span></div>
-                <div class="row"><span>Client:</span><span>${escapeHtml(vente.client?.nom ? vente.client.nom + ' ' + (vente.client.prenom || '') : 'Anonyme')}</span></div>
+                <div class="sub">${escapeHtml(v.magasin?.nom || '')}</div>
+                <hr class="divider">
+                <div class="row"><span>FACTURE</span><span>${escapeHtml(v.reference)}</span></div>
+                <div class="row"><span>${escapeHtml(formatInvoiceDate(v.date_vente))}</span></div>
+                <div class="row"><span>Client:</span><span>${escapeHtml(v.client?.nom ? v.client.nom + ' ' + (v.client.prenom || '') : 'Anonyme')}</span></div>
                 ${vendeurRowHtml}
-                <table><thead><tr><th style="width:42%">Article</th><th style="width:20%">Prix</th><th style="width:18%">Qté</th><th style="width:20%">Total</th></tr></thead><tbody>${lines}</tbody></table>
-                <div class="row"><span>Total</span><span>${formatMoney(vente.montant_total)}</span></div>
-                <div class="row"><span>Payé</span><span>${formatMoney(vente.montant_paye)}</span></div>
-                ${vente.montant_remis ? `<div class="row"><span>Montant remis</span><span>${formatMoney(vente.montant_remis)}</span></div>` : ''}
-                ${vente.montant_reste > 0 ? `<div class="row"><span>Reste</span><span>${formatMoney(vente.montant_reste)}</span></div>` : ''}
-                ${vente.montant_remis && vente.montant_remis > vente.montant_total ? `<div class="row"><span>Monnaie à rendre</span><span>${formatMoney(vente.montant_remis - vente.montant_total)}</span></div>` : ''}
-                <div class="row total"><span>NET À PAYER</span><span>${formatMoney(vente.montant_total)}</span></div>
-                <div class="sub" style="margin-top:10px;">Merci pour votre achat</div>
+                <hr class="divider">
+                <table><thead><tr><th style="width:40%;text-align:left;vertical-align:middle;">Article</th><th style="width:20%;text-align:right;vertical-align:middle;">Prix</th><th style="width:15%;text-align:right;vertical-align:middle;">Qté</th><th style="width:25%;text-align:right;vertical-align:middle;">Total</th></tr></thead><tbody>${lines}</tbody></table>
+                <hr class="divider">
+                <div class="row"><span>Sous-total</span><span>${formatMoney(v.montant_total)}</span></div>
+                <div class="row"><span>Payé</span><span>${formatMoney(v.montant_paye)}</span></div>
+                ${v.montant_reste > 0 ? `<div class="row" style="color:#cc0000"><span>Reste à payer</span><span>${formatMoney(v.montant_reste)}</span></div>` : ''}
+                <div class="row total"><span>NET À PAYER</span><span>${formatMoney(v.montant_total)}</span></div>
+                <div class="thanks">Merci pour votre achat !</div>
             </body></html>`;
 
             await Print.printAsync({ html });
@@ -208,6 +271,66 @@ const ShowVenteScreen = ({ navigation, route }) => {
 
     const livBadge = LIVRAISON_STATUTS.find(s => s.key === (vente.statut_livraison || 'en_attente')) || LIVRAISON_STATUTS[0];
 
+    const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
+
+    const handleDeleteVente = () => {
+        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
+        
+        if (isOffline) {
+            Alert.alert(
+                'Supprimer la vente hors-ligne',
+                `Êtes-vous sûr de vouloir supprimer cette vente hors-ligne ? Elle ne sera pas synchronisée.`,
+                [
+                    { text: 'Annuler', style: 'cancel' },
+                    {
+                        text: 'Supprimer',
+                        style: 'destructive',
+                        onPress: async () => {
+                            try {
+                                setActionLoading(true);
+                                const { removeOfflineVente } = require('../../utils/offlineSync');
+                                await removeOfflineVente(id);
+                                Alert.alert('Succès', 'Vente hors-ligne supprimée.');
+                                navigation.goBack();
+                            } catch (e) {
+                                Alert.alert('Erreur', 'Erreur lors de la suppression.');
+                            } finally {
+                                setActionLoading(false);
+                            }
+                        },
+                    },
+                ]
+            );
+            return;
+        }
+        
+        Alert.alert(
+            'Supprimer la vente',
+            `Êtes-vous sûr de vouloir supprimer la vente ${vente?.reference} ? Le stock sera réajusté.`,
+            [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                    text: 'Supprimer',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            setActionLoading(true);
+                            await client.delete(`/ventes/${id}`);
+                            Alert.alert('Succès', 'Vente supprimée avec succès.');
+                            navigation.goBack();
+                        } catch (e) {
+                            Alert.alert('Erreur', e.response?.data?.message || 'Erreur lors de la suppression.');
+                        } finally {
+                            setActionLoading(false);
+                        }
+                    },
+                },
+            ]
+        );
+    };
+
+    const uiLines = getInvoiceLines(vente);
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -218,9 +341,12 @@ const ShowVenteScreen = ({ navigation, route }) => {
                     <Ionicons name="arrow-back" size={20} color={Colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topTitle} numberOfLines={1} ellipsizeMode="tail">Facture N° {vente.reference}</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <TouchableOpacity onPress={handlePrint} style={styles.topActionBtn} disabled={printing}>
                         {printing ? <ActivityIndicator size={16} color={Colors.primary} /> : <Ionicons name="print-outline" size={18} color={Colors.primary} />}
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleDeleteVente} style={[styles.topActionBtn, { backgroundColor: '#FEE2E2' }]}>
+                        <Ionicons name="trash-outline" size={18} color={Colors.error} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={fetchVente} style={styles.topActionBtn}>
                         <Ionicons name="refresh-outline" size={18} color={Colors.primary} />
@@ -296,17 +422,23 @@ const ShowVenteScreen = ({ navigation, route }) => {
                     <Text style={[styles.th, { flex: 1.2, textAlign: 'right' }]}>Total</Text>
                     </View>
 
-                    {vente.lignes && vente.lignes.length > 0 ? (
-                        vente.lignes.map((l, idx) => (
-                            <View key={idx} style={styles.tableRow}>
-                                <View style={[styles.td, { flex: 2, flexDirection: 'row', alignItems: 'center', gap: 6, fontWeight: '600' }]}>
-                                    <Text style={{ fontWeight: '600' }}>{l.produit?.nom || 'Article'}</Text>
+                    {uiLines.length > 0 ? (
+                        uiLines.map((l, idx) => {
+                            const nom = l.produit?.nom || l.nom || l.designation || 'Article';
+                            const px = Number(l.prix_vente || l.prix_unitaire || l.prix || 0);
+                            const qte = Number(l.quantite || l.qte || 1);
+                            const tot = Number(l.total_ligne || (px * qte) || 0);
+                            return (
+                                <View key={idx} style={styles.tableRow}>
+                                    <View style={[styles.td, { flex: 2, flexDirection: 'row', alignItems: 'center', gap: 6, fontWeight: '600' }]}>
+                                        <Text style={{ fontWeight: '600' }}>{nom}</Text>
+                                    </View>
+                                    <Text style={[styles.td, { flex: 1, textAlign: 'right' }]}>{Math.round(px).toLocaleString('fr-FR')}</Text>
+                                    <Text style={[styles.td, { flex: 1, textAlign: 'right' }]}>{qte} {uniteAbbrev(l.unite)}</Text>
+                                    <Text style={[styles.td, { flex: 1.2, textAlign: 'right', fontWeight: '700' }]}>{Math.round(tot).toLocaleString('fr-FR')}</Text>
                                 </View>
-                                <Text style={[styles.td, { flex: 1, textAlign: 'right' }]}>{Math.round(Number(l.prix_vente || l.prix_unitaire || 0)).toLocaleString()}</Text>
-                                <Text style={[styles.td, { flex: 1, textAlign: 'right' }]}>{l.quantite} {uniteAbbrev(l.unite)}</Text>
-                                <Text style={[styles.td, { flex: 1.2, textAlign: 'right', fontWeight: '700' }]}>{Math.round(Number(l.total_ligne || (l.prix_unitaire * l.quantite) || 0)).toLocaleString()}</Text>
-                            </View>
-                        ))
+                            );
+                        })
                     ) : (
                         <Text style={styles.emptyLignes}>Aucun article répertorié</Text>
                     )}
@@ -345,58 +477,74 @@ const ShowVenteScreen = ({ navigation, route }) => {
                     </View>
                 </View>
 
-                {/* Statut de livraison */}
-                <View style={styles.cardBlock}>
-                    <View style={styles.blockHead}>
-                        <Text style={styles.blockTitle}>Livraison</Text>
-                        <View style={[styles.miniBadge, { backgroundColor: livBadge.color + '18' }]}>
-                            <Text style={[styles.miniBadgeText, { color: livBadge.color }]}>{livBadge.label}</Text>
+                {!isOffline && (
+                    <>
+                        {/* Statut de livraison */}
+                        <View style={styles.cardBlock}>
+                            <View style={styles.blockHead}>
+                                <Text style={styles.blockTitle}>Livraison</Text>
+                                <View style={[styles.miniBadge, { backgroundColor: livBadge.color + '18' }]}>
+                                    <Text style={[styles.miniBadgeText, { color: livBadge.color }]}>{livBadge.label}</Text>
+                                </View>
+                            </View>
+                            {vente.livreur?.name && (
+                                <Text style={styles.blockSub}>Contrôleur : {vente.livreur.name}</Text>
+                            )}
+                            {vente.date_livraison && (
+                                <Text style={styles.blockSub}>Livrée le {formatDateFr(vente.date_livraison)}</Text>
+                            )}
+                            {vente.note_livraison && (
+                                <Text style={styles.blockNote}>Note : {vente.note_livraison}</Text>
+                            )}
+                            <TouchableOpacity style={styles.btnOutline} onPress={openLivModal}>
+                                <Ionicons name="bicycle-outline" size={18} color={Colors.primary} />
+                                <Text style={styles.btnOutlineText}>Changer le statut de livraison</Text>
+                            </TouchableOpacity>
                         </View>
-                    </View>
-                    {vente.livreur?.name && (
-                        <Text style={styles.blockSub}>Contrôleur : {vente.livreur.name}</Text>
-                    )}
-                    {vente.date_livraison && (
-                        <Text style={styles.blockSub}>Livrée le {formatDateFr(vente.date_livraison)}</Text>
-                    )}
-                    {vente.note_livraison && (
-                        <Text style={styles.blockNote}>Note : {vente.note_livraison}</Text>
-                    )}
-                    <TouchableOpacity style={styles.btnOutline} onPress={openLivModal}>
-                        <Ionicons name="bicycle-outline" size={18} color={Colors.primary} />
-                        <Text style={styles.btnOutlineText}>Changer le statut de livraison</Text>
-                    </TouchableOpacity>
-                </View>
 
-                {/* Dette / crédit */}
-                {vente.dette && (
-                    <View style={styles.cardBlock}>
-                        <Text style={styles.blockTitle}>Créance client</Text>
-                        <View style={styles.blockRow}>
-                            <Text style={styles.blockLabel}>Reste dû</Text>
-                            <Text style={[styles.blockVal, { color: Colors.error }]}>{formatMoney(vente.dette.montant_restant)}</Text>
-                        </View>
-                        {vente.dette.date_echeance && (
-                            <View style={styles.blockRow}>
-                                <Text style={styles.blockLabel}>Échéance</Text>
-                                <Text style={styles.blockVal}>{formatDateFr(vente.dette.date_echeance)}</Text>
+                        {/* Dette / crédit */}
+                        {vente.dette && (
+                            <View style={styles.cardBlock}>
+                                <Text style={styles.blockTitle}>Créance client</Text>
+                                <View style={styles.blockRow}>
+                                    <Text style={styles.blockLabel}>Reste dû</Text>
+                                    <Text style={[styles.blockVal, { color: Colors.error }]}>{formatMoney(vente.dette.montant_restant)}</Text>
+                                </View>
+                                {vente.dette.date_echeance && (
+                                    <View style={styles.blockRow}>
+                                        <Text style={styles.blockLabel}>Échéance</Text>
+                                        <Text style={styles.blockVal}>{formatDateFr(vente.dette.date_echeance)}</Text>
+                                    </View>
+                                )}
+                                <TouchableOpacity style={styles.btnPrimary} onPress={() => { setPayAmount(String(vente.dette.montant_restant)); setShowPayModal(true); }}>
+                                    <Ionicons name="card-outline" size={18} color="#FFF" />
+                                    <Text style={styles.btnActionText}>Ajouter un paiement</Text>
+                                </TouchableOpacity>
                             </View>
                         )}
-                        <TouchableOpacity style={styles.btnPrimary} onPress={() => { setPayAmount(String(vente.dette.montant_restant)); setShowPayModal(true); }}>
-                            <Ionicons name="card-outline" size={18} color="#FFF" />
-                            <Text style={styles.btnActionText}>Ajouter un paiement</Text>
-                        </TouchableOpacity>
-                    </View>
+
+                        {/* Actions */}
+                        <View style={styles.actionsGroup}>
+                            <TouchableOpacity style={styles.btnEdit} onPress={() => navigation.navigate('VenteEdit', { id: vente.id })}>
+                                <Ionicons name="create-outline" size={18} color={Colors.primary} />
+                                <Text style={styles.btnEditText}>Modifier la vente</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </>
                 )}
 
-                {/* Actions */}
-                <View style={styles.actionsGroup}>
-                    <TouchableOpacity style={styles.btnEdit} onPress={() => navigation.navigate('VenteEdit', { id: vente.id })}>
-                        <Ionicons name="create-outline" size={18} color={Colors.primary} />
-                        <Text style={styles.btnEditText}>Modifier la vente</Text>
-                    </TouchableOpacity>
-
-                </View>
+                {isOffline && (
+                    <View style={styles.cardBlock}>
+                        <View style={styles.blockHead}>
+                            <Text style={styles.blockTitle}>Mode hors-ligne</Text>
+                            <View style={[styles.miniBadge, { backgroundColor: Colors.warning + '18' }]}>
+                                <Text style={[styles.miniBadgeText, { color: Colors.warning }]}>Non synchronisé</Text>
+                            </View>
+                        </View>
+                        <Text style={styles.blockSub}>Cette vente a été créée hors-ligne.</Text>
+                        <Text style={styles.blockSub}>Elle sera synchronisée automatiquement au retour de la connexion.</Text>
+                    </View>
+                )}
 
             </ScrollView>
 

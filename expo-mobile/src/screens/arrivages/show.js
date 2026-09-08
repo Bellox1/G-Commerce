@@ -412,7 +412,9 @@ const ShowArrivageScreen = ({ navigation, route }) => {
                         <Text style={styles.totalValue}>{formatMoney(arrivage.total_cout_reel)}</Text>
                     </View>
                     <View style={[styles.totalRow, { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8, marginTop: 4 }]}>
-                        <Text style={[styles.totalLabel, { fontWeight: '700' }]}>BÉNÉFICE</Text>
+                        <Text style={[styles.totalLabel, { fontWeight: '700', color: computeBenefice(arrivage) >= 0 ? Colors.success : Colors.error }]}>
+                            {computeBenefice(arrivage) >= 0 ? 'BÉNÉFICE' : 'PERTE'}
+                        </Text>
                         <Text style={[styles.totalValue, { fontWeight: '700', color: computeBenefice(arrivage) >= 0 ? Colors.success : Colors.error }]}>
                             {formatMoney(computeBenefice(arrivage))}
                         </Text>

@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const QUEUE_KEY = '@offline_action_queue';
 const CACHE_PREFIX = '@cache_';
+const OFFLINE_VENTES_KEY = '@offline_ventes';
 
 /**
  * Sauvegarde des données en cache local pour la consultation hors-ligne.
@@ -75,10 +76,12 @@ export async function syncOfflineQueue(onProgress) {
 
     // Require dynamique pour éviter les require cycles avec client.js
     const client = require('../api/client').default;
+    const { removeOfflineVente, getOfflineVentes, clearOfflineVentes } = require('./offlineSync');
 
     let synced = 0;
     let failed = 0;
     const remainingQueue = [];
+    let hasSyncedVente = false;
 
     for (let i = 0; i < queue.length; i++) {
         const item = queue[i];
@@ -86,7 +89,12 @@ export async function syncOfflineQueue(onProgress) {
 
         try {
             if (item.method === 'POST' || !item.method) {
-                await client.post(item.endpoint, item.payload);
+                const response = await client.post(item.endpoint, item.payload);
+                
+                // Si c'était une création de vente hors-ligne, marquer pour nettoyage
+                if (item.endpoint.includes('/ventes')) {
+                    hasSyncedVente = true;
+                }
             } else if (item.method === 'PUT') {
                 await client.put(item.endpoint, item.payload);
             } else if (item.method === 'DELETE') {
@@ -106,6 +114,12 @@ export async function syncOfflineQueue(onProgress) {
         }
     }
 
+    // Si au moins une vente a été synchronisée, vider toutes les ventes hors-ligne
+    // (le serveur a maintenant les vraies ventes avec références VNT-...)
+    if (hasSyncedVente) {
+        await clearOfflineVentes();
+    }
+
     await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(remainingQueue));
     return { synced, failed, remaining: remainingQueue.length };
 }
@@ -123,4 +137,57 @@ export async function getPendingCount() {
  */
 export async function clearOfflineQueue() {
     await AsyncStorage.removeItem(QUEUE_KEY);
+}
+
+/**
+ * Sauvegarde une vente créée hors-ligne pour affichage immédiat.
+ */
+export async function saveOfflineVente(vente) {
+    try {
+        const existing = await getOfflineVentes();
+        const offlineVente = {
+            ...vente,
+            id: vente.id || 'offline_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+            isOffline: true,
+            createdAt: new Date().toISOString(),
+        };
+        existing.unshift(offlineVente); // Ajouter au début (plus récent en premier)
+        await AsyncStorage.setItem(OFFLINE_VENTES_KEY, JSON.stringify(existing));
+        return offlineVente;
+    } catch (e) {
+        console.error('Erreur sauvegarde vente hors-ligne:', e);
+    }
+}
+
+/**
+ * Récupère les ventes créées hors-ligne.
+ */
+export async function getOfflineVentes() {
+    try {
+        const raw = await AsyncStorage.getItem(OFFLINE_VENTES_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        console.error('Erreur lecture ventes hors-ligne:', e);
+        return [];
+    }
+}
+
+/**
+ * Supprime une vente hors-ligne (après synchronisation réussie).
+ */
+export async function removeOfflineVente(venteId) {
+    try {
+        const existing = await getOfflineVentes();
+        const filtered = existing.filter(v => v.id !== venteId);
+        await AsyncStorage.setItem(OFFLINE_VENTES_KEY, JSON.stringify(filtered));
+    } catch (e) {
+        console.error('Erreur suppression vente hors-ligne:', e);
+    }
+}
+
+/**
+ * Vide toutes les ventes hors-ligne.
+ */
+export async function clearOfflineVentes() {
+    await AsyncStorage.removeItem(OFFLINE_VENTES_KEY);
 }

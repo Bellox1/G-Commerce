@@ -108,8 +108,13 @@ const CreateTransfertScreen = ({ navigation }) => {
     };
 
     const updateQty = (key, t) => {
-        const v = parseInt(t || '0', 10);
-        setLines(prev => prev.map(l => l.key === key ? { ...l, quantite: Math.max(1, isNaN(v) ? 1 : v) } : l));
+        const cleaned = (t || '').replace(/[^0-9]/g, '');
+        setLines(prev => prev.map(l => l.key === key ? { ...l, quantite: cleaned } : l));
+    };
+
+    const handleBlurQty = (key, raw) => {
+        const v = parseInt(raw || '1', 10);
+        setLines(prev => prev.map(l => l.key === key ? { ...l, quantite: isNaN(v) || v <= 0 ? 1 : v } : l));
     };
 
     const removeLine = (key) => {
@@ -288,9 +293,10 @@ const CreateTransfertScreen = ({ navigation }) => {
                                     <TextInput
                                         style={styles.qtyInput}
                                         keyboardType="number-pad"
-                                        value={String(item.quantite)}
+                                        value={String(item.quantite ?? '')}
                                         onChangeText={(t) => updateQty(item.key, t)}
-                                        placeholder="0"
+                                        onBlur={() => handleBlurQty(item.key, item.quantite)}
+                                        placeholder="1"
                                     />
                                 </View>
                             </View>

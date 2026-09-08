@@ -12,7 +12,7 @@
             </h3>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <select name="magasin_id" class="form-control" style="width: auto; display: inline-block;" onchange="document.getElementById('filterForm').submit()">
-                    <option value="all" {{ $selectedMagasinId == 'all' ? 'selected' : '' }}>Tous les magasins</option>
+                    <option value="all" {{ $selectedMagasinId == 'all' ? 'selected' : '' }}>Tous les produits</option>
                     @foreach($magasins as $m)
                         <option value="{{ $m->id }}" {{ $selectedMagasinId == $m->id ? 'selected' : '' }}>
                             {{ $m->nom }}

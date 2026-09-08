@@ -98,8 +98,14 @@ class ClientController extends Controller
     {
         $this->authorizeModule('clients');
         $this->authorizeTenant($client);
-        $client->delete();
-        return $this->smartResponse('clients.index', 'Client retiré de la base de données.');
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($client) {
+            \App\Models\Vente::where('client_id', $client->id)->update(['client_id' => null]);
+            \App\Models\Dette::where('client_id', $client->id)->update(['client_id' => null]);
+            $client->delete();
+        });
+
+        return $this->smartResponse('clients.index', 'Client supprimé avec succès.');
     }
 
     private function authorizeTenant(Client $client)

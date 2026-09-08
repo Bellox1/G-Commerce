@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $this->call(SaimousSeeder::class);
+        //$this->call(MassSeeder::class);
     }
 }

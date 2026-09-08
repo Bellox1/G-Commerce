@@ -53,6 +53,12 @@ class LoginController extends Controller
                     'token_type'   => 'Bearer',
                     'user'         => $user,
                     'tenant'       => $user->tenant ? [
+                        'id'              => $user->tenant->id,
+                        'nom'             => $user->tenant->nom,
+                        'marque'          => $user->tenant->marque,
+                        'email'           => $user->tenant->email,
+                        'ville'           => $user->tenant->ville,
+                        'pays'            => $user->tenant->pays,
                         'offre_code'      => $user->tenant->offre_code,
                         'offre_en_pause'  => $user->tenant->offre_en_pause,
                         'offre_statut'    => $user->tenant->offreStatut(),

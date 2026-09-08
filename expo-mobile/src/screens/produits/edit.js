@@ -22,13 +22,19 @@ const ProduitEditScreen = ({ navigation }) => {
     const [loadingMagasins, setLoadingMagasins] = useState(true);
     const [stocks, setStocks] = useState({});
 
+    const formatIntPrice = (val) => {
+        if (val === null || val === undefined || val === '') return '';
+        const n = Math.round(Number(val));
+        return isNaN(n) ? '' : String(n);
+    };
+
     const [nom, setNom] = useState(item?.nom || '');
-    const [prixVenteConseille, setPrixVenteConseille] = useState(item?.prix_vente_conseille ? String(item.prix_vente_conseille) : '');
+    const [prixVenteConseille, setPrixVenteConseille] = useState(formatIntPrice(item?.prix_vente_conseille));
     const [seuilAlerte, setSeuilAlerte] = useState(item?.seuil_alerte ? String(item.seuil_alerte) : '5');
 
     const [hasCartouche, setHasCartouche] = useState(!!item?.a_cartouche);
     const [cartoucheParCarton, setCartoucheParCarton] = useState(item?.cartouche_par_carton ? String(item.cartouche_par_carton) : '');
-    const [prixCartouche, setPrixCartouche] = useState(item?.prix_cartouche ? String(item.prix_cartouche) : '');
+    const [prixCartouche, setPrixCartouche] = useState(formatIntPrice(item?.prix_cartouche));
 
     const [description, setDescription] = useState(item?.description || '');
     const [pickedImage, setPickedImage] = useState(null);
@@ -57,11 +63,11 @@ const ProduitEditScreen = ({ navigation }) => {
 
                 if (pObj && pObj.nom) {
                     setNom(pObj.nom);
-                    if (pObj.prix_vente_conseille !== undefined) setPrixVenteConseille(pObj.prix_vente_conseille ? String(pObj.prix_vente_conseille) : '');
+                    if (pObj.prix_vente_conseille !== undefined) setPrixVenteConseille(formatIntPrice(pObj.prix_vente_conseille));
                     if (pObj.seuil_alerte !== undefined) setSeuilAlerte(pObj.seuil_alerte ? String(pObj.seuil_alerte) : '5');
                     if (pObj.a_cartouche !== undefined) setHasCartouche(!!pObj.a_cartouche);
                     if (pObj.cartouche_par_carton !== undefined) setCartoucheParCarton(pObj.cartouche_par_carton ? String(pObj.cartouche_par_carton) : '');
-                    if (pObj.prix_cartouche !== undefined) setPrixCartouche(pObj.prix_cartouche ? String(pObj.prix_cartouche) : '');
+                    if (pObj.prix_cartouche !== undefined) setPrixCartouche(formatIntPrice(pObj.prix_cartouche));
                     if (pObj.description !== undefined) setDescription(pObj.description || '');
                 }
             }

@@ -40,7 +40,8 @@
                     <tr>
                         <th>Offre</th>
                         <th>Code</th>
-                        <th>Prix (F)</th>
+                        <th>Prix Cash (F)</th>
+                        <th>Prix / Tranche 3x (F)</th>
                         <th>Commission (F)</th>
                         @foreach($paliers as $seuil)
                             <th>Prime {{ $seuil }} ventes (F)</th>
@@ -55,8 +56,9 @@
                         <tr>
                             <td class="fw-bold">{{ $r->nom }}</td>
                             <td><span class="text-muted" style="font-size:0.8rem;">{{ $r->code }}</span></td>
-                            <td><input type="number" name="prix" class="form-control" min="0" step="1" value="{{ $r->prix }}" style="max-width:140px;" required></td>
-                            <td><input type="number" name="commission" class="form-control" min="0" step="1" value="{{ $r->commission }}" style="max-width:140px;" required></td>
+                            <td><input type="number" name="prix" class="form-control" min="0" step="1" value="{{ $r->prix }}" style="max-width:130px;" required></td>
+                            <td><input type="number" name="prix_tranche_3x" class="form-control" min="0" step="1" value="{{ $r->prix_tranche_3x }}" placeholder="ex: 12000" style="max-width:130px;"></td>
+                            <td><input type="number" name="commission" class="form-control" min="0" step="1" value="{{ $r->commission }}" style="max-width:130px;" required></td>
                             @foreach($paliers as $seuil)
                                 <td><input type="number" name="prime_{{ $seuil }}" class="form-control" min="0" step="1" value="{{ $r->primePour($seuil) }}" style="max-width:150px;" required></td>
                             @endforeach

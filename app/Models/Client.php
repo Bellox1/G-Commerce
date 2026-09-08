@@ -15,6 +15,8 @@ class Client extends Model
 
     protected $casts = ['actif' => 'boolean'];
 
+    protected $appends = ['total_dettes'];
+
     public function tenant()  { return $this->belongsTo(Tenant::class); }
     public function ventes()  { return $this->hasMany(Vente::class); }
     public function dettes()  { return $this->hasMany(Dette::class); }
@@ -24,10 +26,15 @@ class Client extends Model
         return $this->nom;
     }
 
-    public function totalDettesEnCours(): float
+    public function getTotalDettesAttribute(): float
     {
         return (float) $this->dettes()
             ->whereIn('statut', ['en_cours', 'partiel', 'en_retard'])
             ->sum('montant_restant');
+    }
+
+    public function totalDettesEnCours(): float
+    {
+        return $this->getTotalDettesAttribute();
     }
 }

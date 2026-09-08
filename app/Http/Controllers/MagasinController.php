@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Magasin;
+use App\Models\StockMouvement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MagasinController extends Controller
 {
@@ -81,5 +83,33 @@ class MagasinController extends Controller
         $magasin->update($validated);
 
         return $this->smartResponse('magasins.index', 'Dépôt modifié avec succès.');
+    }
+
+    public function destroy(Magasin $magasin)
+    {
+        $this->authorizeModule('magasins');
+        if ($magasin->tenant_id !== Auth::user()->tenant_id) {
+            abort(403);
+        }
+
+        // Vérifier si le dépôt contient du stock actif
+        $stockService = app(\App\Services\StockService::class);
+        $prods = \App\Models\Produit::where('tenant_id', $magasin->tenant_id)->where('actif', true)->get();
+        $totalStockDepot = 0;
+        foreach ($prods as $p) {
+            $totalStockDepot += $stockService->getStock($magasin->id, $p->id);
+        }
+
+        if ($totalStockDepot > 0) {
+            $msg = "Impossible de supprimer le dépôt \"{$magasin->nom}\" car il contient encore du stock ({$totalStockDepot} carton(s)/article(s)). Veuillez transférer ou vider le stock avant la suppression.";
+            if (request()->expectsJson() || request()->is('api/*')) {
+                return response()->json(['success' => false, 'message' => $msg], 400);
+            }
+            return back()->with('error', $msg);
+        }
+
+        $magasin->delete();
+
+        return $this->smartResponse('magasins.index', 'Dépôt/Magasin supprimé avec succès.');
     }
 }

@@ -110,10 +110,10 @@
         .hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(234,141,34,.15); border: 1px solid rgba(234,141,34,.4);
-            color: var(--secondary); padding: 6px 18px; border-radius: 30px;
-            font-weight: 700; font-size: 0.78rem; letter-spacing: 1px;
-            text-transform: uppercase; margin-bottom: 24px;
+            color: var(--secondary); background: none; border: none;
+            border-bottom: 2px solid var(--secondary); padding: 0 0 4px;
+            font-weight: 700; font-size: 0.78rem; letter-spacing: 1.5px;
+            text-transform: uppercase; margin-bottom: 24px; border-radius: 0;
         }
         .hero-title {
             font-family: 'Space Grotesk', sans-serif; font-size: 3.2rem; font-weight: 900;
@@ -137,7 +137,8 @@
         .section-label {
             display: inline-block; color: var(--primary); font-weight: 800; font-size: 0.85rem;
             text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
-            background: rgba(16, 94, 73, 0.1); padding: 6px 16px; border-radius: 50px;
+            background: none; padding: 0 0 3px; border-radius: 0;
+            border-bottom: 2.5px solid var(--secondary);
         }
         .section-title {
             font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; font-weight: 900;
@@ -166,7 +167,8 @@
 
         .dl-card-badge {
             align-self: flex-start; font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 1px; padding: 4px 12px; border-radius: 50px; margin-bottom: 20px;
+            letter-spacing: 1px; padding: 0 0 3px; border-radius: 0; margin-bottom: 20px;
+            background: none !important; border-bottom: 2px solid var(--secondary);
         }
         .badge-green { background: rgba(16, 94, 73, 0.1); color: var(--primary); }
         .badge-orange { background: rgba(234, 141, 34, 0.12); color: var(--secondary); }
@@ -249,19 +251,19 @@
         .qr-image-holder { width: 90px; height: 90px; border-radius: 10px; background: #fff; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0; }
         .qr-image-holder img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ─── FOOTER (CLEAN WHITE BACKGROUND LIKE WELCOME) ─── */
-        footer { background: #ffffff; border-top: 1px solid #e5e7eb; color: var(--text); padding: 60px 5% 28px; }
+        /* ─── FOOTER (DARK SLATE THEME) ─── */
+        footer { background: #0f172a !important; color: #f8fafc; border-top: 1px solid rgba(255, 255, 255, 0.08) !important; padding: 60px 5% 28px; }
         .footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 48px; }
         .footer-brand { flex: 1; min-width: 240px; }
         .footer-brand .logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
         .footer-brand .logo-wrap img { height: 48px; width: 48px; object-fit: contain; border-radius: 12px; }
-        .footer-brand p { color: #6b7280; font-size: 0.9rem; line-height: 1.7; max-width: 320px; }
+        .footer-brand p { color: #94a3b8 !important; font-size: 0.9rem; line-height: 1.7; max-width: 320px; }
         .footer-links { min-width: 160px; }
-        .footer-links h5 { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #374151; margin-bottom: 18px; }
+        .footer-links h5 { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #f8fafc !important; margin-bottom: 18px; }
         .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .footer-links ul li a { color: #374151; text-decoration: none; font-size: 0.9rem; transition: color .2s; display: inline-flex; align-items: center; gap: 8px; }
-        .footer-links ul li a:hover { color: var(--primary); }
-        .footer-bottom { border-top: 1px solid #e5e7eb; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: #6b7280; font-size: 0.85rem; }
+        .footer-links ul li a { color: #cbd5e1 !important; text-decoration: none; font-size: 0.9rem; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+        .footer-links ul li a:hover { color: var(--secondary) !important; transform: translateX(3px); }
+        .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.08) !important; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: #64748b !important; font-size: 0.85rem; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -277,7 +279,7 @@
 
     <!-- TOP BANNER -->
     <div class="top-banner">
-        <span>⚡ Nouveau :</span> PILOTIX Mobile est disponible !
+        <span>⚡ Nouveau :</span> PILOTIX Mobile v1.1.0 disponible !
         <a href="#mobile-apps">Télécharger l'APK Android <i class="bi bi-arrow-right"></i></a>
     </div>
 
@@ -292,8 +294,10 @@
             <a href="{{ url('/') }}">Accueil</a>
             <a href="{{ url('/') }}#features">Fonctionnalités</a>
             <a href="{{ url('/') }}#tarifs">Tarifs</a>
-            <a href="{{ route('partenaires') }}">Partenaires</a>
+            <a href="{{ url('/') }}#screens">Écrans</a>
+            <a href="{{ route('partenaires') }}">Partenariat</a>
             <a href="{{ route('download') }}" class="nav-active">Téléchargements</a>
+            <a href="{{ url('/') }}#contact">Demande</a>
             @if(Auth::check())
                 <a href="{{ route('dashboard') }}" class="btn-nav">Tableau de bord</a>
             @else
@@ -313,8 +317,10 @@
         <a href="{{ url('/') }}"><i class="bi bi-house"></i> Accueil</a>
         <a href="{{ url('/') }}#features"><i class="bi bi-stars"></i> Fonctionnalités</a>
         <a href="{{ url('/') }}#tarifs"><i class="bi bi-tags"></i> Tarifs</a>
-        <a href="{{ route('partenaires') }}"><i class="bi bi-people"></i> Programme Partenaires</a>
+        <a href="{{ url('/') }}#screens"><i class="bi bi-grid"></i> Écrans</a>
+        <a href="{{ route('partenaires') }}"><i class="bi bi-people"></i> Partenariat</a>
         <a href="{{ route('download') }}"><i class="bi bi-download"></i> Téléchargements</a>
+        <a href="{{ url('/') }}#contact"><i class="bi bi-send"></i> Demande</a>
         <div class="mobile-menu-divider"></div>
         @if(Auth::check())
             <a href="{{ route('dashboard') }}" class="btn-nav-mobile"><i class="bi bi-speedometer2"></i> Mon Tableau de bord</a>
@@ -356,12 +362,12 @@
 
                 <!-- CARD 1: ANDROID APK -->
                 <div class="dl-card highlight" id="card-android">
-                    <span class="dl-card-badge badge-green"><i class="bi bi-star-fill"></i> Recommandé Android</span>
+                    <span class="dl-card-badge badge-green"><i class="bi bi-star-fill"></i> Recommandé Android (v1.1.0)</span>
                     <div class="dl-card-icon icon-green">
                         <i class="bi bi-android2"></i>
                     </div>
                     <h3 class="dl-card-title">Android — App Native (.APK)</h3>
-                    <p class="dl-card-desc">L'application mobile native complète pour smartphone et tablette Android (8.0+). Installation directe rapide.</p>
+                    <p class="dl-card-desc">L'application mobile native complète version 1.1.0 pour smartphone et tablette Android (8.0+). Installation directe rapide.</p>
                     
                     <ul class="dl-feature-list">
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(16,94,73,0.1); color:var(--primary);"></i> Scan de photos et caméras fluide</li>
@@ -369,59 +375,11 @@
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(16,94,73,0.1); color:var(--primary);"></i> Téléchargement direct sans Play Store</li>
                     </ul>
 
-                    <a href="{{ asset('downloads/pilotix-latest.apk') }}" download class="btn-card-action btn-action-primary">
-                        <i class="bi bi-download"></i> Télécharger l'APK (~115 Mo)
+                    <a href="{{ route('download.apk') }}" class="btn-card-action btn-action-primary">
+                        <i class="bi bi-download"></i> Télécharger l'APK (~120 Mo) — v1.1.0
                     </a>
                 </div>
 
-                <!-- CARD 2: EXPO GO (UNIVERSEL) -->
-                <div class="dl-card" id="card-expo">
-                    <span class="dl-card-badge badge-purple"><i class="bi bi-stars"></i> iOS &amp; Test Direct</span>
-                    <div class="dl-card-icon icon-purple">
-                        <i class="bi bi-phone"></i>
-                    </div>
-                    <h3 class="dl-card-title">Expo Go — iPhone &amp; Android</h3>
-                    <p class="dl-card-desc">Idéal pour utiliser PILOTIX sur iPhone (iOS) ou tester sur Android instantanément sans installer de fichier APK.</p>
-                    
-                    <ul class="dl-feature-list">
-                        <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(124,58,237,0.1); color:#7c3aed;"></i> Compatible 100% avec iPhone et iPad</li>
-                        <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(124,58,237,0.1); color:#7c3aed;"></i> Lancement via l'application officielle Expo</li>
-                        <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(124,58,237,0.1); color:#7c3aed;"></i> Simple scan de QR Code pour démarrer</li>
-                    </ul>
-
-                    <button class="btn-card-action btn-action-purple" onclick="toggleExpand('expand-expo')">
-                        <i class="bi bi-qr-code-scan"></i> Afficher le QR Code &amp; Guide
-                    </button>
-
-                    <div class="card-expand-content" id="expand-expo">
-                        <div class="os-tabs-nav">
-                            <button class="os-tab-btn active" onclick="switchOsTab('expo-android', this)"><i class="bi bi-android2"></i> Android</button>
-                            <button class="os-tab-btn" onclick="switchOsTab('expo-ios', this)"><i class="bi bi-apple"></i> iPhone</button>
-                        </div>
-                        
-                        <div id="expo-android" class="os-tab-panel active">
-                            <a href="https://play.google.com/store/apps/details?id=host.exp.exponent" target="_blank" class="btn-card-action btn-action-secondary" style="font-size:0.85rem; padding:10px;">
-                                <i class="bi bi-google-play"></i> 1. Télécharger Expo Go (Play Store)
-                            </a>
-                        </div>
-                        <div id="expo-ios" class="os-tab-panel">
-                            <a href="https://apps.apple.com/app/expo-go/id982107779" target="_blank" class="btn-card-action btn-action-secondary" style="font-size:0.85rem; padding:10px;">
-                                <i class="bi bi-apple"></i> 1. Télécharger Expo Go (App Store)
-                            </a>
-                        </div>
-
-                        <div class="qr-box-wrap">
-                            <div class="qr-image-holder">
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=exp%3A%2F%2Fexp.host%2F%40PILOTIX%2FPILOTIX%3Frelease-channel%3Ddefault" alt="QR Code Expo PILOTIX">
-                            </div>
-                            <div style="flex:1;">
-                                <p style="font-size:0.8rem; font-weight:700; color:var(--text); margin-bottom:4px;">2. Scannez le QR Code</p>
-                                <p style="font-size:0.75rem; color:var(--muted); line-height:1.4;">Ouvrez l'appareil photo sur iPhone ou l'app Expo Go sur Android.</p>
-                                <a href="exp://exp.host/@PILOTIX/PILOTIX?release-channel=default" style="display:inline-block; font-size:0.78rem; font-weight:700; color:#7c3aed; margin-top:6px; text-decoration:none;">Lancer directement →</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- CARD 3: IOS APP STORE -->
                 <div class="dl-card" id="card-ios">
@@ -498,46 +456,62 @@
         </div>
     </section>
 
-    <!-- FOOTER (EXACT SAME WHITE FOOTER AS WELCOME.BLADE.PHP) -->
+    <!-- CTA SECTION -->
+    <section style="background: linear-gradient(135deg, #0a3d2d 0%, #105e49 100%); padding: 80px 5%; text-align: center;">
+        <div style="max-width: 720px; margin: 0 auto;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 18px; border-radius: 30px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px;">
+                <i class="bi bi-stars"></i> Commencez maintenant
+            </div>
+            <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 900; color: #fff; margin-bottom: 16px; letter-spacing: -1px;">Gérez votre commerce depuis partout</h2>
+            <p style="color: rgba(255,255,255,0.8); font-size: 1.05rem; line-height: 1.7; margin-bottom: 36px;">Téléchargez PILOTIX sur votre smartphone et commencez à gérer vos stocks, ventes et livraisons en temps réel.</p>
+            <a href="#mobile-apps" style="display: inline-flex; align-items: center; gap: 10px; background: #fff; color: var(--primary); padding: 14px 32px; border-radius: 12px; font-weight: 800; font-size: 1rem; text-decoration: none; font-family: 'Space Grotesk', sans-serif; transition: all .3s; box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+                <i class="bi bi-download"></i> Télécharger PILOTIX
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
     <footer>
         <div class="footer-top">
             <div class="footer-brand">
-                <div style="margin-bottom:10px;">
-                    <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+                <div class="logo-wrap">
+                    <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo">
+                    <span style="font-family:'Space Grotesk',sans-serif; font-size:1.3rem; font-weight:800; color:#f8fafc;">PILOTIX</span>
                 </div>
-                <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
+                <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
             </div>
+
             <div class="footer-links">
-                <h5 style="color: #374151;">Fonctionnalités</h5>
+                <h5>Navigation</h5>
                 <ul>
-                    <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-receipt"></i>Ventes &amp; Facturation</a></li>
-                    <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-box-seam"></i>Stock &amp; Arrivages</a></li>
-                    <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-truck"></i>Livraisons</a></li>
-                    <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-cash-stack"></i>Dettes Clients</a></li>
+                    <li><a href="{{ url('/') }}"><i class="bi bi-house"></i> Accueil</a></li>
+                    <li><a href="{{ url('/') }}#features"><i class="bi bi-stars"></i> Fonctionnalités</a></li>
+                    <li><a href="{{ url('/') }}#tarifs"><i class="bi bi-tags"></i> Tarifs</a></li>
+                    <li><a href="{{ url('/') }}#screens"><i class="bi bi-grid"></i> Écrans</a></li>
                 </ul>
             </div>
+
             <div class="footer-links">
-                <h5 style="color: #374151;">Accès</h5>
+                <h5>Contact & Accès</h5>
                 <ul>
-                    @if (Auth::check())
-                        <li><a href="{{ route('dashboard') }}" style="color: #374151;"><i class="bi bi-speedometer2"></i>Tableau de bord</a></li>
+                    <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
+                    <li><a href="mailto:pilotixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
+                    <li><a href="{{ route('partenaires') }}"><i class="bi bi-people"></i> Partenariat</a></li>
+                    @if(Auth::check())
+                        <li><a href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i> Tableau de bord</a></li>
                     @else
-                        <li><a href="{{ route('login') }}" style="color: #374151;"><i class="bi bi-box-arrow-in-right"></i>Se connecter</a></li>
+                        <li><a href="{{ route('login') }}"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a></li>
                     @endif
                 </ul>
             </div>
-            <div class="footer-links">
-                <h5 style="color: #374151;">Contact</h5>
-                <ul>
-                    <li><a href="tel:+2290146862536" style="color: #374151;"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                    <li><a href="mailto:pilotixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
-                    <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-people"></i> Partenariat</a></li>
-                </ul>
-            </div>
         </div>
-        <div class="footer-bottom" style="border-top: 1px solid #e5e7eb; color: #6b7280;">
+        <div class="footer-bottom">
             <span>&copy; {{ date('Y') }} PILOTIX — Gestion commerciale multi-Dépôt ou Magasin</span>
-            <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
+            <span>
+                <a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> ·
+                <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> ·
+                <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a>
+            </span>
         </div>
     </footer>
 

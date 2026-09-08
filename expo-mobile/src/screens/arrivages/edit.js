@@ -145,15 +145,15 @@ const ArrivageEditScreen = ({ navigation }) => {
                 setTauxChange(d.taux_change ? String(d.taux_change) : '0.65');
                 setSelectedDevise(d.devise_origine || 'NGN');
                 setTauxSource('Taux enregistré — changez la devise pour le taux de marché en temps réel.');
-                setFraisTransport(String(d.frais_transport ?? 0));
-                setFraisDouane(String(d.frais_douane ?? 0));
-                setFraisManutention(String(d.frais_manutention ?? 0));
-                setAutresFrais(String(d.frais_divers ?? 0));
+                setFraisTransport(String(Math.round(Number(d.frais_transport ?? 0))));
+                setFraisDouane(String(Math.round(Number(d.frais_douane ?? 0))));
+                setFraisManutention(String(Math.round(Number(d.frais_manutention ?? 0))));
+                setAutresFrais(String(Math.round(Number(d.frais_divers ?? 0))));
 
                 const loadedLignes = (d.produits || []).map(l => ({
                     produit_id: l.produit_id,
-                    quantite: String(l.quantite),
-                    prix_unitaire_origine: String(l.prix_unitaire_origine),
+                    quantite: String(Math.round(Number(l.quantite || 1))),
+                    prix_unitaire_origine: String(Math.round(Number(l.prix_unitaire_origine || 0))),
                     fournisseur_id: l.fournisseur_id ?? null
                 }));
                 if (loadedLignes.length > 0) setLignes(loadedLignes);

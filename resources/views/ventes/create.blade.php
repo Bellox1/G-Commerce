@@ -163,7 +163,7 @@
                             </div>
                             <div style="flex: 1.5;">
                                 <label class="form-label-sm" style="font-size: 0.75rem; color: var(--text-muted);">Prix Ctn</label>
-                                <input type="number" name="ventes[0][lignes][0][prix_vente]" class="form-control prix-input" placeholder="Prix" min="0">
+                                <input type="number" name="ventes[0][lignes][0][prix_vente]" class="form-control prix-input" placeholder="Prix" min="0" step="1">
                             </div>
                         </div>
 
@@ -175,7 +175,7 @@
                             </div>
                             <div style="flex: 1.5;">
                                 <label class="form-label-sm" style="font-size: 0.75rem; color: var(--text-muted);">Prix Cart.</label>
-                                <input type="number" name="ventes[0][lignes][0][prix_cartouche]" class="form-control prix-cartouche-input" placeholder="Prix" min="0">
+                                <input type="number" name="ventes[0][lignes][0][prix_cartouche]" class="form-control prix-cartouche-input" placeholder="Prix" min="0" step="1">
                             </div>
                         </div>
 
@@ -540,6 +540,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const idx = card.dataset.index;
         const badge = document.getElementById('totaux-' + idx);
         if (badge) badge.textContent = total.toLocaleString('fr-FR') + ' FCFA';
+
+        const remisInput = card.querySelector('.remis-input');
+        if (remisInput && (!remisInput.dataset.userEdited || parseFloat(remisInput.value) <= 0)) {
+            remisInput.value = total > 0 ? total : '';
+        }
+
         calcDu(card, total);
     }
 

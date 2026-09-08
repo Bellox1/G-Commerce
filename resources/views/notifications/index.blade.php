@@ -4,6 +4,30 @@
 @section('subtitle', 'Alertes et rappels importants')
 
 @section('content')
+@php
+    if (!isset($produitsEnAlerte) || empty($produitsEnAlerte)) {
+        $produitsEnAlerte = [];
+        $tenantId = Auth::user()?->tenant_id;
+        if ($tenantId) {
+            $prods = \App\Models\Produit::where('tenant_id', $tenantId)
+                ->where('actif', true)
+                ->get();
+
+            foreach ($prods as $p) {
+                $stk = (int) $p->stock;
+                $seuil = (int) ($p->seuil_alerte ?? 5);
+                if ($stk <= 5 || ($seuil > 0 && $stk <= $seuil)) {
+                    $produitsEnAlerte[] = [
+                        'id'     => $p->id,
+                        'nom'    => $p->nom,
+                        'stock'  => $stk,
+                        'seuil'  => $seuil,
+                    ];
+                }
+            }
+        }
+    }
+@endphp
 <div class="container-py">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div>
@@ -22,10 +46,51 @@
         @endif
     </div>
 
-    @if($notifications->isEmpty())
+    @if(count($produitsEnAlerte) > 0)
+        <div class="card mb-4" style="border:1px solid #fecaca; background:#ffffff; border-radius:14px; overflow:hidden;">
+            <div style="background:#fee2e2; border-bottom:1px solid #fecaca; padding:14px 18px; display:flex; align-items:center; justify-content:space-between;">
+                <h3 style="margin:0; font-size:1.05rem; color:#991b1b; display:flex; align-items:center; gap:8px; font-weight:800;">
+                    <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626; font-size:1.2rem;"></i>
+                    Alertes de Stock &amp; Ruptures ({{ count($produitsEnAlerte) }})
+                </h3>
+            </div>
+            <div class="table-wrap" style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; margin:0;">
+                    <thead>
+                        <tr style="background:#fef2f2; border-bottom:1px solid #fecaca; color:#991b1b; font-size:0.85rem; text-align:left;">
+                            <th style="padding:10px 16px;">Produit</th>
+                            <th style="padding:10px 16px; text-align:center;">Seuil Configuré</th>
+                            <th style="padding:10px 16px; text-align:center;">Stock Actuel</th>
+                            <th style="padding:10px 16px; text-align:right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($produitsEnAlerte as $pa)
+                            <tr style="border-bottom:1px solid #fee2e2;">
+                                <td style="padding:12px 16px; font-weight:700; color:#7f1d1d;">{{ $pa['nom'] }}</td>
+                                <td style="padding:12px 16px; text-align:center; color:#991b1b;">{{ $pa['seuil'] }} carton(s)</td>
+                                <td style="padding:12px 16px; text-align:center;">
+                                    <span style="background:{{ $pa['stock'] <= 0 ? '#dc2626' : '#d97706' }}; color:#fff; font-weight:800; font-size:0.8rem; padding:4px 12px; border-radius:20px; display:inline-block;">
+                                        {{ $pa['stock'] }} carton(s) {{ $pa['stock'] <= 0 ? '(Rupture)' : '(Faible)' }}
+                                    </span>
+                                </td>
+                                <td style="padding:12px 16px; text-align:right;">
+                                    <a href="{{ route('produits.show', $pa['id']) }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> Voir
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
+    @if($notifications->isEmpty() && count($produitsEnAlerte) == 0)
         <div class="empty-state">
             <i class="bi bi-bell" style="font-size:2.4rem; color:var(--text-muted);"></i>
-            <p>Aucune notification pour le moment.</p>
+            <p>Aucune notification ni alerte pour le moment.</p>
         </div>
     @else
         <div class="notif-list">

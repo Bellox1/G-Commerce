@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
-    View, Text, StyleSheet, FlatList, TouchableOpacity,
+    View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView,
     TextInput, ActivityIndicator, RefreshControl, StatusBar, Alert, Image, Modal
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -18,13 +18,19 @@ const formatMoney = (val) => {
 const ProduitsScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const [produits, setProduits] = useState([]);
+    const [magasins, setMagasins] = useState([]);
+    const [selectedMagasinId, setSelectedMagasinId] = useState('all');
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [search, setSearch] = useState('');
     const [expandedId, setExpandedId] = useState(null);
     const PER_PAGE = 50;
 
-    // (La création/modification se fait via l'écran complet ProduitCreate / ProduitEdit)
+    useEffect(() => {
+        client.get('/magasins').then(res => {
+            setMagasins(res.data?.data || res.data || []);
+        }).catch(() => {});
+    }, []);
 
     const extractList = (resp) => {
         const payload = resp.data?.data;
@@ -41,16 +47,21 @@ const ProduitsScreen = ({ navigation }) => {
             let page = 1;
             let all = [];
             let lastPage = 1;
-            // Charge toutes les pages pour refléter l'intégralité du catalogue (comme le web)
+            const params = { page, per_page: PER_PAGE, q: search };
+            if (selectedMagasinId && selectedMagasinId !== 'all') {
+                params.magasin_id = selectedMagasinId;
+            }
             do {
-                const resp = await client.get('/produits', {
-                    params: { page, per_page: PER_PAGE, q: search },
-                });
+                const resp = await client.get('/produits', { params });
                 const { list, last } = extractList(resp);
                 all = [...all, ...list];
                 lastPage = last;
                 page += 1;
             } while (page <= lastPage);
+
+            if (selectedMagasinId && selectedMagasinId !== 'all') {
+                all = all.filter(p => Number(p.stock || 0) > 0 || Number(p.stock_cartouches || 0) > 0);
+            }
             setProduits(all);
         } catch (e) {
             console.error('Error fetching produits:', e);
@@ -59,7 +70,7 @@ const ProduitsScreen = ({ navigation }) => {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [search]);
+    }, [search, selectedMagasinId]);
 
     useFocusEffect(
         useCallback(() => {
@@ -135,7 +146,7 @@ const ProduitsScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Produit</Text>
+                    <Text style={styles.btnAddPillText}>Produit</Text>
                 </TouchableOpacity>
             </View>
 
@@ -149,7 +160,6 @@ const ProduitsScreen = ({ navigation }) => {
                         placeholderTextColor={Colors.textLight}
                         value={search}
                         onChangeText={setSearch}
-                        autoFocus
                     />
                     {search ? (
                         <TouchableOpacity onPress={() => setSearch('')}>
@@ -158,6 +168,32 @@ const ProduitsScreen = ({ navigation }) => {
                     ) : null}
                 </View>
             </View>
+
+            {/* Filtre Magasins */}
+            {magasins.length > 0 && (
+                <View style={{ marginBottom: 12 }}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+                        <TouchableOpacity
+                            style={[styles.magChip, selectedMagasinId === 'all' && styles.magChipActive]}
+                            onPress={() => setSelectedMagasinId('all')}
+                        >
+                            <Text style={[styles.magChipText, selectedMagasinId === 'all' && styles.magChipTextActive]}>Tous les produits</Text>
+                        </TouchableOpacity>
+                        {magasins.map(m => {
+                            const active = selectedMagasinId === m.id;
+                            return (
+                                <TouchableOpacity
+                                    key={m.id}
+                                    style={[styles.magChip, active && styles.magChipActive]}
+                                    onPress={() => setSelectedMagasinId(m.id)}
+                                >
+                                    <Text style={[styles.magChipText, active && styles.magChipTextActive]}>{m.nom}</Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+            )}
 
             {loading ? (
                 <View style={styles.centerLoader}>
@@ -179,6 +215,16 @@ const ProduitsScreen = ({ navigation }) => {
                     renderItem={({ item }) => {
                         const img = getImgUrl(item.image);
                         const expanded = expandedId === item.id;
+
+                        const stk = Number(item.stock ?? item.stock_initial ?? 0);
+                        const seuil = Number(item.seuil_alerte ?? 5);
+                        const isRupture = stk <= 0;
+                        const isAlerte = stk <= seuil;
+
+                        const stockBg = isRupture ? '#FEE2E2' : (isAlerte ? '#FEF3C7' : '#F1F5F9');
+                        const stockTextCol = isRupture ? '#DC2626' : (isAlerte ? '#D97706' : '#0F172A');
+                        const stockBorderCol = isRupture ? '#FECACA' : (isAlerte ? '#FDE68A' : '#CBD5E1');
+
                         return (
                             <View style={[styles.card, expanded && { zIndex: 10 }]}>
                                 <TouchableOpacity
@@ -215,10 +261,12 @@ const ProduitsScreen = ({ navigation }) => {
                                             </View>
                                         ) : null}
 
-                                        <View style={styles.detailBox}>
-                                            <Text style={styles.detailLabel}>Stock</Text>
-                                            <Text style={styles.detailVal}>
-                                                {item.stock ?? item.stock_initial ?? 0} Ctn
+                                        <View style={[styles.detailBox, { backgroundColor: stockBg, borderColor: stockBorderCol, borderWidth: 1, borderRadius: 8 }]}>
+                                            <Text style={[styles.detailLabel, { color: stockTextCol, fontWeight: '700' }]}>
+                                                Stock {isRupture ? '(Rupture)' : (isAlerte ? '(Alerte)' : '')}
+                                            </Text>
+                                            <Text style={[styles.detailVal, { color: stockTextCol, fontWeight: '900' }]}>
+                                                {stk} Ctn
                                                 {item.a_cartouche && item.stock_cartouches ? ` +${item.stock_cartouches} Ctr` : ''}
                                             </Text>
                                         </View>
@@ -449,6 +497,10 @@ const styles = StyleSheet.create({
     input: { borderWidth: 1, borderColor: Colors.border, borderRadius: 8, padding: 10, fontSize: 14, backgroundColor: '#f8fafc' },
     submitBtn: { backgroundColor: Colors.primary, borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 16 },
     submitBtnText: { color: '#FFF', fontSize: 14, fontFamily: 'PlusJakartaSans_700Bold' },
+    magChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: '#F1F5F9', borderWidth: 1, borderColor: '#E2E8F0' },
+    magChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+    magChipText: { fontSize: 12.5, fontFamily: 'PlusJakartaSans_600SemiBold', color: '#64748B' },
+    magChipTextActive: { color: '#FFFFFF', fontFamily: 'PlusJakartaSans_700Bold' },
 });
 
 export default ProduitsScreen;

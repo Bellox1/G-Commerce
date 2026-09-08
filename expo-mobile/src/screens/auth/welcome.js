@@ -1,32 +1,39 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
     View, Text, StyleSheet, TouchableOpacity,
-    Dimensions, ScrollView, Image, StatusBar
+    Dimensions, ScrollView, Image, StatusBar, Linking
 } from 'react-native';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BASE_URL } from '../../api/client';
 
 const { width } = Dimensions.get('window');
 
 const slides = [
     {
         bgColor: '#FFFFFF',
-        img: require('../../../assets/gestion.png'),
-        title: 'Gestion Intelligente',
-        subtitle: 'Pilotez vos stocks, vos ventes et vos créances en temps réel avec une simplicité absolue.',
+        img: require('../../../assets/stock_img.png'),
+        title: 'Stocks & Arrivages',
+        subtitle: 'Gestion multi-magasins, suivi des arrivages fournisseurs et mouvements de stock en temps réel.',
     },
     {
         bgColor: '#FFFFFF',
         img: require('../../../assets/facture.png'),
-        title: 'Ventes & Facturation',
-        subtitle: 'Enregistrez vos transactions instantanément et suivez l\'évolution de votre chiffre d\'affaires.',
+        title: 'Ventes, Caisse & Livraisons',
+        subtitle: 'Facturation rapide (comptant ou acompte), gestion des ventes et suivi complet de vos livraisons.',
+    },
+    {
+        bgColor: '#FFFFFF',
+        img: require('../../../assets/gestion.png'),
+        title: 'Trésorerie & Dettes',
+        subtitle: 'Suivez la trésorerie globale, vos créances clients et le règlement des dettes société sans omission.',
     },
     {
         bgColor: '#FFFFFF',
         img: require('../../../assets/chiffre_affaire.png'),
-        title: 'Stock & Suivi Arrivages',
-        subtitle: 'Anticipez les ruptures et gardez un contrôle total sur l\'ensemble de vos magasins.',
+        title: 'Analytique & Hors-Ligne',
+        subtitle: 'Visualisez vos bénéfices réels, chiffre d\'affaires et continuez de travailler 100% hors-ligne.',
     },
 ];
 
@@ -47,6 +54,11 @@ const WelcomeScreen = ({ navigation }) => {
     const handleScroll = (e) => {
         const idx = Math.round(e.nativeEvent.contentOffset.x / width);
         setCurrentIndex(idx);
+    };
+
+    const handleOpenContact = () => {
+        const url = `${BASE_URL}/#contact`;
+        Linking.openURL(url).catch(err => console.error("Erreur ouverture URL contact:", err));
     };
 
     return (
@@ -111,14 +123,14 @@ const WelcomeScreen = ({ navigation }) => {
                     <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
                 </TouchableOpacity>
 
-                {/* Secondary Pill */}
+                {/* Secondary Pill: Demande de création */}
                 <TouchableOpacity
                     style={styles.btnSecondary}
-                    onPress={() => navigation.navigate('Login')}
+                    onPress={handleOpenContact}
                     activeOpacity={0.7}
                 >
-                    <Ionicons name="person-outline" size={18} color={Colors.primary} />
-                    <Text style={styles.btnSecondaryText}>Accéder à mon espace</Text>
+                    <Ionicons name="rocket-outline" size={18} color={Colors.primary} />
+                    <Text style={styles.btnSecondaryText}>Faire une demande de création</Text>
                 </TouchableOpacity>
 
                 {/* Bottom prompt */}
@@ -157,16 +169,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 32,
     },
     illustrationWrapper: {
-        width: width * 0.72,
-        height: width * 0.65,
+        width: width * 0.88,
+        height: width * 0.78,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#F8FAFC',
-        borderRadius: 24,
-        padding: 24,
-        marginBottom: 28,
-        borderWidth: 1,
-        borderColor: '#F1F5F9',
+        marginBottom: 20,
     },
     illustration: {
         width: '100%',

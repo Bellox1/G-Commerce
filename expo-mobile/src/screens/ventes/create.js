@@ -78,6 +78,7 @@ const buildVentePayload = (s) => ({
         ? new Date(s.dateEcheance).toISOString().split('T')[0] : null,
     lignes: s.lines.map(l => ({
         produit_id: l.produit_id,
+        nom: l.nom || l.produit?.nom || 'Article',
         quantite: l.quantite,
         quantite_cartouche: l.hasCartouche ? l.quantite_cartouche : 0,
         prix_vente: l.prix_vente,
@@ -395,10 +396,14 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
                                     <TextInput
                                         style={styles.qtyInput}
                                         keyboardType="number-pad"
-                                        value={String(item.quantite)}
-                                        onChangeText={(t) => updateLine(item.produit_id, 'quantite', parseInt(t || '0', 10))}
+                                        value={item.quantite === '' || item.quantite === 0 ? '' : String(item.quantite)}
+                                        onChangeText={(t) => {
+                                            const cleaned = (t || '').replace(/[^0-9]/g, '');
+                                            updateLine(item.produit_id, 'quantite', cleaned === '' ? '' : parseInt(cleaned, 10));
+                                        }}
+                                        placeholder="0"
                                     />
-                                    <TouchableOpacity style={styles.stepBtn} onPress={() => updateLine(item.produit_id, 'quantite', item.quantite + 1)}>
+                                    <TouchableOpacity style={styles.stepBtn} onPress={() => updateLine(item.produit_id, 'quantite', (Number(item.quantite) || 0) + 1)}>
                                         <Ionicons name="add" size={16} color={Colors.primary} />
                                     </TouchableOpacity>
                                 </View>
@@ -408,8 +413,12 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
                                 <TextInput
                                     style={styles.priceInput}
                                     keyboardType="number-pad"
-                                    value={String(item.prix_vente)}
-                                    onChangeText={(t) => updateLine(item.produit_id, 'prix_vente', parseInt(t || '0', 10))}
+                                    value={item.prix_vente === '' || item.prix_vente === 0 ? '' : String(Math.round(Number(item.prix_vente || 0)))}
+                                    onChangeText={(t) => {
+                                        const cleaned = (t || '').replace(/[^0-9]/g, '');
+                                        updateLine(item.produit_id, 'prix_vente', cleaned === '' ? '' : parseInt(cleaned, 10));
+                                    }}
+                                    placeholder="0"
                                 />
                             </View>
                             <TouchableOpacity onPress={() => removeLine(item.produit_id)} style={styles.trashBtn}>
@@ -417,33 +426,51 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
                             </TouchableOpacity>
                         </View>
 
+                        {/* Affichage du stock disponible pour ce produit */}
+                        {(() => {
+                            const prodObj = produits.find(p => p.id === item.produit_id);
+                            const stockVal = prodObj?.stock ?? prodObj?.stock_disponible ?? prodObj?.stock_actuel ?? item.stock;
+                            return (
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, paddingHorizontal: 2 }}>
+                                    <Ionicons name="cube-outline" size={14} color={Colors.primary} />
+                                    <Text style={{ fontSize: 12, color: Colors.textLight, fontFamily: 'PlusJakartaSans_500Medium' }}>
+                                        Stock disponible : <Text style={{ fontWeight: '700', color: Colors.primary }}>{stockVal !== undefined && stockVal !== null ? stockVal : '—'}</Text> carton(s)
+                                    </Text>
+                                </View>
+                            );
+                        })()}
+
                         {item.hasCartouche && (
                             <View style={styles.lineRow}>
                                 <View style={styles.qtyBlock}>
                                     <Text style={styles.qtyLabel}>Cartouches</Text>
                                     <View style={styles.stepper}>
-                                        <TouchableOpacity style={styles.stepBtn} onPress={() => updateLine(item.produit_id, 'quantite_cartouche', Math.max(0, item.quantite_cartouche - 1))}>
+                                        <TouchableOpacity style={styles.stepBtn} onPress={() => updateLine(item.produit_id, 'quantite_cartouche', Math.max(0, (Number(item.quantite_cartouche) || 0) - 1))}>
                                             <Ionicons name="remove" size={16} color={Colors.primary} />
                                         </TouchableOpacity>
                                         <TextInput
                                             style={styles.qtyInput}
                                             keyboardType="number-pad"
-                                            value={String(item.quantite_cartouche)}
-                                            onChangeText={(t) => updateLine(item.produit_id, 'quantite_cartouche', parseInt(t || '0', 10))}
+                                            value={item.quantite_cartouche === '' || item.quantite_cartouche === 0 ? '' : String(item.quantite_cartouche)}
+                                            onChangeText={(t) => {
+                                                const cleaned = (t || '').replace(/[^0-9]/g, '');
+                                                updateLine(item.produit_id, 'quantite_cartouche', cleaned === '' ? '' : parseInt(cleaned, 10));
+                                            }}
+                                            placeholder="0"
                                         />
-                                        <TouchableOpacity style={styles.stepBtn} onPress={() => updateLine(item.produit_id, 'quantite_cartouche', item.quantite_cartouche + 1)}>
+                                        <TouchableOpacity style={styles.stepBtn} onPress={() => updateLine(item.produit_id, 'quantite_cartouche', (Number(item.quantite_cartouche) || 0) + 1)}>
                                             <Ionicons name="add" size={16} color={Colors.primary} />
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                                 <View style={styles.priceBlock}>
                                     <Text style={styles.qtyLabel}>Prix cartouche</Text>
-                                        <TextInput
-                                            style={styles.priceInput}
-                                            keyboardType="number-pad"
-                                            value={String(item.prix_cartouche || 0)}
-                                            onChangeText={(t) => updateLine(item.produit_id, 'prix_cartouche', parseInt(t || '0', 10))}
-                                        />
+                                    <TextInput
+                                        style={styles.priceInput}
+                                        keyboardType="number-pad"
+                                        value={String(Math.round(Number(item.prix_cartouche || 0)))}
+                                        onChangeText={(t) => updateLine(item.produit_id, 'prix_cartouche', parseInt(t || '0', 10))}
+                                    />
                                 </View>
                             </View>
                         )}
@@ -488,16 +515,23 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
                                 style={styles.input}
                                 keyboardType="number-pad"
                                 placeholder={String(Math.round(sessionTotal(session)))}
-                                value={session.montantRemis}
+                                value={session.montantRemis !== undefined && session.montantRemis !== '' ? session.montantRemis : (sessionTotal(session) > 0 ? String(Math.round(sessionTotal(session))) : '')}
                                 onChangeText={(t) => onUpdate({ montantRemis: t })}
                             />
-                            {session.montantRemis && Number(session.montantRemis) >= sessionTotal(session) && (
-                                <Text style={styles.monnaieText}>
-                                    Monnaie à rendre (Du) : {formatMoney(Number(session.montantRemis) - sessionTotal(session))}
-                                </Text>
-                            )}
+                            {(() => {
+                                const currentRemis = Number(session.montantRemis !== undefined && session.montantRemis !== '' ? session.montantRemis : sessionTotal(session));
+                                const total = sessionTotal(session);
+                                if (currentRemis > total) {
+                                    return (
+                                        <Text style={styles.monnaieText}>
+                                            Monnaie à rendre au client : {formatMoney(currentRemis - total)}
+                                        </Text>
+                                    );
+                                }
+                                return null;
+                            })()}
                             {!session.clientId && (
-                                <Text style={[styles.infoText, { color: '#92400e' }]}>Vente anonyme : le montant remis doit couvrir le total.</Text>
+                                <Text style={[styles.infoText, { color: '#92400e' }]}>Vente directe : le montant remis couvre automatiquement le total.</Text>
                             )}
                         </View>
                     )}
@@ -803,9 +837,9 @@ const VenteCreateScreen = ({ navigation }) => {
             return;
         }
         if (!session.clientId && !session.aCredit) {
-            const remis = session.montantRemis ? parseFloat(session.montantRemis) : null;
             const total = sessionTotal(session);
-            if (remis === null || remis < total) {
+            const remis = (session.montantRemis !== undefined && session.montantRemis !== '') ? parseFloat(session.montantRemis) : total;
+            if (isNaN(remis) || remis < total) {
                 Alert.alert('Erreur', `Vente anonyme : le montant remis doit couvrir le total (${formatMoney(total)}).`);
                 return;
             }

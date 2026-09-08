@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity,
-    ActivityIndicator, RefreshControl, Dimensions, StatusBar
+    ActivityIndicator, RefreshControl, StatusBar, useWindowDimensions
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { LineChart, BarChart, PieChart } from 'react-native-chart-kit';
@@ -12,9 +12,6 @@ import { Ionicons } from '@expo/vector-icons';
 import client from '../api/client';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TopHeaderNav from '../components/TopHeaderNav';
-
-const { width } = Dimensions.get('window');
-const chartWidth = width - 64;
 
 const formatMoney = (val) => {
     if (val === null || val === undefined || val === '') return '0 F';
@@ -43,7 +40,8 @@ const chartConfig = {
     labelColor: (opacity = 1) => `rgba(107,114,128,${opacity})`,
     style: { borderRadius: 16 },
     propsForDots: { r: '3', strokeWidth: '2', stroke: '#105e49' },
-    propsForBackgroundLines: { stroke: '#E5E7EB', strokeWidth: 1 },
+    propsForBackgroundLines: { stroke: '#F1F5F9', strokeWidth: 1 },
+    propsForLabels: { fontSize: 10, fontFamily: 'Poppins_500Medium' },
 };
 
 class ChartBoundary extends React.Component {
@@ -68,6 +66,9 @@ class ChartBoundary extends React.Component {
 const AnalytiqueScreen = ({ navigation }) => {
     const { user } = useAuth();
     const insets = useSafeAreaInsets();
+    const { width: windowWidth } = useWindowDimensions();
+    const chartWidth = Math.max(260, windowWidth - 64);
+
     const currentYear = new Date().getFullYear();
     const years = [currentYear - 3, currentYear - 2, currentYear - 1, currentYear];
     const [annee, setAnnee] = useState(currentYear);
@@ -180,7 +181,7 @@ const AnalytiqueScreen = ({ navigation }) => {
                                     </TouchableOpacity>
                                 )}
                             </View>
-                            <View style={styles.moisChips}>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
                                 {MOIS.map(m => (
                                     <TouchableOpacity
                                         key={m.v}
@@ -190,7 +191,7 @@ const AnalytiqueScreen = ({ navigation }) => {
                                         <Text style={[styles.moisChipText, mois === m.v && styles.moisChipTextActive]}>{m.l.slice(0, 3)}</Text>
                                     </TouchableOpacity>
                                 ))}
-                            </View>
+                            </ScrollView>
                         </View>
                     </View>
 
@@ -198,31 +199,46 @@ const AnalytiqueScreen = ({ navigation }) => {
                     {raw?.moisLabels?.length > 0 && (
                         <ChartCard icon="trending-up" title="Ventes mensuelles" sub="Évolution des encaissements par mois (FCFA)">
                             <ChartBoundary>
-                                <LineChart
-                                    data={{ labels: raw.moisLabels, datasets: [{ data: raw.moisData || [] }] }}
-                                    width={chartWidth} height={240} chartConfig={chartConfig}
-                                    bezier formatYLabel={fmtY} style={styles.chart}
-                                />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 10 }}>
+                                    <LineChart
+                                        data={{
+                                            labels: raw.moisLabels,
+                                            datasets: [{ data: (raw.moisData || []).map(v => Number(v) || 0) }]
+                                        }}
+                                        width={Math.max(chartWidth, (raw.moisLabels?.length || 0) * 50)}
+                                        height={230}
+                                        chartConfig={chartConfig}
+                                        bezier={(raw.moisLabels?.length || 0) > 1}
+                                        formatYLabel={fmtY}
+                                        style={styles.chart}
+                                    />
+                                </ScrollView>
                             </ChartBoundary>
                         </ChartCard>
                     )}
 
-                    {/* 2. Revenu net mensuel (groupé) */}
+                    {/* 2. Revenu net mensuel (comparatif 3 courbes) */}
                     {raw?.moisLabels?.length > 0 && (
-                        <ChartCard icon="bar-chart" title="Revenu net mensuel" sub="Ventes − Dépenses − Loyers = Revenu net (FCFA)">
+                        <ChartCard icon="bar-chart" title="Revenu net mensuel" sub="Ventes (vert) − Dépenses (rouge) = Revenu net (foncé)">
                             <ChartBoundary>
-                                <BarChart
-                                    data={{
-                                        labels: raw.moisLabels,
-                                        datasets: [
-                                            { data: raw.moisData || [], color: (o) => `rgba(22,163,74,${o})` },
-                                            { data: raw.depensesData || [], color: (o) => `rgba(220,38,38,${o})` },
-                                            { data: raw.revenuNetData || [], color: (o) => `rgba(16,94,73,${o})` },
-                                        ],
-                                    }}
-                                    width={chartWidth} height={240} chartConfig={chartConfig}
-                                    fromZero formatYLabel={fmtY} style={styles.chart}
-                                />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 10 }}>
+                                    <LineChart
+                                        data={{
+                                            labels: raw.moisLabels,
+                                            datasets: [
+                                                { data: (raw.moisData || []).map(v => Number(v) || 0), color: (o = 1) => `rgba(22,163,74,${o})`, strokeWidth: 2 },
+                                                { data: (raw.depensesData || []).map(v => Number(v) || 0), color: (o = 1) => `rgba(220,38,38,${o})`, strokeWidth: 2 },
+                                                { data: (raw.revenuNetData || []).map(v => Number(v) || 0), color: (o = 1) => `rgba(16,94,73,${o})`, strokeWidth: 3 },
+                                            ],
+                                        }}
+                                        width={Math.max(chartWidth, (raw.moisLabels?.length || 0) * 50)}
+                                        height={230}
+                                        chartConfig={chartConfig}
+                                        bezier={(raw.moisLabels?.length || 0) > 1}
+                                        formatYLabel={fmtY}
+                                        style={styles.chart}
+                                    />
+                                </ScrollView>
                             </ChartBoundary>
                             <View style={styles.legendRow}>
                                 <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: '#16a34a' }]} /><Text style={styles.legendText}>Ventes</Text></View>
@@ -236,11 +252,24 @@ const AnalytiqueScreen = ({ navigation }) => {
                     {raw?.joursLabels?.length > 0 && (
                         <ChartCard icon="calendar" title="Ventes quotidiennes" sub="Encaissements par jour du mois sélectionné (FCFA)">
                             <ChartBoundary>
-                                <LineChart
-                                    data={{ labels: raw.joursLabels, datasets: [{ data: raw.ventesJourData || [] }] }}
-                                    width={chartWidth} height={240} chartConfig={chartConfig}
-                                    bezier formatYLabel={fmtY} style={styles.chart}
-                                />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 10 }}>
+                                    <LineChart
+                                        data={{
+                                            labels: raw.joursLabels,
+                                            datasets: [{ data: (raw.ventesJourData || []).map(v => Number(v) || 0) }]
+                                        }}
+                                        width={Math.max(chartWidth, (raw.joursLabels?.length || 0) * 36)}
+                                        height={230}
+                                        chartConfig={{
+                                            ...chartConfig,
+                                            color: (opacity = 1) => `rgba(37,99,235,${opacity})`,
+                                            propsForDots: { r: '2', strokeWidth: '1', stroke: '#2563eb' }
+                                        }}
+                                        bezier={(raw.joursLabels?.length || 0) > 1}
+                                        formatYLabel={fmtY}
+                                        style={styles.chart}
+                                    />
+                                </ScrollView>
                             </ChartBoundary>
                         </ChartCard>
                     )}
@@ -269,15 +298,17 @@ const AnalytiqueScreen = ({ navigation }) => {
                                 <PieChart
                                     data={raw.statutLabels.map((l, i) => ({
                                         name: l,
-                                        population: raw.statutData?.[i] || 0,
+                                        population: Number(raw.statutData?.[i]) || 0,
                                         color: raw.statutColors?.[i] || Colors.primary,
-                                        legend: l,
+                                        legendFontColor: '#334155',
+                                        legendFontSize: 11,
                                     }))}
                                     accessor="population"
                                     width={chartWidth}
-                                    height={240}
+                                    height={200}
+                                    hasLegend={false}
                                     backgroundColor="transparent"
-                                    paddingLeft="0"
+                                    paddingLeft={String(Math.round(chartWidth / 4))}
                                     chartConfig={chartConfig}
                                     style={[styles.chart, { alignSelf: 'center' }]}
                                 />
@@ -286,7 +317,7 @@ const AnalytiqueScreen = ({ navigation }) => {
                                 {raw.statutLabels.map((l, i) => (
                                     <View key={i} style={styles.legendItem}>
                                         <View style={[styles.legendDot, { backgroundColor: raw.statutColors?.[i] || Colors.primary }]} />
-                                        <Text style={styles.legendText}>{l}</Text>
+                                        <Text style={styles.legendText}>{l} ({raw.statutData?.[i] || 0})</Text>
                                     </View>
                                 ))}
                             </View>
@@ -297,14 +328,24 @@ const AnalytiqueScreen = ({ navigation }) => {
                     {raw?.ventesParVendeur?.length > 0 && (
                         <ChartCard icon="people" title="Ventes par vendeur" sub="Total encaissé par collaborateur (FCFA)">
                             <ChartBoundary>
-                                <BarChart
-                                    data={{
-                                        labels: (raw.ventesParVendeur || []).map(v => v.user?.name || v.name || 'N/A'),
-                                        datasets: [{ data: (raw.ventesParVendeur || []).map(v => v.total) }],
-                                    }}
-                                    width={chartWidth} height={240} chartConfig={chartConfig}
-                                    fromZero formatYLabel={fmtY} style={styles.chart}
-                                />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 10 }}>
+                                    <BarChart
+                                        data={{
+                                            labels: (raw.ventesParVendeur || []).map(v => (v.user?.name || v.name || 'N/A').split(' ')[0]),
+                                            datasets: [{ data: (raw.ventesParVendeur || []).map(v => Number(v.total) || 0) }],
+                                        }}
+                                        width={Math.max(chartWidth, (raw.ventesParVendeur?.length || 0) * 75)}
+                                        height={230}
+                                        chartConfig={{
+                                            ...chartConfig,
+                                            color: (opacity = 1) => `rgba(124,58,237,${opacity})`,
+                                        }}
+                                        fromZero
+                                        formatYLabel={fmtY}
+                                        style={styles.chart}
+                                        showValuesOnTopOfBars={true}
+                                    />
+                                </ScrollView>
                             </ChartBoundary>
                         </ChartCard>
                     )}
@@ -313,11 +354,22 @@ const AnalytiqueScreen = ({ navigation }) => {
                     {raw?.moisLabels?.length > 0 && (
                         <ChartCard icon="receipt" title="Nombre de ventes par mois" sub="Volume de transactions mensuel">
                             <ChartBoundary>
-                                <BarChart
-                                    data={{ labels: raw.moisLabels, datasets: [{ data: raw.nbVentesData || [] }] }}
-                                    width={chartWidth} height={240} chartConfig={chartConfig}
-                                    fromZero style={styles.chart}
-                                />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 10 }}>
+                                    <BarChart
+                                        data={{
+                                            labels: raw.moisLabels,
+                                            datasets: [{ data: (raw.nbVentesData || []).map(v => Number(v) || 0) }]
+                                        }}
+                                        width={Math.max(chartWidth, (raw.moisLabels?.length || 0) * 48)}
+                                        height={230}
+                                        chartConfig={{
+                                            ...chartConfig,
+                                            color: (opacity = 1) => `rgba(8,145,178,${opacity})`,
+                                        }}
+                                        fromZero
+                                        style={styles.chart}
+                                    />
+                                </ScrollView>
                             </ChartBoundary>
                         </ChartCard>
                     )}
@@ -326,11 +378,27 @@ const AnalytiqueScreen = ({ navigation }) => {
                     {raw?.moisLabels?.length > 0 && (
                         <ChartCard icon="card" title="Dettes créées par mois" sub="Montant total des nouvelles dettes (FCFA)">
                             <ChartBoundary>
-                                <LineChart
-                                    data={{ labels: raw.moisLabels, datasets: [{ data: raw.dettesData || [], color: (o) => `rgba(220,38,38,${o})` }] }}
-                                    width={chartWidth} height={240} chartConfig={{ ...chartConfig, color: (o) => `rgba(220,38,38,${o})` }}
-                                    bezier formatYLabel={fmtY} style={styles.chart}
-                                />
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 10 }}>
+                                    <LineChart
+                                        data={{
+                                            labels: raw.moisLabels,
+                                            datasets: [{
+                                                data: (raw.dettesData || []).map(v => Number(v) || 0),
+                                                color: (o = 1) => `rgba(220,38,38,${o})`
+                                            }]
+                                        }}
+                                        width={Math.max(chartWidth, (raw.moisLabels?.length || 0) * 48)}
+                                        height={230}
+                                        chartConfig={{
+                                            ...chartConfig,
+                                            color: (opacity = 1) => `rgba(220,38,38,${opacity})`,
+                                            propsForDots: { r: '3', strokeWidth: '2', stroke: '#dc2626' }
+                                        }}
+                                        bezier={(raw.moisLabels?.length || 0) > 1}
+                                        formatYLabel={fmtY}
+                                        style={styles.chart}
+                                    />
+                                </ScrollView>
                             </ChartBoundary>
                         </ChartCard>
                     )}
@@ -441,14 +509,14 @@ const styles = StyleSheet.create({
     moisChipTextActive: { color: '#fff' },
     chartCard: {
         backgroundColor: Colors.surface, borderRadius: 16, padding: 16,
-        marginBottom: 16, elevation: 1,
+        marginBottom: 16, elevation: 1, overflow: 'hidden',
     },
     chartCardHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     chartCardTitle: { fontSize: 15, fontFamily: 'Poppins_700Bold', color: Colors.primary },
     chartCardSub: { fontSize: 12, fontFamily: 'Poppins_400Regular', color: Colors.textLight, marginBottom: 12, marginTop: 2 },
     chart: { borderRadius: 12, marginTop: 4 },
     chartError: { fontSize: 13, fontFamily: 'Poppins_400Regular', color: Colors.textLight, textAlign: 'center', paddingVertical: 24 },
-    legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 12 },
+    legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 12, justifyContent: 'center' },
     legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     legendDot: { width: 10, height: 10, borderRadius: 5 },
     legendText: { fontSize: 12, fontFamily: 'Poppins_500Medium', color: Colors.text },
@@ -467,9 +535,9 @@ const styles = StyleSheet.create({
     alerteBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
     alerteBadgeText: { fontSize: 12, fontFamily: 'Poppins_700Bold', color: '#FFF' },
     emptyText: { fontSize: 13, fontFamily: 'Poppins_400Regular', color: Colors.textLight, textAlign: 'center', paddingVertical: 16 },
-    summaryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 4 },
+    summaryGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 10, marginTop: 4 },
     summaryCell: {
-        width: (width - 64 - 16 - 12) / 2, borderRadius: 8, padding: 14, alignItems: 'center',
+        width: '48%', borderRadius: 8, padding: 14, alignItems: 'center',
     },
     summaryCellFull: {
         width: '100%', borderRadius: 8, padding: 18, alignItems: 'center',

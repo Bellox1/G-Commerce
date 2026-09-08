@@ -6,98 +6,77 @@
     <title>Connexion — PILOTIX</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
             --primary: #105e49;
             --primary-light: #167e65;
-            --bg: #f4f6f8;
+            --bg: #ffffff;
             --border: #e5e7eb;
             --text: #1f2937;
             --muted: #6b7280;
             --danger: #dc2626;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
+        html, body {
+            height: 100%;
+            width: 100%;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            background: #ffffff;
             overflow-x: hidden;
         }
 
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+        .login-page {
+            display: flex;
+            min-height: 100vh;
+            width: 100vw;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50%      { transform: translateY(-6px); }
-        }
-        .anim-brand   { animation: fadeSlideUp 0.7s ease-out both; }
-        .anim-card    { animation: fadeSlideUp 0.7s ease-out 0.15s both; }
-        .anim-back    { animation: fadeIn 0.6s ease-out 0.5s both; }
-        .login-card { animation: fadeSlideUp 0.7s ease-out 0.15s both; }
-        .back-link  { animation: fadeIn 0.6s ease-out 0.5s both; }
-        .login-brand { animation: fadeSlideUp 0.7s ease-out both; }
-        .login-container {
-            width: 100%;
-            max-width: 480px; 
-        }
-        .login-brand {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        .brand-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 60px;
-            height: 60px;
-            background: var(--primary);
-            border-radius: 14.5px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 20px rgba(16, 94, 73, 0.15);
-        }
-        .brand-icon i {
-            color: #fff;
-            font-size: 2rem;
-        }
-        .brand-name {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 900;
-            font-size: 2.2rem;
-            color: var(--primary);
-            letter-spacing: -2px;
-            text-transform: uppercase;
-        }
-        .brand-tagline {
-            color: var(--muted);
-            font-size: 0.95rem;
-            margin-top: 4px;
-            font-weight: 500;
-        }
-        .login-card {
+
+        /* Gauche : 60% plein écran, image couvre tout */
+        .login-left {
+            width: 60%;
             background: #ffffff;
-            border-radius: 20px;
-            padding: 44px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
-            border: 1px solid var(--border);
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .login-left-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Droite : 40% Formulaire */
+        .login-right {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 50px;
+            background: #ffffff;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 420px;
         }
         .login-title {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 800;
-            font-size: 1.4rem;
-            margin-bottom: 8px;
+            font-size: 1.6rem;
+            color: var(--text);
+            margin-bottom: 6px;
         }
         .login-subtitle {
             font-size: 0.9rem;
@@ -126,7 +105,7 @@
             padding: 13px 16px;
             font-size: 0.95rem;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             font-family: inherit;
             outline: none;
             background: #f8fafc;
@@ -157,7 +136,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
         .form-checkbox input {
             width: 17px;
@@ -174,9 +153,9 @@
             width: 100%;
             background: var(--primary);
             color: white;
-            padding: 13px;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
@@ -210,7 +189,7 @@
         }
         .back-link {
             text-align: center;
-            margin-top: 28px;
+            margin-top: 24px;
         }
         .back-link a {
             color: var(--primary);
@@ -224,101 +203,106 @@
         .back-link a:hover {
             color: var(--primary-light);
         }
-        .login-logo-link {
-            position: absolute; top: 30px; left: 40px;
-            text-decoration: none; z-index: 10;
-        }
-        .login-logo-img {
-            height: 72px; width: 72px; object-fit: contain; border-radius: 16px;
-        }
-        @media (max-width: 480px) {
-            body { padding: 12px; align-items: flex-start; padding-top: 120px; }
-            .login-card { padding: 24px 20px; }
-            .login-title { font-size: 1.2rem; }
-            .brand-name { font-size: 1.4rem !important; }
-            .back-link a { font-size: 0.82rem; }
-            .login-card .brand-name { font-size: 1.8rem; }
-            .login-brand .brand-name { font-size: 2.2rem; }
+
+        @media (max-width: 900px) {
+            .login-page {
+                flex-direction: column;
+            }
+            .login-left {
+                display: none;
+            }
+            .login-right {
+                width: 100%;
+                padding: 32px 20px;
+                min-height: 100vh;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
+    <div class="login-page">
 
-        <!-- Formulaire -->
-        <div class="login-card">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="height: 70px; width: auto; object-fit: contain; margin-bottom: 12px;">
-                <h2 class="login-title" style="font-family: 'Space Grotesk', sans-serif;">Connexion à votre Espace</h2>
-                <p class="login-subtitle">Pilotez votre réseau commercial, stocks et dettes.</p>
-            </div>
+        <!-- Gauche 60% : Image Arrivage PC -->
+        <div class="login-left">
+            <img src="{{ asset('Visuel/pc-arrivage.png') }}" alt="PILOTIX Arrivages & Dépôts PC" class="login-left-img">
+        </div>
 
-            @if($errors->any())
-                <div class="alert">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    <span>{{ $errors->first() }}</span>
-                </div>
-            @endif
-
-            @if(session('success'))
-                <div class="alert alert-success">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
-
-            @if(session('status'))
-                <div class="alert alert-success">
-                    <i class="bi bi-info-circle-fill"></i>
-                    <span>{{ session('status') }}</span>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('login.post') }}">
-                @csrf
-                
-                <div class="form-group">
-                    <label class="form-label">Adresse e-mail</label>
-                    <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="votre Email" required autofocus>
+        <!-- Droite 40% : Formulaire -->
+        <div class="login-right">
+            <div class="login-box">
+                <div style="margin-bottom: 28px;">
+                    <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX" style="height: 65px; width: auto; object-fit: contain; margin-bottom: 14px;">
+                    <h1 class="login-title">Connexion à votre Espace</h1>
+                    <p class="login-subtitle">Connectez-vous pour piloter vos magasins, arrivages et stocks.</p>
                 </div>
 
-                <div class="form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <label class="form-label" style="margin-bottom: 0;">Mot de passe</label>
-                        <a href="{{ route('password.request') }}" style="color: var(--primary); font-size: 0.8rem; font-weight: 600; text-decoration: none;">Mot de passe oublié ?</a>
+                @if($errors->any())
+                    <div class="alert">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        <span>{{ $errors->first() }}</span>
                     </div>
-                    <div class="input-wrapper">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required style="padding-right: 48px;">
+                @endif
+
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if(session('status'))
+                    <div class="alert alert-success">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span>{{ session('status') }}</span>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('login.post') }}">
+                    @csrf
+                    
+                    <div class="form-group">
+                        <label class="form-label">Adresse e-mail</label>
+                        <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="votre Email" required autofocus>
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <label class="form-label" style="margin-bottom: 0;">Mot de passe</label>
+                            <a href="{{ route('password.request') }}" style="color: var(--primary); font-size: 0.8rem; font-weight: 600; text-decoration: none;">Mot de passe oublié ?</a>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required style="padding-right: 48px;">
                             <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">
                                 <i id="toggleIcon" class="bi bi-eye-slash"></i>
                             </button>
+                        </div>
                     </div>
+
+                    <div class="form-checkbox">
+                        <input type="checkbox" name="remember" id="remember">
+                        <label for="remember">Rester connecté</label>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-box-arrow-in-right"></i> Se connecter
+                    </button>
+                </form>
+
+                <!-- Retour accueil public -->
+                <div class="back-link">
+                    <a href="/" id="backLink">
+                        <i class="bi bi-arrow-left"></i> Retour à l'accueil
+                    </a>
                 </div>
 
-                <div class="form-checkbox">
-                    <input type="checkbox" name="remember" id="remember">
-                    <label for="remember">Rester connecté</label>
+                <!-- Télécharger l'app PWA -->
+                <div style="text-align:center; margin-top:20px;">
+                    <button onclick="installPWA()" id="loginInstallBtn" style="display:none; background:var(--primary); color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:700; font-size:.9rem; cursor:pointer; gap:8px; box-shadow:0 4px 14px rgba(16,94,73,.25);">
+                        <i class="bi bi-download"></i> Télécharger l'app
+                    </button>
                 </div>
-
-                <button type="submit" class="btn-submit">
-                    <i class="bi bi-box-arrow-in-right"></i> Se connecter
-                </button>
-            </form>
-        </div>
-
-        <!-- Retour accueil public -->
-        <div class="back-link">
-            <a href="/" id="backLink">
-                <i class="bi bi-arrow-left"></i> Retour
-            </a>
-        </div>
-
-        <!-- Télécharger l'app -->
-        <div style="text-align:center; margin-top:20px;">
-            <button onclick="installPWA()" id="loginInstallBtn" style="display:none; background:var(--primary); color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:700; font-size:.9rem; cursor:pointer; gap:8px; box-shadow:0 4px 14px rgba(16,94,73,.25);">
-                <i class="bi bi-download"></i> Télécharger l'app sur l'écran d'accueil
-            </button>
+            </div>
         </div>
 
     </div>
@@ -346,7 +330,6 @@
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <script>
     var deferredPrompt = null;
-    // Si PWA (standalone), retour sur /onboarding au lieu de /
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
         document.getElementById('backLink').href = '{{ route("onboarding") }}';
     }

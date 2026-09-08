@@ -32,8 +32,9 @@ class OffreController extends Controller
         $paliers = \App\Models\Setting::get('prime_paliers', [5, 10, 15]);
 
         $rules = [
-            'prix'       => 'required|numeric|min:0',
-            'commission' => 'required|numeric|min:0',
+            'prix'             => 'required|numeric|min:0',
+            'prix_tranche_3x'   => 'nullable|numeric|min:0',
+            'commission'       => 'required|numeric|min:0',
         ];
         foreach ($paliers as $seuil) {
             $rules['prime_' . $seuil] = 'required|numeric|min:0';
@@ -46,9 +47,10 @@ class OffreController extends Controller
         }
 
         $regle->update([
-            'prix'       => $request->prix,
-            'commission' => $request->commission,
-            'primes'     => $primes,
+            'prix'             => $request->prix,
+            'prix_tranche_3x'   => $request->prix_tranche_3x,
+            'commission'       => $request->commission,
+            'primes'           => $primes,
         ]);
 
         if ($this->isApi($request)) {

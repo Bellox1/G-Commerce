@@ -4,6 +4,7 @@ import {
     ActivityIndicator, TextInput, Alert, StatusBar, Platform,
     KeyboardAvoidingView
 } from 'react-native';
+import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -161,12 +162,41 @@ const ShowDetteScreen = ({ navigation, route }) => {
                     <Ionicons name="arrow-back" size={20} color={Colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topTitle}>Créance Client #{dette.id}</Text>
-                <TouchableOpacity onPress={fetchDetteDetail} style={styles.topActionBtn}>
-                    <Ionicons name="refresh-outline" size={18} color={Colors.primary} />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <TouchableOpacity
+                        style={[styles.topActionBtn, { backgroundColor: '#FEE2E2' }]}
+                        onPress={() => {
+                            Alert.alert(
+                                'Supprimer la créance',
+                                'Voulez-vous vraiment supprimer cette créance ?',
+                                [
+                                    { text: 'Annuler', style: 'cancel' },
+                                    {
+                                        text: 'Supprimer',
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            try {
+                                                await client.delete(`/dettes/${id}`);
+                                                Alert.alert('Succès', 'Créance supprimée.');
+                                                navigation.goBack();
+                                            } catch (e) {
+                                                Alert.alert('Erreur', e.response?.data?.message || 'Impossible de supprimer la créance.');
+                                            }
+                                        },
+                                    },
+                                ]
+                            );
+                        }}
+                    >
+                        <Ionicons name="trash-outline" size={18} color={Colors.error} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={fetchDetteDetail} style={styles.topActionBtn}>
+                        <Ionicons name="refresh-outline" size={18} color={Colors.primary} />
+                    </TouchableOpacity>
+                </View>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <KeyboardAwareScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
                 {/* Status Hero */}
                 <View style={[styles.heroCard, { backgroundColor: isSolde ? '#f0fdf4' : '#fee2e2', borderColor: isSolde ? '#bbf7d0' : '#fca5a5' }]}>
@@ -300,7 +330,7 @@ const ShowDetteScreen = ({ navigation, route }) => {
                     )}
                 </View>
 
-            </ScrollView>
+            </KeyboardAwareScrollView>
 
             {/* Modal modification échéance */}
             <Modal visible={showEcheance} animationType="slide" transparent>
@@ -328,7 +358,10 @@ const ShowDetteScreen = ({ navigation, route }) => {
                                     style={styles.optionRow}
                                     onPress={() => {
                                         if (o.key === 'custom') {
-                                            setShowEcheanceDate(true);
+                                            setShowEcheance(false);
+                                            setTimeout(() => {
+                                                setShowEcheanceDate(true);
+                                            }, 350);
                                         } else {
                                             handleUpdateEcheance(o.key);
                                         }

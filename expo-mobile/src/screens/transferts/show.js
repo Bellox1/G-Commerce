@@ -13,6 +13,7 @@ import { Loader, StatusBadge } from '../../components/ui';
 const STATUT_MAP = {
     livre: { label: 'Livré', color: Colors.success, bg: Colors.success + '20' },
     receptionne: { label: 'Réceptionné', color: Colors.success, bg: Colors.success + '20' },
+    recu: { label: 'Réceptionné', color: Colors.success, bg: Colors.success + '20' },
     en_transit: { label: 'En transit', color: Colors.warning, bg: Colors.warning + '20' },
     en_attente: { label: 'En attente', color: Colors.textLight, bg: Colors.textLight + '20' },
 };
@@ -70,14 +71,21 @@ const ShowTransfertScreen = ({ navigation }) => {
         }, [fetchTransfert])
     );
 
+    const [submittingReception, setSubmittingReception] = useState(false);
+
     const handleReception = async () => {
+        if (submittingReception) return;
+        setSubmittingReception(true);
         try {
             const produits = Object.keys(recus).map(pid => ({ produit_id: Number(pid), quantite_recue: recus[pid] }));
-            await client.post(`/transferts/${id}/reception`, { produits });
-            Alert.alert('Succès', 'Transfert réceptionné avec succès.');
+            const resp = await client.post(`/transferts/${id}/reception`, { produits });
+            const msg = resp.data?.message || 'Transfert réceptionné avec succès.';
+            Alert.alert('Succès', msg);
             fetchTransfert();
         } catch (e) {
             Alert.alert('Erreur', e.response?.data?.message || 'Impossible de réceptionner le transfert.');
+        } finally {
+            setSubmittingReception(false);
         }
     };
 
@@ -114,9 +122,40 @@ const ShowTransfertScreen = ({ navigation }) => {
                     <Ionicons name="arrow-back" size={20} color={Colors.text} />
                 </TouchableOpacity>
                 <Text style={styles.topTitle}>Détail Transfert #{transfert.id}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('TransfertEdit', { id })} style={styles.topActionBtn}>
-                    <Ionicons name="pencil-outline" size={18} color={Colors.primary} />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    {transfert.statut === 'en_transit' && (
+                        <TouchableOpacity onPress={() => navigation.navigate('TransfertEdit', { id })} style={styles.topActionBtn}>
+                            <Ionicons name="pencil-outline" size={18} color={Colors.primary} />
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                        style={[styles.topActionBtn, { backgroundColor: '#FEE2E2' }]}
+                        onPress={() => {
+                            Alert.alert(
+                                'Annuler & supprimer le transfert',
+                                `Voulez-vous vraiment annuler le transfert #${transfert.id} ? Les stocks seront réajustés.`,
+                                [
+                                    { text: 'Non', style: 'cancel' },
+                                    {
+                                        text: 'Supprimer',
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            try {
+                                                await client.delete(`/transferts/${id}`);
+                                                Alert.alert('Succès', 'Transfert annulé et supprimé.');
+                                                navigation.goBack();
+                                            } catch (e) {
+                                                Alert.alert('Erreur', e.response?.data?.message || 'Impossible de supprimer.');
+                                            }
+                                        },
+                                    },
+                                ]
+                            );
+                        }}
+                    >
+                        <Ionicons name="trash-outline" size={18} color={Colors.error} />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

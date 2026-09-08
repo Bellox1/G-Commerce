@@ -15,9 +15,19 @@
     <div class="card" style="background: white;">
         <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-                <span class="badge {{ $arrivage->statut === 'receptionne' ? 'badge-success' : 'badge-warning' }}" style="margin-bottom: 6px;">
-                    {{ $arrivage->statut === 'receptionne' ? 'Receptionné & En Stock' : 'En attente de validation' }}
-                </span>
+                @if(in_array($arrivage->statut, ['receptionne', 'valide', 'integre']))
+                    <span class="badge badge-success" style="margin-bottom: 6px;">
+                        <i class="bi bi-patch-check"></i> Réceptionné & En Stock
+                    </span>
+                @elseif(in_array($arrivage->statut, ['en_attente_sync', 'receptionne_offline']))
+                    <span class="badge badge-warning" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5; margin-bottom: 6px;">
+                        <i class="bi bi-wifi-off"></i> Réceptionné (En attente de connexion)
+                    </span>
+                @else
+                    <span class="badge badge-warning" style="margin-bottom: 6px;">
+                        <i class="bi bi-hourglass-split"></i> En attente de validation
+                    </span>
+                @endif
                 <h2 style="font-size: 1.4rem; font-weight: 700;">Arrivage {{ $arrivage->reference }}</h2>
                 <div style="font-size: .8rem; color: var(--text-muted); margin-top: 4px;">
                     <i class="bi bi-calendar"></i> Créé le {{ $arrivage->created_at->fr('d F Y à H:i') }} par <strong>{{ $arrivage->user?->name }}</strong>
@@ -32,7 +42,7 @@
                     <i class="bi bi-pencil"></i> Modifier
                 </a>
                 
-                @if($arrivage->statut !== 'receptionne')
+                @if(!in_array($arrivage->statut, ['receptionne', 'valide', 'integre', 'receptionne_offline', 'en_attente_sync']))
                 <form method="POST" action="{{ route('arrivages.valider', $arrivage) }}" onsubmit="return confirm('Valider cet arrivage ? Cette action injectera le stock dans le magasin & ajustera les prix conseillés.')">
                     @csrf
                     <button type="submit" class="btn btn-success">

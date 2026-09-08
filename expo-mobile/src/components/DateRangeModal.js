@@ -70,16 +70,16 @@ const DateRangeModal = ({ visible, initialDebut = null, initialFin = null, onApp
                             <DateTimePicker
                                 value={field === 'debut' ? toDate(debut) : toDate(fin)}
                                 mode="date"
-                                display="spinner"
-                                minimumDate={field === 'fin' ? toDate(debut) : undefined}
-                                maximumDate={field === 'debut' ? toDate(fin) : undefined}
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                minimumDate={field === 'fin' && debut ? toDate(debut) : undefined}
+                                maximumDate={field === 'debut' && fin ? toDate(fin) : undefined}
                                 onChange={(e, d) => {
+                                    setField(null);
                                     if (d) {
                                         const s = toStr(d);
                                         if (field === 'debut') setDebut(s);
                                         else setFin(s);
                                     }
-                                    setField(null);
                                 }}
                                 style={{ width: '100%' }}
                             />

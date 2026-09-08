@@ -162,9 +162,9 @@ const CreateArrivageScreen = ({ navigation }) => {
             return;
         }
 
-        const validLignes = lignes.filter(l => l.produit_id && Number(l.quantite) > 0);
+        const validLignes = lignes.filter(l => (l.produit_id || (l.nom_produit && l.nom_produit.trim())) && Number(l.quantite) > 0);
         if (validLignes.length === 0) {
-            Alert.alert('Erreur', 'Veuillez saisir au moins un article avec une quantité valide.');
+            Alert.alert('Erreur', 'Veuillez saisir ou choisir au moins un article avec une quantité valide.');
             return;
         }
 
@@ -179,7 +179,8 @@ const CreateArrivageScreen = ({ navigation }) => {
                 frais_manutention_cfa: Number(fraisManutention) || 0,
                 autres_frais_cfa: Number(autresFrais) || 0,
                 produits: validLignes.map(l => ({
-                    produit_id: l.produit_id,
+                    produit_id: l.produit_id || null,
+                    nom_produit: !l.produit_id ? (l.nom_produit || '').trim() : null,
                     fournisseur_id: l.fournisseur_id || null,
                     quantite: Number(l.quantite),
                     prix_unitaire_origine: Number(l.prix_unitaire_origine)
@@ -222,7 +223,7 @@ const CreateArrivageScreen = ({ navigation }) => {
 
                 {/* 1. Logistique & Dépôt */}
                 <View style={styles.cardSection}>
-                    <Text style={styles.cardTitle}>1. Logistique & Destination</Text>
+                    <Text style={styles.cardTitle}>1. Taux & Logistique</Text>
                     
                     <Text style={styles.fieldLabel}>Magasin de réception *</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
@@ -268,61 +269,116 @@ const CreateArrivageScreen = ({ navigation }) => {
                 {/* 2. Produits de l'arrivage */}
                 <View style={styles.cardSection}>
                     <View style={[styles.labelRow, { marginTop: 0, marginBottom: 6 }]}>
-                        <Text style={styles.cardTitle}>2. Articles réceptionnés</Text>
+                        <Text style={styles.cardTitle}>2. Articles Importés</Text>
                         <TouchableOpacity style={styles.addMiniBtn} onPress={() => setShowFournModal(true)}>
                             <Ionicons name="add" size={14} color={Colors.primary} />
                             <Text style={styles.addMiniBtnText}>Nouveau fournisseur</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.searchBox}>
-                        <Ionicons name="search" size={16} color={Colors.textLight} />
-                        <TextInput
-                            style={styles.searchInput}
-                            value={produitSearch}
-                            onChangeText={(val) => {
-                                setProduitSearch(val);
-                                const q = val.toLowerCase();
-                                setProduits(q
-                                    ? allProduits.filter(p => (p.nom || '').toLowerCase().includes(q))
-                                    : allProduits);
-                            }}
-                            placeholder="Rechercher un produit (si vous connaissez le nom)"
-                        />
-                        {produitSearch ? (
-                            <TouchableOpacity onPress={() => { setProduitSearch(''); setProduits(allProduits); }}>
-                                <Ionicons name="close-circle" size={16} color={Colors.textLight} />
-                            </TouchableOpacity>
-                        ) : null}
-                    </View>
+                    {lignes.map((l, idx) => {
+                        const searchText = l.searchText !== undefined ? l.searchText : (allProduits.find(p => p.id === l.produit_id)?.nom || l.nom_produit || '');
+                        const q = searchText.toLowerCase().trim();
+                        const matches = q ? allProduits.filter(p => (p.nom || '').toLowerCase().includes(q)) : allProduits;
+                        const selectedProd = l.produit_id ? allProduits.find(p => p.id === l.produit_id) : null;
+                        const isNewProduct = !l.produit_id && (l.nom_produit || l.searchText);
+                        const hasExactMatch = q && matches.some(p => (p.nom || '').toLowerCase() === q);
 
-                    {lignes.map((l, idx) => (
-                        <View key={idx} style={styles.ligneBox}>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                <Text style={styles.ligneNum}>Article #{idx + 1}</Text>
-                                <TouchableOpacity onPress={() => removeLigne(idx)}>
-                                    <Ionicons name="trash-outline" size={18} color={Colors.error} />
-                                </TouchableOpacity>
-                            </View>
-
-                            <Text style={styles.fieldLabel}>Sélectionner le produit</Text>
-                            <View style={styles.selectedProd}>
-                                <Ionicons name={l.produit_id ? 'checkmark-circle' : 'alert-circle'} size={16} color={l.produit_id ? Colors.success : Colors.textLight} />
-                                <Text style={styles.selectedProdText}>
-                                    {l.produit_id ? (allProduits.find(p => p.id === l.produit_id)?.nom || 'Produit sélectionné') : 'Aucun produit sélectionné'}
-                                </Text>
-                            </View>
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-                                {produits.slice().sort((a, b) => (a.nom || '').localeCompare(b.nom || '')).map(p => (
-                                    <TouchableOpacity
-                                        key={p.id}
-                                        style={[styles.chipMini, l.produit_id === p.id && styles.chipMiniActive]}
-                                        onPress={() => updateLigne(idx, 'produit_id', p.id)}
-                                    >
-                                        <Text style={[styles.chipMiniText, l.produit_id === p.id && styles.chipMiniTextActive]}>{p.nom}</Text>
+                        return (
+                            <View key={idx} style={styles.ligneBox}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                    <Text style={styles.ligneNum}>Article #{idx + 1}</Text>
+                                    <TouchableOpacity onPress={() => removeLigne(idx)}>
+                                        <Ionicons name="trash-outline" size={18} color={Colors.error} />
                                     </TouchableOpacity>
-                                ))}
-                            </ScrollView>
+                                </View>
+
+                                <Text style={styles.fieldLabel}>Rechercher ou saisir un article</Text>
+                                <View style={styles.searchBox}>
+                                    <Ionicons name="search" size={16} color={Colors.textLight} />
+                                    <TextInput
+                                        style={styles.searchInput}
+                                        value={searchText}
+                                        onChangeText={(val) => {
+                                            const updated = [...lignes];
+                                            updated[idx].searchText = val;
+                                            const found = val.trim() ? allProduits.find(p => (p.nom || '').toLowerCase() === val.trim().toLowerCase()) : null;
+                                            if (found) {
+                                                updated[idx].produit_id = found.id;
+                                                updated[idx].nom_produit = '';
+                                            } else {
+                                                updated[idx].produit_id = null;
+                                                updated[idx].nom_produit = val.trim();
+                                            }
+                                            setLignes(updated);
+                                        }}
+                                        placeholder="Tapez le nom de l'article..."
+                                    />
+                                    {searchText ? (
+                                        <TouchableOpacity onPress={() => {
+                                            const updated = [...lignes];
+                                            updated[idx].searchText = '';
+                                            updated[idx].produit_id = null;
+                                            updated[idx].nom_produit = '';
+                                            setLignes(updated);
+                                        }}>
+                                            <Ionicons name="close-circle" size={16} color={Colors.textLight} />
+                                        </TouchableOpacity>
+                                    ) : null}
+                                </View>
+
+                                {/* Statut et Chips produits */}
+                                <View style={{ marginTop: 6, marginBottom: 10 }}>
+                                    <View style={styles.selectedProd}>
+                                        <Ionicons
+                                            name={selectedProd ? 'checkmark-circle' : (isNewProduct ? 'add-circle' : 'alert-circle')}
+                                            size={16}
+                                            color={selectedProd ? Colors.success : (isNewProduct ? Colors.primary : Colors.textLight)}
+                                        />
+                                        <Text style={[styles.selectedProdText, isNewProduct && { color: Colors.primary, fontWeight: '700' }]}>
+                                            {selectedProd
+                                                ? `Produit existant : ${selectedProd.nom}`
+                                                : (isNewProduct ? `Nouveau produit à créer : "${l.nom_produit || l.searchText}"` : 'Choisissez ou tapez un produit')}
+                                        </Text>
+                                    </View>
+
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.chipRow, { marginTop: 6 }]}>
+                                        {/* Option de création si aucun produit exact ne correspond */}
+                                        {q && !hasExactMatch ? (
+                                            <TouchableOpacity
+                                                style={[styles.chipMini, { backgroundColor: '#F0FDF4', borderColor: Colors.primary }]}
+                                                onPress={() => {
+                                                    const updated = [...lignes];
+                                                    updated[idx].produit_id = null;
+                                                    updated[idx].nom_produit = q;
+                                                    setLignes(updated);
+                                                }}
+                                            >
+                                                <Ionicons name="plus-circle" size={14} color={Colors.primary} />
+                                                <Text style={[styles.chipMiniText, { color: Colors.primary, fontWeight: '700', marginLeft: 4 }]}>
+                                                    {`Créer "${q}" (Nouveau)`}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ) : null}
+
+                                        {/* Produits existants correspondants */}
+                                        {matches.slice(0, 25).map(p => (
+                                            <TouchableOpacity
+                                                key={p.id}
+                                                style={[styles.chipMini, l.produit_id === p.id && styles.chipMiniActive]}
+                                                onPress={() => {
+                                                    const updated = [...lignes];
+                                                    updated[idx].produit_id = p.id;
+                                                    updated[idx].nom_produit = '';
+                                                    updated[idx].searchText = p.nom;
+                                                    setLignes(updated);
+                                                }}
+                                            >
+                                                <Text style={[styles.chipMiniText, l.produit_id === p.id && styles.chipMiniTextActive]}>{p.nom}</Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </ScrollView>
+                                </View>
 
                             <Text style={styles.fieldLabel}>Fournisseur de cet article (optionnel)</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
@@ -356,18 +412,18 @@ const CreateArrivageScreen = ({ navigation }) => {
                                 </View>
                                 <View style={{ flex: 1 }}>
                                     <Text style={styles.fieldLabel}>Prix U. (Naira ₦)</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    keyboardType="numeric"
-                                    value={l.prix_unitaire_origine}
-                                    onChangeText={val => updateLigne(idx, 'prix_unitaire_origine', val)}
-                                    placeholder="Ex: 5000"
-                                />
+                                    <TextInput
+                                        style={styles.input}
+                                        keyboardType="numeric"
+                                        value={l.prix_unitaire_origine}
+                                        onChangeText={val => updateLigne(idx, 'prix_unitaire_origine', val)}
+                                        placeholder="Ex: 5000"
+                                    />
+                                </View>
                             </View>
                         </View>
-
-                        </View>
-                    ))}
+                    );
+                })}
                 </View>
 
                 <TouchableOpacity onPress={addLigne} style={styles.btnAddLigneBottom}>

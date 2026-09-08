@@ -27,6 +27,9 @@
     .assign-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .assign-bar .autocomplete-wrap { flex: 1; min-width: 140px; }
     .assign-bar .autocomplete-wrap input { font-size: .85rem; }
+    .devise-chip-item { cursor: pointer; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: .8rem; font-weight: 600; background: #f8fafc; transition: all .15s; user-select: none; display: inline-flex; align-items: center; justify-content: center; }
+    .devise-chip-item:hover { border-color: var(--primary); }
+    .devise-chip-item.active { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
 </style>
 @endpush
 
@@ -34,92 +37,17 @@
 <form method="POST" action="{{ route('arrivages.store') }}" id="arrivageForm">
     @csrf
 
-    <div class="page-grid page-grid-3">
+    <div class="arrivage-form-wrap" style="display: flex; flex-direction: column; gap: 20px;">
         
-        {{-- Section Principale : Choix des Produits --}}
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-cart"></i> Articles Importés</h3>
-                </div>
-                <div class="card-body">
-                    <p style="font-size: .8rem; color: var(--text-muted); margin-bottom: 16px;">
-                        Ajoutez les produits contenus dans ce camion. Cliquez sur une ligne pour la sélectionner, puis attribuez-lui un fournisseur depuis le panneau de droite.
-                    </p>
-
-                    <div id="produits-container">
-                        <div class="produit-row flex-row-mobile" style="margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 12px;">
-                            <div style="flex: 2;">
-                                <label class="form-label" style="font-size: .7rem;">Article / Produit</label>
-                                <div class="autocomplete-wrap">
-                                    <input type="text" class="form-control produit-search" placeholder="Tapez le nom du produit..." data-row="0" autocomplete="off" required>
-                                    <input type="hidden" name="produits[0][produit_id]" class="produit-id">
-                                    <input type="hidden" name="produits[0][fournisseur_id]" class="fourn-id" value="">
-                                    <div class="autocomplete-dropdown" data-row="0"></div>
-                                </div>
-                            </div>
-                            <div style="flex: 1;">
-                                <label class="form-label" style="font-size: .7rem;">Quantité</label>
-                                <input type="number" name="produits[0][quantite]" class="form-control" min="1" placeholder="Ex: 100" required>
-                            </div>
-                            <div style="flex: 1.5;">
-                                <label class="form-label prix-origine-label" style="font-size: .7rem;" data-base="Prix U. Origine">Prix U. Origine (₦)</label>
-                                <input type="number" name="produits[0][prix_unitaire_origine]" class="form-control" min="0" placeholder="Ex: 5000" required>
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-danger btn-sm remove-row-btn" style="padding: 9px 12px;"><i class="bi bi-trash"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="button" class="btn btn-secondary btn-sm" id="add-row-btn" style="margin-top: 10px;">
-                        <i class="bi bi-plus-circle"></i> Ajouter un article
-                    </button>
-                </div>
+        {{-- 1. Carte : Taux & Logistique (Toujours en premier au sommet) --}}
+        <div class="card card-taux-logistique" style="margin-bottom: 0;">
+            <div class="card-header">
+                <h3><i class="bi bi-calculator"></i> 1. Taux & Logistique</h3>
             </div>
-        </div>
-
-        {{-- Section Droite --}}
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-
-            {{-- Carte : Attribution des fournisseurs --}}
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-person-lines-fill"></i> Fournisseurs par produit</h3>
-                </div>
-                <div class="card-body">
-                    <p style="font-size: .8rem; color: var(--text-muted); margin-bottom: 12px;">
-                        1. Sélectionnez une ou plusieurs lignes produit (cliquez dessus).<br>
-                        2. Choisissez un fournisseur ci-dessous.<br>
-                        3. Cliquez sur <strong>Attribuer</strong>.
-                    </p>
-
-                    <div class="assign-bar">
-                        <div class="autocomplete-wrap">
-                            <input type="text" class="form-control assign-fourn-search" placeholder="Fournisseur..." autocomplete="off">
-                            <input type="hidden" class="assign-fourn-id" value="">
-                            <div class="autocomplete-dropdown assign-fourn-dropdown"></div>
-                        </div>
-                        <button type="button" class="btn btn-primary" id="btn-assign-fourn" style="white-space: nowrap; padding: 8px 16px;">
-                            <i class="bi bi-check-lg"></i> Attribuer
-                        </button>
-                        <button type="button" class="btn btn-primary btn-new-fourn-assign" title="Créer un fournisseur" style="padding: 8px 14px;">
-                            <i class="bi bi-plus"></i>
-                        </button>
-                    </div>
-
-                    <div class="supplier-legend" id="supplier-legend"></div>
-                </div>
-            </div>
-
-            {{-- Carte : Taux & Logistique --}}
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-calculator"></i> Taux & Logistique</h3>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">Magasin de réception</label>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: flex-start;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Magasin de réception *</label>
                         <div style="display: flex; gap: 6px; align-items: center;">
                             <select name="magasin_id" id="magasin-select" class="form-control" required style="flex: 1;">
                                 @foreach($magasins as $m)
@@ -132,59 +60,150 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Devise d'origine</label>
-                        <select name="devise_origine" id="devise-select" class="form-control">
-                            <option value="XOF">FCFA (XOF)</option>
-                            <option value="NGN">Naira (₦)</option>
-                            <option value="EUR">Euro (€)</option>
-                            <option value="USD">Dollar ($)</option>
-                            <option value="CNY">Yuan Chinois (¥)</option>
-                            <option value="AUTRE">Autre</option>
-                        </select>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="margin-bottom: 6px;">Devise d'origine</label>
+                        <div class="devise-chips-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            @php
+                                $devises = [
+                                    'NGN' => 'Naira (₦)',
+                                    'XOF' => 'FCFA',
+                                    'EUR' => 'Euro (€)',
+                                    'USD' => 'Dollar ($)',
+                                    'CNY' => 'Yuan (¥)',
+                                    'AUTRE' => 'Autre',
+                                ];
+                            @endphp
+                            @foreach($devises as $val => $lbl)
+                                <label class="devise-chip-item {{ $val === 'NGN' ? 'active' : '' }}">
+                                    <input type="radio" name="devise_origine" value="{{ $val }}" {{ $val === 'NGN' ? 'checked' : '' }} style="display:none;" onchange="onDeviseRadioChange(this)">
+                                    <span>{{ $lbl }}</span>
+                                </label>
+                            @endforeach
+                        </div>
                     </div>
 
-                    <div class="form-group" id="taux-field">
-                        <label class="form-label">Taux <span id="devise-taux-sym">₦</span> -> FCFA (ex: Taux marché)</label>
+                    <div class="form-group" id="taux-field" style="margin-bottom: 0;">
+                        <label class="form-label">Taux <span id="devise-taux-sym">₦</span> -> FCFA</label>
                         <input type="number" name="taux_change_naira_cfa" id="taux-input" class="form-control" value="0.65" step="0.0001" min="0.0001" required>
                         <div id="taux-resultat" style="font-size: .8rem; color: var(--primary); font-weight: 600; margin-top: 4px;">1 000 ₦ = 650 FCFA</div>
-                        <small style="color: var(--text-muted); font-size: .7rem; display: block; margin-top: 2px;">Exemple : Taux de 0.65 signifie que 1000 ₦ = 650 FCFA.</small>
                         <div id="taux-note" style="font-size: .75rem; color: var(--primary); font-weight: 600; margin-top: 4px;"></div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            {{-- Carte : Frais de Transport --}}
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="bi bi-cash-stack"></i> Frais de Transport (FCFA)</h3>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">Frais de Transport</label>
-                        <input type="number" name="frais_transport_cfa" class="form-control" value="0" min="0" required>
+        {{-- 2 & 3. Grille Articles et Fournisseurs --}}
+        <div class="page-grid page-grid-3 arrivage-grid">
+            
+            {{-- Section Left : Articles Importés --}}
+            <div class="arrivage-left-col" style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="card" style="margin-bottom: 0;">
+                    <div class="card-header">
+                        <h3><i class="bi bi-cart"></i> 2. Articles Importés</h3>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Douanes / Route</label>
-                        <input type="number" name="frais_douane_cfa" class="form-control" value="0" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Manutention / Chargement</label>
-                        <input type="number" name="frais_manutention_cfa" class="form-control" value="0" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Autres frais / Taxes</label>
-                        <input type="number" name="autres_frais_cfa" class="form-control" value="0" min="0" required>
-                    </div>
+                    <div class="card-body">
+                        <p style="font-size: .8rem; color: var(--text-muted); margin-bottom: 16px;">
+                            Ajoutez les produits contenus dans ce camion. Cliquez sur une ligne pour la sélectionner, puis attribuez-lui un fournisseur depuis le panneau de droite.
+                        </p>
 
-                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
-                        <i class="bi bi-save"></i> Enregistrer l'Arrivage
-                    </button>
-                    
-                    <a href="{{ route('arrivages.index') }}" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center; margin-top: 8px;">
-                        Annuler
-                    </a>
+                        <div id="produits-container">
+                            <div class="produit-row flex-row-mobile" style="margin-bottom: 12px; border-bottom: 1px dashed var(--border); padding-bottom: 12px;">
+                                <div style="flex: 2;">
+                                    <label class="form-label" style="font-size: .7rem;">Article / Produit</label>
+                                    <div class="autocomplete-wrap">
+                                        <input type="text" class="form-control produit-search" placeholder="Tapez le nom du produit..." data-row="0" autocomplete="off" required>
+                                        <input type="hidden" name="produits[0][produit_id]" class="produit-id">
+                                        <input type="hidden" name="produits[0][nom_produit]" class="nom-produit">
+                                        <input type="hidden" name="produits[0][fournisseur_id]" class="fourn-id" value="">
+                                        <div class="autocomplete-dropdown" data-row="0"></div>
+                                    </div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label class="form-label" style="font-size: .7rem;">Quantité</label>
+                                    <input type="number" name="produits[0][quantite]" class="form-control" min="1" placeholder="Ex: 100" required>
+                                </div>
+                                <div style="flex: 1.5;">
+                                    <label class="form-label prix-origine-label" style="font-size: .7rem;" data-base="Prix U. Origine">Prix U. Origine (₦)</label>
+                                    <input type="number" name="produits[0][prix_unitaire_origine]" class="form-control" min="0" placeholder="Ex: 5000" required>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-danger btn-sm remove-row-btn" style="padding: 9px 12px;"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary btn-sm" id="add-row-btn" style="margin-top: 10px;">
+                            <i class="bi bi-plus-circle"></i> Ajouter un article
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            {{-- Section Right : Fournisseurs & Frais --}}
+            <div class="arrivage-right-col" style="display: flex; flex-direction: column; gap: 20px;">
+
+                {{-- Carte : Attribution des fournisseurs --}}
+                <div class="card card-fournisseurs" style="margin-bottom: 0;">
+                    <div class="card-header">
+                        <h3><i class="bi bi-person-lines-fill"></i> Fournisseurs par produit</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size: .8rem; color: var(--text-muted); margin-bottom: 12px;">
+                            1. Sélectionnez une ou plusieurs lignes produit (cliquez dessus).<br>
+                            2. Choisissez un fournisseur ci-dessous.<br>
+                            3. Cliquez sur <strong>Attribuer</strong>.
+                        </p>
+
+                        <div class="assign-bar">
+                            <div class="autocomplete-wrap">
+                                <input type="text" class="form-control assign-fourn-search" placeholder="Fournisseur..." autocomplete="off">
+                                <input type="hidden" class="assign-fourn-id" value="">
+                                <div class="autocomplete-dropdown assign-fourn-dropdown"></div>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="btn-assign-fourn" style="white-space: nowrap; padding: 8px 16px;">
+                                <i class="bi bi-check-lg"></i> Attribuer
+                            </button>
+                            <button type="button" class="btn btn-primary btn-new-fourn-assign" title="Créer un fournisseur" style="padding: 8px 14px;">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+
+                        <div class="supplier-legend" id="supplier-legend"></div>
+                    </div>
+                </div>
+
+                {{-- Carte : Frais de Transport --}}
+                <div class="card card-frais-transport" style="margin-bottom: 0;">
+                    <div class="card-header">
+                        <h3><i class="bi bi-cash-stack"></i> Frais de Transport (FCFA)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Frais de Transport</label>
+                            <input type="number" name="frais_transport_cfa" class="form-control" value="0" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Douanes / Route</label>
+                            <input type="number" name="frais_douane_cfa" class="form-control" value="0" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Manutention / Chargement</label>
+                            <input type="number" name="frais_manutention_cfa" class="form-control" value="0" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Autres frais / Taxes</label>
+                            <input type="number" name="autres_frais_cfa" class="form-control" value="0" min="0" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <i class="bi bi-save"></i> Enregistrer l'Arrivage
+                </button>
+                
+                <a href="{{ route('arrivages.index') }}" class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;">
+                    Annuler
+                </a>
             </div>
         </div>
 
@@ -391,12 +410,20 @@
         // ─── Calcul taux en direct ────────────────────────────────────
         const tauxInput = document.getElementById('taux-input');
         const tauxResultat = document.getElementById('taux-resultat');
-        const deviseSelect = document.getElementById('devise-select');
         const DEVISE_SYM = { XOF: 'FCFA', NGN: '₦', EUR: '€', USD: '$', CNY: '¥', AUTRE: '' };
-        function currentSym() { return DEVISE_SYM[deviseSelect.value] || '₦'; }
+        function getSelectedDevise() {
+            const checked = document.querySelector('input[name="devise_origine"]:checked');
+            return checked ? checked.value : 'NGN';
+        }
+        window.onDeviseRadioChange = function(radio) {
+            document.querySelectorAll('.devise-chip-item').forEach(el => el.classList.remove('active'));
+            radio.closest('.devise-chip-item').classList.add('active');
+            updateDevise();
+        };
+        function currentSym() { return DEVISE_SYM[getSelectedDevise()] || '₦'; }
         function updateDevise() {
             const sym = currentSym();
-            const code = deviseSelect.value;
+            const code = getSelectedDevise();
             const tauxSym = document.getElementById('devise-taux-sym');
             if (tauxSym) tauxSym.textContent = sym;
             document.querySelectorAll('.prix-origine-label').forEach(l => {
@@ -418,7 +445,7 @@
         }
 
         function fetchLiveRate() {
-            const code = deviseSelect.value;
+            const code = getSelectedDevise();
             const note = document.getElementById('taux-note');
             if (code === 'AUTRE') {
                 if (note) note.textContent = 'Devise personnalisée — saisissez le taux manuellement.';
@@ -451,7 +478,8 @@
                 ? `1 000 ${sym} = ${(1000 * val).toLocaleString('fr-FR', {minimumFractionDigits: 0, maximumFractionDigits: 0})} FCFA`
                 : 'Entrez un taux pour voir la conversion';
         }
-        if (deviseSelect) deviseSelect.addEventListener('change', updateDevise);
+        tauxInput.addEventListener('input', updateTaux);
+        updateDevise();
         tauxInput.addEventListener('input', updateTaux);
         updateDevise();
 
@@ -469,27 +497,45 @@
 
             function renderDropdown(results, query) {
                 dropdown.innerHTML = '';
-                if (results.length === 0) {
-                    if (query.trim()) {
-                        dropdown.innerHTML = '<div class="autocomplete-item no-result">Aucun produit trouvé</div>';
-                        dropdown.classList.add('show');
-                    } else {
-                        dropdown.classList.remove('show');
-                    }
-                    return;
-                }
+                const qTrim = query.trim();
                 results.forEach((p, idx) => {
                     const item = document.createElement('div');
                     item.className = 'autocomplete-item' + (idx === 0 ? ' active' : '');
                     item.innerHTML = `<span>${p.nom}</span><span class="price-badge">${p.prix ?? '—'} FCFA</span>`;
                     item.dataset.id = p.id;
+                    item.dataset.nom = p.nom;
                     item.addEventListener('click', function() { selectProduct(this, row, input, dropdown, hiddenId); });
                     dropdown.appendChild(item);
                 });
-                dropdown.classList.add('show');
+
+                if (qTrim) {
+                    const exactMatch = results.some(p => p.nom.toLowerCase() === qTrim.toLowerCase());
+                    if (!exactMatch) {
+                        const createItem = document.createElement('div');
+                        createItem.className = 'autocomplete-item' + (results.length === 0 ? ' active' : '');
+                        createItem.style.color = 'var(--primary)';
+                        createItem.style.fontWeight = '700';
+                        createItem.innerHTML = `<i class="bi bi-plus-circle"></i> Créer "${qTrim}" (Nouveau produit)`;
+                        createItem.dataset.id = '';
+                        createItem.dataset.nom = qTrim;
+                        createItem.addEventListener('click', function() {
+                            input.value = qTrim;
+                            hiddenId.value = '';
+                            const nomField = row.querySelector('.nom-produit');
+                            if (nomField) nomField.value = qTrim;
+                            dropdown.classList.remove('show');
+                        });
+                        dropdown.appendChild(createItem);
+                    }
+                }
+
+                if (dropdown.children.length > 0) dropdown.classList.add('show');
+                else dropdown.classList.remove('show');
             }
 
             input.addEventListener('input', function() {
+                const nomField = row.querySelector('.nom-produit');
+                if (nomField) nomField.value = this.value.trim();
                 renderDropdown(filterProduits(this.value), this.value);
                 if (hiddenId.value) hiddenId.value = '';
             });
@@ -510,8 +556,10 @@
         }
 
         function selectProduct(item, row, input, dropdown, hiddenId) {
-            input.value = item.querySelector('span').innerText;
-            hiddenId.value = item.dataset.id;
+            input.value = item.dataset.nom || item.querySelector('span')?.innerText || '';
+            hiddenId.value = item.dataset.id || '';
+            const nomField = row.querySelector('.nom-produit');
+            if (nomField) nomField.value = !item.dataset.id ? input.value : '';
             dropdown.classList.remove('show');
         }
 
@@ -666,6 +714,7 @@
                         <div class="autocomplete-wrap">
                             <input type="text" class="form-control produit-search" placeholder="Tapez le nom du produit..." data-row="${idx}" autocomplete="off" required>
                             <input type="hidden" name="produits[${idx}][produit_id]" class="produit-id">
+                            <input type="hidden" name="produits[${idx}][nom_produit]" class="nom-produit">
                             <input type="hidden" name="produits[${idx}][fournisseur_id]" class="fourn-id" value="">
                             <div class="autocomplete-dropdown" data-row="${idx}"></div>
                         </div>
@@ -704,14 +753,20 @@
             const rows = container.querySelectorAll('.produit-row');
             let valid = true;
             rows.forEach(row => {
-                if (!row.querySelector('.produit-id').value) {
+                const pid = row.querySelector('.produit-id').value;
+                const searchVal = row.querySelector('.produit-search').value.trim();
+                const nomField = row.querySelector('.nom-produit');
+                if (!pid && searchVal) {
+                    if (nomField) nomField.value = searchVal;
+                }
+                if (!pid && !searchVal) {
                     valid = false;
                     row.querySelector('.produit-search').style.borderColor = 'var(--danger)';
                 }
             });
             if (!valid) {
                 e.preventDefault();
-                alert('Veuillez sélectionner un produit pour chaque ligne.');
+                alert('Veuillez renseigner ou sélectionner un produit pour chaque ligne.');
             }
         });
     });

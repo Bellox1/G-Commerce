@@ -5,29 +5,26 @@
 @push('styles')
 <style>
     @media print {
-        @page { size: 80mm auto; margin: 0; }
-        html, body { width: 80mm !important; }
-        body { background: #fff !important; }
+        @page { size: auto; margin: 5mm; }
+        html, body { width: 100% !important; }
+        body { background: #fff !important; font-size: 13px !important; color: #000 !important; font-weight: 600 !important; }
         .no-print { display: none !important; }
-        .print-full { width: 80mm !important; max-width: 80mm !important; margin: 0 !important; }
-        .invoice-card { box-shadow: none !important; border: none !important; width: 80mm !important; padding: 6px 8px !important; font-size: 11px !important; }
-        .invoice-header { padding-bottom: 10px !important; margin-bottom: 12px !important; }
-        .invoice-header h1 { font-size: 14px !important; }
-        .invoice-header h2 { font-size: 11px !important; }
-        .invoice-header p { font-size: 10px !important; }
+        .print-full { width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+        .invoice-card { box-shadow: none !important; border: none !important; width: 100% !important; padding: 10px !important; font-size: 13px !important; }
+        .invoice-header { padding-bottom: 12px !important; margin-bottom: 14px !important; border-bottom: 2px solid #000 !important; }
+        .invoice-header h1 { font-size: 20px !important; font-weight: 900 !important; color: #000 !important; }
+        .invoice-header h2 { font-size: 16px !important; font-weight: 800 !important; color: #000 !important; }
+        .invoice-header p { font-size: 13px !important; font-weight: 700 !important; color: #000 !important; }
         header, .breadcrumb-bar, .main-container > .d-flex:first-child, .alert { display: none !important; }
         .main-container { padding: 0 !important; max-width: 100% !important; }
-        .table-wrap table { table-layout: fixed !important; width: 100% !important; font-size: 10px !important; }
-        .table-wrap th, .table-wrap td { padding: 3px 4px !important; overflow-wrap: anywhere !important; word-break: break-word !important; }
-        .table-wrap th:nth-child(1), .table-wrap td:nth-child(1) { width: 42% !important; }
-        .table-wrap th:nth-child(2), .table-wrap td:nth-child(2) { width: 20% !important; }
-        .table-wrap th:nth-child(3), .table-wrap td:nth-child(3) { width: 18% !important; }
-        .table-wrap th:nth-child(4), .table-wrap td:nth-child(4) { width: 20% !important; }
-        .hide-company .invoice-company-name { display: none !important; }
+        .table-wrap table { table-layout: fixed !important; width: 100% !important; font-size: 13px !important; color: #000 !important; }
+        .table-wrap th, .table-wrap td { padding: 6px 6px !important; font-size: 13px !important; font-weight: 700 !important; color: #000 !important; overflow-wrap: anywhere !important; word-break: break-word !important; }
+        .table-wrap th { border-bottom: 2px solid #000 !important; }
+        .hide-company .invoice-company-info, .hide-company .invoice-company-name, .hide-company .invoice-company-phone { display: none !important; }
         .hide-vendeur .invoice-seller-name { display: none !important; }
     }
     .invoice-card { background: white; padding: 40px; box-shadow: var(--shadow-md); }
-    .hide-company .invoice-company-name { display: none; }
+    .hide-company .invoice-company-info, .hide-company .invoice-company-name, .hide-company .invoice-company-phone { display: none; }
     .hide-vendeur .invoice-seller-name { display: none; }
     @media (max-width: 768px) {
         .invoice-card { padding: 16px; }
@@ -60,16 +57,30 @@
             <button onclick="var t=document.title;document.title='';window.print();setTimeout(function(){document.title=t},100)" class="btn btn-primary">
                 <i class="bi bi-printer"></i> Imprimer
             </button>
+            <form method="POST" action="{{ route('ventes.destroy', $vente) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette vente #{{ $vente->reference }} ? Le stock sera automatiquement réajusté.');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Supprimer
+                </button>
+            </form>
         </div>
     </div>
 
     {{-- Corps de la facture --}}
     <div class="invoice-card" style="border-radius: 8px;">
         
+        @php
+            $tenantObj = $vente->tenant ?? $vente->magasin?->tenant ?? auth()->user()->tenant ?? null;
+            $companyPhone = $tenantObj?->telephone ?? auth()->user()->telephone ?? null;
+        @endphp
         {{-- En-tête Facture --}}
         <div class="invoice-header" style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--border); padding-bottom: 20px; margin-bottom: 24px;">
-            <div>
-                <h1 class="invoice-company-name" style="font-size: 1.6rem; font-weight: 800; color: #1f2937;">{{ auth()->user()->tenant->nom ?? 'SAÏMOUS' }}</h1>
+            <div class="invoice-company-info">
+                <h1 class="invoice-company-name" style="font-size: 1.6rem; font-weight: 800; color: #1f2937; margin: 0;">{{ $tenantObj?->nom ?? auth()->user()->tenant->nom ?? 'SAÏMOUS' }}</h1>
+                @if($companyPhone)
+                    <p class="invoice-company-phone" style="font-size: .9rem; font-weight: 600; color: #4b5563; margin-top: 4px; margin-bottom: 0;">Tél: {{ $companyPhone }}</p>
+                @endif
             </div>
             <div style="text-align: right;">
                 <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;">FACTURE</h2>
@@ -102,10 +113,10 @@
             <table style="width: 100%; border-collapse: collapse; font-size: .85rem;">
                 <thead>
                     <tr style="background: #f8fafc;">
-                        <th class="wrap-text" style="padding: 10px 14px; text-align: left;">Article</th>
-                        <th style="padding: 10px 14px; text-align: right;">Prix</th>
-                        <th style="padding: 10px 14px; text-align: right;">Qté</th>
-                        <th style="padding: 10px 14px; text-align: right;">Total</th>
+                        <th class="wrap-text" style="padding: 10px 14px; text-align: left; vertical-align: middle;">Article</th>
+                        <th style="padding: 10px 14px; text-align: right; vertical-align: middle;">Prix</th>
+                        <th style="padding: 10px 14px; text-align: right; vertical-align: middle;">Qté</th>
+                        <th style="padding: 10px 14px; text-align: right; vertical-align: middle;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -131,33 +142,21 @@
             <div style="width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 6px;">
                 <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
                     <span>Total</span>
-                    <span style="font-weight: 600;">{{ number_format($vente->montant_total, 0, ',', ' ') }}</span>
+                    <span style="font-weight: 600;">{{ number_format($vente->montant_total, 0, ',', ' ') }} FCFA</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-weight: 600;">
                     <span>Payé</span>
-                    <span>{{ number_format($vente->montant_paye, 0, ',', ' ') }}</span>
+                    <span>{{ number_format($vente->montant_paye, 0, ',', ' ') }} FCFA</span>
                 </div>
-                @if($vente->montant_remis)
-                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-weight: 600;">
-                    <span>Montant remis</span>
-                    <span>{{ number_format($vente->montant_remis, 0, ',', ' ') }}</span>
-                </div>
-                @endif
                 @if($vente->montant_reste > 0)
-                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-weight: 600;">
-                    <span>Reste</span>
-                    <span>{{ number_format($vente->montant_reste, 0, ',', ' ') }}</span>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-weight: 600; color: #dc2626;">
+                    <span>Reste à payer</span>
+                    <span>{{ number_format($vente->montant_reste, 0, ',', ' ') }} FCFA</span>
                 </div>
                 @endif
-                @if($vente->du && $vente->du > 0)
-                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-weight: 600; color: #374151;">
-                    <span>Du client (Monnaie à rendre)</span>
-                    <span>{{ number_format($vente->du, 0, ',', ' ') }}</span>
-                </div>
-                @endif
-                <div style="display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; color: #1f2937; border-top: 2px solid #1f2937; padding: 8px 0; margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 1rem; font-weight: 800; color: #1f2937; border-top: 2px solid #1f2937; padding: 8px 0; margin-top: 8px;">
                     <span>NET À PAYER</span>
-                    <span>{{ number_format($vente->montant_total, 0, ',', ' ') }}</span>
+                    <span>{{ number_format($vente->montant_total, 0, ',', ' ') }} FCFA</span>
                 </div>
             </div>
         </div>

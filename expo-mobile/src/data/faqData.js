@@ -110,9 +110,32 @@ const FAQ_DATA = [
             { num: 2, text: `**Nom du produit** : donnez un nom clair et reconnaissable (ex : "Savon Noir 250g", "Téléphone Samsung A14").` },
             { num: 3, text: `**Prix de vente** : le prix que le client paiera. C'est ce prix qui sera utilisé automatiquement lors des ventes.` },
             { num: 4, text: `**Prix d'achat** : le prix auquel vous achetez ce produit chez votre fournisseur. Utilisé pour calculer vos marges.` },
-            { num: 5, text: `**Seuil d'alerte** : la quantité minimale en stock. En dessous, le produit apparaît en alerte rouge sur le tableau de bord.` },
+            { num: 5, text: `**Seuil d'alerte** : calculé **automatiquement à ¼ du stock total** (Mode Auto). Il se réajuste dynamiquement à chaque saisie de stock. Vous pouvez aussi taper votre propre seuil personnalisé.` },
             { num: 6, text: `**Image** (optionnel) : ajoutez une photo du produit pour l'identifier visuellement.` },
             { num: 7, text: `Validez. Le produit apparaît dans la liste et est maintenant utilisable dans les arrivages et les ventes.` },
+          ] },
+        ],
+      },
+      {
+        q: `Comment fonctionne le calcul automatique du seuil d'alerte ?`,
+        blocks: [
+          { t: 'p', text: `Le **seuil d'alerte** se calcule automatiquement à **¼ du stock total** du produit (Mode Auto).` },
+          { t: 'ul', items: [
+            `**Calcul dynamique** : dès que vous modifiez le stock d'un magasin, le seuil se réajuste immédiatement en temps réel (ex: 2 cartons → seuil 1 ; 5 cartons → seuil 2).`,
+            `**Seuil personnalisé** : si vous préférez imposer votre propre valeur, tapez simplement le chiffre dans le champ.`,
+            `**Réactivation du Mode Auto** : si vous souhaitez rétablir le calcul automatique à tout moment, appuyez sur le bouton **"↻ Recalculer Auto (¼)"**.`,
+          ] },
+        ],
+      },
+      {
+        q: `Comment gérer les produits vendus en cartouches ?`,
+        blocks: [
+          { t: 'p', text: `Si votre produit est vendu à la fois par **cartons** et par **cartouches individuelles** :` },
+          { t: 'ul', items: [
+            `Cochez la case **"Ce produit a des cartouches"** lors de la création ou modification du produit.`,
+            `Renseignez le **nombre de cartouches par carton** (ex : 9 ou 10 cartouches par carton).`,
+            `Définissez le **prix par cartouche** (ou laissez le système calculer automatiquement le prix unitaire au prorata).`,
+            `Lors de la vente ou de la création de stock, vous pourrez saisir séparément les quantités en **cartons (ctn)** et en **cartouches (ctr)**.`,
           ] },
         ],
       },
@@ -263,12 +286,31 @@ const FAQ_DATA = [
         ],
       },
       {
-        q: `Comment imprimer une facture ?`,
+        q: `Comment fonctionne le mode Hors-Ligne (Mobile) ?`,
+        blocks: [
+          { t: 'p', text: `L'application mobile permet d'enregistrer des ventes **même en l'absence de réseau internet**.` },
+          { t: 'ul', items: [
+            `**Création instantanée** : la vente est créée immédiatement avec une référence temporaire (ex: **OFF-17258000**).`,
+            `**Facture & Impression** : la facture est générée localement et peut être imprimée ou montrée au client tout de suite.`,
+            `**Sync automatique** : dès que le téléphone retrouve la connexion internet, l'application synchronise automatiquement la vente avec le serveur.`,
+          ] },
+        ],
+      },
+      {
+        q: `Comment ouvrir plusieurs ventes simultanées (Multi-sessions) ?`,
+        blocks: [
+          { t: 'p', text: `Sur l'écran de création de vente mobile, vous pouvez ouvrir **plusieurs onglets/sessions de vente en parallèle**.` },
+          { t: 'tip', text: `Au comptoir, si un client s'absente pour ajouter un article, ouvrez une 2ème session pour servir un autre client sans effacer la commande en cours.` },
+        ],
+      },
+      {
+        q: `Comment imprimer ou personnaliser une facture ?`,
         blocks: [
           { t: 'steps', steps: [
-            { num: 1, text: `Après avoir créé une vente ou en consultant une vente existante, cliquez sur le bouton **"Imprimer"**.` },
-            { num: 2, text: `Une facture professionnelle s'ouvre dans un **nouvel onglet** avec toutes les informations : nom de la société, coordonnées du client, liste des articles, montant total, montant payé, reste à payer.` },
-            { num: 3, text: `Utilisez **Ctrl+P** (ou Cmd+P sur Mac) pour l'imprimer ou l'envoyer en PDF.` },
+            { num: 1, text: `Après avoir créé une vente ou en consultant une vente existante, appuyez sur le bouton **"Imprimer"**.` },
+            { num: 2, text: `La facture s'ouvre avec le nom et le **numéro de téléphone de votre société**, la liste des articles et les détails de règlement.` },
+            { num: 3, text: `**Options de masquage** : vous pouvez cocher **"Masquer société"** ou **"Masquer vendeur"** avant l'impression si nécessaire.` },
+            { num: 4, text: `Sélectionnez votre imprimante thermique/A4 ou enregistrez la facture au format PDF.` },
           ] },
         ],
       },
@@ -484,6 +526,38 @@ const FAQ_DATA = [
             `**Tableau de bord** : la section "Dettes en retard" affiche les 10 dettes les plus anciennes dont l'échéance est dépassée, avec le nom du client et le montant dû.`,
             `**Onglet Dettes** : filtrez par statut "En retard" pour voir la liste complète.`,
           ] },
+        ],
+      },
+    ],
+  },
+
+  {
+    id: 'tresorerie',
+    label: 'Trésorerie',
+    icon: 'cash-outline',
+    title: 'Trésorerie & Caisse',
+    sections: [
+      {
+        q: `À quoi sert le module Trésorerie ?`,
+        blocks: [
+          { t: 'p', text: `Le module Trésorerie permet de suivre le **flux physique des liquidités en caisse**. Il enregistre les entrées réelles d'argent, les retraits et les fonds de caisse.` },
+          { t: 'info', text: `**Accès sécurisé par rôle :** Pour préserver la confidentialité financière, ce module est exclusivement réservé aux utilisateurs disposant des rôles **Admin**, **Superviseur** ou **DG**. Les vendeurs et magasiniers n'y ont pas accès.` },
+        ],
+      },
+      {
+        q: `Quels sont les types de mouvements de trésorerie ?`,
+        blocks: [
+          { t: 'ul', items: [
+            `**Entrée** : apport de capital ou fond de caisse initial.`,
+            `**Sortie** : retrait de caisse ou décaissement.`,
+            `**Acompte / Comptant** : encaissements réels des ventes physiques et acomptes reçus des clients.`,
+          ] },
+        ],
+      },
+      {
+        q: `Quelle différence entre Chiffre d'Affaires et Trésorerie ?`,
+        blocks: [
+          { t: 'p', text: `Le **Chiffre d'Affaires** inclut les ventes à crédit non encore payées. La **Trésorerie (Acompte / Comptant)** mesure uniquement l'argent liquide réellement disponible en caisse.` },
         ],
       },
     ],

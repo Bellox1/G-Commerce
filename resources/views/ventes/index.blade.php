@@ -21,7 +21,7 @@
             'avant_hier' => 'Avant-hier',
             'hier' => 'Hier',
             'aujourd_hui' => "Aujourd'hui",
-            'tous' => 'Tous',
+            'tous' => 'Toutes les ventes',
         ];
     @endphp
     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
@@ -104,9 +104,19 @@
                             <a href="{{ route('ventes.show', $v) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px;" title="Voir">
                                 <i class="bi bi-eye"></i>
                             </a>
+                            <a href="{{ route('ventes.show', $v) }}" class="btn btn-primary btn-sm" style="padding: 4px 8px;" title="Imprimer la facture" onclick="window.open(this.href,'_blank');setTimeout(function(){var w=window.open(this.href,'_blank');w&&w.addEventListener('load',function(){w.print();});},100);return false;">
+                                <i class="bi bi-printer"></i>
+                            </a>
                             <a href="{{ route('ventes.edit', $v) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px;" title="Modifier">
                                 <i class="bi bi-pencil"></i>
                             </a>
+                            <form method="POST" action="{{ route('ventes.destroy', $v) }}" style="display:inline;" onsubmit="return confirm('Attention : Êtes-vous sûr de vouloir supprimer la vente #{{ $v->reference }} ? Le stock sera automatiquement réajusté.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 8px;" title="Supprimer la vente">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>

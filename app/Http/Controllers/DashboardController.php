@@ -305,7 +305,7 @@ class DashboardController extends Controller
             'employes',
             'totalLoyerMois','revenuNetMois','totalSalairesMois',
             'nbLivraisonsEnAttente','livraisonsDuJour',
-            'stockApercu','magasinPrincipal',
+            'stockApercu','magasinPrincipal','magasins',
             'produits','stockParProduit','stockCartouchesParProduit',
             'periode','periodeLabel','encaissePeriode','caPeriode','depensePeriode','creancesPeriode'
         );

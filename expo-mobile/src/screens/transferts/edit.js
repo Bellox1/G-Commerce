@@ -54,7 +54,9 @@ const TransfertEditScreen = ({ navigation }) => {
             }));
             setLines(initLines);
         } catch (e) {
-            Alert.alert('Erreur', 'Impossible de charger le transfert.');
+            const msg = e.response?.data?.message || 'Seuls les transferts en transit peuvent être modifiés.';
+            Alert.alert('Modification impossible', msg);
+            navigation.goBack();
         } finally {
             setLoading(false);
         }
@@ -77,8 +79,13 @@ const TransfertEditScreen = ({ navigation }) => {
     };
 
     const updateQty = (produitId, t) => {
-        const v = parseInt(t || '0', 10);
-        setLines(prev => prev.map(l => l.produit_id === produitId ? { ...l, quantite: Math.max(1, isNaN(v) ? 1 : v) } : l));
+        const cleaned = (t || '').replace(/[^0-9]/g, '');
+        setLines(prev => prev.map(l => l.produit_id === produitId ? { ...l, quantite: cleaned } : l));
+    };
+
+    const handleBlurQty = (produitId, raw) => {
+        const v = parseInt(raw || '1', 10);
+        setLines(prev => prev.map(l => l.produit_id === produitId ? { ...l, quantite: isNaN(v) || v <= 0 ? 1 : v } : l));
     };
 
     const removeLine = (produitId) => setLines(prev => prev.filter(l => l.produit_id !== produitId));
@@ -268,9 +275,10 @@ const TransfertEditScreen = ({ navigation }) => {
                                     <TextInput
                                         style={styles.qtyInput}
                                         keyboardType="number-pad"
-                                        value={String(l.quantite)}
+                                        value={String(l.quantite ?? '')}
                                         onChangeText={(t) => updateQty(l.produit_id, t)}
-                                        placeholder="0"
+                                        onBlur={() => handleBlurQty(l.produit_id, l.quantite)}
+                                        placeholder="1"
                                     />
                                 </View>
                             </View>

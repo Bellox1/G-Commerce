@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommissionRule extends Model
 {
-    protected $fillable = ['nom', 'code', 'prix', 'commission', 'primes'];
+    protected $fillable = ['nom', 'code', 'prix', 'prix_tranche_3x', 'commission', 'primes'];
 
     protected $casts = [
         'primes' => 'array',

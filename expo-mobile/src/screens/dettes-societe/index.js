@@ -15,7 +15,7 @@ import TopHeaderNav from '../../components/TopHeaderNav';
 const formatMoney = (val) => {
     const n = Number(val);
     if (!isFinite(n)) return '0 F';
-    return n.toLocaleString('fr-FR') + ' F';
+    return Math.round(n).toLocaleString('fr-FR') + ' F';
 };
 const MODES = [
     { key: 'especes', label: 'Espèces' },
@@ -163,7 +163,7 @@ const DettesSocieteScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Dette</Text>
+                    <Text style={styles.btnAddPillText}>Dette</Text>
                 </TouchableOpacity>
             </View>
 

@@ -12,5 +12,5 @@ class VenteLigne extends Model
     ];
 
     public function vente()   { return $this->belongsTo(Vente::class); }
-    public function produit() { return $this->belongsTo(Produit::class); }
+    public function produit() { return $this->belongsTo(Produit::class)->withTrashed(); }
 }

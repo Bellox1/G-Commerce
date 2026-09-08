@@ -21,7 +21,7 @@ const ALL_CATEGORIES = [
     { key: 'dettes',         label: 'Dettes',       icon: 'wallet-outline',           iconActive: 'wallet',            perm: 'dettes',       screen: 'DrawerDettes' },
     { key: 'transferts',     label: 'Transferts',   icon: 'swap-horizontal-outline',  iconActive: 'swap-horizontal',   perm: 'transferts',   screen: 'DrawerTransferts' },
     { key: 'dettes-societe', label: 'Nos dettes',   icon: 'briefcase-outline',        iconActive: 'briefcase',         perm: 'dettes',       screen: 'DrawerDettesSociete' },
-    { key: 'tresorerie',     label: 'Trésorerie',   icon: 'cash-outline',             iconActive: 'cash',              perm: 'dettes',       screen: 'Tresorerie' },
+    { key: 'tresorerie',     label: 'Trésorerie',   icon: 'cash-outline',             iconActive: 'cash',              perm: 'tresorerie',   screen: 'Tresorerie' },
     { key: 'stock',          label: 'Stock',        icon: 'layers-outline',           iconActive: 'layers',            perm: 'stock',        screen: 'Stock' },
     { key: 'magasins',       label: 'Magasins',     icon: 'storefront-outline',       iconActive: 'storefront',        perm: 'magasins',     screen: 'DrawerMagasins' },
     { key: 'employes',       label: 'Personnel',    icon: 'people-circle-outline',    iconActive: 'people-circle',     perm: 'utilisateurs', screen: 'DrawerEmployes' },
@@ -57,9 +57,6 @@ const TopHeaderNav = ({ navigation, activeCategory = 'dashboard' }) => {
         if (cat.screen === 'MainTabs') {
             try { navigation.navigate('MainTabs', { screen: 'Home' }); }
             catch (e) { navigation.navigate('MainTabs'); }
-        } else if (cat.screen === 'Ventes' || cat.screen === 'Stock') {
-            try { navigation.navigate('MainTabs', { screen: cat.screen }); }
-            catch (e) { navigation.navigate(cat.screen); }
         } else {
             navigation.navigate(cat.screen);
         }
@@ -89,6 +86,7 @@ const TopHeaderNav = ({ navigation, activeCategory = 'dashboard' }) => {
                     source={require('../../assets/pilotix-logo.png')}
                     style={styles.logoImage}
                     resizeMode="contain"
+                    fadeDuration={0}
                 />
 
                 {/* Search Pill */}

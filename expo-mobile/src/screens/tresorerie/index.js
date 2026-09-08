@@ -11,9 +11,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { todayWAT, formatDateFr, parseToLocalDateObj } from '../../utils/formatDate';
 
 const SENS_OPTIONS = [
-    { key: 'entree',  label: 'Entrée',     color: Colors.success, icon: 'arrow-down-circle' },
-    { key: 'sortie',  label: 'Sortie',     color: Colors.error,   icon: 'arrow-up-circle' },
-    { key: 'ca_jour', label: 'CA du jour', color: Colors.primary, icon: 'receipt' },
+    { key: 'entree',  label: 'Entrée',             color: Colors.success, icon: 'arrow-down-circle' },
+    { key: 'sortie',  label: 'Sortie',             color: Colors.error,   icon: 'arrow-up-circle' },
+    { key: 'ca_jour', label: 'Acompte / Comptant', color: Colors.primary, icon: 'receipt' },
 ];
 
 const MODES = ['Espèces', 'Mobile Money', 'Chèque'];
@@ -81,7 +81,7 @@ const TresorerieScreen = ({ navigation }) => {
         }
         setSaving(true);
         try {
-            const finalLibelle = form.libelle.trim() || ((form.sens === 'sortie' || form.sens === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté");
+            const finalLibelle = form.libelle.trim() || ((form.sens === 'sortie') ? "Sortie de caisse" : ((form.sens === 'ca_jour') ? "Acompte / Argent comptant encaisse" : "Capital apporté"));
             const finalMode = form.mode_paiement || 'Espèces';
             await client.post('/tresoreries', {
                 ...form,
@@ -139,7 +139,7 @@ const TresorerieScreen = ({ navigation }) => {
             <View style={styles.headerRow}>
                 <View>
                     <Text style={styles.title}>Trésorerie</Text>
-                    <Text style={styles.subtitle}>CA réel & mouvements d'argent</Text>
+                    <Text style={styles.subtitle}>Liquidités & mouvements d'argent</Text>
                 </View>
                 <TouchableOpacity style={styles.addBtn} onPress={openModal} activeOpacity={0.85}>
                     <Ionicons name="add" size={18} color="#fff" />
@@ -148,9 +148,9 @@ const TresorerieScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.summaryWrap}>
-                <SummaryCard label="Entrées"     value={totals.entrees} color={Colors.success} />
-                <SummaryCard label="Sorties"     value={totals.sorties} color={Colors.error} />
-                <SummaryCard label="CA du jour"  value={totals.ca}      color={Colors.primary} />
+                <SummaryCard label="Entrées"            value={totals.entrees} color={Colors.success} />
+                <SummaryCard label="Sorties"            value={totals.sorties} color={Colors.error} />
+                <SummaryCard label="Acompte / Comptant" value={totals.ca}      color={Colors.primary} />
             </View>
 
             <View style={styles.filterRow}>
@@ -240,14 +240,14 @@ const TresorerieScreen = ({ navigation }) => {
                                             const newSens = s.key;
                                             const currentLib = (f.libelle || '').trim();
                                             let newLib = f.libelle;
-                                            if (!currentLib || currentLib === 'Capital apporté' || currentLib === "Chiffre d'affaire du jour") {
-                                                newLib = (newSens === 'sortie' || newSens === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté";
+                                            if (!currentLib || currentLib === 'Capital apporté' || currentLib === "Chiffre d'affaire du jour" || currentLib === "Acompte / Argent comptant encaisse" || currentLib === "Sortie de caisse") {
+                                                newLib = (newSens === 'sortie') ? "Sortie de caisse" : ((newSens === 'ca_jour') ? "Acompte / Argent comptant encaisse" : "Capital apporté");
                                             }
                                             return { ...f, sens: newSens, libelle: newLib, mode_paiement: f.mode_paiement || 'Espèces' };
                                         })}
                                     >
-                                        <Ionicons name={s.icon} size={16} color={form.sens === s.key ? '#fff' : s.color} />
-                                        <Text style={[styles.sensChipText, form.sens === s.key && { color: '#fff' }]}>{s.label}</Text>
+                                        <Ionicons name={s.icon} size={14} color={form.sens === s.key ? '#fff' : s.color} />
+                                        <Text style={[styles.sensChipText, form.sens === s.key && { color: '#fff' }]} numberOfLines={2}>{s.label}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
@@ -264,7 +264,7 @@ const TresorerieScreen = ({ navigation }) => {
                             <Text style={styles.fieldLabel}>Libellé</Text>
                             <TextInput
                                 style={styles.input}
-                                placeholder={form.sens === 'ca_jour' ? 'Chiffre d\'affaires du jour' : 'Ex : Remboursement'}
+                                placeholder={form.sens === 'ca_jour' ? 'Ex : Encaissement acompte / comptant' : 'Ex : Remboursement'}
                                 value={form.libelle}
                                 onChangeText={(v) => setForm((f) => ({ ...f, libelle: v }))}
                             />
@@ -392,12 +392,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12,
         paddingHorizontal: 14, paddingVertical: 11, fontSize: 14, fontFamily: 'PlusJakartaSans_400Regular', color: Colors.text,
     },
-    chipRow: { flexDirection: 'row', gap: 8 },
+    chipRow: { flexDirection: 'row', gap: 6 },
     sensChip: {
-        flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center',
-        paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#fff',
+        flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'center',
+        paddingVertical: 9, paddingHorizontal: 4, borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#fff',
     },
-    sensChipText: { fontSize: 12.5, fontFamily: 'PlusJakartaSans_600SemiBold', color: Colors.text },
+    sensChipText: { fontSize: 10.5, fontFamily: 'PlusJakartaSans_600SemiBold', color: Colors.text, textAlign: 'center', flexShrink: 1, lineHeight: 13 },
     modeScroll: { flexGrow: 0 },
     modeChip: {
         paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16,

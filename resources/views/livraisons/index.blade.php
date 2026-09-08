@@ -145,6 +145,8 @@
                             <span class="badge badge-success"><i class="bi bi-patch-check-fill"></i> Livré</span>
                         @elseif($v->statut_livraison === 'probleme')
                             <span class="badge badge-danger"><i class="bi bi-exclamation-triangle-fill"></i> Problème</span>
+                        @elseif(in_array($v->statut_livraison, ['livre_offline', 'en_attente_sync']))
+                            <span class="badge badge-warning" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;"><i class="bi bi-wifi-off"></i> Livré (En attente de connexion)</span>
                         @else
                             <span class="badge badge-warning"><i class="bi bi-clock-history"></i> En attente</span>
                         @endif

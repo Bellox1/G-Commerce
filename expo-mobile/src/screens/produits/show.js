@@ -96,7 +96,7 @@ const ShowProduitScreen = ({ navigation, route }) => {
     const produit = produitData?.produit || produitData;
     const stockParMagasin = produitData?.stockParMagasin || {};
     const stockCartouchesParMagasin = produitData?.stockCartouchesParMagasin || {};
-    const magasins = produitData?.magasins || [];
+    const magasins = Array.isArray(produitData?.magasins) ? produitData?.magasins : [];
 
     const totalCartons = Object.keys(stockParMagasin).length
         ? Object.values(stockParMagasin).reduce((s, v) => s + (Number(v) || 0), 0)
@@ -191,7 +191,7 @@ const ShowProduitScreen = ({ navigation, route }) => {
                             <View style={styles.infoRow}>
                                 <Text style={styles.infoLabel}>Prix cartouche :</Text>
                                 <Text style={[styles.infoVal, { color: Colors.primary }]}>
-                                    {formatMoney(produit.prix_cartouche_effectif)}
+                                    {formatMoney(produit.prix_cartouche_effectif ?? (produit.prix_cartouche || (produit.prix_vente_conseille && produit.cartouche_par_carton ? Math.round(produit.prix_vente_conseille / produit.cartouche_par_carton) : 0)))}
                                 </Text>
                             </View>
                         </>

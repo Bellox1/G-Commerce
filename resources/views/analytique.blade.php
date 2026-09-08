@@ -55,54 +55,121 @@
         font-size: .85rem;
     }
     .alerte-item .badge { font-size: .75rem; }
+
+    /* Filter Bar Styles */
+    .analytique-filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .filter-select {
+        padding: 6px 12px;
+        border-radius: 50px;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: #0f172a;
+        font-size: .8rem;
+        font-weight: 700;
+        cursor: pointer;
+        outline: none;
+        box-shadow: var(--shadow-sm);
+    }
+    .filter-pills-wrap {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        overflow-x: auto;
+        max-width: 100%;
+        padding: 4px 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .filter-pills-wrap::-webkit-scrollbar { display: none; }
+    .filter-pill {
+        padding: 5px 12px;
+        border-radius: 50px;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        color: #475569;
+        font-size: .78rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all .2s;
+    }
+    .filter-pill:hover {
+        border-color: #0f172a;
+        color: #0f172a;
+    }
+    .filter-pill.active {
+        background: #0f172a;
+        color: #fff;
+        border-color: #0f172a;
+    }
+    .filter-sep {
+        color: #cbd5e1;
+        margin: 0 4px;
+    }
 </style>
 @endpush
 
 @section('actions')
-<form method="GET" action="{{ route('analytique') }}" id="form-analytique" style="display:flex; flex-wrap:wrap; align-items:center; gap:6px;">
+@php
+    $yearList = range(date('Y') - 3, date('Y'));
+    $moisListFull = ['01'=>'Janvier','02'=>'Février','03'=>'Mars','04'=>'Avril','05'=>'Mai','06'=>'Juin',
+                     '07'=>'Juillet','08'=>'Août','09'=>'Septembre','10'=>'Octobre','11'=>'Novembre','12'=>'Décembre'];
+    $moisShort = ['01'=>'Jan','02'=>'Fév','03'=>'Mar','04'=>'Avr','05'=>'Mai','06'=>'Jui',
+                  '07'=>'Jul','08'=>'Aoû','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Déc'];
+@endphp
 
-    {{-- Chips année --}}
-    @php $yearList = range(date('Y') - 3, date('Y')); @endphp
-    @foreach($yearList as $y)
-        <button type="submit" name="annee" value="{{ $y }}"
-            @if($mois) onclick="document.getElementById('mois-hidden').value='{{ $mois }}'" @endif
-            style="padding:5px 14px; border-radius:50px; border:1px solid {{ $annee==$y ? '#0F172A' : '#CBD5E1' }};
-                   background:{{ $annee==$y ? '#0F172A' : '#fff' }}; color:{{ $annee==$y ? '#fff' : '#475569' }};
-                   font-size:.8rem; font-weight:700; cursor:pointer; white-space:nowrap;">
-            {{ $y }}
-        </button>
-    @endforeach
+<div class="analytique-filter-bar">
+    {{-- Selects rapid pour Mobile / Desktop --}}
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <select onchange="location.href=this.value" class="filter-select">
+            @foreach($yearList as $y)
+                <option value="{{ route('analytique', array_filter(['annee' => $y, 'mois' => $mois])) }}" {{ $annee == $y ? 'selected' : '' }}>
+                    Année {{ $y }}
+                </option>
+            @endforeach
+        </select>
 
-    <span style="color:#CBD5E1; margin:0 4px;">|</span>
+        <select onchange="location.href=this.value" class="filter-select">
+            <option value="{{ route('analytique', ['annee' => $annee]) }}" {{ empty($mois) ? 'selected' : '' }}>
+                Toute l'année {{ $annee }}
+            </option>
+            @foreach($moisListFull as $mv => $ml)
+                <option value="{{ route('analytique', ['annee' => $annee, 'mois' => $mv]) }}" {{ $mois == $mv ? 'selected' : '' }}>
+                    {{ $ml }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-    {{-- Chips mois (optionnel) --}}
-    @php
-        $moisList = ['01'=>'Jan','02'=>'Fév','03'=>'Mar','04'=>'Avr','05'=>'Mai','06'=>'Jui',
-                     '07'=>'Jul','08'=>'Aoû','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Déc'];
-    @endphp
-    @foreach($moisList as $mv => $ml)
-        <button type="submit" name="mois" value="{{ $mv }}"
-            onclick="document.getElementById('annee-hidden').value='{{ $annee }}'"
-            style="padding:5px 11px; border-radius:50px; border:1px solid {{ $mois==$mv ? '#0F172A' : '#E2E8F0' }};
-                   background:{{ $mois==$mv ? '#0F172A' : '#F8FAFC' }}; color:{{ $mois==$mv ? '#fff' : '#64748B' }};
-                   font-size:.78rem; font-weight:600; cursor:pointer;">
-            {{ $ml }}
-        </button>
-    @endforeach
+    {{-- Chips / Pill buttons --}}
+    <div class="filter-pills-wrap">
+        @foreach($yearList as $y)
+            <a href="{{ route('analytique', array_filter(['annee' => $y, 'mois' => $mois])) }}"
+               class="filter-pill {{ $annee == $y ? 'active' : '' }}">
+                {{ $y }}
+            </a>
+        @endforeach
 
-    {{-- Si un mois est actif : bouton pour réinitialiser au mode annuel --}}
-    @if($mois)
+        <span class="filter-sep">|</span>
+
         <a href="{{ route('analytique', ['annee' => $annee]) }}"
-           style="padding:5px 12px; border-radius:50px; border:1px solid #CBD5E1;
-                  background:#fff; color:#94A3B8; font-size:.78rem; font-weight:600; text-decoration:none;">
-            × Tout l'an
+           class="filter-pill {{ empty($mois) ? 'active' : '' }}">
+            Tout l'an
         </a>
-    @endif
 
-    {{-- champs hidden pour conserver année et mois lors du clic sur l'autre --}}
-    <input type="hidden" id="annee-hidden" name="annee" value="{{ $annee }}">
-    <input type="hidden" id="mois-hidden" name="mois" value="">
-</form>
+        @foreach($moisShort as $mv => $ml)
+            <a href="{{ route('analytique', ['annee' => $annee, 'mois' => $mv]) }}"
+               class="filter-pill {{ $mois == $mv ? 'active' : '' }}">
+                {{ $ml }}
+            </a>
+        @endforeach
+    </div>
+</div>
 @endsection
 
 @section('content')
@@ -137,12 +204,14 @@
         </div>
     </div>
 
-    {{-- 4. Top 10 produits (barres horizontales) --}}
+    {{-- 4. Tous les produits les plus vendus (barres horizontales) --}}
     <div class="chart-card">
         <h3><i class="bi bi-trophy" style="color:#d97706;"></i> Classement des produits les plus vendus</h3>
-        <div class="chart-sub">Les produits les plus vendus (quantité)</div>
-        <div class="chart-wrap" style="max-height:360px;">
-            <canvas id="chartTopProduits"></canvas>
+        <div class="chart-sub">Tous les produits vendus (quantité) — {{ count($topProduits) }} produit(s)</div>
+        <div style="width:100%; {{ count($topProduits) > 8 ? 'max-height:550px; overflow-y:auto;' : '' }}">
+            <div class="chart-wrap" style="height: {{ max(280, count($topProduits) * 34) }}px;">
+                <canvas id="chartTopProduits"></canvas>
+            </div>
         </div>
     </div>
 

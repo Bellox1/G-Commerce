@@ -61,15 +61,15 @@
                                 </div>
                             </div>
                             <div style="flex: 1;">
-                                <label class="form-label" style="font-size: .7rem;">Quantité</label>
-                                <input type="number" name="produits[{{ $index }}][quantite]" class="form-control" min="1" placeholder="Ex: 100" value="{{ $ligne->quantite }}" required>
+                                 <label class="form-label" style="font-size: .7rem;">Quantité</label>
+                                 <input type="number" name="produits[{{ $index }}][quantite]" class="form-control" min="1" placeholder="Ex: 100" value="{{ (int)round($ligne->quantite) }}" required>
                             </div>
                             <div style="flex: 1.5;">
-                                <label class="form-label prix-origine-label" style="font-size: .7rem;" data-base="Prix U. Origine">Prix U. Origine (₦)</label>
-                                <input type="number" name="produits[{{ $index }}][prix_unitaire_origine]" class="form-control" min="0" placeholder="Ex: 5000" value="{{ $ligne->prix_unitaire_origine }}" required>
+                                 <label class="form-label prix-origine-label" style="font-size: .7rem;" data-base="Prix U. Origine">Prix U. Origine (₦)</label>
+                                 <input type="number" name="produits[{{ $index }}][prix_unitaire_origine]" class="form-control" min="0" placeholder="Ex: 5000" value="{{ (int)round($ligne->prix_unitaire_origine) }}" required>
                             </div>
                             <div>
-                                <button type="button" class="btn btn-danger btn-sm remove-row-btn" style="padding: 9px 12px;"><i class="bi bi-trash"></i></button>
+                                 <button type="button" class="btn btn-danger btn-sm remove-row-btn" style="padding: 9px 12px;"><i class="bi bi-trash"></i></button>
                             </div>
                         </div>
                         @empty
@@ -188,19 +188,19 @@
                 <div class="card-body">
                     <div class="form-group">
                         <label class="form-label">Frais de Transport</label>
-                        <input type="number" name="frais_transport_cfa" class="form-control" value="{{ old('frais_transport_cfa', $arrivage->frais_transport ?? 0) }}" min="0" required>
+                        <input type="number" name="frais_transport_cfa" class="form-control" value="{{ (int)round($arrivage->frais_transport ?? 0) }}" min="0" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Douanes / Route</label>
-                        <input type="number" name="frais_douane_cfa" class="form-control" value="{{ old('frais_douane_cfa', $arrivage->frais_douane ?? 0) }}" min="0" required>
+                        <input type="number" name="frais_douane_cfa" class="form-control" value="{{ (int)round($arrivage->frais_douane ?? 0) }}" min="0" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Manutention / Chargement</label>
-                        <input type="number" name="frais_manutention_cfa" class="form-control" value="{{ old('frais_manutention_cfa', $arrivage->frais_manutention ?? 0) }}" min="0" required>
+                        <input type="number" name="frais_manutention_cfa" class="form-control" value="{{ (int)round($arrivage->frais_manutention ?? 0) }}" min="0" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Autres frais / Taxes</label>
-                        <input type="number" name="autres_frais_cfa" class="form-control" value="{{ old('autres_frais_cfa', $arrivage->frais_divers ?? 0) }}" min="0" required>
+                        <input type="number" name="autres_frais_cfa" class="form-control" value="{{ (int)round($arrivage->frais_divers ?? 0) }}" min="0" required>
                     </div>
 
                     <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">

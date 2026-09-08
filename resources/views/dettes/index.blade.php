@@ -92,9 +92,18 @@
                         @endif
                     </td>
                     <td style="text-align: center;">
-                        <a href="{{ route('dettes.show', $d) }}" class="btn btn-secondary btn-sm">
-                            <i class="bi bi-wallet2"></i> Encaisser
-                        </a>
+                        <div style="display:flex; gap:4px; justify-content:center;">
+                            <a href="{{ route('dettes.show', $d) }}" class="btn btn-secondary btn-sm" title="Voir / Encaisser">
+                                <i class="bi bi-wallet2"></i>
+                            </a>
+                            <form method="POST" action="{{ route('dettes.destroy', $d) }}" style="display:inline;" onsubmit="return confirm('Attention : Êtes-vous sûr de vouloir supprimer cette créance ?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty

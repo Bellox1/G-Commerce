@@ -12,6 +12,12 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         loadStorageData();
 
+        // Écouteur pour session expirée (401) -> déconnexion automatique
+        const { setOnUnauthorized } = require('../api/client');
+        setOnUnauthorized(() => {
+            setUser(null);
+        });
+
         // Synchro automatique hors-ligne au lancement et toutes les 30 secondes
         const { syncOfflineQueue } = require('../utils/offlineSync');
         syncOfflineQueue().catch(() => {});
@@ -19,7 +25,10 @@ export const AuthProvider = ({ children }) => {
             syncOfflineQueue().catch(() => {});
         }, 30000);
 
-        return () => clearInterval(timer);
+        return () => {
+            clearInterval(timer);
+            setOnUnauthorized(null);
+        };
     }, []);
 
     async function loadStorageData() {

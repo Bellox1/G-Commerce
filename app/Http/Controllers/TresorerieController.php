@@ -9,8 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 class TresorerieController extends Controller
 {
+    private function authorizeAccess(): void
+    {
+        $user = Auth::user();
+        if (!$user->isSuperAdmin() && !$user->isAdmin() && !$user->isSuperviseur()) {
+            abort(403, 'Accès réservé aux administrateurs et superviseurs.');
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->authorizeAccess();
         $tenant = Auth::user()->tenant;
 
         $query = Tresorerie::where('tenant_id', $tenant->id);
@@ -49,6 +58,7 @@ class TresorerieController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorizeAccess();
         $tenant = Auth::user()->tenant;
 
         $data = $request->validate([
@@ -63,7 +73,7 @@ class TresorerieController extends Controller
         $data['tenant_id'] = $tenant->id;
         $data['user_id'] = Auth::id();
         if (empty($data['libelle'])) {
-            $data['libelle'] = ($data['sens'] === 'sortie' || $data['sens'] === 'ca_jour') ? "Chiffre d'affaire du jour" : "Capital apporté";
+            $data['libelle'] = ($data['sens'] === 'sortie') ? "Sortie de caisse" : (($data['sens'] === 'ca_jour') ? "Acompte / Argent comptant encaisse" : "Capital apporté");
         }
         $data['mode_paiement'] = $data['mode_paiement'] ?: 'Espèces';
 

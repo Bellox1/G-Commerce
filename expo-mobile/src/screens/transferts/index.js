@@ -10,6 +10,18 @@ import client from '../../api/client';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TopHeaderNav from '../../components/TopHeaderNav';
 
+const getTransfertBadge = (statut) => {
+    switch (statut) {
+        case 'receptionne':
+        case 'livre':
+        case 'recu': return { label: '✓ Réceptionné', color: '#16a34a', bg: '#dcfce7' };
+        case 'en_transit': return { label: '🚚 En transit', color: '#92400e', bg: '#fef3c7' };
+        case 'en_attente_sync':
+        case 'receptionne_offline': return { label: '⏳ En attente de connexion', color: '#c2410c', bg: '#fff7ed' };
+        default: return { label: '⏳ En attente', color: '#475569', bg: '#f1f5f9' };
+    }
+};
+
 const TransfertsScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const [transferts, setTransferts] = useState([]);
@@ -69,7 +81,7 @@ const TransfertsScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Transfert</Text>
+                    <Text style={styles.btnAddPillText}>Transfert</Text>
                 </TouchableOpacity>
             </View>
 
@@ -97,22 +109,25 @@ const TransfertsScreen = ({ navigation }) => {
                                      <Ionicons name="barcode-outline" size={18} color={Colors.primary} />
                                      <Text style={styles.refText}>{item.reference}</Text>
                                  </View>
-                                 <View style={styles.headerRight}>
-                                     {item.statut === 'en_transit' ? (
-                                         <TouchableOpacity
-                                             style={styles.editBtn}
-                                             onPress={() => navigation.navigate('TransfertEdit', { id: item.id })}
-                                             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                         >
-                                             <Ionicons name="create-outline" size={18} color={Colors.primary} />
-                                         </TouchableOpacity>
-                                     ) : null}
-                                     <View style={[styles.badge, item.statut === 'receptionne' || item.statut === 'livre' ? styles.badgeSuccess : styles.badgeWarning]}>
-                                         <Text style={[styles.badgeText, item.statut === 'receptionne' || item.statut === 'livre' ? styles.badgeSuccessText : styles.badgeWarningText]}>
-                                             {item.statut === 'receptionne' ? 'Réceptionné' : item.statut === 'livre' ? 'Livré' : 'En transit'}
-                                         </Text>
+                                     <View style={styles.headerRight}>
+                                         {item.statut === 'en_transit' ? (
+                                             <TouchableOpacity
+                                                 style={styles.editBtn}
+                                                 onPress={() => navigation.navigate('TransfertEdit', { id: item.id })}
+                                                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                             >
+                                                 <Ionicons name="create-outline" size={18} color={Colors.primary} />
+                                             </TouchableOpacity>
+                                         ) : null}
+                                         {(() => {
+                                             const b = getTransfertBadge(item.statut);
+                                             return (
+                                                 <View style={[styles.badge, { backgroundColor: b.bg }]}>
+                                                     <Text style={[styles.badgeText, { color: b.color }]}>{b.label}</Text>
+                                                 </View>
+                                             );
+                                         })()}
                                      </View>
-                                 </View>
                              </View>
                              <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate('TransfertShow', { id: item.id })}>
                                  <View style={styles.routeRow}>

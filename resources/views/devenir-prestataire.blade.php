@@ -91,7 +91,7 @@
         .alert-d { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
         /* Footer */
-        footer { background: #0f172a; padding: 30px 5%; text-align: center; color: #6b7280; font-size: 0.85rem; }
+        footer { background: #0f172a; padding: 35px 5%; text-align: center; color: #94a3b8; font-size: 0.88rem; border-top: 1px solid rgba(255,255,255,0.08); }
 
         @media (max-width: 768px) {
             .nav-links-pub { display: none; }

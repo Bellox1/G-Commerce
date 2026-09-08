@@ -139,7 +139,7 @@ const DettesScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Dette</Text>
+                    <Text style={styles.btnAddPillText}>Dette</Text>
                 </TouchableOpacity>
             </View>
 
@@ -224,7 +224,7 @@ const DettesScreen = ({ navigation }) => {
                             <View style={styles.amountsRow}>
                                     <View style={styles.amountBox}>
                                         <Text style={styles.amountLabel}>Dette Initiale</Text>
-                                        <Text style={styles.amountVal}>{formatMoney(item.montant_total || item.montant)}</Text>
+                                        <Text style={styles.amountVal}>{formatMoney(item.montant_initial ?? item.montant_total ?? item.vente?.montant_total)}</Text>
                                     </View>
                                     <View style={styles.amountBox}>
                                         <Text style={styles.amountLabel}>Reste à Payer</Text>
@@ -251,55 +251,56 @@ const DettesScreen = ({ navigation }) => {
 
             {/* Modal Encaisser Dette */}
             <Modal visible={!!payItem} transparent animationType="slide" onRequestClose={() => setPayItem(null)}>
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalCard}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Règlement de Dette #{payItem?.id}</Text>
-                            <TouchableOpacity onPress={() => setPayItem(null)}>
-                                <Ionicons name="close" size={24} color={Colors.text} />
-                            </TouchableOpacity>
-                        </View>
-
-                        <Text style={styles.clientSubtitle}>Client: {payItem?.client?.nom || 'Client Anonyme'}</Text>
-                        <Text style={styles.resteSubtitle}>Reste à payer: {formatMoney(payItem?.montant_restant)}</Text>
-
-                        <View style={styles.fieldGroup}>
-                            <Text style={styles.label}>Montant versé (FCFA) *</Text>
-                            <TextInput
-                                style={styles.input}
-                                keyboardType="number-pad"
-                                placeholder="ex: 10000"
-                                value={payMontant}
-                                onChangeText={setPayMontant}
-                            />
-                        </View>
-
-                        <View style={styles.fieldGroup}>
-                            <Text style={styles.label}>Mode de règlement</Text>
-                            <View style={styles.modeRow}>
-                                {[
-                                    { key: 'especes', label: 'Espèces' },
-                                    { key: 'mobile_money', label: 'Mobile Money' },
-                                    { key: 'cheque', label: 'Chèque' }
-                                ].map(m => (
-                                    <TouchableOpacity
-                                        key={m.key}
-                                        style={[styles.modeChip, payMode === m.key && styles.modeChipActive]}
-                                        onPress={() => setPayMode(m.key)}
-                                    >
-                                        <Text style={[styles.modeChipText, payMode === m.key && styles.modeChipTextActive]}>{m.label}</Text>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'padding'} style={{ flex: 1 }}>
+                    <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setPayItem(null)}>
+                        <TouchableOpacity activeOpacity={1} style={styles.modalCard} onPress={(e) => e.stopPropagation?.()}>
+                            <ScrollView keyboardShouldPersistTaps="handled" bounces={false} showsVerticalScrollIndicator={false}>
+                                <View style={styles.modalHeader}>
+                                    <Text style={styles.modalTitle}>Règlement de Dette #{payItem?.id}</Text>
+                                    <TouchableOpacity onPress={() => setPayItem(null)}>
+                                        <Ionicons name="close" size={24} color={Colors.text} />
                                     </TouchableOpacity>
-                                ))}
-                            </View>
-                        </View>
+                                </View>
 
-                        <TouchableOpacity style={styles.submitBtn} onPress={handleRegisterPay} disabled={submittingPay}>
-                            {submittingPay ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>Confirmer le règlement</Text>}
+                                <Text style={styles.clientSubtitle}>Client: {payItem?.client?.nom || 'Client Anonyme'}</Text>
+                                <Text style={styles.resteSubtitle}>Reste à payer: {formatMoney(payItem?.montant_restant)}</Text>
+
+                                <View style={styles.fieldGroup}>
+                                    <Text style={styles.label}>Montant versé (FCFA) *</Text>
+                                    <TextInput
+                                        style={styles.input}
+                                        keyboardType="number-pad"
+                                        placeholder="ex: 10000"
+                                        value={payMontant}
+                                        onChangeText={setPayMontant}
+                                    />
+                                </View>
+
+                                <View style={styles.fieldGroup}>
+                                    <Text style={styles.label}>Mode de règlement</Text>
+                                    <View style={styles.modeRow}>
+                                        {[
+                                            { key: 'especes', label: 'Espèces' },
+                                            { key: 'mobile_money', label: 'Mobile Money' },
+                                            { key: 'cheque', label: 'Chèque' }
+                                        ].map(m => (
+                                            <TouchableOpacity
+                                                key={m.key}
+                                                style={[styles.modeChip, payMode === m.key && styles.modeChipActive]}
+                                                onPress={() => setPayMode(m.key)}
+                                            >
+                                                <Text style={[styles.modeChipText, payMode === m.key && styles.modeChipTextActive]}>{m.label}</Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+
+                                <TouchableOpacity style={styles.submitBtn} onPress={handleRegisterPay} disabled={submittingPay}>
+                                    {submittingPay ? <ActivityIndicator color="#FFF" /> : <Text style={styles.submitBtnText}>Confirmer le règlement</Text>}
+                                </TouchableOpacity>
+                            </ScrollView>
                         </TouchableOpacity>
-                    </View>
-                </View>
-
+                    </TouchableOpacity>
                 </KeyboardAvoidingView>
             </Modal>
 

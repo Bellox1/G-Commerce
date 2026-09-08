@@ -59,18 +59,29 @@
                     <td>{{ $t->magasinSource?->nom }}</td>
                     <td>{{ $t->magasinDestination?->nom }}</td>
                     <td style="text-align: center;">
-                        @if($t->statut === 'receptionne' || $t->statut === 'livre')
+                        @if(in_array($t->statut, ['receptionne', 'livre', 'recu']))
                             <span class="badge badge-success"><i class="bi bi-check-lg"></i> {{ $t->statut === 'livre' ? 'Livré' : 'Réceptionné' }}</span>
                         @elseif($t->statut === 'en_transit')
-                            <span class="badge badge-warning"><i class="bi bi-clock"></i> En transit</span>
+                            <span class="badge badge-warning"><i class="bi bi-truck"></i> En transit</span>
+                        @elseif(in_array($t->statut, ['en_attente_sync', 'receptionne_offline']))
+                            <span class="badge badge-warning" style="background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;"><i class="bi bi-wifi-off"></i> Réceptionné (En attente de connexion)</span>
                         @else
                             <span class="badge badge-gray"><i class="bi bi-clock"></i> En attente</span>
                         @endif
                     </td>
                     <td style="text-align: center;">
-                        <a href="{{ route('transferts.show', $t) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px;">
-                            <i class="bi bi-eye"></i>
-                        </a>
+                        <div style="display:flex; gap:4px; justify-content:center;">
+                            <a href="{{ route('transferts.show', $t) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px;" title="Voir">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form method="POST" action="{{ route('transferts.destroy', $t) }}" style="display:inline;" onsubmit="return confirm('Annuler et supprimer le transfert #{{ $t->reference }} ? Les stocks seront réajustés.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 8px;" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty

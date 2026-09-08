@@ -11,6 +11,7 @@ use App\Services\VenteService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class VenteController extends Controller
 {
@@ -547,6 +548,48 @@ class VenteController extends Controller
         }
 
         return $this->smartResponse(route('ventes.show', $vente), 'Vente mise à jour.');
+    }
+
+    public function destroy(Vente $vente)
+    {
+        $this->authorizeModule('ventes');
+        $this->authorizeTenant($vente);
+
+        DB::transaction(function () use ($vente) {
+            $user = Auth::user();
+
+            // 1. Récréditer les stocks et enregistrer la trace de mouvement
+            foreach ($vente->lignes as $ligne) {
+                if ($ligne->produit) {
+                    StockMouvement::create([
+                        'tenant_id'          => $vente->tenant_id,
+                        'magasin_id'         => $vente->magasin_id,
+                        'produit_id'         => $ligne->produit_id,
+                        'user_id'            => $user->id,
+                        'type'               => 'ajustement_positif',
+                        'quantite'           => (int) ($ligne->quantite ?? 0),
+                        'quantite_cartouche' => (int) ($ligne->quantite_cartouche ?? 0),
+                        'cout_unitaire'      => $ligne->prix_unitaire ?? 0,
+                        'reference_type'     => Vente::class,
+                        'reference_id'       => $vente->id,
+                        'note'               => "Annulation / Suppression Vente #" . $vente->reference . " par " . $user->name,
+                        'date_mouvement'     => now(),
+                    ]);
+                }
+            }
+
+            // 2. Supprimer la dette associée si elle existe
+            if ($vente->dette) {
+                $vente->dette->paiements()->delete();
+                $vente->dette->delete();
+            }
+
+            // 3. Supprimer les lignes et la vente
+            $vente->lignes()->delete();
+            $vente->delete();
+        });
+
+        return $this->smartResponse(route('ventes.index'), 'Vente supprimée avec succès et stock réajusté.');
     }
 
     private function authorizeTenant(Vente $vente)

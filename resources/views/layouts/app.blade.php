@@ -25,9 +25,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PILOTIX">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.ico">
+    <link rel="shortcut icon" href="/PILOTIX-logo.png" type="image/png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/PILOTIX-logo.png">
+    <link rel="apple-touch-icon" href="/PILOTIX-logo.png">
 
     <style>
         :root {
@@ -184,6 +184,7 @@
         @media (max-width: 640px) { .page-grid { gap: 12px; } }
         @media (min-width: 1058px) {
             .page-grid-3 { grid-template-columns: 2fr 1fr; }
+            .page-grid-3cols { grid-template-columns: repeat(3, 1fr); }
         }
 
         /* ─── Flex row mobile (stack on small screens) ─── */
@@ -200,11 +201,12 @@
         @media (max-width: 1100px) {
             .nav-toggle { display: flex; align-items: center; margin-left: auto; }
             .breadcrumb-nav-links { display: none; }
-            .breadcrumb-nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: #fff; padding: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card); z-index: 999; gap: 4px; }
+            .breadcrumb-nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: #fff; padding: 12px; border: 1px solid var(--border); box-shadow: var(--shadow-card); z-index: 999; gap: 4px; max-height: 80vh; overflow-y: auto; }
             .breadcrumb-nav-links.open .nav-link { width: 100%; }
-            .nav-dropdown { width: 100%; }
-            .nav-dropdown-btn { width: 100%; justify-content: center; }
-            .nav-dropdown-menu { position: static; box-shadow: none; border: none; background: var(--bg); margin-top: 4px; }
+            .nav-dropdown { width: 100%; display: flex; flex-direction: column; }
+            .nav-dropdown-btn { display: inline-flex; width: 100%; justify-content: space-between; margin-top: 4px; }
+            .nav-dropdown-menu { display: none; flex-direction: column; position: static; box-shadow: none; border: 1px solid var(--border); background: #f8fafc; padding: 6px; margin-top: 4px; gap: 4px; width: 100%; border-radius: 8px; }
+            .nav-dropdown-menu.show { display: flex !important; }
         }
 
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; text-decoration: none; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s; }
@@ -285,6 +287,16 @@
         .nav-dropdown-menu .nav-link.active { color: #fff; background: var(--primary); }
         @media (max-width: 640px) {
             .nav-dropdown-menu { right: auto; left: 0; }
+            #notifMenuDropdown {
+                position: fixed !important;
+                top: 60px !important;
+                right: 10px !important;
+                left: 10px !important;
+                width: auto !important;
+                max-width: calc(100vw - 20px) !important;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.25) !important;
+                z-index: 99999 !important;
+            }
         }
 
         /* ─── Page Grid 2 columns ─── */
@@ -381,36 +393,101 @@
         </a>
 
         <div class="header-user">
-            <div class="dropdown" style="position:relative; display:inline-block;">
-                <button class="btn-icon" id="infoMenuBtn" onclick="toggleInfoDropdown(event)" title="Informations & Suggestions" style="display:flex; align-items:center; justify-content:center; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; border:none; cursor:pointer;">
-                    <i class="bi bi-info-circle" style="font-size:1.2rem;"></i>
-                </button>
-                <div id="infoMenuDropdown" class="dropdown-menu" style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.1); width:230px; z-index:1000; padding:8px 0;">
-                    <a href="{{ route('conditions') }}" target="_blank" class="dropdown-item" style="display:flex; align-items:center; gap:10px; padding:10px 16px; color:var(--text); text-decoration:none; font-size:.85rem; font-weight:500;">
-                        <i class="bi bi-file-earmark-text" style="font-size:1rem; color:var(--primary);"></i> Conditions d'utilisation
-                    </a>
-                    <a href="{{ route('confidentialite') }}" target="_blank" class="dropdown-item" style="display:flex; align-items:center; gap:10px; padding:10px 16px; color:var(--text); text-decoration:none; font-size:.85rem; font-weight:500;">
-                        <i class="bi bi-shield-check" style="font-size:1rem; color:var(--primary);"></i> Politique de confidentialité
-                    </a>
-                    <div style="border-top:1px solid var(--border); margin:4px 0;"></div>
-                    <a href="mailto:pilotixcontact@gmail.com?subject=Suggestion%20sur%20PILOTIX" class="dropdown-item" style="display:flex; align-items:center; gap:10px; padding:10px 16px; color:#d97706; text-decoration:none; font-size:.85rem; font-weight:600;">
-                        <i class="bi bi-lightbulb-fill" style="font-size:1rem; color:#f59e0b;"></i> Faire une suggestion
-                    </a>
-                </div>
-            </div>
             <a href="{{ route('download') }}" title="Télécharger l'app" id="downloadLink" style="display:flex; align-items:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; justify-content:center; flex-shrink:0;">
                 <i class="bi bi-download" style="font-size:1.2rem;"></i>
             </a>
             @if(!Auth::user()->isSuperAdmin())
+            @php
+                $unreadNotifs = Auth::user()->unreadNotifications()->get();
+                $unreadCount = $unreadNotifs->count();
+                $tenantId = Auth::user()->tenant_id;
+                $produitsEnAlerte = [];
+
+                if ($tenantId) {
+                    $prods = \App\Models\Produit::where('tenant_id', $tenantId)
+                        ->where('actif', true)
+                        ->get();
+
+                    foreach ($prods as $p) {
+                        $stk = (int) $p->stock;
+                        $seuil = (int) ($p->seuil_alerte ?? 5);
+                        if ($stk <= 5 || ($seuil > 0 && $stk <= $seuil)) {
+                            $produitsEnAlerte[] = [
+                                'id' => $p->id,
+                                'nom' => $p->nom,
+                                'stock' => $stk,
+                                'seuil' => $seuil,
+                            ];
+                        }
+                    }
+                }
+                $totalNotifBadge = $unreadCount + count($produitsEnAlerte);
+            @endphp
             <a href="{{ route('offre') }}" title="Mon offre" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; flex-shrink:0;">
                 <i class="bi bi-star" style="font-size:1.2rem;"></i>
             </a>
-            <a href="{{ route('notifications') }}" title="Notifications" style="display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-muted); background:#f1f5f9; width:40px; height:40px; border-radius:10px; flex-shrink:0; position:relative;">
-                <i class="bi bi-bell" style="font-size:1.2rem;"></i>
-                @if(Auth::user()->unreadNotifications()->count() > 0)
-                    <span style="position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; border-radius:9px; background:var(--danger); color:#fff; font-size:0.7rem; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 4px;">{{ Auth::user()->unreadNotifications()->count() }}</span>
-                @endif
-            </a>
+
+            <!-- Notification Bell Icon with Badge & Dropdown -->
+            <div class="dropdown" style="position:relative; display:inline-block;">
+                <button class="btn-icon" id="notifMenuBtn" onclick="toggleNotifDropdown(event)" title="Notifications" style="display:flex; align-items:center; justify-content:center; color:var(--text-muted); background:#f1f5f9; width:40px; height:40px; border-radius:10px; border:none; cursor:pointer; position:relative;">
+                    <i class="bi bi-bell" style="font-size:1.2rem;"></i>
+                    @if($totalNotifBadge > 0)
+                        <span style="position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; border-radius:9px; background:var(--danger); color:#fff; font-size:0.7rem; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 4px;">{{ $totalNotifBadge }}</span>
+                    @endif
+                </button>
+
+                <div id="notifMenuDropdown" class="dropdown-menu" style="display:none; position:absolute; right:0; top:48px; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 12px 30px rgba(0,0,0,0.15); width:320px; z-index:1000; padding:12px; font-family:'Plus Jakarta Sans', sans-serif;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                        <strong style="font-size:0.9rem; color:#0f172a;"><i class="bi bi-bell-fill" style="color:var(--primary);"></i> Notifications</strong>
+                        @if($totalNotifBadge > 0)
+                            <span class="badge badge-danger">{{ $totalNotifBadge }} alerte(s)</span>
+                        @endif
+                    </div>
+
+                    <div style="max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
+                        @if(count($produitsEnAlerte) > 0)
+                            <div style="font-size:0.75rem; font-weight:800; color:#dc2626; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Alertes Stock ({{ count($produitsEnAlerte) }})
+                            </div>
+                            @foreach($produitsEnAlerte as $pa)
+                                <a href="{{ route('produits.show', $pa['id']) }}" style="display:flex; align-items:center; justify-content:space-between; background:#fef2f2; border:1px solid #fecaca; padding:8px 12px; border-radius:8px; text-decoration:none; color:#1e293b;">
+                                    <div>
+                                        <strong style="font-size:0.82rem; display:block; color:#991b1b;">{{ $pa['nom'] }}</strong>
+                                        <span style="font-size:0.75rem; color:#7f1d1d;">Seuil d'alerte : {{ $pa['seuil'] }} carton(s)</span>
+                                    </div>
+                                    <span style="background:#dc2626; color:#fff; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:12px;">
+                                        {{ $pa['stock'] }} en stock
+                                    </span>
+                                </a>
+                            @endforeach
+                        @endif
+
+                        @if($unreadCount > 0)
+                            <div style="font-size:0.75rem; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px; margin-top:6px;">
+                                <i class="bi bi-envelope-fill"></i> Non lues ({{ $unreadCount }})
+                            </div>
+                            @foreach($unreadNotifs as $n)
+                                <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:8px 12px; border-radius:8px; font-size:0.8rem; color:#166534;">
+                                    {{ $n->data['message'] ?? 'Nouvelle notification' }}
+                                </div>
+                            @endforeach
+                        @endif
+
+                        @if($totalNotifBadge == 0)
+                            <div style="text-align:center; padding:20px 10px; color:#94a3b8; font-size:0.85rem;">
+                                <i class="bi bi-check-circle-fill" style="font-size:1.8rem; color:#22c55e; display:block; margin-bottom:6px;"></i>
+                                Aucune alerte de stock ni notification
+                            </div>
+                        @endif
+                    </div>
+
+                    <div style="border-top:1px solid #f1f5f9; margin-top:10px; padding-top:8px; text-align:center;">
+                        <a href="{{ route('notifications') }}" style="font-size:0.82rem; font-weight:700; color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                            Voir toutes les notifications <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
             @endif
             <a href="{{ route('profile') }}" style="display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit;">
                 <i class="bi bi-person-circle" style="font-size: 1.8rem; color: var(--primary);"></i>
@@ -1393,14 +1470,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    window.toggleInfoDropdown = function(e) {
+    window.toggleNotifDropdown = function(e) {
         if (e) e.stopPropagation();
-        var dd = document.getElementById('infoMenuDropdown');
+        var dd = document.getElementById('notifMenuDropdown');
         if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
     };
-    document.addEventListener('click', function() {
-        var dd = document.getElementById('infoMenuDropdown');
-        if (dd) dd.style.display = 'none';
+    document.addEventListener('click', function(e) {
+        var dd = document.getElementById('notifMenuDropdown');
+        var btn = document.getElementById('notifMenuBtn');
+        if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) {
+            dd.style.display = 'none';
+        }
     });
 })();
 </script>

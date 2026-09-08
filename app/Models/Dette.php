@@ -59,6 +59,12 @@ class Dette extends Model
         return $paiement;
     }
 
+    public function getMontantPayeAttribute($value)
+    {
+        $calculated = (float) ($this->montant_initial - $this->montant_restant);
+        return max((float) ($value ?? 0), $calculated);
+    }
+
     public function estEnRetard(): bool
     {
         return $this->date_echeance

@@ -7,10 +7,12 @@
     <div class="card" style="background: white;">
         <div class="card-body" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-                @if($transfert->statut === 'receptionne' || $transfert->statut === 'livre')
+                @if(in_array($transfert->statut, ['receptionne', 'livre']))
                     <span class="badge badge-success" style="margin-bottom: 6px;"><i class="bi bi-check-circle-fill"></i> {{ $transfert->statut === 'livre' ? 'Livré' : 'Réceptionné' }}</span>
                 @elseif($transfert->statut === 'en_transit')
                     <span class="badge badge-warning" style="margin-bottom: 6px;"><i class="bi bi-truck"></i> En transit</span>
+                @elseif(in_array($transfert->statut, ['en_attente_sync', 'receptionne_offline']))
+                    <span class="badge badge-warning" style="margin-bottom: 6px; background:#fff7ed; color:#c2410c; border:1px solid #ffedd5;"><i class="bi bi-wifi-off"></i> Réceptionné (En attente de connexion)</span>
                 @else
                     <span class="badge badge-gray" style="margin-bottom: 6px;"><i class="bi bi-clock"></i> En attente</span>
                 @endif
@@ -36,6 +38,8 @@
                             <i class="bi bi-check-circle"></i> Valider la réception
                         </button>
                     </form>
+                @elseif(in_array($transfert->statut, ['en_attente_sync', 'receptionne_offline']))
+                    <span class="btn btn-secondary" style="cursor:default; opacity:0.7;"><i class="bi bi-wifi-off"></i> En attente de synchronisation...</span>
                 @endif
             </div>
         </div>
@@ -174,13 +178,21 @@
                 </div>
                 <div class="card-body" style="padding: 0;">
                     <div style="padding: 20px 16px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--border);">
-                        @if($transfert->statut === 'receptionne' || $transfert->statut === 'livre')
+                        @if(in_array($transfert->statut, ['receptionne', 'livre']))
                             <div style="width:48px; height:48px; background:#dcfce7; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">
                                 <i class="bi bi-patch-check-fill" style="color:var(--success);"></i>
                             </div>
                             <div>
                                 <div style="font-size:1rem; font-weight:700; color:var(--success);">{{ $transfert->statut === 'livre' ? 'LIVRÉ' : 'RÉCEPTIONNÉ' }}</div>
                                 <div style="font-size:.8rem; color:var(--text-muted);">Les marchandises ont été reçues</div>
+                            </div>
+                        @elseif(in_array($transfert->statut, ['en_attente_sync', 'receptionne_offline']))
+                            <div style="width:48px; height:48px; background:#fff7ed; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">
+                                <i class="bi bi-wifi-off" style="color:#c2410c;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:1rem; font-weight:700; color:#c2410c;">EN ATTENTE DE CONNEXION</div>
+                                <div style="font-size:.8rem; color:var(--text-muted);">Réceptionné hors-ligne — synchronisation en attente</div>
                             </div>
                         @elseif($transfert->statut === 'en_transit')
                             <div style="width:48px; height:48px; background:#fef3c7; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">

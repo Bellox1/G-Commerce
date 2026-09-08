@@ -49,15 +49,24 @@
                     <td>{{ $m->ville ?? '—' }}</td>
                     <td style="text-align: right;">{{ $m->loyer ? number_format($m->loyer, 0, ',', ' ') . ' F' : '—' }}</td>
                     <td style="text-align: center;">
-                        <button type="button" class="btn btn-secondary btn-sm edit-btn"
-                            data-id="{{ $m->id }}"
-                            data-nom="{{ $m->nom }}"
-                            data-adresse="{{ $m->adresse }}"
-                            data-ville="{{ $m->ville }}"
-                            data-loyer="{{ $m->loyer }}"
-                            title="Modifier">
-                            <i class="bi bi-pencil"></i>
-                        </button>
+                        <div style="display:flex; gap:4px; justify-content:center;">
+                            <button type="button" class="btn btn-secondary btn-sm edit-btn"
+                                data-id="{{ $m->id }}"
+                                data-nom="{{ $m->nom }}"
+                                data-adresse="{{ $m->adresse }}"
+                                data-ville="{{ $m->ville }}"
+                                data-loyer="{{ $m->loyer }}"
+                                title="Modifier">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <form method="POST" action="{{ route('magasins.destroy', $m) }}" style="display:inline;" onsubmit="return confirm('Attention : Êtes-vous sûr de vouloir supprimer le dépôt {{ $m->nom }} ?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty

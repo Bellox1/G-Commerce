@@ -147,6 +147,19 @@ class DetteController extends Controller
         return $this->smartResponse(route('dettes.show', $dette), 'Date d\'échéance mise à jour.');
     }
 
+    public function destroy(Dette $dette)
+    {
+        $this->authorizeModule('dettes');
+        $this->authorizeTenant($dette);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($dette) {
+            $dette->paiements()->delete();
+            $dette->delete();
+        });
+
+        return $this->smartResponse(route('dettes.index'), 'Créance supprimée avec succès.');
+    }
+
     private function authorizeTenant(Dette $dette)
     {
         $user = Auth::user();

@@ -18,14 +18,25 @@ const OffreScreen = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState(false);
 
     const fetchOffre = useCallback(async () => {
+        setError(false);
         try {
             const resp = await client.get('/offre');
             const body = resp.data;
-            setData(body?.data ?? body);
+            const parsed = body?.data ?? body;
+            // Guard: if offline/empty response, treat as error
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) || !parsed.offre_nom) {
+                setError(true);
+                setData(null);
+            } else {
+                setData(parsed);
+            }
         } catch (e) {
             console.error('Erreur offre:', e);
+            setError(true);
+            setData(null);
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -50,7 +61,18 @@ const OffreScreen = () => {
         return (
             <View style={styles.safe}>
                 <ScreenHeader title="Mon offre" navigation={navigation} />
-                <View style={styles.center}><Text style={styles.muted}>Impossible de charger votre offre.</Text></View>
+                <View style={styles.center}>
+                    <Ionicons name="cloud-offline-outline" size={48} color="#94A3B8" style={{ marginBottom: 16 }} />
+                    <Text style={[styles.muted, { textAlign: 'center', marginBottom: 20 }]}>
+                        {error ? 'Données non disponibles hors-ligne.\nVeuillez activer votre connexion et réessayer.' : 'Impossible de charger votre offre.'}
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() => { setLoading(true); fetchOffre(); }}
+                        style={{ backgroundColor: '#1E293B', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Réessayer</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     }

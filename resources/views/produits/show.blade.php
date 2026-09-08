@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <div class="page-grid page-grid-3">
+    <div class="page-grid page-grid-3cols">
         {{-- Colonne gauche : Image + Infos --}}
         <div style="display: flex; flex-direction: column; gap: 20px;">
             {{-- Image --}}
@@ -197,6 +197,11 @@
                     <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: .85rem;">
                         Aucun mouvement enregistré.
                     </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{-- Modal d'agrandissement d'image --}}

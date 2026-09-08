@@ -93,10 +93,30 @@ const ArrivagesScreen = ({ navigation }) => {
                     onPress: async () => {
                         setValidatingId(arrivageId);
                         try {
-                            await client.post(`/arrivages/${arrivageId}/valider`);
-                            Alert.alert('Succès', 'Arrivage validé avec succès ! Le stock a été mis à jour.');
-                            setSelectedArrivage(null);
-                            fetchArrivages();
+                            const response = await client.post(`/arrivages/${arrivageId}/valider`);
+
+                            // Le client.js intercepte les POST hors-ligne et retourne data.offline = true
+                            if (response?.data?.offline || response?.isOfflineQueue) {
+                                // Mise à jour immédiate du statut local dans la liste
+                                setArrivages(prev =>
+                                    prev.map(a =>
+                                        a.id === arrivageId
+                                            ? { ...a, statut: 'receptionne_offline' }
+                                            : a
+                                    )
+                                );
+                                setSelectedArrivage(null);
+                                Alert.alert(
+                                    '📶 Hors-ligne',
+                                    'Arrivage marqué comme réceptionné.\nLa synchronisation se fera automatiquement dès le retour de la connexion.',
+                                    [{ text: 'OK' }]
+                                );
+                            } else {
+                                // Succès en ligne normal
+                                Alert.alert('✅ Succès', 'Arrivage validé avec succès ! Le stock a été mis à jour.');
+                                setSelectedArrivage(null);
+                                fetchArrivages(1, true);
+                            }
                         } catch (e) {
                             const msg = e.response?.data?.message || 'Erreur lors de la validation';
                             Alert.alert('Erreur', msg);
@@ -113,9 +133,12 @@ const ArrivagesScreen = ({ navigation }) => {
         switch (statut) {
             case 'receptionne': return { label: 'Réceptionné', color: Colors.success, bg: Colors.success + '18' };
             case 'valide': return { label: 'Validé', color: Colors.success, bg: Colors.success + '18' };
+            case 'integre': return { label: 'Intégré', color: Colors.success, bg: Colors.success + '18' };
+            case 'receptionne_offline':
+            case 'en_attente_sync': return { label: '⏳ En attente de connexion', color: '#c2410c', bg: '#fff7ed', icon: 'cloud-offline-outline' };
             case 'en_cours': return { label: 'En attente', color: Colors.warning, bg: Colors.warning + '18' };
             case 'annule': return { label: 'Annulé', color: Colors.error, bg: Colors.error + '18' };
-            default: return { label: statut || 'Autre', color: Colors.textLight, bg: Colors.border };
+            default: return { label: statut || 'En attente', color: Colors.warning, bg: Colors.warning + '18' };
         }
     };
 
@@ -153,7 +176,7 @@ const ArrivagesScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Arrivage</Text>
+                    <Text style={styles.btnAddPillText}>Arrivage</Text>
                 </TouchableOpacity>
             </View>
 
@@ -324,7 +347,7 @@ const ArrivagesScreen = ({ navigation }) => {
                             ))}
                         </ScrollView>
 
-                        {selectedArrivage?.statut !== 'receptionne' && selectedArrivage?.statut !== 'valide' && (
+                        {!['receptionne', 'valide', 'integre', 'receptionne_offline', 'en_attente_sync'].includes(selectedArrivage?.statut) && (
                             <TouchableOpacity
                                 style={styles.validerBtn}
                                 onPress={() => handleValiderArrivage(selectedArrivage.id)}
@@ -336,6 +359,14 @@ const ArrivagesScreen = ({ navigation }) => {
                                     <Text style={styles.validerBtnText}>Valider et mettre à jour le stock</Text>
                                 )}
                             </TouchableOpacity>
+                        )}
+                        {['receptionne_offline', 'en_attente_sync'].includes(selectedArrivage?.statut) && (
+                            <View style={{ backgroundColor: '#fff7ed', borderRadius: 12, padding: 14, marginTop: 16, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                                <Ionicons name="cloud-offline-outline" size={20} color="#c2410c" />
+                                <Text style={{ color: '#c2410c', fontSize: 13, fontFamily: 'PlusJakartaSans_600SemiBold', flex: 1 }}>
+                                    En attente de connexion — sera synchronisé automatiquement
+                                </Text>
+                            </View>
                         )}
                     </View>
                 </View>

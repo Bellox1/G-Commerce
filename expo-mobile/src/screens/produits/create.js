@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
     TextInput, ActivityIndicator, Alert, StatusBar, Switch
@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast, { useToast } from '../../components/Toast';
 
 
-const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 Mo
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 Mo (serveur accepte 10 Mo)
 
 const CreateProduitScreen = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
@@ -25,6 +25,7 @@ const CreateProduitScreen = ({ navigation, route }) => {
     const [loadingMagasins, setLoadingMagasins] = useState(true);
     const [stocks, setStocks] = useState({});
     const [stocksCartouches, setStocksCartouches] = useState({});
+    const seuilAutoCalcDone = useRef(false);
 
     const [nom, setNom] = useState(editing?.nom || '');
     const [prixVenteConseille, setPrixVenteConseille] = useState(editing?.prix_vente_conseille ? String(editing.prix_vente_conseille) : '');
@@ -49,13 +50,17 @@ const CreateProduitScreen = ({ navigation, route }) => {
         fetchMagasins();
     }, []);
 
-    // Auto : seuil d'alerte = ¼ du stock total (comme sur le web)
+    // Auto : seuil d'alerte = ¼ du stock total (recalcul dynamique à chaque modification du stock)
     useEffect(() => {
         if (seuilAuto) {
-            const s = magasins.reduce((acc, m) => acc + (parseInt(stocks[m.id] || '0', 10) || 0), 0);
-            if (s > 0) setSeuilAlerte(String(Math.ceil(s / 4)));
+            const totalStock = magasins.reduce((acc, m) => acc + (parseInt(stocks[m.id] || '0', 10) || 0), 0);
+            if (totalStock > 0) {
+                setSeuilAlerte(String(Math.ceil(totalStock / 4)));
+            } else {
+                setSeuilAlerte('5');
+            }
         }
-    }, [stocks, seuilAuto]);
+    }, [stocks, seuilAuto, magasins]);
 
     const fetchMagasins = async () => {
         try {
@@ -101,7 +106,7 @@ const CreateProduitScreen = ({ navigation, route }) => {
         const finalSize = compressed ? compressed.size : (a.fileSize || 0);
 
         if (finalSize && finalSize > MAX_IMAGE_BYTES) {
-            showToast('Image trop lourde (max 2 Mo).', 'error');
+            showToast('Image trop lourde (max 8 Mo). Veuillez réduire la résolution.', 'error');
             return;
         }
 
@@ -171,7 +176,7 @@ const CreateProduitScreen = ({ navigation, route }) => {
             let result = await manipulateAsync(uri, resize, { compress, format: SaveFormat.JPEG });
             let info = await FileSystem.getInfoAsync(result.uri);
             let attempts = 0;
-            while (info.size > MAX_IMAGE_BYTES && compress > 0.2 && attempts < 5) {
+            while (info.size > MAX_IMAGE_BYTES && compress > 0.1 && attempts < 8) {
                 compress = Math.max(0.1, compress - 0.15);
                 result = await manipulateAsync(uri, resize, { compress, format: SaveFormat.JPEG });
                 info = await FileSystem.getInfoAsync(result.uri);
@@ -346,7 +351,18 @@ const CreateProduitScreen = ({ navigation, route }) => {
                     {/* Seuil d'alerte */}
                     <View style={{ marginTop: 4 }}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.fieldLabel}>Seuil d'alerte stock</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                <Text style={styles.fieldLabel}>Seuil d'alerte stock</Text>
+                                {seuilAuto ? (
+                                    <View style={{ backgroundColor: '#e0f2fe', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
+                                        <Text style={{ fontSize: 10, color: '#0369a1', fontWeight: '700' }}>Mode Auto (¼)</Text>
+                                    </View>
+                                ) : (
+                                    <TouchableOpacity onPress={() => setSeuilAuto(true)}>
+                                        <Text style={{ fontSize: 11, color: Colors.primary, fontWeight: '700' }}>↻ Recalculer Auto (¼)</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                             <TextInput
                                 style={styles.input}
                                 keyboardType="numeric"
@@ -358,7 +374,9 @@ const CreateProduitScreen = ({ navigation, route }) => {
                                 }}
                                 placeholder="5"
                             />
-                            <Text style={styles.helper}>Auto : ¼ du stock total</Text>
+                            <Text style={styles.helper}>
+                                {seuilAuto ? 'Calculé automatiquement (¼ du stock total). Tapez une valeur pour personnaliser.' : 'Valeur personnalisée. Cliquez sur Recalculer Auto pour rétablir ¼ du stock.'}
+                            </Text>
                         </View>
                     </View>
 

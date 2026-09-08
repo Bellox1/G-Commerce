@@ -7,7 +7,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import KeyboardAwareScrollView from '../../components/KeyboardAwareScrollView';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import client, { getDettesSociete } from '../../api/client';
+import client from '../../api/client';
+import { getDettesSociete } from '../../api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CreateDetteSocieteScreen = ({ navigation }) => {
@@ -29,7 +30,11 @@ const CreateDetteSocieteScreen = ({ navigation }) => {
     // Calcul automatique du montant FCFA à partir de la devise d'origine
     useEffect(() => {
         if (montantOrigine && tauxDeChange) {
-            setMontant(String(Math.round(Number(montantOrigine) * Number(tauxDeChange))));
+            const orig = parseFloat(String(montantOrigine).replace(',', '.'));
+            const taux = parseFloat(String(tauxDeChange).replace(',', '.'));
+            if (!isNaN(orig) && !isNaN(taux) && orig > 0 && taux > 0) {
+                setMontant(String(Math.round(orig * taux)));
+            }
         }
     }, [montantOrigine, tauxDeChange]);
 

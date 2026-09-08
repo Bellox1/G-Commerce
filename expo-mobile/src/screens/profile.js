@@ -189,9 +189,15 @@ const ProfileScreen = ({ navigation }) => {
                 subtitle="Gérez vos informations personnelles"
             />
 
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+            >
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />
                 }
@@ -351,9 +357,10 @@ const ProfileScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <View style={styles.appVersion}>
-                    <Text style={styles.appVersionText}>PILOTIX v1.0.0</Text>
+                    <Text style={styles.appVersionText}>PILOTIX v1.1.0</Text>
                 </View>
             </ScrollView>
+            </KeyboardAvoidingView>
 
             {/* Modal de sécurité pour modification d'email */}
             <Modal visible={securityModalVisible} animationType="fade" transparent>

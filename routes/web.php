@@ -58,6 +58,17 @@ Route::get('/confidentialite', function() { return view('confidentialite'); })->
 // Page de téléchargement (public)
 Route::get('/download', function() { return view('download'); })->name('download');
 
+// Route de téléchargement direct de l'APK (Public)
+Route::get('/download/apk', function() {
+    $path = public_path('downloads/pilotix-v1.1.0.apk');
+    if (!file_exists($path)) {
+        return back()->with('error', 'Le fichier d\'installation APK (pilotix-v1.1.0.apk) est en cours de téléversement dans le dossier public/downloads/.');
+    }
+    return response()->download($path, 'pilotix-v1.1.0.apk', [
+        'Content-Type' => 'application/vnd.android.package-archive',
+    ]);
+})->name('download.apk');
+
 // Onboarding mobile (public — redirige vers dashboard si connecté)
 Route::get('/onboarding', function() {
     if (Auth::check()) return redirect()->route('dashboard');
@@ -119,6 +130,7 @@ Route::middleware('auth')->group(function () {
         Route::get('magasins', [MagasinController::class, 'index'])->name('magasins.index');
         Route::post('magasins', [MagasinController::class, 'store'])->name('magasins.store');
         Route::put('magasins/{magasin}', [MagasinController::class, 'update'])->name('magasins.update');
+        Route::delete('magasins/{magasin}', [MagasinController::class, 'destroy'])->name('magasins.destroy');
 
         // Arrivages (Importation — Offre Professionnel+)
         Route::middleware('plan:import')->group(function () {
@@ -133,9 +145,10 @@ Route::middleware('auth')->group(function () {
         Route::post('stock/ajuster', [StockController::class, 'ajuster'])->name('stock.ajuster');
 
         // Transferts (Multi-magasins — Offre Professionnel+)
-        Route::resource('transferts', TransfertController::class)->only(['index', 'create', 'show', 'edit', 'update']);
+        Route::resource('transferts', TransfertController::class)->only(['index', 'create', 'show', 'edit', 'update', 'destroy']);
         Route::middleware('plan:multi_magasin')->group(function () {
             Route::post('transferts', [TransfertController::class, 'store'])->name('transferts.store');
+            Route::delete('transferts/{transfert}', [TransfertController::class, 'destroy'])->name('transferts.destroy');
             Route::post('transferts/{transfert}/reception', [TransfertController::class, 'receptionner'])->name('transferts.reception');
         });
 

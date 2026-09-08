@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
     View, Text, StyleSheet, FlatList, TouchableOpacity, Modal,
     TextInput, ActivityIndicator, RefreshControl, ScrollView, StatusBar, Platform,
@@ -9,7 +9,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Colors from '../../theme/Colors';
 import { Ionicons } from '@expo/vector-icons';
-import client from '../../api/client';
+import client, { setOnSyncComplete } from '../../api/client';
+import { getOfflineVentes } from '../../utils/offlineSync';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDateFr, formatDateTimeFr } from '../../utils/formatDate';
 import TopHeaderNav from '../../components/TopHeaderNav';
@@ -37,13 +38,14 @@ const VentesScreen = ({ navigation }) => {
     const [searchInput, setSearchInput] = useState('');
     const [search, setSearch] = useState('');
     const [filterStatut, setFilterStatut] = useState('tous');
-    const [periode, setPeriode] = useState('tous');
+    const [periode, setPeriode] = useState('aujourd_hui');
     const [dateDebut, setDateDebut] = useState(null);
     const [dateFin, setDateFin] = useState(null);
     const [showDateModal, setShowDateModal] = useState(false);
     const [dateField, setDateField] = useState(null);
     const [draftCount, setDraftCount] = useState(0);
     const [totalVentes, setTotalVentes] = useState(0);
+    const [offlineVentes, setOfflineVentes] = useState([]);
 
     useEffect(() => {
         (async () => {
@@ -60,10 +62,17 @@ const VentesScreen = ({ navigation }) => {
             } catch (e) { }
             setDraftCount(0);
         })();
-    }, [ventes]);
+    }, []);
+
+    const isFetchingRef = useRef(false);
 
     const fetchVentes = useCallback(async (pageToLoad = 1, reset = false) => {
+        if (isFetchingRef.current) return;
+        isFetchingRef.current = true;
         try {
+            const offline = await getOfflineVentes();
+            setOfflineVentes(offline);
+
             const params = { per_page: 10, periode, page: pageToLoad };
             if (periode === 'perso') {
                 if (dateDebut) params.date_debut = dateDebut;
@@ -71,34 +80,66 @@ const VentesScreen = ({ navigation }) => {
             }
             if (search) params.search = search;
             if (filterStatut && filterStatut !== 'tous') params.statut_paiement = filterStatut;
+
             const resp = await client.get('/ventes', { params });
-            const d = resp.data?.data;
+            const rawData = resp.data?.data ?? resp.data;
             let list = [];
             let total = 0;
             let lp = 1;
-            if (d) {
-                list = Array.isArray(d.data) ? d.data : [];
-                total = typeof d.total === 'number' ? d.total : list.length;
-                lp = d.last_page || 1;
+            if (Array.isArray(rawData)) {
+                list = rawData;
+                total = rawData.length;
+            } else if (rawData && typeof rawData === 'object') {
+                list = Array.isArray(rawData.data) ? rawData.data : (Array.isArray(rawData) ? rawData : []);
+                total = typeof rawData.total === 'number' ? rawData.total : list.length;
+                lp = rawData.last_page || 1;
             }
-            setVentes(prev => (reset ? list : [...prev, ...list]));
-            setTotalVentes(total);
+
+            if (reset || pageToLoad === 1) {
+                setVentes([...offline, ...list]);
+            } else {
+                setVentes(prev => [...prev, ...list]);
+            }
+            setTotalVentes(total + offline.length);
             setLastPage(lp);
             setPage(pageToLoad);
         } catch (e) {
             console.error('Error fetching ventes:', e);
+            if (reset || pageToLoad === 1) {
+                const offline = await getOfflineVentes();
+                setOfflineVentes(offline);
+                setVentes(offline);
+                setTotalVentes(offline.length);
+            }
         } finally {
             setLoading(false);
             setRefreshing(false);
             setLoadingMore(false);
+            isFetchingRef.current = false;
         }
     }, [periode, dateDebut, dateFin, search, filterStatut]);
 
+    const fetchVentesRef = useRef(fetchVentes);
+    useEffect(() => {
+        fetchVentesRef.current = fetchVentes;
+    }, [fetchVentes]);
+
     useFocusEffect(
         useCallback(() => {
-            fetchVentes(1, true);
+            fetchVentesRef.current(1, true);
         }, [fetchVentes])
     );
+
+    useEffect(() => {
+        setOnSyncComplete(() => {
+            if (fetchVentesRef.current) {
+                fetchVentesRef.current(1, true);
+            }
+        });
+        return () => {
+            setOnSyncComplete(null);
+        };
+    }, []);
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -106,7 +147,7 @@ const VentesScreen = ({ navigation }) => {
     };
 
     const loadMore = () => {
-        if (loadingMore || refreshing) return;
+        if (loadingMore || refreshing || loading || isFetchingRef.current) return;
         if (page >= lastPage) return;
         setLoadingMore(true);
         fetchVentes(page + 1, false);
@@ -147,7 +188,7 @@ const VentesScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Vente</Text>
+                    <Text style={styles.btnAddPillText}>Vente</Text>
                 </TouchableOpacity>
             </View>
 
@@ -162,7 +203,6 @@ const VentesScreen = ({ navigation }) => {
                             placeholderTextColor={Colors.textLight}
                             value={searchInput}
                             onChangeText={setSearchInput}
-                            autoFocus
                         />
                         {searchInput ? (
                             <TouchableOpacity onPress={() => { setSearchInput(''); setSearch(''); }}>
@@ -180,7 +220,7 @@ const VentesScreen = ({ navigation }) => {
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll} contentContainerStyle={styles.chipScrollContent}>
                     {[
-                        { key: 'tous', label: 'Toutes les dates' },
+                        { key: 'tous', label: 'Toutes les ventes' },
                         { key: 'aujourd_hui', label: "Aujourd'hui" },
                         { key: 'hier', label: 'Hier' },
                         { key: 'avant_hier', label: 'Avant-hier' },
@@ -226,8 +266,8 @@ const VentesScreen = ({ navigation }) => {
             ) : (
                 <FlatList
                     data={ventes}
-                    keyExtractor={(item) => item.id.toString()}
-                    contentContainerStyle={styles.listContent}
+                    keyExtractor={(item) => item._offline ? `offline_${item.id ?? item._localId}` : `online_${item.id}`}
+                    contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(insets.bottom + 120, 140) }]}
                     refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
                     onEndReached={loadMore}
                     onEndReachedThreshold={0.3}
@@ -248,12 +288,19 @@ const VentesScreen = ({ navigation }) => {
                     renderItem={({ item }) => {
                         const badge = getStatutBadge(item.statut_paiement);
                         const dateStr = item.created_at ? formatDateTimeFr(item.created_at) : '—';
+                        const isOffline = item.isOffline === true;
                         return (
                             <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('VenteShow', { id: item.id })}>
                                 <View style={styles.cardTop}>
                                     <View style={styles.refBox}>
                                         <Ionicons name="cart" size={16} color={Colors.primary} />
                                         <Text style={styles.refText}>{item.reference}</Text>
+                                        {isOffline && (
+                                            <View style={styles.offlineBadge}>
+                                                <Ionicons name="cloud-offline-outline" size={12} color={Colors.warning} />
+                                                <Text style={styles.offlineBadgeText}>Hors-ligne</Text>
+                                            </View>
+                                        )}
                                     </View>
                                     <View style={[styles.badge, { backgroundColor: badge.bg }]}>
                                         <Text style={[styles.badgeText, { color: badge.color }]}>{badge.label}</Text>
@@ -280,6 +327,13 @@ const VentesScreen = ({ navigation }) => {
                                 <View style={styles.cardFooter}>
                                     <Text style={styles.totalLabel}>Total :</Text>
                                     <Text style={styles.totalValue}>{formatMoney(item.montant_total)}</Text>
+                                    <TouchableOpacity
+                                        onPress={() => navigation.navigate('VenteShow', { id: item.id, openPrint: true })}
+                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                        style={{ padding: 4 }}
+                                    >
+                                        <Ionicons name="print-outline" size={20} color={Colors.primary} />
+                                    </TouchableOpacity>
                                     <Ionicons name="chevron-forward" size={18} color={Colors.textLight} />
                                 </View>
                             </TouchableOpacity>
@@ -291,8 +345,9 @@ const VentesScreen = ({ navigation }) => {
 
             {/* Modal période personnalisée */}
             <Modal visible={showDateModal} animationType="slide" transparent>
-                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>\n                    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }} keyboardShouldPersistTaps="handled">
-                <View style={styles.modalOverlay}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+                    <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }} keyboardShouldPersistTaps="handled">
+                        <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Filtrer les ventes</Text>
@@ -338,16 +393,16 @@ const VentesScreen = ({ navigation }) => {
                                 <DateTimePicker
                                     value={dateField === 'debut' ? (dateDebut ? new Date(dateDebut) : new Date()) : (dateFin ? new Date(dateFin) : new Date())}
                                     mode="date"
-                                    display="spinner"
-                                    maximumDate={dateField === 'fin' && dateDebut ? new Date(dateDebut) : undefined}
-                                    minimumDate={dateField === 'debut' && dateFin ? new Date(dateFin) : undefined}
+                                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                    minimumDate={dateField === 'fin' && dateDebut ? new Date(dateDebut) : undefined}
+                                    maximumDate={dateField === 'debut' && dateFin ? new Date(dateFin) : undefined}
                                     onChange={(e, d) => {
+                                        setDateField(null);
                                         if (d) {
                                             const s = toLocalDate(d);
                                             if (dateField === 'debut') setDateDebut(s);
                                             else setDateFin(s);
                                         }
-                                        setDateField(null);
                                     }}
                                     style={{ width: '100%' }}
                                 />
@@ -436,6 +491,8 @@ const styles = StyleSheet.create({
     cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
     refBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     refText: { fontSize: 15, fontFamily: 'Poppins_700Bold', color: Colors.primary },
+    offlineBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 6, paddingHorizontal: 5, paddingVertical: 1, borderRadius: 4, backgroundColor: Colors.warning + '18' },
+    offlineBadgeText: { fontSize: 9, fontFamily: 'Poppins_700Bold', color: Colors.warning },
     badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
     badgeText: { fontSize: 11, fontFamily: 'Poppins_700Bold' },
     cardBody: { gap: 4, marginBottom: 12 },

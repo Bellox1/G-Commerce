@@ -95,76 +95,89 @@
         .mobile-menu .btn-nav-mobile { background: var(--primary); color: #fff !important; margin-top: 8px; justify-content: center; font-weight: 700; border-radius: 10px; }
         .mobile-menu-divider { height: 1px; background: rgba(0,0,0,0.06); margin: 6px 0; }
 
-        /* HERO SECTION */
+        /* HERO SECTION (MODERNE & PRESTIGIEUX) */
         .hero {
-            background: linear-gradient(135deg, #051812 0%, #0c4233 50%, #0f5c47 100%);
+            background: linear-gradient(135deg, #062b20 0%, #105e49 50%, #167e65 100%);
             color: #fff;
-            padding: 90px 6% 110px;
+            padding: 95px 6% 115px;
             position: relative;
             overflow: hidden;
             text-align: center;
         }
         .hero::before {
-            content: ''; position: absolute; inset: 0;
-            background: radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.15), transparent 60%);
+            content: '';
+            position: absolute; inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(234, 141, 34, 0.18), transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(16, 94, 73, 0.4), transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
             pointer-events: none;
         }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(245, 158, 11, 0.16); border: 1px solid rgba(245, 158, 11, 0.35);
-            color: #fbbf24; padding: 6px 18px; border-radius: 50px;
-            font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            margin-bottom: 24px; backdrop-filter: blur(8px);
+            background: rgba(234, 141, 34, 0.18); border: 1px solid rgba(234, 141, 34, 0.45);
+            color: #fef08a; padding: 7px 20px; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;
+            margin-bottom: 24px; backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(234, 141, 34, 0.2);
         }
         .hero h1 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(2.2rem, 5vw, 3.6rem);
-            font-weight: 700; line-height: 1.2;
-            margin: 0 auto 20px; max-width: 860px;
+            font-size: clamp(2.3rem, 5.5vw, 3.8rem);
+            font-weight: 900; line-height: 1.2;
+            margin: 0 auto 22px; max-width: 900px;
+            letter-spacing: -1px;
         }
         .hero h1 span {
-            background: linear-gradient(135deg, #fef08a, #f59e0b);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            color: var(--secondary);
+            text-shadow: 0 4px 15px rgba(234, 141, 34, 0.3);
         }
         .hero-sub {
-            font-size: 1.15rem; color: rgba(255,255,255,0.85);
-            max-width: 680px; margin: 0 auto 36px; font-weight: 400; line-height: 1.7;
+            font-size: 1.15rem; color: rgba(255,255,255,0.9);
+            max-width: 720px; margin: 0 auto 40px; font-weight: 500; line-height: 1.7;
         }
-        .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 50px; }
+        .hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 55px; }
         .btn-hero-primary {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #fff; padding: 15px 34px; border-radius: 12px;
+            background: #ffffff;
+            color: var(--primary); padding: 15px 34px; border-radius: 14px;
             font-weight: 800; font-size: 1rem; text-decoration: none;
-            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35); transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); transition: all 0.3s ease;
             display: inline-flex; align-items: center; gap: 8px;
         }
-        .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(245, 158, 11, 0.45); }
+        .btn-hero-primary:hover { background: var(--secondary); color: #ffffff; transform: translateY(-3px); box-shadow: 0 16px 35px rgba(234, 141, 34, 0.4); }
         .btn-hero-secondary {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25);
-            color: #fff; padding: 15px 28px; border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12); border: 1.5px solid rgba(255, 255, 255, 0.3);
+            color: #fff; padding: 15px 30px; border-radius: 14px;
             font-weight: 700; font-size: 1rem; text-decoration: none;
-            backdrop-filter: blur(10px); transition: all 0.3s;
+            backdrop-filter: blur(12px); transition: all 0.3s ease;
             display: inline-flex; align-items: center; gap: 8px;
         }
-        .btn-hero-secondary:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
+        .btn-hero-secondary:hover { background: rgba(255,255,255,0.22); border-color: #fff; transform: translateY(-2px); }
 
         /* Pill Stats Header */
         .hero-pills {
             display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
-            max-width: 900px; margin: 0 auto;
+            max-width: 960px; margin: 0 auto;
         }
         .pill-stat {
-            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 12px 20px; border-radius: 14px; backdrop-filter: blur(12px);
-            display: flex; align-items: center; gap: 12px; text-align: left;
+            background: rgba(255, 255, 255, 0.09); border: 1.5px solid rgba(255, 255, 255, 0.18);
+            padding: 14px 24px; border-radius: 18px; backdrop-filter: blur(16px);
+            display: flex; align-items: center; gap: 14px; text-align: left;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .pill-stat:hover {
+            transform: translateY(-3px);
+            border-color: rgba(234, 141, 34, 0.5);
+            background: rgba(255, 255, 255, 0.13);
         }
         .pill-icon {
-            width: 40px; height: 40px; border-radius: 10px;
-            background: rgba(245, 158, 11, 0.2); color: #fbbf24;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            width: 44px; height: 44px; border-radius: 12px;
+            background: rgba(234, 141, 34, 0.22); color: #fef08a;
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+            flex-shrink: 0;
         }
-        .pill-text { font-size: 0.82rem; color: rgba(255,255,255,0.7); }
-        .pill-val { font-size: 0.95rem; font-weight: 800; color: #fff; }
+        .pill-text { font-size: 0.8rem; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        .pill-val { font-size: 1rem; font-weight: 900; color: #fff; margin-top: 2px; }
 
         /* SECTION STYLING */
         .section { padding: 80px 6%; }
@@ -172,8 +185,8 @@
         .section-tag {
             display: inline-block; font-size: 0.78rem; font-weight: 800;
             text-transform: uppercase; letter-spacing: 1px; color: var(--primary);
-            background: rgba(15, 92, 71, 0.08); padding: 5px 16px; border-radius: 50px;
-            margin-bottom: 12px;
+            background: none; padding: 0 0 3px; border-radius: 0;
+            margin-bottom: 12px; border-bottom: 2.5px solid var(--secondary);
         }
         .section-title {
             font-family: 'Space Grotesk', sans-serif;
@@ -372,19 +385,19 @@
         }
         .btn-step-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); }
 
-        /* FOOTER (CLEAN WHITE BACKGROUND LIKE WELCOME) */
-        footer { background: #ffffff; border-top: 1px solid #e5e7eb; color: var(--text-main); padding: 60px 6% 28px; margin-top: 80px; }
+        /* FOOTER (DARK SLATE THEME) */
+        footer { background: #0f172a !important; color: #f8fafc; border-top: 1px solid rgba(255, 255, 255, 0.08) !important; padding: 60px 6% 28px; margin-top: 80px; }
         .footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 48px; }
         .footer-brand { flex: 1; min-width: 240px; }
         .footer-brand .logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
         .footer-brand .logo-wrap img { height: 48px; width: 48px; object-fit: contain; border-radius: 12px; }
-        .footer-brand p { color: #6b7280; font-size: 0.9rem; line-height: 1.7; max-width: 320px; }
+        .footer-brand p { color: #94a3b8 !important; font-size: 0.9rem; line-height: 1.7; max-width: 320px; }
         .footer-links { min-width: 160px; }
-        .footer-links h5 { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #374151; margin-bottom: 18px; }
+        .footer-links h5 { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #f8fafc !important; margin-bottom: 18px; }
         .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .footer-links ul li a { color: #374151; text-decoration: none; font-size: 0.9rem; transition: color .2s; display: inline-flex; align-items: center; gap: 8px; }
-        .footer-links ul li a:hover { color: var(--primary); }
-        .footer-bottom { border-top: 1px solid #e5e7eb; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: #6b7280; font-size: 0.85rem; }
+        .footer-links ul li a { color: #cbd5e1 !important; text-decoration: none; font-size: 0.9rem; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+        .footer-links ul li a:hover { color: var(--secondary) !important; transform: translateX(3px); }
+        .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.08) !important; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; color: #64748b !important; font-size: 0.85rem; }
 
         /* RESPONSIVE MEDIA QUERIES (PARTENAIRES) */
         @media (max-width: 991px) {
@@ -431,15 +444,17 @@
         <span class="nav-logo-text">PILOTIX</span>
     </a>
     <div class="nav-links">
-        <a href="/">Accueil</a>
-        <a href="#simulateur">Simulateur</a>
-        <a href="#commissions">Offres</a>
-        <a href="#primes">Primes</a>
+        <a href="{{ url('/') }}">Accueil</a>
+        <a href="{{ url('/') }}#features">Fonctionnalités</a>
+        <a href="{{ url('/') }}#tarifs">Tarifs</a>
+        <a href="{{ url('/') }}#screens">Écrans</a>
+        <a href="{{ route('partenaires') }}" style="color:var(--primary); font-weight:700;">Partenariat</a>
         <a href="{{ route('download') }}">Téléchargements</a>
+        <a href="{{ url('/') }}#contact">Demande</a>
         @if (Auth::check())
             <a href="{{ route('dashboard') }}" class="btn-nav">Mon Espace</a>
         @else
-            <a href="#candidature" class="btn-nav">Postuler Maintenant</a>
+            <a href="{{ route('login') }}" class="btn-nav">Se connecter</a>
         @endif
     </div>
 
@@ -453,49 +468,46 @@
 <!-- MOBILE MENU DRAWER -->
 <div class="mobile-menu" id="mobileMenu">
     <a href="{{ url('/') }}"><i class="bi bi-house"></i> Accueil</a>
-    <a href="#simulateur"><i class="bi bi-calculator"></i> Simulateur</a>
-    <a href="#commissions"><i class="bi bi-gift"></i> Offres</a>
-    <a href="#primes"><i class="bi bi-trophy"></i> Primes</a>
+    <a href="{{ url('/') }}#features"><i class="bi bi-stars"></i> Fonctionnalités</a>
+    <a href="{{ url('/') }}#tarifs"><i class="bi bi-tags"></i> Tarifs</a>
+    <a href="{{ url('/') }}#screens"><i class="bi bi-grid"></i> Écrans</a>
+    <a href="{{ route('partenaires') }}" style="color:var(--primary);"><i class="bi bi-people"></i> Partenariat</a>
     <a href="{{ route('download') }}"><i class="bi bi-download"></i> Téléchargements</a>
+    <a href="#candidature"><i class="bi bi-send"></i> Demande de partenariat</a>
     <div class="mobile-menu-divider"></div>
     @if(Auth::check())
         <a href="{{ route('dashboard') }}" class="btn-nav-mobile"><i class="bi bi-speedometer2"></i> Mon Espace</a>
     @else
-        <a href="#candidature" class="btn-nav-mobile"><i class="bi bi-pencil-square"></i> Postuler Maintenant</a>
+        <a href="{{ route('login') }}" class="btn-nav-mobile"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a>
     @endif
 </div>
 
 <!-- HERO SECTION -->
 <section class="hero">
-    <div class="hero-badge"><i class="bi bi-shield-check"></i> Programme d'Affiliation Officiel</div>
-    <h1>Devenez Partenaire <span>PILOTIX</span> & Monétisez Votre Réseau</h1>
-    <p class="hero-sub">Recommandez la solution n°1 de gestion commerciale. Encaissez jusqu'à <strong>{{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }} FCFA</strong> de commission cash par vente et débloquez jusqu'à <strong>{{ number_format($maxPrime, 0, ' ', ' ') }} FCFA</strong> de super-primes de performance !</p>
-    
-    <div class="hero-actions">
-        <a href="#simulateur" class="btn-hero-primary"><i class="bi bi-calculator"></i> Simuler Mes Gains</a>
-        <a href="#candidature" class="btn-hero-secondary"><i class="bi bi-send"></i> Soumettre Ma Candidature</a>
-    </div>
+    <div style="max-width: 820px; margin: 0 auto; position: relative; z-index: 1;">
+        <p style="display:inline-block; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,0.65); border-bottom:1.5px solid rgba(255,255,255,0.35); padding-bottom:4px; margin-bottom:22px;"><i class="bi bi-shield-check"></i> Programme d'Affiliation Officiel</p>
+        <h1>Devenez Partenaire <span>PILOTIX</span> &amp; Monétisez Votre Réseau</h1>
+        <p class="hero-sub">Recommandez la solution n°1 de gestion commerciale. Encaissez jusqu'à <strong>{{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }} FCFA</strong> de commission cash par vente et débloquez jusqu'à <strong>{{ number_format($maxPrime, 0, ' ', ' ') }} FCFA</strong> de super-primes de performance !</p>
+        
+        <div class="hero-actions">
+            <a href="#simulateur" class="btn-hero-primary"><i class="bi bi-calculator"></i> Simuler Mes Gains</a>
+            <a href="#candidature" class="btn-hero-secondary"><i class="bi bi-send"></i> Soumettre Ma Candidature</a>
+        </div>
 
-    <div class="hero-pills">
-        <div class="pill-stat">
-            <div class="pill-icon"><i class="bi bi-cash"></i></div>
-            <div>
-                <div class="pill-text">Commission Unique Par Vente</div>
-                <div class="pill-val">{{ number_format($rules['essentiel']->commission, 0, ' ', ' ') }} à {{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }} FCFA</div>
+        <div style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap; margin-top:40px; padding-top:32px; border-top:1px solid rgba(255,255,255,0.12);">
+            <div style="text-align:center;">
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:#fff;">{{ number_format($rules['essentiel']->commission, 0, ' ', ' ') }}–{{ number_format($rules['entreprise']->commission, 0, ' ', ' ') }}</div>
+                <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">FCFA / vente</div>
             </div>
-        </div>
-        <div class="pill-stat">
-            <div class="pill-icon"><i class="bi bi-award"></i></div>
-            <div>
-                <div class="pill-text">Super-Prime Dès {{ $paliers[0] }} Clients</div>
-                <div class="pill-val">Jusqu'à +{{ number_format($primesByCode['entreprise'][$paliers[0]] ?? 0, 0, ' ', ' ') }} FCFA</div>
+            <div style="width:1px; background:rgba(255,255,255,0.12);"></div>
+            <div style="text-align:center;">
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:#fff;">{{ $paliers[0] }} clients</div>
+                <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">pour décrocher la prime</div>
             </div>
-        </div>
-        <div class="pill-stat">
-            <div class="pill-icon"><i class="bi bi-graph-up-arrow"></i></div>
-            <div>
-                <div class="pill-text">Palier {{ $paliers[1] ?? ($paliers[0] * 2) }} Clients (Le Double !)</div>
-                <div class="pill-val">Jusqu'à +{{ number_format($primesByCode['entreprise'][$paliers[1] ?? ($paliers[0] * 2)] ?? 0, 0, ' ', ' ') }} FCFA</div>
+            <div style="width:1px; background:rgba(255,255,255,0.12);"></div>
+            <div style="text-align:center;">
+                <div style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:900; color:var(--secondary);">+{{ number_format($maxPrime, 0, ' ', ' ') }}</div>
+                <div style="font-size:0.78rem; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">FCFA max prime</div>
             </div>
         </div>
     </div>
@@ -960,42 +972,44 @@
 <footer>
     <div class="footer-top">
         <div class="footer-brand">
-            <div style="margin-bottom:10px;">
-                <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo" style="height: 56px; width: 56px; object-fit: contain; border-radius: 12px;">
+            <div class="logo-wrap">
+                <img src="{{ asset('PILOTIX-logo.png') }}" alt="PILOTIX Logo">
+                <span style="font-family:'Space Grotesk',sans-serif; font-size:1.3rem; font-weight:800; color:#f8fafc;">PILOTIX</span>
             </div>
-            <p style="color: #6b7280;">Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
+            <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
+
         <div class="footer-links">
-            <h5 style="color: #374151;">Fonctionnalités</h5>
+            <h5>Navigation</h5>
             <ul>
-                <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-receipt"></i>Ventes &amp; Facturation</a></li>
-                <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-box-seam"></i>Stock &amp; Arrivages</a></li>
-                <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-truck"></i>Livraisons</a></li>
-                <li><a href="{{ url('/') }}#features" style="color: #374151;"><i class="bi bi-cash-stack"></i>Dettes Clients</a></li>
+                <li><a href="{{ url('/') }}"><i class="bi bi-house"></i> Accueil</a></li>
+                <li><a href="{{ url('/') }}#features"><i class="bi bi-stars"></i> Fonctionnalités</a></li>
+                <li><a href="{{ url('/') }}#tarifs"><i class="bi bi-tags"></i> Tarifs</a></li>
+                <li><a href="{{ url('/') }}#screens"><i class="bi bi-grid"></i> Écrans</a></li>
             </ul>
         </div>
+
         <div class="footer-links">
-            <h5 style="color: #374151;">Accès</h5>
+            <h5>Contact & Accès</h5>
             <ul>
-                @if (Auth::check())
-                    <li><a href="{{ route('dashboard') }}" style="color: #374151;"><i class="bi bi-speedometer2"></i>Tableau de bord</a></li>
+                <li><a href="tel:+2290146862536"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
+                <li><a href="mailto:pilotixcontact@gmail.com"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
+                <li><a href="{{ route('download') }}"><i class="bi bi-download"></i> Téléchargements</a></li>
+                @if(Auth::check())
+                    <li><a href="{{ route('dashboard') }}"><i class="bi bi-speedometer2"></i> Tableau de bord</a></li>
                 @else
-                    <li><a href="{{ route('login') }}" style="color: #374151;"><i class="bi bi-box-arrow-in-right"></i>Se connecter</a></li>
+                    <li><a href="{{ route('login') }}"><i class="bi bi-box-arrow-in-right"></i> Se connecter</a></li>
                 @endif
             </ul>
         </div>
-        <div class="footer-links">
-            <h5 style="color: #374151;">Contact</h5>
-            <ul>
-                <li><a href="tel:+2290146862536" style="color: #374151;"><i class="bi bi-telephone"></i> +229 01 46 86 25 36</a></li>
-                <li><a href="mailto:pilotixcontact@gmail.com" style="color: #374151;"><i class="bi bi-envelope"></i> pilotixcontact@gmail.com</a></li>
-                <li><a href="{{ route('partenaires') }}" style="color: #374151;"><i class="bi bi-people"></i> Partenariat</a></li>
-            </ul>
-        </div>
     </div>
-    <div class="footer-bottom" style="border-top: 1px solid #e5e7eb; color: #6b7280;">
+    <div class="footer-bottom">
         <span>&copy; {{ date('Y') }} PILOTIX — Programme d'Affiliation &amp; Réseau Partenaire</span>
-        <span><a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> · <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> · <a href="{{ route('partenaires') }}" style="color:inherit;">Partenariat</a></span>
+        <span>
+            <a href="{{ route('conditions') }}" style="color:inherit;">Conditions</a> &middot;
+            <a href="{{ route('confidentialite') }}" style="color:inherit;">Confidentialité</a> &middot;
+            <a href="{{ route('download') }}" style="color:inherit;">Téléchargements</a>
+        </span>
     </div>
 </footer>
 

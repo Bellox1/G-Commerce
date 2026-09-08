@@ -29,17 +29,19 @@
         .page-body ul { margin: 0 0 14px 20px; }
         .page-body li { margin-bottom: 8px; font-size: 0.92rem; color: #334155; }
         .page-body strong { color: var(--text); }
-        footer { background: #fff; border-top: 1px solid #e5e7eb; padding: 40px 5%; }
+        footer { background: #0f172a; color: #f8fafc; border-top: 1px solid rgba(255,255,255,0.08); padding: 50px 5% 30px; }
         .footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 40px; }
         .footer-brand { flex: 1; min-width: 200px; }
-        .footer-brand .logo-name { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; text-transform: uppercase; color: var(--primary); }
-        .footer-brand p { margin-top: 10px; color: #6b7280; font-size: 0.85rem; line-height: 1.6; max-width: 260px; }
+        .footer-brand .logo-name { font-weight: 800; font-size: 1.3rem; letter-spacing: -0.5px; text-transform: uppercase; color: #fff; }
+        .footer-brand p { margin-top: 10px; color: #94a3b8; font-size: 0.85rem; line-height: 1.6; max-width: 260px; }
         .footer-col { min-width: 130px; }
-        .footer-col h5 { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #374151; margin-bottom: 12px; }
+        .footer-col h5 { font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #f8fafc; margin-bottom: 12px; }
         .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-        .footer-col ul li a { color: #374151; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
-        .footer-col ul li a:hover { color: var(--primary); }
-        .footer-bottom { border-top: 1px solid #e5e7eb; padding-top: 20px; display: flex; justify-content: space-between; color: #6b7280; font-size: 0.8rem; flex-wrap: wrap; gap: 8px; }
+        .footer-col ul li a { color: #cbd5e1; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
+        .footer-col ul li a:hover { color: #ea8d22; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; display: flex; justify-content: space-between; color: #64748b; font-size: 0.8rem; flex-wrap: wrap; gap: 8px; }
+        .footer-bottom a { color: #94a3b8; text-decoration: none; }
+        .footer-bottom a:hover { color: #ea8d22; }
         @media (max-width: 600px) { .nav-links { display: none; } .page-header h1 { font-size: 1.5rem; } .footer-top { flex-direction: column; } .footer-bottom { flex-direction: column; text-align: center; } }
     </style>
 </head>
@@ -140,15 +142,7 @@
             </div>
             <p>Solution de gestion commerciale multi-Dépôt ou Magasin pour les PME d'Afrique de l'Ouest.</p>
         </div>
-        <div class="footer-col">
-            <h5>Fonctionnalités</h5>
-            <ul>
-                <li><a href="/#fonctionnalites"><i class="bi bi-receipt"></i> Ventes & Facturation</a></li>
-                <li><a href="/#fonctionnalites"><i class="bi bi-box-seam"></i> Stock & Arrivages</a></li>
-                <li><a href="/#fonctionnalites"><i class="bi bi-truck"></i> Livraisons</a></li>
-                <li><a href="/#fonctionnalites"><i class="bi bi-cash-stack"></i> Dettes Clients</a></li>
-            </ul>
-        </div>
+
         <div class="footer-col">
             <h5>Contact</h5>
             <ul>

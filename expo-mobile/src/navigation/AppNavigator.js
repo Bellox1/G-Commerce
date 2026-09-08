@@ -149,16 +149,7 @@ const TabNavigator = () => {
             sceneContainerStyle={{ backgroundColor: '#FFFFFF' }}
         >
             <Tab.Screen name="Home"    component={HomeScreen}    options={{ title: 'Accueil' }} />
-            {can('stock') && (
-                <Tab.Screen name="Stock"   component={StockScreen}   options={{ title: 'Stock',  tabBarStyle: { display: 'none' } }} />
-            )}
-            {can('ventes') && (
-                <Tab.Screen name="Ventes"  component={VentesScreen}  options={{ title: 'Ventes', tabBarStyle: { display: 'none' } }} />
-            )}
-            {can('dettes') && (
-                <Tab.Screen name="Dettes"  component={DettesScreen}  options={{ title: 'Dette',  tabBarStyle: { display: 'none' } }} />
-            )}
-            <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil', tabBarStyle: { display: 'none' } }} />
+            <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil', tabBarStyle: { display: 'none' }, unmountOnBlur: true }} />
         </Tab.Navigator>
     );
 };

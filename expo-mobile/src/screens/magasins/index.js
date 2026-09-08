@@ -142,7 +142,7 @@ const MagasinsScreen = ({ navigation }) => {
                     activeOpacity={0.88}
                 >
                     <Ionicons name="add-circle" size={18} color="#FFFFFF" />
-                    <Text style={styles.btnAddPillText}>+ Dépôt</Text>
+                    <Text style={styles.btnAddPillText}>Dépôt</Text>
                 </TouchableOpacity>
             </View>
 
@@ -173,9 +173,38 @@ const MagasinsScreen = ({ navigation }) => {
                                     <Text style={styles.magName}>{item.nom}</Text>
                                     <Text style={styles.magSub}>{item.adresse || 'Sans adresse'} {item.ville ? `• ${item.ville}` : ''}</Text>
                                 </View>
-                                <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
-                                    <Ionicons name="pencil" size={18} color={Colors.primary} />
-                                </TouchableOpacity>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                    <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
+                                        <Ionicons name="pencil" size={18} color={Colors.primary} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.editBtn, { backgroundColor: '#FEE2E2' }]}
+                                        onPress={() => {
+                                            Alert.alert(
+                                                'Supprimer le dépôt',
+                                                `Voulez-vous vraiment supprimer le dépôt ${item.nom} ?`,
+                                                [
+                                                    { text: 'Annuler', style: 'cancel' },
+                                                    {
+                                                        text: 'Supprimer',
+                                                        style: 'destructive',
+                                                        onPress: async () => {
+                                                            try {
+                                                                await client.delete(`/magasins/${item.id}`);
+                                                                Alert.alert('Succès', 'Dépôt supprimé avec succès.');
+                                                                fetchMagasins();
+                                                            } catch (e) {
+                                                                Alert.alert('Erreur', e.response?.data?.message || 'Impossible de supprimer ce dépôt.');
+                                                            }
+                                                        },
+                                                    },
+                                                ]
+                                            );
+                                        }}
+                                    >
+                                        <Ionicons name="trash-outline" size={18} color={Colors.error} />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
 
                             <View style={styles.loyerBox}>
