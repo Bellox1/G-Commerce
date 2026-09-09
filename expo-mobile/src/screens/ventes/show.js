@@ -25,8 +25,9 @@ const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 
 const pad = (n) => String(n).padStart(2, '0');
 
 const formatInvoiceDate = (iso) => {
-    if (!iso) return 'N/A';
+    if (!iso) return '—';
     const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
     return `${pad(d.getDate())} ${MOIS[d.getMonth()]} ${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
@@ -63,14 +64,16 @@ const getInvoiceLines = (v) => {
 const ShowVenteScreen = ({ navigation, route }) => {
     const insets = useSafeAreaInsets();
     const { user } = useAuth();
-    const companyName = vente?.tenant?.nom || vente?.magasin?.tenant?.nom || user?.tenant?.nom || 'E-STOCK';
-    const companyPhone = vente?.tenant?.telephone || vente?.magasin?.tenant?.telephone || user?.tenant?.telephone || user?.telephone || '';
     const { id, openPrint } = route?.params || {};
     const printingRef = useRef(false);
     const [printing, setPrinting] = useState(false);
     const [vente, setVente] = useState(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+
+    // Dérivés société — recalculés dès que vente est chargée
+    const companyName = vente?.tenant?.nom || vente?.magasin?.tenant?.nom || user?.tenant?.nom || 'E-STOCK';
+    const companyPhone = vente?.tenant?.telephone || vente?.magasin?.tenant?.telephone || user?.tenant?.telephone || user?.telephone || '';
 
     const [showPayModal, setShowPayModal] = useState(false);
     const [payAmount, setPayAmount] = useState('');
@@ -84,7 +87,7 @@ const ShowVenteScreen = ({ navigation, route }) => {
 
     const fetchVente = async () => {
         // Si c'est une vente hors-ligne (ID commençant par OFF- ou offline_), la charger depuis le stockage local
-        const isOfflineId = typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_'));
+        const isOfflineId = typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('VNT-OFF-') || id.startsWith('offline_'));
         
         if (isOfflineId) {
             try {
@@ -124,7 +127,7 @@ const ShowVenteScreen = ({ navigation, route }) => {
     };
 
     const openLivModal = () => {
-        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
+        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('VNT-OFF-') || id.startsWith('offline_')));
         if (isOffline) {
             Alert.alert('Non disponible', 'Les actions de livraison ne sont pas disponibles pour les ventes hors-ligne. Elles seront synchronisées au retour de la connexion.');
             return;
@@ -153,7 +156,7 @@ const ShowVenteScreen = ({ navigation, route }) => {
     };
 
     const handlePayerDette = async () => {
-        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
+        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('VNT-OFF-') || id.startsWith('offline_')));
         if (isOffline) {
             Alert.alert('Non disponible', 'Le paiement de dette n\'est pas disponible pour les ventes hors-ligne. Il sera synchronisé au retour de la connexion.');
             return;
@@ -207,7 +210,8 @@ const ShowVenteScreen = ({ navigation, route }) => {
             </tr>`;
             }).join('');
             const companyHeaderHtml = masquerSociete ? '' : `<h2>${escapeHtml(companyName)}</h2>${companyPhone ? `<div class="sub">Tél: ${escapeHtml(companyPhone)}</div>` : ''}`;
-            const vendeurRowHtml = (masquerVendeur || !v.user?.name) ? '' : `<div class="row"><span>Vendeur:</span><span>${escapeHtml(v.user.name)}</span></div>`;
+            const vendeurNom = v.user?.name || v.user?.nom || v.vendeur?.name || v.vendeur?.nom || '';
+            const vendeurRowHtml = (masquerVendeur || !vendeurNom) ? '' : `<div class="row"><span>Vendeur:</span><span>${escapeHtml(vendeurNom)}</span></div>`;
             const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
                 @page{size:auto;margin:4mm}*{box-sizing:border-box}
                 html,body{width:100%;font-family:Arial,Helvetica,sans-serif;font-size:16px;margin:0;padding:8px;color:#000;font-weight:400}
@@ -225,8 +229,8 @@ const ShowVenteScreen = ({ navigation, route }) => {
                 <div class="sub">${escapeHtml(v.magasin?.nom || '')}</div>
                 <hr class="divider">
                 <div class="row"><span>FACTURE</span><span>${escapeHtml(v.reference)}</span></div>
-                <div class="row"><span>${escapeHtml(formatInvoiceDate(v.date_vente))}</span></div>
-                <div class="row"><span>Client:</span><span>${escapeHtml(v.client?.nom ? v.client.nom + ' ' + (v.client.prenom || '') : 'Anonyme')}</span></div>
+                <div class="row"><span>${escapeHtml(formatInvoiceDate(v.date_vente || v.created_at))}</span></div>
+                <div class="row"><span>Client:</span><span>${escapeHtml(v.client?.nom ? (v.client.nom + ' ' + (v.client.prenom || '')).trim() : '-')}</span></div>
                 ${vendeurRowHtml}
                 <hr class="divider">
                 <table><thead><tr><th style="width:40%;text-align:left;vertical-align:middle;">Article</th><th style="width:20%;text-align:right;vertical-align:middle;">Prix</th><th style="width:15%;text-align:right;vertical-align:middle;">Qté</th><th style="width:25%;text-align:right;vertical-align:middle;">Total</th></tr></thead><tbody>${lines}</tbody></table>
@@ -265,16 +269,14 @@ const ShowVenteScreen = ({ navigation, route }) => {
         );
     }
 
-    const dateFormatted = vente.date_vente
-        ? formatInvoiceDate(vente.date_vente)
-        : 'N/A';
+    const dateFormatted = formatInvoiceDate(vente.date_vente || vente.created_at);
 
     const livBadge = LIVRAISON_STATUTS.find(s => s.key === (vente.statut_livraison || 'en_attente')) || LIVRAISON_STATUTS[0];
 
     const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
 
     const handleDeleteVente = () => {
-        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('offline_')));
+        const isOffline = vente?.isOffline === true || (typeof id === 'string' && (id.startsWith('OFF-') || id.startsWith('VNT-OFF-') || id.startsWith('offline_')));
         
         if (isOffline) {
             Alert.alert(
@@ -405,12 +407,12 @@ const ShowVenteScreen = ({ navigation, route }) => {
 
                     <View style={styles.clientSection}>
                         <Text style={styles.sectionLabel}>CLIENT</Text>
-                        <Text style={styles.clientName}>{vente.client?.nom ? `${vente.client.nom} ${vente.client.prenom || ''}` : 'Client Anonyme'}</Text>
+                        <Text style={styles.clientName}>{vente.client?.nom ? `${vente.client.nom} ${vente.client.prenom || ''}`.trim() : '-'}</Text>
                         {vente.client?.telephone && (
                             <Text style={styles.clientSub}>Tél: {vente.client.telephone}</Text>
                         )}
-                        {vente.user?.name && (
-                            <Text style={styles.clientSub}>Établi par: {vente.user.name}</Text>
+                        {(vente.user?.name || vente.user?.nom) && (
+                            <Text style={styles.clientSub}>Établi par: {vente.user.name || vente.user.nom}</Text>
                         )}
                     </View>
 

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connexion — PILOTIX</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -103,7 +103,7 @@
         .form-control {
             width: 100%;
             padding: 13px 16px;
-            font-size: 0.95rem;
+            font-size: 16px;
             border: 1px solid var(--border);
             border-radius: 10px;
             font-family: inherit;

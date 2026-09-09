@@ -17,6 +17,8 @@ const BADGE_COLORS = {
     success: { bg: '#dcfce7', fg: '#166534' },
 };
 
+import { getCache } from '../utils/offlineSync';
+
 const AlertesScreen = () => {
     const navigation = useNavigation();
 
@@ -30,8 +32,41 @@ const AlertesScreen = () => {
         try {
             const resp = await client.get('/notifications');
             const body = resp.data;
-            setAlertes(body?.stockAlertes || []);
-            setNotifs(body?.items || []);
+            let stockAlerts = Array.isArray(body?.stockAlertes) ? body.stockAlertes : null;
+            let notifItems = Array.isArray(body?.items) ? body.items : null;
+
+            if (!stockAlerts) {
+                const cachedNotifs = await getCache('/notifications');
+                if (cachedNotifs && Array.isArray(cachedNotifs.stockAlertes)) {
+                    stockAlerts = cachedNotifs.stockAlertes;
+                    notifItems = Array.isArray(cachedNotifs.items) ? cachedNotifs.items : [];
+                } else {
+                    const cachedProduitsRes = (await getCache('/produits?per_page=1000')) || (await getCache('/produits'));
+                    const produitsList = Array.isArray(cachedProduitsRes?.data?.data)
+                        ? cachedProduitsRes.data.data
+                        : (Array.isArray(cachedProduitsRes?.data)
+                            ? cachedProduitsRes.data
+                            : (Array.isArray(cachedProduitsRes) ? cachedProduitsRes : []));
+                    
+                    stockAlerts = produitsList
+                        .filter(p => {
+                            const stk = p.stock ?? p.stock_disponible ?? p.stock_actuel ?? 0;
+                            const seuil = p.seuil_alerte ?? 5;
+                            return stk <= seuil;
+                        })
+                        .map(p => ({
+                            id: p.id,
+                            nom: p.nom,
+                            stock: p.stock ?? p.stock_disponible ?? p.stock_actuel ?? 0,
+                            seuil_alerte: p.seuil_alerte ?? 5,
+                            produit: p
+                        }));
+                    notifItems = [];
+                }
+            }
+
+            setAlertes(stockAlerts || []);
+            setNotifs(notifItems || []);
         } catch (e) {
             console.error('Erreur alertes/notifs:', e);
         } finally {

@@ -138,14 +138,27 @@ const StockScreen = ({ navigation }) => {
         }
         setSubmittingAdjust(true);
         try {
-            await client.post('/stock/ajuster', {
+            const resp = await client.post('/stock/ajuster', {
                 magasin_id: adjustMagasin || selectedMagasin || magasins[0]?.id,
                 produit_id: adjustItem.id,
                 type_mouvement: adjustType,
                 quantite: Number(adjustQty),
                 raison: adjustRaison || 'Ajustement manuel mobile'
             });
-            Alert.alert('Succès', 'Ajustement de stock enregistré');
+
+            // Mettre à jour le stock dans la liste locale des produits immédiatement
+            const delta = Number(adjustQty);
+            const isPos = adjustType === 'ajustement_positif';
+            setProduits(prev => (Array.isArray(prev) ? prev : []).map(p => {
+                if (p.id === adjustItem.id) {
+                    const curr = Number(p.quantite_totale ?? p.quantite ?? p.stock ?? 0);
+                    const nStk = isPos ? (curr + delta) : Math.max(0, curr - delta);
+                    return { ...p, stock: nStk, stock_disponible: nStk, stock_actuel: nStk, quantite: nStk, quantite_totale: nStk };
+                }
+                return p;
+            }));
+
+            Alert.alert('Succès', 'Ajustement de stock enregistré avec succès !');
             setAdjustItem(null);
             setAdjustQty('');
             setAdjustRaison('');
@@ -383,7 +396,7 @@ const StockScreen = ({ navigation }) => {
             <Modal visible={!!adjustItem} transparent animationType="slide" onRequestClose={() => setAdjustItem(null)}>
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
                 <View style={styles.modalOverlay}>
-                    <View style={styles.modalCard}>
+                    <View style={[styles.modalCard, { paddingBottom: Math.max(insets.bottom + 24, 28) }]}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Ajuster : {adjustItem?.nom}</Text>
                             <TouchableOpacity onPress={() => setAdjustItem(null)}>

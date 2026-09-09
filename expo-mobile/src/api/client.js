@@ -68,14 +68,16 @@ client.interceptors.response.use(
             }
         }
 
-        // Si le réseau refonctionne, tenter de vider la file d'attente hors-ligne
-        try {
-            const syncRes = await syncOfflineQueue();
-            if (syncRes && syncRes.synced > 0 && onSyncCompleteCallback) {
-                onSyncCompleteCallback();
+        // Si le réseau refonctionne, tenter de vider la file d'attente hors-ligne (hors requête de synchro)
+        if (!response.config?.isSyncRequest) {
+            try {
+                const syncRes = await syncOfflineQueue();
+                if (syncRes && syncRes.synced > 0 && onSyncCompleteCallback) {
+                    onSyncCompleteCallback();
+                }
+            } catch (e) {
+                // Ignore sync errors silencieusement
             }
-        } catch (e) {
-            // Ignore sync errors silencieusement
         }
 
         return response;
@@ -139,32 +141,119 @@ client.interceptors.response.use(
                     payload,
                 });
 
-                // Vente hors-ligne → affichage immédiat dans la liste
+                // Vente hors-ligne → affichage immédiat dans la liste avec détails complets
                 if (method === 'post' && requestUrl.includes('/ventes')) {
-                    const offlineVente = {
-                        ...payload,
-                        reference: 'OFF-' + Date.now(),
-                        _offline: true,
-                        montant_total: payload.ventes?.[0]?.lignes?.reduce(
-                            (sum, l) => sum + (l.prix_vente * l.quantite) + ((l.prix_cartouche || 0) * (l.quantite_cartouche || 0)),
+                    try {
+                        const v = payload.ventes?.[0] || {};
+                        const cachedClientsRes = await getCache('/clients');
+                        const cachedMagasinsRes = await getCache('/magasins');
+                        const cachedProduitsRes = (await getCache('/produits?per_page=1000')) || (await getCache('/produits'));
+
+                        const clientsList = Array.isArray(cachedClientsRes?.data) ? cachedClientsRes.data : (Array.isArray(cachedClientsRes) ? cachedClientsRes : []);
+                        const magasinsList = Array.isArray(cachedMagasinsRes?.data) ? cachedMagasinsRes.data : (Array.isArray(cachedMagasinsRes) ? cachedMagasinsRes : []);
+                        const produitsList = Array.isArray(cachedProduitsRes?.data?.data) ? cachedProduitsRes.data.data : (Array.isArray(cachedProduitsRes?.data) ? cachedProduitsRes.data : (Array.isArray(cachedProduitsRes) ? cachedProduitsRes : []));
+
+                        const clientObj = clientsList.find(c => c.id === v.client_id);
+                        const magasinObj = magasinsList.find(m => m.id === payload.magasin_id);
+
+                        const totalMontant = (v.lignes || []).reduce(
+                            (sum, l) => sum + (Number(l.prix_vente || 0) * Number(l.quantite || 0)) + (Number(l.prix_cartouche || 0) * Number(l.quantite_cartouche || 0)),
                             0
-                        ) || 0,
-                        montant_paye: payload.ventes?.[0]?.a_credit
-                            ? (parseFloat(payload.ventes?.[0]?.montant_paye) || 0)
-                            : (payload.ventes?.[0]?.montant_remis || 0),
-                        montant_reste: 0,
-                        statut_paiement: payload.ventes?.[0]?.a_credit ? 'credit' : 'paye',
-                        client: payload.client_id
-                            ? { id: payload.client_id, nom: '', prenom: '' }
-                            : { nom: 'Anonyme' },
-                        magasin: { nom: 'Hors-ligne' },
-                        lignes: (payload.ventes?.[0]?.lignes || []).map(l => ({
-                            ...l,
-                            produit: l.produit || { nom: l.nom || 'Article' }
-                        })),
-                        created_at: new Date().toISOString(),
-                    };
-                    await saveOfflineVente(offlineVente);
+                        );
+
+                        const totalRemis = v.a_credit ? (parseFloat(v.montant_paye) || 0) : (parseFloat(v.montant_remis) || totalMontant);
+
+                        const mappedLignes = (v.lignes || []).map(l => {
+                            const pObj = produitsList.find(p => p.id === l.produit_id);
+                            return {
+                                id: 'line_off_' + Math.random().toString(36).substr(2, 5),
+                                produit_id: l.produit_id,
+                                quantite: Number(l.quantite || 0),
+                                prix_vente: Number(l.prix_vente || 0),
+                                quantite_cartouche: Number(l.quantite_cartouche || 0),
+                                prix_cartouche: Number(l.prix_cartouche || 0),
+                                sous_total: (Number(l.prix_vente || 0) * Number(l.quantite || 0)) + (Number(l.prix_cartouche || 0) * Number(l.quantite_cartouche || 0)),
+                                produit: pObj ? {
+                                    id: pObj.id,
+                                    nom: pObj.nom,
+                                    image: pObj.image,
+                                    code_barres: pObj.code_barres
+                                } : { id: l.produit_id, nom: l.nom || ('Produit #' + l.produit_id) }
+                            };
+                        });
+
+                        const userRaw = await AsyncStorage.getItem('user');
+                        const userObj = userRaw ? JSON.parse(userRaw) : null;
+                        const nowIso = new Date().toISOString();
+
+                        const offlineVente = {
+                            ...payload,
+                            id: 'OFF-' + Date.now(),
+                            reference: 'VNT-OFF-' + Date.now().toString().slice(-6),
+                            isOffline: true,
+                            _offline: true,
+                            montant_total: totalMontant,
+                            montant_paye: totalRemis,
+                            montant_reste: Math.max(0, totalMontant - totalRemis),
+                            statut_paiement: v.a_credit ? (totalRemis > 0 ? 'partiel' : 'credit') : 'paye',
+                            client: clientObj || (v.client_id ? { id: v.client_id, nom: 'Client #' + v.client_id } : null),
+                            magasin: magasinObj || { nom: 'Magasin Local' },
+                            user: userObj || { name: 'Vendeur' },
+                            lignes: mappedLignes,
+                            produits: mappedLignes,
+                            date_vente: nowIso,
+                            created_at: nowIso,
+                        };
+
+                        await saveOfflineVente(offlineVente);
+
+                        // Déduire le stock des produits en cache localement
+                        if (produitsList.length > 0) {
+                            let updated = false;
+                            const updatedProduits = produitsList.map(p => {
+                                const lineMatch = (v.lignes || []).find(l => l.produit_id === p.id);
+                                if (lineMatch) {
+                                    updated = true;
+                                    const currentStock = p.stock ?? p.stock_disponible ?? p.stock_actuel ?? 0;
+                                    const newStock = Math.max(0, currentStock - Number(lineMatch.quantite || 0));
+                                    return { ...p, stock: newStock, stock_disponible: newStock, stock_actuel: newStock };
+                                }
+                                return p;
+                            });
+                            if (updated) {
+                                await setCache('/produits?per_page=1000', { data: updatedProduits });
+                                await setCache('/produits', { data: updatedProduits });
+                            }
+                        }
+                    } catch (errOfflineSave) {
+                        console.error('Erreur enrichissement vente hors-ligne:', errOfflineSave);
+                    }
+                }
+
+                // Ajustement de stock hors-ligne → mise à jour immédiate du stock local en cache
+                if (method === 'post' && requestUrl.includes('/stock/ajuster')) {
+                    try {
+                        const cachedProduitsRes = (await getCache('/produits?per_page=1000')) || (await getCache('/produits'));
+                        const produitsList = Array.isArray(cachedProduitsRes?.data?.data) ? cachedProduitsRes.data.data : (Array.isArray(cachedProduitsRes?.data) ? cachedProduitsRes.data : (Array.isArray(cachedProduitsRes) ? cachedProduitsRes : []));
+                        const pId = payload.produit_id;
+                        const qty = Number(payload.quantite || 0);
+                        const typeMvt = payload.type_mouvement;
+
+                        if (pId && produitsList.length > 0) {
+                            const updatedProduits = produitsList.map(p => {
+                                if (p.id === pId) {
+                                    const current = Number(p.stock ?? p.stock_disponible ?? p.stock_actuel ?? 0);
+                                    const newStk = typeMvt === 'ajustement_positif' ? (current + qty) : Math.max(0, current - qty);
+                                    return { ...p, stock: newStk, stock_disponible: newStk, stock_actuel: newStk };
+                                }
+                                return p;
+                            });
+                            await setCache('/produits?per_page=1000', { data: updatedProduits });
+                            await setCache('/produits', { data: updatedProduits });
+                        }
+                    } catch (errAdj) {
+                        console.error('Erreur mise à jour stock ajusté hors-ligne:', errAdj);
+                    }
                 }
 
                 return Promise.resolve({

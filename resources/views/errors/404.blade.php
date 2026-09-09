@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Page introuvable — PILOTIX</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,8 @@
             border-bottom: 1px solid rgba(0,0,0,0.06);
         }
         .nav-logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-        .nav-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
+        .nav-logo img { height: 44px; width: 44px; object-fit: contain; border-radius: 10px; transition: all 0.3s; }
+        @media (max-width: 600px) { .nav-logo img { height: 36px; width: 36px; } }
 
         .error-page {
             flex: 1; display: flex; align-items: center; justify-content: center;

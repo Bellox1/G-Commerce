@@ -69,6 +69,7 @@ const VentesScreen = ({ navigation }) => {
     const fetchVentes = useCallback(async (pageToLoad = 1, reset = false) => {
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
+        if (reset || pageToLoad === 1) setLoading(true);
         try {
             const offline = await getOfflineVentes();
             setOfflineVentes(offline);
@@ -254,6 +255,56 @@ const VentesScreen = ({ navigation }) => {
                         </Text>
                         <Ionicons name="close-circle" size={16} color={Colors.textLight} onPress={() => { setDateDebut(null); setDateFin(null); setPeriode('aujourd_hui'); }} />
                     </TouchableOpacity>
+                )}
+
+                {offlineVentes.length > 0 && (
+                    <View style={{
+                        marginHorizontal: 16,
+                        marginBottom: 12,
+                        padding: 12,
+                        borderRadius: 10,
+                        backgroundColor: '#FFF7ED',
+                        borderWidth: 1,
+                        borderColor: '#FDBA74',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, marginRight: 8 }}>
+                            <Ionicons name="cloud-offline" size={20} color="#C2410C" />
+                            <Text style={{ fontSize: 12, fontFamily: 'PlusJakartaSans_600SemiBold', color: '#9A3412', flex: 1 }}>
+                                {offlineVentes.length} vente(s) enregistrée(s) hors-ligne.
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            style={{
+                                backgroundColor: '#C2410C',
+                                paddingHorizontal: 10,
+                                paddingVertical: 6,
+                                borderRadius: 6
+                            }}
+                            onPress={async () => {
+                                setLoading(true);
+                                try {
+                                    const { syncOfflineQueue } = require('../../utils/offlineSync');
+                                    const res = await syncOfflineQueue();
+                                    if (res.synced > 0) {
+                                        Alert.alert('Synchronisation', `${res.synced} vente(s) synchronisée(s) avec succès !`);
+                                    } else if (res.failed > 0) {
+                                        Alert.alert('Synchronisation', `${res.failed} vente(s) n'ont pas pu être synchronisées (ex: stock insuffisant).`);
+                                    } else {
+                                        Alert.alert('Synchronisation', 'Aucune vente à synchroniser.');
+                                    }
+                                } catch (err) {
+                                    Alert.alert('Erreur', 'Erreur lors de la synchronisation.');
+                                } finally {
+                                    fetchVentes(1, true);
+                                }
+                            }}
+                        >
+                            <Text style={{ fontSize: 11, fontFamily: 'Poppins_700Bold', color: '#FFF' }}>Synchroniser</Text>
+                        </TouchableOpacity>
+                    </View>
                 )}
 
 

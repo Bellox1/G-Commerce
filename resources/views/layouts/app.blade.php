@@ -382,10 +382,19 @@
         }
     </style>
     @stack('styles')
+    <script src="/js/pilotix-offline.js"></script>
 </head>
 <body>
 
 @auth
+    {{-- ── Bannière Hors Ligne ── --}}
+    <div id="offline-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:99999; background:#dc2626; color:#fff; padding:8px 16px; font-size:.82rem; font-weight:700; text-align:center; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+        <span><i class="bi bi-wifi-off"></i> &nbsp;Vous êtes <strong>hors ligne</strong> — Les ventes et arrivages créés seront synchronisés à la reconnexion.</span>
+        <span id="offline-pending-badge" style="background:rgba(255,255,255,.25); border-radius:20px; padding:2px 10px; font-size:.78rem; display:none;"></span>
+    </div>
+    {{-- ── Bannière Sync en cours ── --}}
+    <div id="sync-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:99999; background:#105e49; color:#fff; padding:8px 16px; font-size:.82rem; font-weight:700; text-align:center;"></div>
+
     <!-- Top Header -->
     <header class="app-header">
         <a href="{{ url('/') }}" class="header-brand" id="headerBrand">
@@ -393,6 +402,8 @@
         </a>
 
         <div class="header-user">
+            {{-- Indicateur connexion --}}
+            <div id="net-dot" title="Connexion OK" style="width:10px;height:10px;border-radius:50%;background:#16a34a;flex-shrink:0;transition:background .3s;" title="État de la connexion"></div>
             <a href="{{ route('download') }}" title="Télécharger l'app" id="downloadLink" style="display:flex; align-items:center; text-decoration:none; color:var(--primary); background:rgba(16,94,73,.08); width:40px; height:40px; border-radius:10px; justify-content:center; flex-shrink:0;">
                 <i class="bi bi-download" style="font-size:1.2rem;"></i>
             </a>
@@ -1485,5 +1496,99 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 @stack('scripts')
+
+@auth
+<script>
+/* ── PILOTIX : Gestionnaire Réseau & Sync Automatique ── */
+(function () {
+    var offlineBanner  = document.getElementById('offline-banner');
+    var syncBanner     = document.getElementById('sync-banner');
+    var netDot         = document.getElementById('net-dot');
+    var pendingBadge   = document.getElementById('offline-pending-badge');
+
+    /* Mettre à jour l'UI selon l'état réseau */
+    function setOnline(isOnline) {
+        if (netDot) {
+            netDot.style.background = isOnline ? '#16a34a' : '#dc2626';
+            netDot.title = isOnline ? 'Connexion OK' : 'Hors ligne';
+        }
+        if (offlineBanner) offlineBanner.style.display = isOnline ? 'none' : 'flex';
+        /* Pousser le contenu sous la bannière quand offline */
+        document.body.style.paddingTop = isOnline ? '' : '44px';
+    }
+
+    /* Mettre à jour le badge du nombre d'opérations en attente */
+    async function refreshPendingBadge() {
+        if (!window.PilotixOffline) return;
+        try {
+            var count = await PilotixOffline.countPending();
+            if (pendingBadge) {
+                if (count > 0) {
+                    pendingBadge.textContent = count + ' opération' + (count > 1 ? 's' : '') + ' en attente';
+                    pendingBadge.style.display = 'inline';
+                } else {
+                    pendingBadge.style.display = 'none';
+                }
+            }
+        } catch (_) {}
+    }
+
+    /* Afficher une notification de sync */
+    function showSyncMsg(msg, color) {
+        if (!syncBanner) return;
+        syncBanner.style.background = color || '#105e49';
+        syncBanner.innerHTML = msg;
+        syncBanner.style.display = 'block';
+        setTimeout(function () { syncBanner.style.display = 'none'; }, 4000);
+    }
+
+    /* Sync automatique au retour en ligne */
+    window.addEventListener('online', async function () {
+        setOnline(true);
+        if (!window.PilotixOffline) return;
+        var count = await PilotixOffline.countPending();
+        if (count === 0) return;
+
+        showSyncMsg('<i class="bi bi-arrow-repeat" style="animation:spin .8s linear infinite;display:inline-block"></i>&nbsp; Synchronisation de ' + count + ' opération' + (count > 1 ? 's' : '') + ' en cours…', '#105e49');
+
+        try {
+            var result = await PilotixOffline.syncAll();
+            var parts = [];
+            if (result.ventes   > 0) parts.push(result.ventes   + ' vente' + (result.ventes > 1 ? 's' : ''));
+            if (result.arrivages > 0) parts.push(result.arrivages + ' arrivage' + (result.arrivages > 1 ? 's' : ''));
+
+            if (parts.length > 0) {
+                showSyncMsg('✅ Synchronisé : ' + parts.join(', ') + (result.errors > 0 ? ' · ⚠ ' + result.errors + ' erreur(s)' : ''), result.errors > 0 ? '#b45309' : '#105e49');
+                /* Recharger la page après sync pour voir les données à jour */
+                setTimeout(function () { window.location.reload(); }, 2000);
+            } else if (result.errors > 0) {
+                showSyncMsg('⚠ ' + result.errors + ' opération(s) n\'ont pas pu être synchronisées.', '#dc2626');
+            }
+        } catch (_) {
+            showSyncMsg('⚠ Erreur lors de la synchronisation.', '#dc2626');
+        }
+    });
+
+    window.addEventListener('offline', function () {
+        setOnline(false);
+        refreshPendingBadge();
+    });
+
+    /* Initialisation */
+    setOnline(navigator.onLine);
+    if (!navigator.onLine) refreshPendingBadge();
+
+    /* Rafraîchir le badge si on revient sur la page */
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && !navigator.onLine) refreshPendingBadge();
+    });
+
+    /* Style pour l'icône spin */
+    var style = document.createElement('style');
+    style.textContent = '@keyframes spin { to { transform:rotate(360deg); } }';
+    document.head.appendChild(style);
+})();
+</script>
+@endauth
 </body>
 </html>

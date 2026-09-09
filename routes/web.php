@@ -60,11 +60,14 @@ Route::get('/download', function() { return view('download'); })->name('download
 
 // Route de téléchargement direct de l'APK (Public)
 Route::get('/download/apk', function() {
-    $path = public_path('downloads/pilotix-v1.1.0.apk');
+    $path = public_path('downloads/pilotix-v1.2.0.apk');
     if (!file_exists($path)) {
-        return back()->with('error', 'Le fichier d\'installation APK (pilotix-v1.1.0.apk) est en cours de téléversement dans le dossier public/downloads/.');
+        $path = public_path('downloads/pilotix-latest.apk');
     }
-    return response()->download($path, 'pilotix-v1.1.0.apk', [
+    if (!file_exists($path)) {
+        return back()->with('error', 'Le fichier d\'installation APK (pilotix-v1.2.0.apk) est en cours de téléversement dans le dossier public/downloads/.');
+    }
+    return response()->download($path, 'pilotix-v1.2.0.apk', [
         'Content-Type' => 'application/vnd.android.package-archive',
     ]);
 })->name('download.apk');

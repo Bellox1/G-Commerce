@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
     <title>Programme Partenaires & Affiliation — PILOTIX</title>
     <meta name="description" content="Devenez partenaire PILOTIX. Touchez jusqu'à {{ number_format($maxCommission ?? 0, 0, ' ', ' ') }} FCFA de commission unique par vente et débloquez jusqu'à {{ number_format($maxPrime ?? 0, 0, ' ', ' ') }} FCFA de prime de performance !">
     <meta name="keywords" content="partenaire, affiliation, commission, PILOTIX, souscription, parrainage, revendeur">
@@ -48,8 +49,8 @@
             border-bottom: 1px solid rgba(0,0,0,0.06);
         }
         .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        .nav-logo img { height: 48px; width: 48px; object-fit: contain; border-radius: 12px; }
-        .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--primary-dark); }
+        .nav-logo img { height: 44px; width: 44px; object-fit: contain; border-radius: 10px; transition: all 0.3s; }
+        .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--primary-dark); }
         .nav-links { display: flex; align-items: center; gap: 24px; }
         .nav-links a { color: var(--text-main); text-decoration: none; font-weight: 600; font-size: 0.92rem; transition: color 0.2s; }
         .nav-links a:hover { color: var(--primary); }
@@ -281,9 +282,17 @@
             background: rgba(245, 158, 11, 0.08); border-color: rgba(245, 158, 11, 0.2);
         }
         .cash-lbl { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
-        .cash-amount { font-family: 'Space Grotesk', sans-serif; font-size: 1.9rem; font-weight: 800; color: var(--primary-dark); margin-top: 2px; }
-        .cash-box.featured-box .cash-amount { color: var(--secondary-dark); }
+        .cash-amount { font-family: 'Space Grotesk', sans-serif; font-size: 1.9rem; font-weight: 800; color: var(--primary-dark) !important; margin-top: 2px; text-decoration: none !important; }
+        .cash-box.featured-box .cash-amount { color: var(--secondary-dark) !important; }
         .payout-type { font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
+
+        /* Correction globale iOS Safari : empécher le soulignement et la couleur violette des prix/nombres */
+        a[href^="tel"], a[href^="mailto"], a:link, a:visited {
+            text-decoration: none;
+        }
+        .res-val { font-weight: 800; color: #fef08a !important; text-decoration: none !important; }
+        .res-total-num { font-family: 'Space Grotesk', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fbbf24 !important; margin-top: 4px; text-decoration: none !important; }
+        .prime-amt { color: var(--primary) !important; text-decoration: none !important; font-weight: 700; }
 
         .card-features-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; flex-grow: 1; }
         .card-features-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; color: #475569; line-height: 1.5; }
@@ -360,7 +369,7 @@
         .form-group label { display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
         .form-control {
             width: 100%; padding: 12px 16px; border: 1.5px solid var(--border-color); border-radius: 10px;
-            font-size: 0.92rem; font-family: inherit; transition: all 0.2s; background: #fff;
+            font-size: 16px; font-family: inherit; transition: all 0.2s; background: #fff;
         }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(15, 92, 71, 0.12); }
         textarea.form-control { resize: vertical; min-height: 90px; }
@@ -417,8 +426,9 @@
 
         @media (max-width: 600px) {
             nav { justify-content: space-between; }
-            .nav-logo-text { font-size: 1.1rem; }
-            .nav-logo img { height: 38px; width: 38px; }
+            .nav-logo-text { font-size: 1.05rem; }
+            .nav-logo img { height: 36px; width: 36px; }
+            input, select, textarea, .form-control { font-size: 16px !important; }
             .hero { padding: 44px 16px 60px; }
             .hero h1 { font-size: 1.75rem; line-height: 1.25; }
             .hero-sub { font-size: 0.92rem; margin-bottom: 24px; }

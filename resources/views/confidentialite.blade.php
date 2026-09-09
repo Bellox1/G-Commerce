@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Politique de confidentialité — PILOTIX</title>
     <meta name="description" content="Politique de confidentialité de PILOTIX. Découvrez comment nous protégeons vos données.">
     <meta name="robots" content="index, follow">
@@ -15,7 +15,8 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.8; }
         nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; padding: 0 5%; min-height: 64px; background: #fff; border-bottom: 1px solid var(--border); justify-content: space-between; }
         .nav-logo { display: flex; align-items: center; text-decoration: none; }
-        .nav-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
+        .nav-logo img { height: 44px; width: 44px; object-fit: contain; border-radius: 10px; transition: all 0.3s; }
+        @media (max-width: 600px) { .nav-logo img { height: 36px; width: 36px; } input, select, textarea { font-size: 16px !important; } }
         .nav-links { display: flex; align-items: center; gap: 24px; margin-left: auto; }
         .nav-links a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
         .nav-links a:hover { color: var(--primary); }

@@ -357,7 +357,7 @@ const ProfileScreen = ({ navigation }) => {
                 </TouchableOpacity>
 
                 <View style={styles.appVersion}>
-                    <Text style={styles.appVersionText}>PILOTIX v1.1.0</Text>
+                    <Text style={styles.appVersionText}>PILOTIX v1.1.1</Text>
                 </View>
             </ScrollView>
             </KeyboardAvoidingView>

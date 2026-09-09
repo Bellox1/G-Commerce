@@ -14,6 +14,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast, { useToast } from '../../components/Toast';
 
 
+import { getCache } from '../../utils/offlineSync';
+
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 Mo (serveur accepte 10 Mo)
 
 const CreateProduitScreen = ({ navigation, route }) => {
@@ -64,15 +66,33 @@ const CreateProduitScreen = ({ navigation, route }) => {
 
     const fetchMagasins = async () => {
         try {
-            const resp = await client.get('/magasins');
-            const list = resp.data?.data || (Array.isArray(resp.data) ? resp.data : []);
-            setMagasins(list);
-            if (editing && list.length > 0) {
-                const det = await client.get(`/produits/${editing.id}`);
-                const spm = det.data?.stockParMagasin || {};
-                const spmc = det.data?.stockCartouchesParMagasin || {};
-                setStocks(Object.fromEntries(list.map(m => [m.id, String(spm[m.id] ?? 0)])));
-                setStocksCartouches(Object.fromEntries(list.map(m => [m.id, String(spmc[m.id] ?? 0)])));
+            let list = [];
+            try {
+                const resp = await client.get('/magasins');
+                const raw = resp.data;
+                if (Array.isArray(raw)) list = raw;
+                else if (Array.isArray(raw?.data)) list = raw.data;
+                else if (raw?.data && Array.isArray(raw.data.data)) list = raw.data.data;
+            } catch (e) {}
+
+            if (!list || list.length === 0) {
+                const cached = await getCache('/magasins');
+                if (Array.isArray(cached)) list = cached;
+                else if (Array.isArray(cached?.data)) list = cached.data;
+                else if (cached?.data && Array.isArray(cached.data.data)) list = cached.data.data;
+            }
+
+            setMagasins(list || []);
+
+            if (editing && list && list.length > 0) {
+                try {
+                    const det = await client.get(`/produits/${editing.id}`);
+                    const pData = det.data?.data || det.data;
+                    const spm = det.data?.stockParMagasin || pData?.stockParMagasin || {};
+                    const spmc = det.data?.stockCartouchesParMagasin || pData?.stockCartouchesParMagasin || {};
+                    setStocks(Object.fromEntries(list.map(m => [m.id, String(spm[m.id] ?? 0)])));
+                    setStocksCartouches(Object.fromEntries(list.map(m => [m.id, String(spmc[m.id] ?? 0)])));
+                } catch (errDet) {}
             }
         } catch (e) {
             console.error('Error fetching magasins:', e);

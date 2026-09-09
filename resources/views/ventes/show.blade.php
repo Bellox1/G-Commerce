@@ -174,6 +174,18 @@ function togglePrintOption(option, checked) {
         card.classList.toggle('hide-vendeur', checked);
     }
 }
+
+// ── Empêcher le retour vers le formulaire de création (bouton ← du navigateur) ──
+// Quand l'utilisateur revient en arrière depuis la facture, on le redirige
+// vers la liste des ventes au lieu du formulaire vide.
+(function() {
+    if (window.history && window.history.pushState) {
+        window.history.pushState({ page: 'facture' }, '', window.location.href);
+        window.addEventListener('popstate', function() {
+            window.location.replace('{{ route("ventes.index") }}');
+        });
+    }
+})();
 </script>
 @endpush
 @endsection

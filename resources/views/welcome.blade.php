@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
     <title>PILOTIX — Logiciel de Gestion Commerciale Multi-Magasins</title>
     <meta name="description" content="PILOTIX : logiciel de gestion commerciale multi-magasins. Gérez vos ventes, stocks, clients, livraisons, arrivages et dettes en temps réel." />
     <link rel="shortcut icon" href="/PILOTIX-logo.png" type="image/png" />
@@ -944,6 +945,29 @@
             color: var(--text-muted);
         }
 
+        @media (max-width: 768px) {
+            .devices-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+            .device-item {
+                flex: unset !important;
+                width: 100% !important;
+                padding: 16px 10px !important;
+            }
+            .device-item .icon-wrap {
+                font-size: 2.2rem !important;
+                margin-bottom: 6px !important;
+            }
+            .device-item h4 {
+                font-size: 0.9rem !important;
+            }
+            .device-item p {
+                font-size: 0.78rem !important;
+            }
+        }
+
         /* ===== CONTACT / CTA ===== */
         .contact {
             padding: 80px 0;
@@ -1015,7 +1039,7 @@
             border: 1.5px solid var(--border);
             background: var(--surface);
             font-family: inherit;
-            font-size: 0.92rem;
+            font-size: 16px;
             transition: border-color 0.2s, box-shadow 0.2s;
             color: var(--text);
         }
@@ -1692,7 +1716,12 @@
                     <div class="plan-name">Essentiel</div>
                     <div class="plan-desc">Idéal pour démarrer une boutique unique.</div>
                     <div class="price">{{ number_format($rules['essentiel']->prix ?? 0, 0, ' ', ' ') }}<small> FCFA / an</small></div>
-                    <div class="price-note"><i class="bi bi-wallet2"></i> Paiement en 3x possible</div>
+                    @php
+                        $essentielTranche = ($rules['essentiel']->prix_tranche_3x ?? 0) > 0 
+                            ? $rules['essentiel']->prix_tranche_3x 
+                            : round(($rules['essentiel']->prix ?? 0) / 3);
+                    @endphp
+                    <div class="price-note"><i class="bi bi-wallet2"></i> Paiement 3x possible (3 × {{ number_format($essentielTranche, 0, ' ', ' ') }} FCFA)</div>
                     <ul class="features-list">
                         <li><i class="bi bi-check-lg"></i> 1 Poste de travail</li>
                         <li><i class="bi bi-check-lg"></i> Gestion des produits & stocks</li>
@@ -1709,7 +1738,12 @@
                     <div class="plan-name">Professionnel</div>
                     <div class="plan-desc">Pour grossistes, importateurs et multi-magasins.</div>
                     <div class="price">{{ number_format($rules['professionnel']->prix ?? 0, 0, ' ', ' ') }}<small> FCFA / an</small></div>
-                    <div class="price-note"><i class="bi bi-wallet2"></i> Paiement en 3x possible</div>
+                    @php
+                        $profTrancheCard = ($rules['professionnel']->prix_tranche_3x ?? 0) > 0 
+                            ? $rules['professionnel']->prix_tranche_3x 
+                            : round(($rules['professionnel']->prix ?? 0) / 3);
+                    @endphp
+                    <div class="price-note"><i class="bi bi-wallet2"></i> Paiement 3x possible (3 × {{ number_format($profTrancheCard, 0, ' ', ' ') }} FCFA)</div>
                     <ul class="features-list">
                         <li><i class="bi bi-check-lg"></i> <strong>Plusieurs postes</strong> & utilisateurs</li>
                         <li><i class="bi bi-check-lg"></i> <strong>Gestion des Importations</strong> & arrivages</li>
@@ -1819,10 +1853,17 @@
                             </div>
                         </div>
 
-                        <label class="checkbox-wrap">
+                        <label class="checkbox-wrap" id="wrap_paiement_3x">
                             <input type="checkbox" name="paiement_3x" id="paiement_3x" value="1" onchange="updatePricing()" />
                             Option : Répartir en 3 tranches
-                            <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;" id="installmentDetail">3 × {{ number_format(round(($rules['professionnel']->prix ?? 0) / 3), 0, ' ', ' ') }} FCFA</span>
+                            <span style="font-weight:400; color:var(--text-muted); font-size:0.85rem;" id="installmentDetail">
+                                @php
+                                    $initialTranche = ($rules['professionnel']->prix_tranche_3x ?? 0) > 0 
+                                        ? $rules['professionnel']->prix_tranche_3x 
+                                        : round(($rules['professionnel']->prix ?? 0) / 3);
+                                @endphp
+                                3 × {{ number_format($initialTranche, 0, ' ', ' ') }} FCFA
+                            </span>
                         </label>
 
                         <button type="submit" class="btn-submit"><i class="bi bi-send-fill"></i> Soumettre ma demande</button>
@@ -1846,17 +1887,17 @@
             <div class="devices-grid">
                 <div class="device-item reveal reveal-delay-1">
                     <div class="icon-wrap"><i class="bi bi-phone"></i></div>
-                    <h4>Mobile App</h4>
-                    <p>Interface principale pour vendeurs et livreurs</p>
+                    <h4>Mobile App (Android)</h4>
+                    <p>Interface principale vendeurs & livreurs</p>
                 </div>
                 <div class="device-item reveal reveal-delay-2">
-                    <div class="icon-wrap"><i class="bi bi-tablet-landscape"></i></div>
-                    <h4>Tablette POS</h4>
-                    <p>Caisse magasin optimisée</p>
+                    <div class="icon-wrap"><i class="bi bi-apple"></i></div>
+                    <h4>iPhone & Web (iOS)</h4>
+                    <p>Accès 100% Web optimisé mobile</p>
                 </div>
                 <div class="device-item reveal reveal-delay-3">
                     <div class="icon-wrap"><i class="bi bi-laptop"></i></div>
-                    <h4>Ordinateur Web</h4>
+                    <h4>PC, Mac & Tablette</h4>
                     <p>Supervision & gestion des dépôts</p>
                 </div>
                 <div class="device-item reveal reveal-delay-4">
@@ -1914,10 +1955,19 @@
     <!-- ===== SCRIPTS ===== -->
     <script>
         // ---- Pricing updater ----
-        const OFFRE_PRIX = {
-            essentiel: {{ $rules['essentiel']?->prix ?? 0 }},
-            professionnel: {{ $rules['professionnel']?->prix ?? 0 }},
-            entreprise: {{ $rules['entreprise']?->prix ?? 0 }}
+        const OFFRES = {
+            essentiel: {
+                prix: {{ $rules['essentiel']?->prix ?? 0 }},
+                tranche3x: {{ $rules['essentiel']?->prix_tranche_3x ?? 0 }}
+            },
+            professionnel: {
+                prix: {{ $rules['professionnel']?->prix ?? 0 }},
+                tranche3x: {{ $rules['professionnel']?->prix_tranche_3x ?? 0 }}
+            },
+            entreprise: {
+                prix: {{ $rules['entreprise']?->prix ?? 0 }},
+                tranche3x: {{ $rules['entreprise']?->prix_tranche_3x ?? 0 }}
+            }
         };
 
         function formatFcfa(n) {
@@ -1925,33 +1975,42 @@
         }
 
         function updatePricing() {
-            const type = document.getElementById('type_souscription').value;
-            const is3x = document.getElementById('paiement_3x').checked;
-            const prix = OFFRE_PRIX[type] || 0;
+            const type = document.getElementById('type_souscription')?.value || 'professionnel';
+            const checkboxWrap = document.getElementById('wrap_paiement_3x');
+            const checkboxInput = document.getElementById('paiement_3x');
+            const is3x = checkboxInput ? checkboxInput.checked : false;
 
-            document.getElementById('priceTotal').textContent = formatFcfa(prix);
+            const item = OFFRES[type] || { prix: 0, tranche3x: 0 };
+            const cashPrix = item.prix;
+            const tranchePrice = item.tranche3x > 0 ? item.tranche3x : Math.round(cashPrix / 3);
+            const total3x = item.tranche3x > 0 ? (item.tranche3x * 3) : cashPrix;
 
             const label = document.getElementById('installmentLabel');
             const detail = document.getElementById('installmentDetail');
+            const priceTotal = document.getElementById('priceTotal');
 
             if (type === 'entreprise') {
-                label.textContent = 'Licence à vie / Devis';
-                detail.textContent = 'Sur-mesure';
-                document.getElementById('paiement_3x').checked = false;
-                document.getElementById('paiement_3x').disabled = true;
+                if (checkboxWrap) checkboxWrap.style.display = 'none';
+                if (checkboxInput) checkboxInput.checked = false;
+                if (label) label.textContent = 'Licence à vie / Devis';
+                if (detail) detail.textContent = 'Sur-mesure';
+                if (priceTotal) priceTotal.textContent = formatFcfa(cashPrix);
             } else {
-                document.getElementById('paiement_3x').disabled = false;
+                if (checkboxWrap) checkboxWrap.style.display = 'flex';
                 if (is3x) {
-                    const each = Math.round(prix / 3);
-                    label.textContent = '3 × ' + formatFcfa(each);
-                    detail.textContent = '3 × ' + formatFcfa(each) + ' (soit ' + formatFcfa(prix) + ')';
+                    if (priceTotal) priceTotal.textContent = formatFcfa(total3x);
+                    if (label) label.textContent = '3 × ' + formatFcfa(tranchePrice);
+                    if (detail) detail.textContent = '3 × ' + formatFcfa(tranchePrice) + ' (soit ' + formatFcfa(total3x) + ')';
                 } else {
-                    label.textContent = 'Paiement 3x disponible';
-                    const each = Math.round(prix / 3);
-                    detail.textContent = '3 × ' + formatFcfa(each);
+                    if (priceTotal) priceTotal.textContent = formatFcfa(cashPrix);
+                    if (label) label.textContent = 'Paiement 3x disponible';
+                    if (detail) detail.textContent = '3 × ' + formatFcfa(tranchePrice) + (item.tranche3x > 0 ? ' (soit ' + formatFcfa(total3x) + ')' : '');
                 }
             }
         }
+
+        document.addEventListener('DOMContentLoaded', updatePricing);
+        updatePricing();
 
         // ---- Mobile menu ----
         function toggleMenu() {

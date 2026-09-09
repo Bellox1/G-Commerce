@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Devenir Partenaire — PILOTIX</title>
     <meta name="description" content="Rejoignez le réseau de partenaires PILOTIX. Proposez la gestion commerciale à vos clients.">
     <meta name="robots" content="index, follow">
@@ -33,7 +33,7 @@
             flex-wrap: wrap; gap: 6px 0; justify-content: space-between;
         }
         .nav-logo { display: flex; align-items: center; text-decoration: none; flex-shrink: 0; }
-        .nav-logo img { height: 56px; width: 56px; object-fit: contain; border-radius: 12px; }
+        .nav-logo img { height: 44px; width: 44px; object-fit: contain; border-radius: 10px; transition: all 0.3s; }
         .nav-links-pub { display: flex; align-items: center; gap: 32px; margin-left: auto; flex-wrap: wrap; }
         .nav-links-pub a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.92rem; white-space: nowrap; }
         .nav-links-pub a:hover { color: var(--primary); }
@@ -69,7 +69,7 @@
         .fg label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 5px; color: var(--text); }
         .fg input, .fg textarea {
             width: 100%; padding: 11px 14px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
-            font-size: 0.92rem; font-family: 'Inter', sans-serif; color: var(--text); background: #fff; transition: all .2s;
+            font-size: 16px; font-family: 'Inter', sans-serif; color: var(--text); background: #fff; transition: all .2s;
         }
         .fg input:focus, .fg textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(16,94,73,0.1); }
         .fg textarea { resize: vertical; min-height: 90px; }
@@ -96,6 +96,8 @@
         @media (max-width: 768px) {
             .nav-links-pub { display: none; }
             .sub-hero h1 { font-size: 1.8rem; }
+            .nav-logo img { height: 36px; width: 36px; }
+            input, select, textarea { font-size: 16px !important; }
         }
     </style>
 </head>

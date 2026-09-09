@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
     <title>Téléchargements PILOTIX — Application Mobile & Desktop</title>
     <meta name="description" content="Téléchargez PILOTIX pour Android (APK), iOS (Expo Go) et Ordinateur (Windows, Mac, Linux). Solution complète de gestion commerciale.">
     <meta name="keywords" content="télécharger PILOTIX, application mobile gestion, apk android PILOTIX, PILOTIX desktop, expo go PILOTIX">
@@ -50,8 +51,8 @@
             justify-content: space-between;
         }
         .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
-        .nav-logo img { height: 48px; width: 48px; object-fit: contain; border-radius: 12px; }
-        .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--primary-dark); }
+        .nav-logo img { height: 44px; width: 44px; object-fit: contain; border-radius: 10px; transition: all 0.3s; }
+        .nav-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--primary-dark); }
         
         .nav-links-pub { display: flex; align-items: center; gap: 28px; margin-left: auto; }
         .nav-links-pub a { color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.92rem; white-space: nowrap; transition: color 0.2s; }
@@ -272,6 +273,9 @@
             .section-title { font-size: 2rem; }
             .dl-grid { grid-template-columns: 1fr; }
             .footer-top { flex-direction: column; gap: 32px; }
+            .nav-logo-text { font-size: 1.05rem; }
+            .nav-logo img { height: 36px; width: 36px; }
+            input, select, textarea { font-size: 16px !important; }
         }
     </style>
 </head>
@@ -279,7 +283,7 @@
 
     <!-- TOP BANNER -->
     <div class="top-banner">
-        <span>⚡ Nouveau :</span> PILOTIX Mobile v1.1.0 disponible !
+        <span>⚡ Nouveau :</span> PILOTIX Mobile v1.2.0 disponible !
         <a href="#mobile-apps">Télécharger l'APK Android <i class="bi bi-arrow-right"></i></a>
     </div>
 
@@ -362,12 +366,12 @@
 
                 <!-- CARD 1: ANDROID APK -->
                 <div class="dl-card highlight" id="card-android">
-                    <span class="dl-card-badge badge-green"><i class="bi bi-star-fill"></i> Recommandé Android (v1.1.0)</span>
+                    <span class="dl-card-badge badge-green"><i class="bi bi-star-fill"></i> Recommandé Android (v1.2.0)</span>
                     <div class="dl-card-icon icon-green">
                         <i class="bi bi-android2"></i>
                     </div>
                     <h3 class="dl-card-title">Android — App Native (.APK)</h3>
-                    <p class="dl-card-desc">L'application mobile native complète version 1.1.0 pour smartphone et tablette Android (8.0+). Installation directe rapide.</p>
+                    <p class="dl-card-desc">L'application mobile native complète version 1.2.0 pour smartphone et tablette Android (8.0+). Installation directe rapide.</p>
                     
                     <ul class="dl-feature-list">
                         <li class="dl-feature-item"><i class="bi bi-check" style="background:rgba(16,94,73,0.1); color:var(--primary);"></i> Scan de photos et caméras fluide</li>
@@ -376,7 +380,7 @@
                     </ul>
 
                     <a href="{{ route('download.apk') }}" class="btn-card-action btn-action-primary">
-                        <i class="bi bi-download"></i> Télécharger l'APK (~120 Mo) — v1.1.0
+                        <i class="bi bi-download"></i> Télécharger l'APK (~120 Mo) — v1.2.0
                     </a>
                 </div>
 

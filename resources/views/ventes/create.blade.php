@@ -226,10 +226,43 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const produitsData = @json($produitsJson);
-    const clientsData = @json($clientsJson);
+    const clientsData  = @json($clientsJson);
     const createClientUrl = '{{ route('clients.create') }}';
     let venteCount = 1;
     const container = document.getElementById('ventes-container');
+    const magasinSelect = document.getElementById('magasin-select');
+
+    // ── Sauvegarder un snapshot du stock pour validation offline ──
+    if (window.PilotixOffline && navigator.onLine) {
+        const magId = magasinSelect ? magasinSelect.value : null;
+        if (magId) {
+            PilotixOffline.saveStockSnapshot(magId, produitsData).catch(function() {});
+        }
+    }
+    // Mise à jour snapshot quand le magasin change
+    if (magasinSelect) {
+        magasinSelect.addEventListener('change', function() {
+            if (window.PilotixOffline && navigator.onLine) {
+                PilotixOffline.saveStockSnapshot(this.value, produitsData).catch(function() {});
+            }
+        });
+    }
+
+    // ── Si hors ligne : charger le stock depuis le snapshot local ──
+    // (remplace produitsData par les stocks mis à jour au fil des ventes offline)
+    if (!navigator.onLine && window.PilotixOffline) {
+        const magId = magasinSelect ? magasinSelect.value : null;
+        if (magId) {
+            PilotixOffline.getStockSnapshot(magId).then(function(snap) {
+                if (!snap || !snap.produits) return;
+                // Mettre à jour produitsData avec les stocks offline corrigés
+                snap.produits.forEach(function(sp) {
+                    const p = produitsData.find(function(x) { return String(x.id) === String(sp.id); });
+                    if (p) p.stock = sp.stock;
+                });
+            }).catch(function() {});
+        }
+    }
 
     // ── Client autocomplete (full list on focus, filter on type) ──
     function initClientAutocomplete(input) {
@@ -316,39 +349,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             results.forEach((p, i) => {
                 const item = document.createElement('div');
-                item.className = 'autocomplete-item' + (i === 0 ? ' active' : '');
-                item.innerHTML = `<span>${p.nom}</span><span class="stock-badge ${p.stock <= 5 ? 'stock-low' : 'stock-ok'}">Stock: ${p.stock}</span>`;
-                item.dataset.id = p.id;
-                item.addEventListener('click', () => {
-                    hiddenId.value = p.id;
-                    input.value = p.nom;
-                    input.classList.remove('input-invalid');
-                    prixInput.value = Math.round(p.prix_vente_conseille ?? p.prix ?? 0);
-                    
-                    row.dataset.stock = p.stock;
-                    row.dataset.cartoucheParCarton = p.cartouche_par_carton || '1';
+                const hasStock = p.stock > 0;
+                item.className = 'autocomplete-item' + (i === 0 && hasStock ? ' active' : '');
+                // Produit hors stock : grisé et non cliquable
+                if (!hasStock) {
+                    item.style.cssText = 'opacity:.5; cursor:not-allowed; pointer-events:none; background:#f9fafb;';
+                    item.innerHTML = `<span style="color:var(--text-muted)">${p.nom}</span><span class="stock-badge" style="background:#fee2e2;color:#dc2626;font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:600;">Stock épuisé</span>`;
+                } else {
+                    item.innerHTML = `<span>${p.nom}</span><span class="stock-badge ${p.stock <= 5 ? 'stock-low' : 'stock-ok'}">Stock: ${p.stock}</span>`;
+                    item.dataset.id = p.id;
+                    item.addEventListener('click', () => {
+                        hiddenId.value = p.id;
+                        input.value = p.nom;
+                        input.classList.remove('input-invalid');
+                        prixInput.value = Math.round(p.prix_vente_conseille ?? p.prix ?? 0);
+                        
+                        row.dataset.stock = p.stock;
+                        row.dataset.cartoucheParCarton = p.cartouche_par_carton || '1';
 
-                    const cartoucheCol = row.querySelector('.cartouche-col');
-                    const qteCartoucheInput = row.querySelector('.qte-cartouche-input');
-                    const prixCartoucheInput = row.querySelector('.prix-cartouche-input');
+                        const cartoucheCol = row.querySelector('.cartouche-col');
+                        const qteCartoucheInput = row.querySelector('.qte-cartouche-input');
+                        const prixCartoucheInput = row.querySelector('.prix-cartouche-input');
 
-                    if (p.a_cartouche && p.cartouche_par_carton) {
-                        if (cartoucheCol) cartoucheCol.style.display = 'flex';
-                        if (prixCartoucheInput) prixCartoucheInput.value = p.prix_cartouche ? Math.round(p.prix_cartouche) : '';
-                        if (qteCartoucheInput) qteCartoucheInput.value = 0;
-                    } else {
-                        if (cartoucheCol) cartoucheCol.style.display = 'none';
-                        if (qteCartoucheInput) qteCartoucheInput.value = 0;
-                        if (prixCartoucheInput) prixCartoucheInput.value = 0;
-                        const qteInput = row.querySelector('.qte-input');
-                        if (qteInput && (parseInt(qteInput.value) || 0) === 0) qteInput.value = 1;
-                    }
+                        if (p.a_cartouche && p.cartouche_par_carton) {
+                            if (cartoucheCol) cartoucheCol.style.display = 'flex';
+                            if (prixCartoucheInput) prixCartoucheInput.value = p.prix_cartouche ? Math.round(p.prix_cartouche) : '';
+                            if (qteCartoucheInput) qteCartoucheInput.value = 0;
+                        } else {
+                            if (cartoucheCol) cartoucheCol.style.display = 'none';
+                            if (qteCartoucheInput) qteCartoucheInput.value = 0;
+                            if (prixCartoucheInput) prixCartoucheInput.value = 0;
+                            const qteInput = row.querySelector('.qte-input');
+                            if (qteInput && (parseInt(qteInput.value) || 0) === 0) qteInput.value = 1;
+                        }
 
-                    dropdown.classList.remove('show');
-                    recalcRow(row);
-                    recalcVente(row.closest('.vente-card'));
-                    validateQte(row);
-                });
+                        dropdown.classList.remove('show');
+                        recalcRow(row);
+                        recalcVente(row.closest('.vente-card'));
+                        validateQte(row);
+                    });
+                }
                 dropdown.appendChild(item);
             });
             dropdown.classList.add('show');
@@ -791,15 +831,41 @@ document.addEventListener('DOMContentLoaded', function() {
         venteCount++;
     });
 
-    // ── Check overstock ──
+    // ── Vérification stock robuste (ne se fie pas aux classes CSS seules) ──
     function hasOverstock() {
         let over = false;
-        container.querySelectorAll('.qte-overstock').forEach(function(el) {
-            if (el.closest('.ligne-row').closest('.vente-card').style.display !== 'none') over = true;
+
+        // 1. Re-valider toutes les lignes avant de répondre
+        container.querySelectorAll('.ligne-row').forEach(function(row) {
+            // Déclencher la validation pour mettre à jour les classes CSS
+            validateQte(row);
+
+            // Vérification directe depuis produitsData (plus fiable)
+            const produitId = row.querySelector('.produit-id')?.value;
+            if (!produitId) return;
+            const prod = produitsData.find(p => p.id == produitId);
+            if (!prod) return; // produit inconnu = pas dans la liste (stock 0)
+
+            const qteInput = row.querySelector('.qte-input');
+            const qteCartoucheInput = row.querySelector('.qte-cartouche-input');
+            const qte = parseInt(qteInput?.value) || 0;
+            const qteCartouche = parseInt(qteCartoucheInput?.value) || 0;
+            const cartoucheParCarton = parseInt(row.dataset.cartoucheParCarton) || 1;
+            const cartonsNecessaires = qte + Math.ceil(qteCartouche / cartoucheParCarton);
+            const stockDispo = parseInt(prod.stock) || 0;
+
+            if (stockDispo <= 0 || cartonsNecessaires > stockDispo) {
+                over = true;
+                if (qteInput) qteInput.classList.add('qte-overstock');
+                if (qteCartoucheInput) qteCartoucheInput.classList.add('qte-overstock');
+            }
         });
+
+        // 2. Vérifier aussi les paiements suppérieurs au total
         container.querySelectorAll('.paye-over').forEach(function(el) {
             if (el.closest('.vente-card').style.display !== 'none') over = true;
         });
+
         return over;
     }
 
@@ -902,6 +968,12 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Veuillez sélectionner un produit pour chaque ligne.');
             return;
         }
+        // Vérifier stock et paiements
+        if (hasOverstock()) {
+            e.preventDefault();
+            alert('\u26a0 Stock insuffisant pour un ou plusieurs articles.\nVérifiez les quantités en rouge avant de valider.');
+            return;
+        }
         // Vérifier que montant_payé ≤ total par carte
         container.querySelectorAll('.vente-card').forEach(card => {
             let total = 0;
@@ -928,7 +1000,100 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Le montant payé ne peut pas dépasser le total ou un client doit être sélectionné si un paiement est saisi.');
             return;
         }
+
+        // ── Interception Hors Ligne ──
+        if (!navigator.onLine && window.PilotixOffline) {
+            e.preventDefault();
+            handleOfflineSubmit(this);
+            return;
+        }
     });
+
+    // ── Gestion du submit en mode hors ligne ──
+    async function handleOfflineSubmit(form) {
+        // Sérialiser les données du formulaire
+        const formData = new FormData(form);
+        const params   = new URLSearchParams();
+        for (const [k, v] of formData) params.append(k, v);
+        const formBody = params.toString();
+
+        // Construire les données d'affichage lisibles
+        const display = buildOfflineDisplay();
+
+        try {
+            await PilotixOffline.storeVente(formBody, display, form.action);
+
+            // Déduire les quantités vendues du snapshot stock
+            const magId = document.getElementById('magasin-select')?.value;
+            if (magId) {
+                const allLignes = [];
+                container.querySelectorAll('.ligne-row').forEach(function(row) {
+                    const pid = row.querySelector('.produit-id')?.value;
+                    const qte = parseInt(row.querySelector('.qte-input')?.value) || 0;
+                    if (pid && qte > 0) allLignes.push({ produit_id: pid, quantite: qte });
+                });
+                await PilotixOffline.deductFromSnapshot(magId, allLignes);
+            }
+
+            // Afficher confirmation
+            showOfflineConfirm(display);
+        } catch (err) {
+            alert('Erreur lors de l\'enregistrement hors ligne. Réessayez.');
+        }
+    }
+
+    function buildOfflineDisplay() {
+        const magasinNom = document.querySelector('#magasin-select option:checked')?.textContent?.trim() || '';
+        const ventes = [];
+        container.querySelectorAll('.vente-card').forEach(function(card) {
+            const clientNom = card.querySelector('.client-search')?.value || 'Client anonyme';
+            const lignes = [];
+            let total = 0;
+            card.querySelectorAll('.ligne-row').forEach(function(row) {
+                const pid = row.querySelector('.produit-id')?.value;
+                if (!pid) return;
+                const prod = produitsData.find(function(p) { return String(p.id) === String(pid); });
+                const qte = parseInt(row.querySelector('.qte-input')?.value) || 0;
+                const prix = parseFloat(row.querySelector('.prix-input')?.value) || 0;
+                const qteC = parseInt(row.querySelector('.qte-cartouche-input')?.value) || 0;
+                const prixC = parseFloat(row.querySelector('.prix-cartouche-input')?.value) || 0;
+                const sub = (qte * prix) + (qteC * prixC);
+                total += sub;
+                if (qte > 0 || qteC > 0) lignes.push({ nom: prod?.nom || 'Produit', qte, prix, qteC, prixC, sub });
+            });
+            const remis = parseFloat(card.querySelector('.remis-input')?.value) || 0;
+            const credit = card.querySelector('.credit-checkbox')?.checked || false;
+            ventes.push({ client: clientNom, lignes, total, remis, credit });
+        });
+        return { magasin: magasinNom, ventes, created_at: new Date().toISOString() };
+    }
+
+    function showOfflineConfirm(display) {
+        // Créer un modal de confirmation offline
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+        const totalGeneral = display.ventes.reduce(function(s, v) { return s + v.total; }, 0);
+        const count = display.ventes.length;
+        overlay.innerHTML = `
+            <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+                <div style="width:60px;height:60px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                    <i class="bi bi-wifi-off" style="font-size:1.5rem;color:#16a34a;"></i>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:800;color:#1e293b;margin-bottom:8px;">Vente enregistrée hors ligne</h3>
+                <p style="font-size:.85rem;color:#64748b;margin-bottom:16px;">
+                    ${count} vente${count>1?'s':''} — <strong>${totalGeneral.toLocaleString('fr-FR')} FCFA</strong><br>
+                    <span style="color:#dc2626;font-size:.8rem;"><i class="bi bi-info-circle"></i> Sera synchronisée dès votre reconnexion</span>
+                </p>
+                <button id="offlineConfirmBtn" style="width:100%;padding:12px;background:#105e49;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;">
+                    OK — Voir les ventes
+                </button>
+            </div>`;
+        document.body.appendChild(overlay);
+        document.getElementById('offlineConfirmBtn').addEventListener('click', function() {
+            overlay.remove();
+            window.location.href = '{{ route("ventes.index") }}';
+        });
+    }
 
     // ── "Tout enregistrer" clears save_one ──
     document.getElementById('saveAllBtn').addEventListener('click', function() {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
     View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
     TextInput, ActivityIndicator, Alert, Modal, StatusBar, Platform,
@@ -224,10 +225,26 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
     });
 
     const handleAddLine = (line) => {
+        const prodObj = produits.find(p => p.id === line.produit_id);
+        const stockVal = prodObj?.stock ?? prodObj?.stock_disponible ?? prodObj?.stock_actuel;
         const lines = [...session.lines];
         const existing = lines.find(c => c.produit_id === line.produit_id);
+        const currentQty = existing ? (Number(existing.quantite) || 0) : 0;
+        const newQty = currentQty + (Number(line.quantite) || 1);
+
+        if (stockVal !== undefined && stockVal !== null) {
+            if (stockVal <= 0) {
+                Alert.alert('Stock épuisé', `Le produit "${line.nom}" n'a plus de stock disponible (0 cartons).`);
+                return;
+            }
+            if (newQty > stockVal) {
+                Alert.alert('Stock insuffisant', `Il n'y a que ${stockVal} carton(s) en stock pour "${line.nom}". Vous tentez d'en ajouter ${newQty}.`);
+                return;
+            }
+        }
+
         if (existing) {
-            existing.quantite += line.quantite;
+            existing.quantite = newQty;
             if (line.hasCartouche) existing.quantite_cartouche += line.quantite_cartouche;
         } else {
             lines.push(line);
@@ -238,6 +255,14 @@ const VenteSessionCard = ({ session, index, clients, produits, magasinId, submit
     const removeLine = (produitId) => onUpdate({ lines: session.lines.filter(c => c.produit_id !== produitId) });
 
     const updateLine = (produitId, key, value) => {
+        if (key === 'quantite' && value > 0) {
+            const prodObj = produits.find(p => p.id === produitId);
+            const stockVal = prodObj?.stock ?? prodObj?.stock_disponible ?? prodObj?.stock_actuel;
+            if (stockVal !== undefined && stockVal !== null && value > stockVal) {
+                Alert.alert('Stock insuffisant', `Stock disponible dépassé (${stockVal} carton(s) max en stock pour "${prodObj?.nom || 'ce produit'}").`);
+                return;
+            }
+        }
         onUpdate({ lines: session.lines.map(c => c.produit_id === produitId ? { ...c, [key]: value } : c) });
     };
 
@@ -704,9 +729,11 @@ const VenteCreateScreen = ({ navigation }) => {
         }
     }, [loaded, draft.sessions, draft.activeSessionId]);
 
-    useEffect(() => {
-        fetchInitialData();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchInitialData();
+        }, [])
+    );
 
     const fetchInitialData = async () => {
         try {
@@ -824,9 +851,20 @@ const VenteCreateScreen = ({ navigation }) => {
     };
 
     const submitSession = async (session) => {
-        if (session.lines.length === 0) {
-            Alert.alert('Erreur', 'Veuillez ajouter au moins un produit à cette vente.');
-            return;
+        for (const line of session.lines) {
+            const prodObj = produits.find(p => p.id === line.produit_id);
+            const stockVal = prodObj?.stock ?? prodObj?.stock_disponible ?? prodObj?.stock_actuel;
+            const qty = Number(line.quantite || 0);
+            if (stockVal !== undefined && stockVal !== null) {
+                if (stockVal <= 0) {
+                    Alert.alert('Stock épuisé', `Impossible de valider : le produit "${line.nom || prodObj?.nom}" est en rupture de stock (0 cartons).`);
+                    return;
+                }
+                if (qty > stockVal) {
+                    Alert.alert('Stock insuffisant', `Impossible de valider : la quantité commandée (${qty}) dépasse le stock disponible (${stockVal}) pour "${line.nom || prodObj?.nom}".`);
+                    return;
+                }
+            }
         }
         if (!draft.magasinId) {
             Alert.alert('Erreur', 'Veuillez sélectionner un magasin.');
@@ -926,7 +964,7 @@ const VenteCreateScreen = ({ navigation }) => {
                 </View>
             </View>
 
-            <KeyboardAwareScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <KeyboardAwareScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 120, 160) }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
 
                 {/* Magasin */}

@@ -13,6 +13,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/core';
 import { Header } from '../../components/ui';
 
+import { getCache } from '../../utils/offlineSync';
+
 const ProduitEditScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets();
     const route = useRoute();
@@ -21,6 +23,7 @@ const ProduitEditScreen = ({ navigation }) => {
     const [magasins, setMagasins] = useState([]);
     const [loadingMagasins, setLoadingMagasins] = useState(true);
     const [stocks, setStocks] = useState({});
+    const [stocksCartouches, setStocksCartouches] = useState({});
 
     const formatIntPrice = (val) => {
         if (val === null || val === undefined || val === '') return '';
@@ -50,26 +53,44 @@ const ProduitEditScreen = ({ navigation }) => {
 
     const fetchMagasins = async () => {
         try {
-            const resp = await client.get('/magasins');
-            const list = resp.data?.data || (Array.isArray(resp.data) ? resp.data : []);
-            setMagasins(list);
-            const pid = id || item?.id;
-            if (pid) {
-                const det = await client.get(`/produits/${pid}`);
-                const pData = det.data?.data || det.data;
-                const pObj = pData?.produit || pData;
-                const spm = det.data?.stockParMagasin || pData?.stockParMagasin || {};
-                setStocks(Object.fromEntries(list.map(m => [m.id, String(spm[m.id] ?? 0)])));
+            let list = [];
+            try {
+                const resp = await client.get('/magasins');
+                const raw = resp.data;
+                if (Array.isArray(raw)) list = raw;
+                else if (Array.isArray(raw?.data)) list = raw.data;
+                else if (raw?.data && Array.isArray(raw.data.data)) list = raw.data.data;
+            } catch (e) {}
 
-                if (pObj && pObj.nom) {
-                    setNom(pObj.nom);
-                    if (pObj.prix_vente_conseille !== undefined) setPrixVenteConseille(formatIntPrice(pObj.prix_vente_conseille));
-                    if (pObj.seuil_alerte !== undefined) setSeuilAlerte(pObj.seuil_alerte ? String(pObj.seuil_alerte) : '5');
-                    if (pObj.a_cartouche !== undefined) setHasCartouche(!!pObj.a_cartouche);
-                    if (pObj.cartouche_par_carton !== undefined) setCartoucheParCarton(pObj.cartouche_par_carton ? String(pObj.cartouche_par_carton) : '');
-                    if (pObj.prix_cartouche !== undefined) setPrixCartouche(formatIntPrice(pObj.prix_cartouche));
-                    if (pObj.description !== undefined) setDescription(pObj.description || '');
-                }
+            if (!list || list.length === 0) {
+                const cached = await getCache('/magasins');
+                if (Array.isArray(cached)) list = cached;
+                else if (Array.isArray(cached?.data)) list = cached.data;
+                else if (cached?.data && Array.isArray(cached.data.data)) list = cached.data.data;
+            }
+
+            setMagasins(list || []);
+            const pid = id || item?.id;
+            if (pid && list && list.length > 0) {
+                try {
+                    const det = await client.get(`/produits/${pid}`);
+                    const pData = det.data?.data || det.data;
+                    const pObj = pData?.produit || pData;
+                    const spm = det.data?.stockParMagasin || pData?.stockParMagasin || {};
+                    const spmc = det.data?.stockCartouchesParMagasin || pData?.stockCartouchesParMagasin || {};
+                    setStocks(Object.fromEntries(list.map(m => [m.id, String(spm[m.id] ?? 0)])));
+                    setStocksCartouches(Object.fromEntries(list.map(m => [m.id, String(spmc[m.id] ?? 0)])));
+
+                    if (pObj && pObj.nom) {
+                        setNom(pObj.nom);
+                        if (pObj.prix_vente_conseille !== undefined) setPrixVenteConseille(formatIntPrice(pObj.prix_vente_conseille));
+                        if (pObj.seuil_alerte !== undefined) setSeuilAlerte(pObj.seuil_alerte ? String(pObj.seuil_alerte) : '5');
+                        if (pObj.a_cartouche !== undefined) setHasCartouche(!!pObj.a_cartouche);
+                        if (pObj.cartouche_par_carton !== undefined) setCartoucheParCarton(pObj.cartouche_par_carton ? String(pObj.cartouche_par_carton) : '');
+                        if (pObj.prix_cartouche !== undefined) setPrixCartouche(formatIntPrice(pObj.prix_cartouche));
+                        if (pObj.description !== undefined) setDescription(pObj.description || '');
+                    }
+                } catch (errDet) {}
             }
         } catch (e) {
             console.error('Error fetching magasins:', e);
@@ -182,11 +203,20 @@ const ProduitEditScreen = ({ navigation }) => {
         setSubmitting(true);
         try {
             const stocksToSend = {};
-            magasins.forEach(m => { stocksToSend[m.id] = parseInt(stocks[m.id] || '0', 10) || 0; });
+            const stocksCartouchesToSend = {};
+            const cpc = hasCartouche && cartoucheParCarton ? Number(cartoucheParCarton) : 1;
+            magasins.forEach(m => {
+                stocksToSend[m.id] = parseInt(stocks[m.id] || '0', 10) || 0;
+                let rawC = parseInt(stocksCartouches[m.id] || '0', 10) || 0;
+                if (!hasCartouche) rawC = 0;
+                else rawC = Math.max(0, Math.min(rawC, cpc - 1));
+                stocksCartouchesToSend[m.id] = rawC;
+            });
 
             const payload = {
                 nom,
                 stocks: stocksToSend,
+                stocks_cartouches: stocksCartouchesToSend,
                 prix_vente_conseille: prixVenteConseille ? Number(prixVenteConseille) : null,
                 seuil_alerte: Number(seuilAlerte) || 5,
                 a_cartouche: hasCartouche ? 1 : 0,
@@ -200,6 +230,8 @@ const ProduitEditScreen = ({ navigation }) => {
                 Object.keys(payload).forEach((k) => {
                     if (k === 'stocks') {
                         Object.keys(payload.stocks).forEach((mid) => fd.append(`stocks[${mid}]`, payload.stocks[mid]));
+                    } else if (k === 'stocks_cartouches') {
+                        Object.keys(payload.stocks_cartouches).forEach((mid) => fd.append(`stocks_cartouches[${mid}]`, payload.stocks_cartouches[mid]));
                     } else {
                         fd.append(k, payload[k] === null ? '' : payload[k]);
                     }
@@ -257,12 +289,25 @@ const ProduitEditScreen = ({ navigation }) => {
                                     <View key={m.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 10 }}>
                                         <Text style={[styles.helper, { flex: 1 }]}>{m.nom}</Text>
                                         <TextInput
-                                            style={[styles.input, { width: 110 }]}
+                                            style={[styles.input, { width: 90 }]}
                                             keyboardType="numeric"
                                             value={stocks[m.id] || '0'}
                                             onChangeText={(v) => setStocks(s => ({ ...s, [m.id]: v }))}
                                             placeholder="0"
                                         />
+                                        {hasCartouche ? (
+                                            <>
+                                                <Text style={styles.helper}>ctn</Text>
+                                                <TextInput
+                                                    style={[styles.input, { width: 70 }]}
+                                                    keyboardType="numeric"
+                                                    value={stocksCartouches[m.id] || '0'}
+                                                    onChangeText={(v) => setStocksCartouches(s => ({ ...s, [m.id]: v }))}
+                                                    placeholder="0"
+                                                />
+                                                <Text style={styles.helper}>ctr</Text>
+                                            </>
+                                        ) : null}
                                     </View>
                                 ))}
                             </View>

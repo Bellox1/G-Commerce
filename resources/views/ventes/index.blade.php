@@ -4,6 +4,87 @@
 
 @section('content')
 
+{{-- ── Ventes hors ligne en attente de synchronisation ── --}}
+<div id="offline-ventes-wrap" style="display:none; margin-bottom:16px;"></div>
+
+@push('scripts')
+<script>
+// Afficher les ventes offline en attente dans la liste
+(async function() {
+    if (!window.PilotixOffline) return;
+    const pending = await PilotixOffline.getPendingVentes();
+    if (!pending.length) return;
+
+    const wrap = document.getElementById('offline-ventes-wrap');
+    if (!wrap) return;
+    wrap.style.display = 'block';
+
+    const fmt = function(n) { return Number(n).toLocaleString('fr-FR') + ' FCFA'; };
+    const fmtDate = function(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+    };
+
+    let html = `
+    <div style="background:#fff;border-radius:8px;border:2px solid #f59e0b;box-shadow:0 2px 8px rgba(245,158,11,.15);overflow:hidden;">
+        <div style="background:#fef3c7;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span style="font-weight:700;font-size:.9rem;color:#92400e;display:flex;align-items:center;gap:8px;">
+                <i class="bi bi-wifi-off"></i>
+                ${pending.length} vente${pending.length>1?'s':''} hors ligne en attente de synchronisation
+            </span>
+            <button id="manualSyncBtn" style="background:#f59e0b;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:700;font-size:.82rem;cursor:pointer;">
+                <i class="bi bi-arrow-repeat"></i> Synchroniser maintenant
+            </button>
+        </div>
+        <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+            <thead><tr style="background:#fffbeb;">
+                <th style="padding:8px 14px;text-align:left;color:#92400e;font-size:.72rem;text-transform:uppercase;font-weight:700;">Statut</th>
+                <th style="padding:8px 14px;text-align:left;color:#92400e;font-size:.72rem;text-transform:uppercase;font-weight:700;">Date</th>
+                <th style="padding:8px 14px;text-align:left;color:#92400e;font-size:.72rem;text-transform:uppercase;font-weight:700;">Magasin</th>
+                <th style="padding:8px 14px;text-align:left;color:#92400e;font-size:.72rem;text-transform:uppercase;font-weight:700;">Client(s)</th>
+                <th style="padding:8px 14px;text-align:right;color:#92400e;font-size:.72rem;text-transform:uppercase;font-weight:700;">Total</th>
+            </tr></thead>
+            <tbody>`;
+
+    pending.forEach(function(item) {
+        const d = item._display || {};
+        const ventes = d.ventes || [];
+        const total  = ventes.reduce(function(s, v) { return s + (v.total || 0); }, 0);
+        const clients = ventes.map(function(v) { return v.client || 'Anonyme'; }).join(', ');
+        html += `<tr style="border-top:1px solid #fde68a;">
+            <td style="padding:10px 14px;"><span style="background:#fef3c7;color:#b45309;border-radius:20px;padding:3px 10px;font-size:.75rem;font-weight:700;white-space:nowrap;"><i class="bi bi-clock"></i> En attente</span></td>
+            <td style="padding:10px 14px;color:#64748b;white-space:nowrap;">${fmtDate(item._created_at)}</td>
+            <td style="padding:10px 14px;">${d.magasin || '—'}</td>
+            <td style="padding:10px 14px;">${clients}</td>
+            <td style="padding:10px 14px;text-align:right;font-weight:700;">${fmt(total)}</td>
+        </tr>`;
+    });
+
+    html += `</tbody></table></div></div>`;
+    wrap.innerHTML = html;
+
+    document.getElementById('manualSyncBtn').addEventListener('click', async function() {
+        if (!navigator.onLine) {
+            alert('Vous êtes hors ligne. Connectez-vous pour synchroniser.');
+            return;
+        }
+        this.disabled = true;
+        this.innerHTML = '<i class="bi bi-arrow-repeat" style="animation:spin .8s linear infinite;display:inline-block"></i> Sync…';
+        const result = await PilotixOffline.syncAll();
+        if (result.ventes > 0) {
+            alert('✅ ' + result.ventes + ' vente(s) synchronisée(s).');
+            window.location.reload();
+        } else if (result.errors > 0) {
+            alert('⚠ ' + result.errors + ' erreur(s). Vérifiez la connexion.');
+            this.disabled = false;
+            this.innerHTML = '<i class="bi bi-arrow-repeat"></i> Réessayer';
+        }
+    });
+})();
+</script>
+@endpush
+
 <div class="card">
     <div class="card-header">
         <h3 style="display:flex; align-items:center; gap:8px;">

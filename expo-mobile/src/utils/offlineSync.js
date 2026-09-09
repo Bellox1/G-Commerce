@@ -65,63 +65,79 @@ export async function queueOfflineAction(action) {
     }
 }
 
+let isSyncing = false;
+
 /**
  * Traite et synchronise la file d'attente hors-ligne avec le serveur Laravel sans conflit.
  */
 export async function syncOfflineQueue(onProgress) {
-    const queue = await getOfflineQueue();
-    if (!queue || queue.length === 0) {
+    if (isSyncing) {
         return { synced: 0, failed: 0, remaining: 0 };
     }
+    isSyncing = true;
+    try {
+        const queue = await getOfflineQueue();
+        if (!queue || queue.length === 0) {
+            return { synced: 0, failed: 0, remaining: 0 };
+        }
 
-    // Require dynamique pour éviter les require cycles avec client.js
-    const client = require('../api/client').default;
-    const { removeOfflineVente, getOfflineVentes, clearOfflineVentes } = require('./offlineSync');
+        const client = require('../api/client').default;
+        const { getOfflineVentes, removeOfflineVente } = require('./offlineSync');
 
-    let synced = 0;
-    let failed = 0;
-    const remainingQueue = [];
-    let hasSyncedVente = false;
+        let synced = 0;
+        let failed = 0;
+        const remainingQueue = [];
+        const currentOfflineVentes = await getOfflineVentes();
 
-    for (let i = 0; i < queue.length; i++) {
-        const item = queue[i];
-        if (onProgress) onProgress(i + 1, queue.length, item);
+        for (let i = 0; i < queue.length; i++) {
+            const item = queue[i];
+            if (onProgress) onProgress(i + 1, queue.length, item);
 
-        try {
-            if (item.method === 'POST' || !item.method) {
-                const response = await client.post(item.endpoint, item.payload);
-                
-                // Si c'était une création de vente hors-ligne, marquer pour nettoyage
-                if (item.endpoint.includes('/ventes')) {
-                    hasSyncedVente = true;
+            try {
+                if (item.method === 'POST' || !item.method) {
+                    await client.post(item.endpoint, item.payload, { isSyncRequest: true });
+                    
+                    // Si c'était une création de vente hors-ligne réussie, retirer cette vente spécifique du cache local
+                    if (item.endpoint.includes('/ventes')) {
+                        const matchOff = currentOfflineVentes.find(v => 
+                            JSON.stringify(v.ventes || v.lignes) === JSON.stringify(item.payload.ventes || item.payload.lignes) ||
+                            (v.reference && item.id && item.id.includes(v.reference))
+                        );
+                        if (matchOff) {
+                            await removeOfflineVente(matchOff.id);
+                        } else if (currentOfflineVentes.length > 0) {
+                            // Supprimer la première vente hors ligne si pas de correspondance exacte
+                            await removeOfflineVente(currentOfflineVentes[0].id);
+                        }
+                    }
+                } else if (item.method === 'PUT') {
+                    await client.put(item.endpoint, item.payload, { isSyncRequest: true });
+                } else if (item.method === 'DELETE') {
+                    await client.delete(item.endpoint, { isSyncRequest: true });
                 }
-            } else if (item.method === 'PUT') {
-                await client.put(item.endpoint, item.payload);
-            } else if (item.method === 'DELETE') {
-                await client.delete(item.endpoint);
-            }
-            synced++;
-        } catch (e) {
-            const status = e.response?.status;
-            if (status === 422 || status === 409 || status === 404) {
-                console.warn(`Action hors-ligne ${item.id} ignorée/résolue (${status}):`, e.response?.data?.message);
                 synced++;
-            } else {
-                console.warn(`Échec synchro pour ${item.id}, conservation dans la file:`, e.message);
-                remainingQueue.push(item);
-                failed++;
+            } catch (e) {
+                const status = e.response?.status;
+                const errorMsg = e.response?.data?.message || e.message;
+                if (status === 422 || status === 409) {
+                    console.warn(`Validation serveur pour action ${item.id}: ${errorMsg}`);
+                    failed++;
+                    remainingQueue.push({ ...item, lastError: errorMsg, lastErrorStatus: status });
+                } else if (status === 404) {
+                    synced++; // Ressource introuvable sur le serveur, ignorer
+                } else {
+                    console.warn(`Échec connexion synchro pour ${item.id}, conservation dans la file:`, errorMsg);
+                    remainingQueue.push(item);
+                    failed++;
+                }
             }
         }
-    }
 
-    // Si au moins une vente a été synchronisée, vider toutes les ventes hors-ligne
-    // (le serveur a maintenant les vraies ventes avec références VNT-...)
-    if (hasSyncedVente) {
-        await clearOfflineVentes();
+        await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(remainingQueue));
+        return { synced, failed, remaining: remainingQueue.length };
+    } finally {
+        isSyncing = false;
     }
-
-    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(remainingQueue));
-    return { synced, failed, remaining: remainingQueue.length };
 }
 
 /**

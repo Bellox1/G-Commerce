@@ -29,7 +29,7 @@ class SaimousSeeder extends Seeder
 
             // 2. Société SAÏMOUS (sans marque ni email obligatoire)
             $tenant = Tenant::firstOrCreate(
-                ['nom' => 'Ma société'], //SAÏMOUS
+                ['nom' => 'SAÏMOUS'], //Ma société
                 [
                     'activite'        => 'Commerce',
                     'pays'            => 'Bénin',

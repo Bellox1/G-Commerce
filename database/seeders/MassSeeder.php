@@ -28,7 +28,7 @@ class MassSeeder extends Seeder
         $this->command->info('🚀 MassSeeder — Démarrage...');
 
         // ─── Récupérer le tenant SAÏMOUS ───
-        $tenant = Tenant::where('nom', 'Ma société')->firstOrFail();
+        $tenant = Tenant::where('nom', 'SAÏMOUS')->firstOrFail();
         $magasins = Magasin::where('tenant_id', $tenant->id)->get();
         $magasin1 = $magasins->first(); // Dépôt Saint Michel
         $magasin2 = $magasins->last();  // Dépôt Dédokpo
